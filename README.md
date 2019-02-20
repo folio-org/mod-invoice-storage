@@ -7,5 +7,4 @@ Version 2.0. See the file "[LICENSE](LICENSE)" for more information.
 
 ## Introduction
 
-TODO
-
+This is the Invoice storage module.
