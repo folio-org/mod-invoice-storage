@@ -1,0 +1,33 @@
+{
+  "id": "${artifactId}-${version}",
+  "name": "Invoice CRUD module",
+  "provides": [
+    {
+      "id": "_tenant",
+      "version": "1.2",
+      "interfaceType": "system",
+      "handlers": [
+        {
+          "methods": [ "POST", "DELETE" ],
+          "pathPattern": "/_/tenant"
+        }
+      ]
+    }
+  ],
+  "permissionSets" : [
+    {
+      "permissionName" : "invoice-storage.module.all",
+      "displayName" : "All invoice-storage-module perms",
+      "description" : "All permissions for the invoice-storage module",
+      "subPermissions" : [
+      ]
+    }
+  ],
+  "launchDescriptor": {
+    "dockerImage": "${artifactId}:${version}",
+    "dockerArgs": {
+      "HostConfig": { "PortBindings": { "8081/tcp":  [{ "HostPort": "%p" }] } }
+    },
+    "dockerPull" : false
+  }
+}
