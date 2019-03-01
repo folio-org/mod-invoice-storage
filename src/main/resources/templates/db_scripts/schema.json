@@ -1,0 +1,18 @@
+{
+  "tables": [
+    {
+      "tableName": "invoice",
+      "generateId": true,
+      "fromModuleVersion": 1.0,
+      "withMetadata": true,
+      "populateJsonWithId": true
+    },
+    {
+      "tableName": "invoice_line",
+      "generateId": true,
+      "fromModuleVersion": 1.0,
+      "withMetadata": true,
+      "populateJsonWithId": true
+    }
+  ]
+}
