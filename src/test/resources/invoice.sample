@@ -20,8 +20,8 @@
   "voucherNumber": "478",
   "paymentId": "a5065f0d-fb88-4d23-b0c1-57e754fba40e",
   "disbursementDate": "2018-08-19T00:00:00.000+0000",
-  "poId": [
-    "168f8a63-d612-406e-813f-f7527f241ac6"
+  "poNumbers": [
+    "AB268758XYZ"
   ],
   "vendorId": "168f8a63-d612-406e-813f-c7527f241ac3",
   "manualPayment": true
