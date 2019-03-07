@@ -15,8 +15,6 @@ import static io.vertx.core.Future.succeededFuture;
 
 public class InvoiceStorageImpl implements InvoiceStorage {
 
-  public static final String NOT_SUPPORTED = "Not supported";
-
   @Validate
   @Override
   public void getInvoiceStorageInvoices(int offset, int limit, String query, String lang, Map<String, String> okapiHeaders, Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
