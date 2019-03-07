@@ -1,0 +1,127 @@
+#%RAML 1.0
+
+title: Invoices
+version: v1
+protocols: [ HTTP, HTTPS ]
+baseUri: http://github.com/folio-org/mod-invoice-storage
+
+documentation:
+  - title: Invoice CRUD API
+    content: This documents the API calls that can be made to manage invoices
+
+types:
+  invoice: !include acq-models/mod-invoice-storage/schemas/invoice.json
+  invoiceCollection: !include acq-models/mod-invoice-storage/schemas/invoice_collection.json
+  invoiceLine: !include acq-models/mod-invoice-storage/schemas/invoice_line.json
+  invoiceLineCollection: !include acq-models/mod-invoice-storage/schemas/invoice_line_collection.json
+  errors: !include raml-util/schemas/errors.schema
+  sequenceNumber: !include acq-models/common/schemas/sequence_number.json
+  UUID:
+    type: string
+    pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$
+
+traits:
+  validate: !include raml-util/traits/validation.raml
+  language: !include raml-util/traits/language.raml
+  pageable:  !include raml-util/traits/pageable.raml
+  searchable: !include raml-util/traits/searchable.raml
+
+resourceTypes:
+  collection: !include raml-util/rtypes/collection.raml
+  collection-item: !include raml-util/rtypes/item-collection.raml
+
+/invoice-storage:
+  /invoices:
+    type:
+      collection:
+        schemaCollection: invoiceCollection
+        schemaItem: invoice
+        exampleCollection: !include acq-models/mod-invoice-storage/examples/invoice_collection.sample
+        exampleItem: !include acq-models/mod-invoice-storage/examples/invoice.sample
+
+    get:
+      description: Get list of invoices
+      is: [
+        pageable,
+        searchable: {description: "with valid searchable fields: for example folioInvoiceNo", example: "folioInvoiceNo==\"123invoicenumber45\""}
+      ]
+    /{id}:
+      uriParameters:
+        id:
+          description: The UUID of an invoice
+          type: UUID
+      type:
+        collection-item:
+          schema: invoice
+          exampleItem: !include acq-models/mod-invoice-storage/examples/invoice.sample
+
+  /invoice-lines:
+    type:
+      collection:
+        schemaCollection: invoiceLineCollection
+        schemaItem: invoiceLine
+        exampleCollection: !include acq-models/mod-invoice-storage/examples/invoice_line_collection.sample
+        exampleItem: !include acq-models/mod-invoice-storage/examples/invoice_line.sample
+
+    get:
+      description: Get list of invoice lines
+      is: [
+        pageable,
+        searchable: {description: "with valid searchable fields: for example poLineId", example: "poLineId==\"c0d08448-347b-418a-8c2f-5fb50248d67e\""}
+      ]
+    /{id}:
+      uriParameters:
+        id:
+          description: The UUID of an invoice line
+          type: UUID
+      type:
+        collection-item:
+          schema: invoiceLine
+          exampleItem: !include acq-models/mod-invoice-storage/examples/invoice_line.sample
+      put:
+        is: [validate]
+
+  /invoice-number:
+    get:
+      is: [language]
+      description: Get generated invoice number
+      responses:
+        200:
+          body:
+            application/json:
+              type: sequenceNumber
+        400:
+          description: "Bad request, e.g. malformed request body or query parameter"
+          body:
+            text/plain:
+              example: "Unable to generate invoice number"
+        500:
+          description: "Internal server error, e.g. due to misconfiguration"
+          body:
+            text/plain:
+              example: "internal server error, contact administrator"
+  /invoice-line-number:
+    get:
+      is: [language]
+      description: Get invoice line number
+      queryParameters:
+        invoiceId:
+          description: invoice Id
+          type:        string
+          required:    true
+          example:     "8ad4b87b-9b47-4199-b0c3-5480745c6b41"
+      responses:
+        200:
+          body:
+            application/json:
+              type: sequenceNumber
+        400:
+          description: "Bad request, e.g. malformed request body or query parameter"
+          body:
+            text/plain:
+              example: "Unable to generate invoice line number"
+        500:
+          description: "Internal server error, e.g. due to misconfiguration"
+          body:
+            text/plain:
+              example: "Internal server error, contact Administrator"

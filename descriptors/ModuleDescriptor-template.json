@@ -3,6 +3,68 @@
   "name": "Invoice CRUD module",
   "provides": [
     {
+      "id": "invoice-storage.invoice",
+      "version": "1.0",
+      "handlers": [
+        {
+          "methods": ["GET"],
+          "pathPattern": "/invoice-storage/invoices",
+          "permissionsRequired": ["invoice-storage.invoices.collection.get"]
+        },
+        {
+          "methods": ["POST"],
+          "pathPattern": "/invoice-storage/invoices",
+          "permissionsRequired": ["invoice-storage.invoices.item.post"]
+        },
+        {
+          "methods": ["GET"],
+          "pathPattern": "/invoice-storage/invoices/{id}",
+          "permissionsRequired": ["invoice-storage.invoices.item.get"]
+        },
+        {
+          "methods": ["PUT"],
+          "pathPattern": "/invoice-storage/invoices/{id}",
+          "permissionsRequired": ["invoice-storage.invoices.item.put"]
+        },
+        {
+          "methods": ["DELETE"],
+          "pathPattern": "/invoice-storage/invoices/{id}",
+          "permissionsRequired": ["invoice-storage.invoices.item.delete"]
+        }
+      ]
+    },
+    {
+      "id": "invoice-storage.invoice-line",
+      "version": "1.0",
+      "handlers": [
+        {
+          "methods": ["GET"],
+          "pathPattern": "/invoice-storage/invoice-lines",
+          "permissionsRequired": ["invoice-storage.invoice-lines.collection.get"]
+        },
+        {
+          "methods": ["POST"],
+          "pathPattern": "/invoice-storage/invoice-lines",
+          "permissionsRequired": ["invoice-storage.invoice-lines.item.post"]
+        },
+        {
+          "methods": ["GET"],
+          "pathPattern": "/invoice-storage/invoice-lines/{id}",
+          "permissionsRequired": ["invoice-storage.invoice-lines.item.get"]
+        },
+        {
+          "methods": ["PUT"],
+          "pathPattern": "/invoice-storage/invoice-lines/{id}",
+          "permissionsRequired": ["invoice-storage.invoice-lines.item.put"]
+        },
+        {
+          "methods": ["DELETE"],
+          "pathPattern": "/invoice-storage/invoice-lines/{id}",
+          "permissionsRequired": ["invoice-storage.invoice-lines.item.delete"]
+        }
+      ]
+    },
+    {
       "id": "_tenant",
       "version": "1.2",
       "interfaceType": "system",
@@ -14,13 +76,74 @@
       ]
     }
   ],
-  "permissionSets" : [
+  "permissionSets": [
     {
-      "permissionName" : "invoice-storage.module.all",
-      "displayName" : "All invoice-storage-module perms",
-      "description" : "All permissions for the invoice-storage module",
-      "subPermissions" : [
-      ]
+      "permissionName": "invoice-storage.invoices.collection.get",
+      "displayName": "Invoice storage - get invoice collection",
+      "description": "Get invoice collection"
+    },
+    {
+      "permissionName": "invoice-storage.invoices.item.get",
+      "displayName": "Invoice storage - get individual invoice",
+      "description": "Get individual invoice"
+    },
+    {
+      "permissionName": "invoice-storage.invoices.item.post",
+      "displayName": "Invoice storage - create invoice",
+      "description": "Create invoice"
+    },
+    {
+      "permissionName": "invoice-storage.invoices.item.put",
+      "displayName": "Invoice storage - modify invoice",
+      "description": "Modify invoice"
+    },
+    {
+      "permissionName": "invoice-storage.invoices.item.delete",
+      "displayName": "Invoice storage - delete invoice",
+      "description": "Delete invoice"
+    },
+    {
+      "permissionName": "invoice-storage.invoice-lines.collection.get",
+      "displayName": "Invoice storage - get invoice line collection",
+      "description": "Get invoice line collection"
+    },
+    {
+      "permissionName": "invoice-storage.invoice-lines.item.get",
+      "displayName": "Invoice storage - get individual invoice line",
+      "description": "Get individual invoice line"
+    },
+    {
+      "permissionName": "invoice-storage.invoice-lines.item.post",
+      "displayName": "Invoice storage - create invoice line",
+      "description": "Create invoice line"
+    },
+    {
+      "permissionName": "invoice-storage.invoice-lines.item.put",
+      "displayName": "Invoice storage - modify invoice line",
+      "description": "Modify invoice line"
+    },
+    {
+      "permissionName": "invoice-storage.invoice-lines.item.delete",
+      "displayName": "Invoice storage - delete invoice line",
+      "description": "Delete invoice line"
+    },
+    {
+      "permissionName": "invoice-storage.module.all",
+      "displayName": "Invoice storage module - all permissions",
+      "description": "Entire set of permissions needed to use the invoice module",
+      "subPermissions": [
+        "invoice-storage.invoices.collection.get",
+        "invoice-storage.invoices.item.get",
+        "invoice-storage.invoices.item.post",
+        "invoice-storage.invoices.item.put",
+        "invoice-storage.invoices.item.delete",
+        "invoice-storage.invoice-lines.collection.get",
+        "invoice-storage.invoice-lines.item.get",
+        "invoice-storage.invoice-lines.item.post",
+        "invoice-storage.invoice-lines.item.put",
+        "invoice-storage.invoice-lines.item.delete"
+      ],
+      "visible": false
     }
   ],
   "launchDescriptor": {
