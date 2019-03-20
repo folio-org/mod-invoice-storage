@@ -5,26 +5,39 @@ import io.vertx.core.Context;
 import io.vertx.core.Handler;
 import org.folio.rest.annotations.Validate;
 import org.folio.rest.jaxrs.model.Invoice;
+import org.folio.rest.jaxrs.model.InvoiceCollection;
 import org.folio.rest.jaxrs.model.InvoiceLine;
 import org.folio.rest.jaxrs.resource.InvoiceStorage;
+import org.folio.rest.persist.EntitiesMetadataHolder;
+import org.folio.rest.persist.PgUtil;
+import org.folio.rest.persist.QueryHolder;
 
 import javax.ws.rs.core.Response;
 import java.util.Map;
 
 import static io.vertx.core.Future.succeededFuture;
+import static org.folio.rest.persist.HelperUtils.getEntitiesCollection;
 
 public class InvoiceStorageImpl implements InvoiceStorage {
 
+	private static final String INVOICE_TABLE = "invoice";
+	
   @Validate
   @Override
   public void getInvoiceStorageInvoices(int offset, int limit, String query, String lang, Map<String, String> okapiHeaders, Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
-    asyncResultHandler.handle(succeededFuture(Response.status(501).build()));
+    vertxContext.runOnContext((Void v) -> {
+      EntitiesMetadataHolder<Invoice, InvoiceCollection> entitiesMetadataHolder = new EntitiesMetadataHolder<>(Invoice.class, InvoiceCollection.class, GetInvoiceStorageInvoicesResponse.class);
+      QueryHolder cql = new QueryHolder(INVOICE_TABLE, query, offset, limit, lang);
+      getEntitiesCollection(entitiesMetadataHolder, cql, asyncResultHandler, vertxContext, okapiHeaders);
+    });
+  	//asyncResultHandler.handle(succeededFuture(Response.status(501).build()));
   }
 
   @Validate
   @Override
   public void postInvoiceStorageInvoices(String lang, Invoice entity, Map<String, String> okapiHeaders, Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
-    asyncResultHandler.handle(succeededFuture(Response.status(501).build()));
+  	PgUtil.post(INVOICE_TABLE, entity, okapiHeaders, vertxContext, PostInvoiceStorageInvoicesResponse.class, asyncResultHandler);
+    //asyncResultHandler.handle(succeededFuture(Response.status(501).build()));
   }
 
   @Validate
