@@ -6,6 +6,7 @@ import io.vertx.core.Handler;
 import org.folio.rest.annotations.Validate;
 import org.folio.rest.jaxrs.model.Invoice;
 import org.folio.rest.jaxrs.model.InvoiceCollection;
+import org.folio.rest.jaxrs.model.InvoiceLineCollection;
 import org.folio.rest.jaxrs.model.InvoiceLine;
 import org.folio.rest.jaxrs.resource.InvoiceStorage;
 import org.folio.rest.persist.EntitiesMetadataHolder;
@@ -21,6 +22,7 @@ import static org.folio.rest.persist.HelperUtils.getEntitiesCollection;
 public class InvoiceStorageImpl implements InvoiceStorage {
 
 	private static final String INVOICE_TABLE = "invoice";
+	private static final String INVOICE_LINES_TABLE = "invoice_line";
 	
   @Validate
   @Override
@@ -61,7 +63,11 @@ public class InvoiceStorageImpl implements InvoiceStorage {
   @Validate
   @Override
   public void getInvoiceStorageInvoiceLines(int offset, int limit, String query, String lang, Map<String, String> okapiHeaders, Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
-    asyncResultHandler.handle(succeededFuture(Response.status(501).build()));
+    vertxContext.runOnContext((Void v) -> {
+      EntitiesMetadataHolder<InvoiceLine, InvoiceLineCollection> entitiesMetadataHolder = new EntitiesMetadataHolder<>(InvoiceLine.class, InvoiceLineCollection.class, GetInvoiceStorageInvoiceLinesResponse.class);
+      QueryHolder cql = new QueryHolder(INVOICE_LINES_TABLE, query, offset, limit, lang);
+      getEntitiesCollection(entitiesMetadataHolder, cql, asyncResultHandler, vertxContext, okapiHeaders);
+    });
   }
 
   @Validate

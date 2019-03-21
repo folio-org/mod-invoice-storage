@@ -5,6 +5,7 @@ import io.restassured.http.Header;
 import io.restassured.response.Response;
 import io.vertx.core.Vertx;
 import org.apache.commons.io.IOUtils;
+import org.hamcrest.Matchers;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 
@@ -30,6 +31,8 @@ public abstract class TestBase {
 
   static final String NON_EXISTED_ID = "bad500aa-aaaa-500a-aaaa-aaaaaaaaaaaa";
   static final Header TENANT_HEADER = new Header(OKAPI_HEADER_TENANT, "diku");
+  private static final Header TOKEN_HEADER = new Header("X-Okapi-Token",
+      "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbiIsInVzZXJfaWQiOiJlZjY3NmRiOS1kMjMxLTQ3OWEtYWE5MS1mNjVlYjRiMTc4NzIiLCJ0ZW5hbnQiOiJmczAwMDAwMDAwIn0.KC0RbgafcMmR5Mc3-I7a6SQPKeDSr0SkJlLMcqQz3nwI0lwPTlxw0wJgidxDq-qjCR0wurFRn5ugd9_SVadSxg");
 
   @BeforeClass
   public static void testBaseBeforeClass() throws InterruptedException, ExecutionException, TimeoutException, IOException {
@@ -63,6 +66,7 @@ public abstract class TestBase {
   Response postData(String endpoint, String input) throws MalformedURLException {
     return given()
       .header(TENANT_HEADER)
+      .header(TOKEN_HEADER)
       .accept(ContentType.JSON)
       .contentType(ContentType.JSON)
       .body(input)

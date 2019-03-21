@@ -39,9 +39,12 @@ public class CrudTest extends TestBase {
 
       logger.info(String.format("--- mod-invoice-storage %s test: Creating %s ... ", testEntity.name(), testEntity.name()));
       String sample = getFile(testEntity.getSampleFileName());
+      logger.info("--- mod-invoice-storage --- sample file: " + sample );
+      logger.info("--- mod-invoice-storage --- testEntity.getEndpoint(): " + testEntity.getEndpoint() );
       Response response = postData(testEntity.getEndpoint(), sample);
+      logger.info("--- mod-invoice-storage --- response: " + response.getStatusCode() );
       sampleId = response.then().extract().path("id");
-
+      logger.info("--- mod-invoice-storage --- sampleID: " + sampleId );
     } catch (Exception e) {
       logger.error(String.format("--- mod-invoice-storage-test: %s API ERROR: %s", testEntity.name(), e.getMessage()));
       fail(e.getMessage());
