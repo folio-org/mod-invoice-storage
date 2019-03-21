@@ -1,24 +1,27 @@
 package org.folio.rest.impl;
 
-import io.restassured.http.ContentType;
-import io.restassured.http.Header;
-import io.restassured.response.Response;
-import io.vertx.core.Vertx;
-import org.apache.commons.io.IOUtils;
-import org.hamcrest.Matchers;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeoutException;
-
 import static io.restassured.RestAssured.given;
 import static org.folio.rest.RestVerticle.OKAPI_HEADER_TENANT;
 import static org.folio.rest.impl.StorageTestSuite.storageUrl;
 import static org.hamcrest.Matchers.equalTo;
+import static org.junit.Assert.assertEquals;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.util.Set;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeoutException;
+
+import org.apache.commons.io.IOUtils;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+
+import io.restassured.http.ContentType;
+import io.restassured.http.Header;
+import io.restassured.response.Response;
+import io.vertx.core.Vertx;
+import io.vertx.core.json.JsonObject;
 
 /**
  * When not run from StorageTestSuite then this class invokes StorageTestSuite.before() and
@@ -31,8 +34,6 @@ public abstract class TestBase {
 
   static final String NON_EXISTED_ID = "bad500aa-aaaa-500a-aaaa-aaaaaaaaaaaa";
   static final Header TENANT_HEADER = new Header(OKAPI_HEADER_TENANT, "diku");
-  private static final Header TOKEN_HEADER = new Header("X-Okapi-Token",
-      "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbiIsInVzZXJfaWQiOiJlZjY3NmRiOS1kMjMxLTQ3OWEtYWE5MS1mNjVlYjRiMTc4NzIiLCJ0ZW5hbnQiOiJmczAwMDAwMDAwIn0.KC0RbgafcMmR5Mc3-I7a6SQPKeDSr0SkJlLMcqQz3nwI0lwPTlxw0wJgidxDq-qjCR0wurFRn5ugd9_SVadSxg");
 
   @BeforeClass
   public static void testBaseBeforeClass() throws InterruptedException, ExecutionException, TimeoutException, IOException {
@@ -92,6 +93,33 @@ public abstract class TestBase {
     }
   }
 
+  void testEntitySuccessfullyFetched(String endpoint, String id) throws MalformedURLException {
+    getDataById(endpoint, id)
+      .then().log().ifValidationFails()
+        .statusCode(200)
+        .body("id", equalTo(id));
+  }
+  
+  Response getDataById(String endpoint, String id) throws MalformedURLException {
+    return given()
+      .pathParam("id", id)
+      .header(TENANT_HEADER)
+      .contentType(ContentType.JSON)
+      .get(storageUrl(endpoint));
+  }
+  
+  void testAllFieldsExists(JsonObject extracted, JsonObject sampleObject) {
+    Set<String> fieldsNames = sampleObject.fieldNames();
+    for (String fieldName : fieldsNames) {
+      Object sampleField = sampleObject.getValue(fieldName);
+      if (sampleField instanceof JsonObject) {
+        testAllFieldsExists((JsonObject) sampleField, (JsonObject) extracted.getValue(fieldName));
+      } else {
+        assertEquals(sampleObject.getValue(fieldName).toString(), extracted.getValue(fieldName).toString());
+      }
+    }
+  }
+  
   String getFile(String filename) {
     String value = "";
     try (InputStream inputStream = this.getClass().getClassLoader().getResourceAsStream(filename)) {

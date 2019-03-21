@@ -2,11 +2,11 @@ package org.folio.rest.impl.utils;
 
 
 import org.folio.rest.jaxrs.model.Invoice;
-import org.folio.rest.jaxrs.model.InvoiceLine;
+// import org.folio.rest.jaxrs.model.InvoiceLine;
 
 public enum TestEntities {
-  INVOICE("/invoice-storage/invoices", Invoice.class, "invoice.sample", "invoice", "invoice updated", 0),
-  INVOICE_LINE("/invoice-storage/invoice-lines", InvoiceLine.class, "invoice_line.sample",  "invoice-lines", "invoice-lines updated", 0);
+  INVOICE("/invoice-storage/invoices", Invoice.class, "invoice.sample", "invoice", "invoice updated", 0);
+  //INVOICE_LINE("/invoice-storage/invoice-lines", InvoiceLine.class, "invoice_line.sample",  "invoice-lines", "invoice-lines updated", 0);
 
   TestEntities(String endpoint, Class<?> clazz, String sampleFileName, String updatedFieldName, String updatedFieldValue, int initialQuantity) {
     this.endpoint = endpoint;
