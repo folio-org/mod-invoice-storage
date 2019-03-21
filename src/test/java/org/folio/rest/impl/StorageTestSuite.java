@@ -125,7 +125,7 @@ public class StorageTestSuite {
 
   private static JsonObject prepareTenantBody() {
     JsonObject jsonBody = new JsonObject();
-    jsonBody.put("module_to", "mod-orders-storage-1.0.0");
+    jsonBody.put("module_to", "mod-invoice-storage-1.0.0");
     return jsonBody;
   }
 

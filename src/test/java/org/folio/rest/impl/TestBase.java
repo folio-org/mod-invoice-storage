@@ -62,11 +62,10 @@ public abstract class TestBase {
       .contentType(ContentType.JSON)
       .get(storageUrl(endpoint));
   }
-  
+
   Response postData(String endpoint, String input) throws MalformedURLException {
     return given()
       .header(TENANT_HEADER)
-      .header(TOKEN_HEADER)
       .accept(ContentType.JSON)
       .contentType(ContentType.JSON)
       .body(input)
