@@ -59,29 +59,27 @@ public class InvoiceStorageImpl implements InvoiceStorage {
   @Validate
   @Override
   public void deleteInvoiceStorageInvoicesById(String id, String lang, Map<String, String> okapiHeaders, Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
-    asyncResultHandler.handle(succeededFuture(Response.status(501).build()));
+    PgUtil.deleteById(INVOICE_TABLE, id, okapiHeaders, vertxContext, DeleteInvoiceStorageInvoicesByIdResponse.class, asyncResultHandler);
   }
 
   @Validate
   @Override
   public void putInvoiceStorageInvoicesById(String id, String lang, Invoice entity, Map<String, String> okapiHeaders, Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
-    asyncResultHandler.handle(succeededFuture(Response.status(501).build()));
+    PgUtil.put(INVOICE_TABLE, entity, id, okapiHeaders, vertxContext, PutInvoiceStorageInvoicesByIdResponse.class, asyncResultHandler);
   }
 
   @Validate
   @Override
   public void getInvoiceStorageInvoiceLines(int offset, int limit, String query, String lang, Map<String, String> okapiHeaders, Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
     vertxContext.runOnContext((Void v) -> {
-//      EntitiesMetadataHolder<InvoiceLine, InvoiceLineCollection> entitiesMetadataHolder = new EntitiesMetadataHolder<>(InvoiceLine.class, InvoiceLineCollection.class, GetInvoiceStorageInvoiceLinesResponse.class);
-//      QueryHolder cql = new QueryHolder(INVOICE_LINES_TABLE, query, offset, limit, lang);
-//      getEntitiesCollection(entitiesMetadataHolder, cql, asyncResultHandler, vertxContext, okapiHeaders);
+    	asyncResultHandler.handle(succeededFuture(Response.status(501).build()));
     });
   }
 
   @Validate
   @Override
   public void postInvoiceStorageInvoiceLines(String lang, InvoiceLine entity, Map<String, String> okapiHeaders, Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
-  	//PgUtil.post(INVOICE_LINES_TABLE, entity, okapiHeaders, vertxContext, PostInvoiceStorageInvoiceLinesResponse.class, asyncResultHandler);
+  	asyncResultHandler.handle(succeededFuture(Response.status(501).build()));
   }
 
   @Validate

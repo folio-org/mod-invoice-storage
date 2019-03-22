@@ -14,6 +14,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
 import org.apache.commons.io.IOUtils;
+import org.folio.rest.utils.TestEntities;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 
@@ -108,6 +109,65 @@ public abstract class TestBase {
       .get(storageUrl(endpoint));
   }
   
+  Response getData(String endpoint) throws MalformedURLException {
+    return getData(endpoint, TENANT_HEADER);
+  }
+  
+  void testEntityEdit(String endpoint, String entitySample, String id) throws MalformedURLException {
+    putData(endpoint, id, entitySample)
+      .then().log().ifValidationFails()
+      .statusCode(204);
+  }
+  
+  void testFetchingUpdatedEntity(String id, TestEntities subObject) throws MalformedURLException {
+    String existedValue = getDataById(subObject.getEndpointWithId(), id)
+      .then()
+        .statusCode(200).log().ifValidationFails()
+        .extract()
+          .body()
+            .jsonPath()
+              .get(subObject.getUpdatedFieldName()).toString();
+    assertEquals(existedValue, subObject.getUpdatedFieldValue());
+  }
+  
+  Response putData(String endpoint, String id, String input) throws MalformedURLException {
+    return given()
+      .pathParam("id", id)
+      .header(TENANT_HEADER)
+      .contentType(ContentType.JSON)
+      .body(input)
+      .put(storageUrl(endpoint));
+  }
+  
+  void deleteDataSuccess(String endpoint, String id) throws MalformedURLException {
+    deleteData(endpoint, id)
+      .then().log().ifValidationFails()
+        .statusCode(204);
+  }
+
+  Response deleteData(String endpoint, String id) throws MalformedURLException {
+    return deleteData(endpoint, id, TENANT_HEADER);
+  }
+
+  Response deleteData(String endpoint, String id, Header tenantHeader) throws MalformedURLException {
+    return given()
+      .pathParam("id", id)
+      .header(tenantHeader)
+      .contentType(ContentType.JSON)
+      .delete(storageUrl(endpoint));
+  }
+  
+  void testVerifyEntityDeletion(String endpoint, String id) throws MalformedURLException {
+    getDataById(endpoint, id)
+      .then()
+        .statusCode(404);
+  }
+  
+  void testInvalidCQLQuery(String endpoint) throws MalformedURLException {
+    getData(endpoint).then().log().ifValidationFails()
+      .statusCode(400);
+  }
+  
   void testAllFieldsExists(JsonObject extracted, JsonObject sampleObject) {
     Set<String> fieldsNames = sampleObject.fieldNames();
     for (String fieldName : fieldsNames) {
@@ -131,5 +191,4 @@ public abstract class TestBase {
     }
     return value;
   }
-
 }

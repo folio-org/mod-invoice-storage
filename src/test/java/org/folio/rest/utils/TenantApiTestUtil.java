@@ -1,4 +1,4 @@
-package org.folio.rest.impl.utils;
+package org.folio.rest.utils;
 
 import io.restassured.http.ContentType;
 import io.restassured.http.Header;
