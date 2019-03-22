@@ -5,7 +5,6 @@ import org.folio.rest.jaxrs.model.Invoice;
 
 public enum TestEntities {
   INVOICE("/invoice-storage/invoices", Invoice.class, "invoice.sample", "note", "Updated note for invoice", 0);
-  //INVOICE_LINE("/invoice-storage/invoice-lines", InvoiceLine.class, "invoice_line.sample",  "invoice-lines", "invoice-lines updated", 0);
 
   TestEntities(String endpoint, Class<?> clazz, String sampleFileName, String updatedFieldName, String updatedFieldValue, int initialQuantity) {
     this.endpoint = endpoint;
