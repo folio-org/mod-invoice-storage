@@ -77,16 +77,6 @@ public class CrudTest extends TestBase {
   private JsonObject convertToMatchingModelJson(String sample, TestEntities testEntity) {
     return JsonObject.mapFrom(new JsonObject(sample).mapTo(testEntity.getClazz()));
   }
-  
-  @Test
-  public void getInvoicesTest() throws MalformedURLException {
-    given()
-      .header(TENANT_HEADER)
-      .contentType(ContentType.JSON)
-      .get(storageUrl(testEntity.getEndpoint()))
-        .then()
-          .statusCode(200);
-  }
 
   @Test
   public void testFetchEntityWithNonExistedId() throws MalformedURLException {
@@ -94,7 +84,7 @@ public class CrudTest extends TestBase {
     getDataById(testEntity.getEndpointWithId(), NON_EXISTED_ID).then().log().ifValidationFails()
       .statusCode(404);
   }
-
+  
   @Test
   public void testEditEntityWithNonExistedId() throws MalformedURLException {
     logger.info(String.format("--- mod-invoice-storage %s put by id test: Invalid %s: %s", testEntity.name(), testEntity.name(), NON_EXISTED_ID));
