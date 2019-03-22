@@ -22,7 +22,6 @@ public class CrudTest extends TestBase {
 
 	private final Logger logger = LoggerFactory.getLogger(CrudTest.class);
 
-	
   @Parameterized.Parameter public TestEntities testEntity;
 
   @Parameterized.Parameters(name = "{index}:{0}")

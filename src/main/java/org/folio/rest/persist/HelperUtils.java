@@ -61,7 +61,5 @@ public class HelperUtils {
       log.error(e.getMessage(), e);
       asyncResultHandler.handle(response(e.getMessage(), respond500, respond500));
     }
-
   }
-
 }

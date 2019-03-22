@@ -78,8 +78,6 @@ public class TenantReferenceAPI extends TenantAPI {
     }, cntxt);
   }
 
-
-
   private void loadSampleData(Map<String, String> headers, Handler<AsyncResult<Response>> hndlr) {
 
       try {
@@ -99,7 +97,6 @@ public class TenantReferenceAPI extends TenantAPI {
         hndlr.handle(io.vertx.core.Future.succeededFuture(PostTenantResponse
             .respond500WithTextPlain(exception.getLocalizedMessage())));
       }
-
   }
 
   /**
@@ -125,8 +122,6 @@ public class TenantReferenceAPI extends TenantAPI {
     }
     return list;
   }
-
-
 
   private void loadSampleData(Map<String, String> headers, Iterator<String> iterator, Handler<AsyncResult<Response>> res) {
     if (!iterator.hasNext()) {
@@ -204,8 +199,6 @@ public class TenantReferenceAPI extends TenantAPI {
     writeData(headers, json, req);
   }
 
-
-
   private void writeData(Map<String, String> headers, String json, HttpClientRequest req) {
     for (Map.Entry<String, String> headerEntry : headers.entrySet()) {
       String header = headerEntry.getKey();
@@ -217,7 +210,6 @@ public class TenantReferenceAPI extends TenantAPI {
     req.headers().add("Accept", "application/json, text/plain");
     req.end(json);
   }
-
 
   private void putData(Map<String, String> headers, final String endPointUrl, String json, Future<Void> future) {
     JsonObject jsonBody= new JsonObject(json);
@@ -283,7 +275,6 @@ public class TenantReferenceAPI extends TenantAPI {
     }
       return fileNames;
   }
-
 
   @Override
   public void getTenant(Map<String, String> headers, Handler<AsyncResult<Response>> hndlr, Context cntxt) {
