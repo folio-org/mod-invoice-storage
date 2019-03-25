@@ -24,9 +24,8 @@ import io.vertx.core.Vertx;
 
 public class InvoiceStorageImpl implements InvoiceStorage {
 
-	private static final String INVOICE_TABLE = "invoice";
-  private static final String ID_FIELD_NAME = "id";
-
+private static final String INVOICE_TABLE = "invoice";
+private static final String ID_FIELD_NAME = "id";
 
   public InvoiceStorageImpl(Vertx vertx, String tenantId) {
     PostgresClient.getInstance(vertx, tenantId).setIdField(ID_FIELD_NAME);
@@ -95,7 +94,6 @@ public class InvoiceStorageImpl implements InvoiceStorage {
   public void deleteInvoiceStorageInvoiceLinesById(String id, String lang, Map<String, String> okapiHeaders, Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
     asyncResultHandler.handle(succeededFuture(Response.status(501).build()));
   }
-
 
   @Override
   public void getInvoiceStorageInvoiceNumber(String lang, Map<String, String> okapiHeaders, Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {

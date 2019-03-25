@@ -21,16 +21,17 @@ public class TenantApiTestUtil {
 
   }
 
-  public static JsonObject prepareTenantBody(boolean isLoadSampleData, boolean isUpgrade) {
-    JsonArray parameterArray = new JsonArray();
-    parameterArray.add(new JsonObject().put("key", "loadSample").put("value", isLoadSampleData));
-    JsonObject jsonBody = new JsonObject();
-    jsonBody.put("module_to", "mod-invoice-storage-1.0.0");
-    jsonBody.put("parameters", parameterArray);
-    if(isUpgrade)
-      jsonBody.put("module_from", "mod-invoice-storage-1.0.0");
-    return jsonBody;
-  }
+	public static JsonObject prepareTenantBody(boolean isLoadSampleData, boolean isUpgrade) {
+		JsonArray parameterArray = new JsonArray();
+		parameterArray.add(new JsonObject().put("key", "loadSample").put("value", isLoadSampleData));
+		JsonObject jsonBody = new JsonObject();
+		jsonBody.put("module_to", "mod-invoice-storage-1.0.0");
+		jsonBody.put("parameters", parameterArray);
+		if (isUpgrade) {
+			jsonBody.put("module_from", "mod-invoice-storage-1.0.0");
+		}
+		return jsonBody;
+	}
 
   public static void prepareTenant(Header tenantHeader, boolean isLoadSampleData) throws MalformedURLException {
     JsonObject jsonBody = prepareTenantBody(isLoadSampleData, false);

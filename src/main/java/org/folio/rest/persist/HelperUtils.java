@@ -22,17 +22,17 @@ public class HelperUtils {
   }
 
   public static <T, E> void getEntitiesCollection(EntitiesMetadataHolder<T, E> entitiesMetadataHolder, QueryHolder queryHolder, Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext, Map<String, String> okapiHeaders) {
-      String[] fieldList = { "*" };
+		String[] fieldList = { "*" };
 
-    final Method respond500;
+		final Method respond500;
 
-    try {
-      respond500 = entitiesMetadataHolder.getRespond500WithTextPlainMethod();
-    } catch (Exception e) {
-      log.error(e.getMessage(), e);
-      asyncResultHandler.handle(response(e.getMessage(), null, null));
-      return;
-    }
+		try {
+			respond500 = entitiesMetadataHolder.getRespond500WithTextPlainMethod();
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			asyncResultHandler.handle(response(e.getMessage(), null, null));
+			return;
+		}
 
     try {
       Method respond200 = entitiesMetadataHolder.getRespond200WithApplicationJson();

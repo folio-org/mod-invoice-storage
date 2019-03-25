@@ -20,7 +20,7 @@ import static org.junit.Assert.fail;
 @RunWith(Parameterized.class)
 public class CrudTest extends TestBase {
 
-	private final Logger logger = LoggerFactory.getLogger(CrudTest.class);
+private final Logger logger = LoggerFactory.getLogger(CrudTest.class);
 
   @Parameterized.Parameter public TestEntities testEntity;
 
@@ -33,6 +33,7 @@ public class CrudTest extends TestBase {
   public void testPositiveCases() throws MalformedURLException {
   	String sampleId = null;
     try {
+    	
       logger.info(String.format("--- mod-invoice-storage %s test: Verifying database's initial state ... ", testEntity.name()));
       verifyCollectionQuantity(testEntity.getEndpoint(), 0);
 
@@ -61,16 +62,16 @@ public class CrudTest extends TestBase {
       logger.info(String.format("--- mod-invoice-storage %s test: Fetching updated %s with ID: %s", testEntity.name(), testEntity.name(), sampleId));
       testFetchingUpdatedEntity(sampleId, testEntity);
       
-    } catch (Exception e) {
-      logger.error(String.format("--- mod-invoice-storage-test: %s API ERROR: %s", testEntity.name(), e.getMessage()));
-      fail(e.getMessage());
-    } finally {
-      logger.info(String.format("--- mod-invoice-storage %s test: Deleting %s with ID: %s", testEntity.name(), testEntity.name(), sampleId));
-      deleteDataSuccess(testEntity.getEndpointWithId(), sampleId);
-      
-      logger.info(String.format("--- mod-invoice-storage %s test: Verify %s is deleted with ID: %s", testEntity.name(), testEntity.name(), sampleId));
-      testVerifyEntityDeletion(testEntity.getEndpointWithId(), sampleId);
-    }
+		} catch (Exception e) {
+			logger.error(String.format("--- mod-invoice-storage-test: %s API ERROR: %s", testEntity.name(), e.getMessage()));
+			fail(e.getMessage());
+		} finally {
+			logger.info(String.format("--- mod-invoice-storage %s test: Deleting %s with ID: %s", testEntity.name(), testEntity.name(), sampleId));
+			deleteDataSuccess(testEntity.getEndpointWithId(), sampleId);
+
+			logger.info(String.format("--- mod-invoice-storage %s test: Verify %s is deleted with ID: %s", testEntity.name(), testEntity.name(), sampleId));
+			testVerifyEntityDeletion(testEntity.getEndpointWithId(), sampleId);
+		}
 
   }
   
