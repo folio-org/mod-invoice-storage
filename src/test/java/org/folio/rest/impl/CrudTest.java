@@ -60,19 +60,18 @@ private final Logger logger = LoggerFactory.getLogger(CrudTest.class);
       testEntityEdit(testEntity.getEndpointWithId(), catJSON.toString(), sampleId);
       
       logger.info(String.format("--- mod-invoice-storage %s test: Fetching updated %s with ID: %s", testEntity.name(), testEntity.name(), sampleId));
-      testFetchingUpdatedEntity(sampleId, testEntity);
+      testFetchingUpdatedEntity(sampleId, testEntity);    
       
 		} catch (Exception e) {
-			logger.error(String.format("--- mod-invoice-storage-test: %s API ERROR: %s", testEntity.name(), e.getMessage()));
-			fail(e.getMessage());
+			  logger.error(String.format("--- mod-invoice-storage-test: %s API ERROR: %s", testEntity.name(), e.getMessage()));
+			  fail(e.getMessage());
 		} finally {
-			logger.info(String.format("--- mod-invoice-storage %s test: Deleting %s with ID: %s", testEntity.name(), testEntity.name(), sampleId));
-			deleteDataSuccess(testEntity.getEndpointWithId(), sampleId);
+			  logger.info(String.format("--- mod-invoice-storage %s test: Deleting %s with ID: %s", testEntity.name(), testEntity.name(), sampleId));
+			  deleteDataSuccess(testEntity.getEndpointWithId(), sampleId);
 
-			logger.info(String.format("--- mod-invoice-storage %s test: Verify %s is deleted with ID: %s", testEntity.name(), testEntity.name(), sampleId));
-			testVerifyEntityDeletion(testEntity.getEndpointWithId(), sampleId);
+			  logger.info(String.format("--- mod-invoice-storage %s test: Verify %s is deleted with ID: %s", testEntity.name(), testEntity.name(), sampleId));
+			  testVerifyEntityDeletion(testEntity.getEndpointWithId(), sampleId);
 		}
-
   }
   
   private JsonObject convertToMatchingModelJson(String sample, TestEntities testEntity) {
