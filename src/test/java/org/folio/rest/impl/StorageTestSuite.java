@@ -41,7 +41,7 @@ public class StorageTestSuite {
 
   private static Vertx vertx;
   private static int port = NetworkUtils.nextFreePort();
-  private static final Header URL_TO_HEADER = new Header("X-Okapi-Url-to","http://localhost:"+port);
+  public static final Header URL_TO_HEADER = new Header("X-Okapi-Url-to","http://localhost:"+port);
   private static final Header USER_ID_HEADER = new Header("X-Okapi-User-id", "28d0fb04-d137-11e8-a8d5-f2801f1b9fd1");
   private static final String TENANT_ENDPOINT = "/_/tenant";
 
@@ -125,7 +125,7 @@ public class StorageTestSuite {
 
   private static JsonObject prepareTenantBody() {
     JsonObject jsonBody = new JsonObject();
-    jsonBody.put("module_to", "mod-orders-storage-1.0.0");
+    jsonBody.put("module_to", "mod-invoice-storage-1.0.0");
     return jsonBody;
   }
 
