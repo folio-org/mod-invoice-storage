@@ -11,6 +11,7 @@ import org.folio.rest.annotations.Validate;
 import org.folio.rest.jaxrs.model.Invoice;
 import org.folio.rest.jaxrs.model.InvoiceCollection;
 import org.folio.rest.jaxrs.model.InvoiceLine;
+import org.folio.rest.jaxrs.model.InvoiceLineCollection;
 import org.folio.rest.jaxrs.resource.InvoiceStorage;
 import org.folio.rest.persist.EntitiesMetadataHolder;
 import org.folio.rest.persist.PgUtil;
@@ -30,7 +31,7 @@ private static final String ID_FIELD_NAME = "id";
   public InvoiceStorageImpl(Vertx vertx, String tenantId) {
     PostgresClient.getInstance(vertx, tenantId).setIdField(ID_FIELD_NAME);
   }
-  
+
   @Validate
   @Override
   public void getInvoiceStorageInvoices(int offset, int limit, String query, String lang, Map<String, String> okapiHeaders, Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
@@ -68,31 +69,35 @@ private static final String ID_FIELD_NAME = "id";
   @Validate
   @Override
   public void getInvoiceStorageInvoiceLines(int offset, int limit, String query, String lang, Map<String, String> okapiHeaders, Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
-    asyncResultHandler.handle(succeededFuture(Response.status(501).build()));
+    vertxContext.runOnContext((Void v) -> {
+      EntitiesMetadataHolder<InvoiceLine, InvoiceLineCollection> entitiesMetadataHolder = new EntitiesMetadataHolder<>(InvoiceLine.class, InvoiceLineCollection.class, GetInvoiceStorageInvoiceLinesResponse.class);
+      QueryHolder cql = new QueryHolder(INVOICE_TABLE, query, offset, limit, lang);
+      getEntitiesCollection(entitiesMetadataHolder, cql, asyncResultHandler, vertxContext, okapiHeaders);
+    });
   }
 
   @Validate
   @Override
   public void postInvoiceStorageInvoiceLines(String lang, InvoiceLine entity, Map<String, String> okapiHeaders, Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
-    asyncResultHandler.handle(succeededFuture(Response.status(501).build()));
+    PgUtil.post(INVOICE_TABLE, entity, okapiHeaders, vertxContext, PostInvoiceStorageInvoiceLinesResponse.class, asyncResultHandler);
   }
 
   @Validate
   @Override
   public void putInvoiceStorageInvoiceLinesById(String id, String lang, InvoiceLine entity, Map<String, String> okapiHeaders, Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
-    asyncResultHandler.handle(succeededFuture(Response.status(501).build()));
+    PgUtil.put(INVOICE_TABLE, entity, id, okapiHeaders, vertxContext, PutInvoiceStorageInvoiceLinesByIdResponse.class, asyncResultHandler);
   }
 
   @Validate
   @Override
   public void getInvoiceStorageInvoiceLinesById(String id, String lang, Map<String, String> okapiHeaders, Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
-    asyncResultHandler.handle(succeededFuture(Response.status(501).build()));
+    PgUtil.getById(INVOICE_TABLE, InvoiceLine.class, id, okapiHeaders, vertxContext, GetInvoiceStorageInvoiceLinesByIdResponse.class, asyncResultHandler);
   }
 
   @Validate
   @Override
   public void deleteInvoiceStorageInvoiceLinesById(String id, String lang, Map<String, String> okapiHeaders, Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
-    asyncResultHandler.handle(succeededFuture(Response.status(501).build()));
+    PgUtil.deleteById(INVOICE_TABLE, id, okapiHeaders, vertxContext, DeleteInvoiceStorageInvoiceLinesByIdResponse.class, asyncResultHandler);
   }
 
   @Override
