@@ -7,7 +7,7 @@ import java.net.MalformedURLException;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
 
-public class NumbersTest extends TestBase {
+public class InvoiceNumberTest extends TestBase {
 
   private static final String SEQUENCE_NUMBER = "sequenceNumber";
   private static final String INVOICE_NUMBER_ENDPOINT = "/invoice-storage/invoice-number";

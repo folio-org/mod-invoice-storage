@@ -33,7 +33,8 @@ import static org.folio.rest.impl.TestBase.TENANT_HEADER;
 @RunWith(Suite.class)
 
 @Suite.SuiteClasses({
-  CrudTest.class
+  CrudTest.class,
+  InvoiceNumberTest.class
 })
 
 public class StorageTestSuite {
