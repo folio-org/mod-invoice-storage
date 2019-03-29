@@ -120,13 +120,13 @@ public abstract class TestBase {
   }
   
   void testFetchingUpdatedEntity(String id, TestEntities subObject) throws MalformedURLException {
-    String existedValue = getDataById(subObject.getEndpointWithId(), id)
+    Object existedValue = getDataById(subObject.getEndpointWithId(), id)
       .then()
         .statusCode(200).log().ifValidationFails()
         .extract()
           .body()
             .jsonPath()
-              .get(subObject.getUpdatedFieldName()).toString();
+              .get(subObject.getUpdatedFieldName());
     assertEquals(existedValue, subObject.getUpdatedFieldValue());
   }
   

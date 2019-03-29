@@ -2,11 +2,13 @@ package org.folio.rest.utils;
 
 
 import org.folio.rest.jaxrs.model.Invoice;
+import org.folio.rest.jaxrs.model.InvoiceLine;
 
 public enum TestEntities {
-  INVOICE("/invoice-storage/invoices", Invoice.class, "invoice.sample", "note", "Updated note for invoice", 0);
+  INVOICE("/invoice-storage/invoices", Invoice.class, "invoice.sample", "note", "Updated note for invoice", 0),
+  INVOICE_LINES("/invoice-storage/invoice-lines", InvoiceLine.class, "invoice_line.sample", "quantity", 5, 0);
 
-  TestEntities(String endpoint, Class<?> clazz, String sampleFileName, String updatedFieldName, String updatedFieldValue, int initialQuantity) {
+  TestEntities(String endpoint, Class<?> clazz, String sampleFileName, String updatedFieldName, Object updatedFieldValue, int initialQuantity) {
     this.endpoint = endpoint;
     this.clazz = clazz;
     this.sampleFileName = sampleFileName;
@@ -19,7 +21,7 @@ public enum TestEntities {
   private String endpoint;
   private String sampleFileName;
   private String updatedFieldName;
-  private String updatedFieldValue;
+  private Object updatedFieldValue;
   private Class<?> clazz;
 
   public String getEndpoint() {
@@ -38,7 +40,7 @@ public enum TestEntities {
     return updatedFieldName;
   }
 
-  public String getUpdatedFieldValue() {
+  public Object getUpdatedFieldValue() {
     return updatedFieldValue;
   }
 

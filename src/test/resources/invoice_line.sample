@@ -12,7 +12,7 @@
   "invoiceLineTax": 11.2,
   "comment": "Sample invoice line",
   "price": 2.2,
-  "quantity": 3.0,
+  "quantity": 3,
   "doNotReleaseEncumbrance": true,
   "reportTax": 3.5,
   "subscriptionInfo": "Subscription information",
