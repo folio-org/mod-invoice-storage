@@ -1,0 +1,35 @@
+#%RAML 1.0
+title: "Invoice Storage"
+baseUri: http://github.com/folio-org/mod-invoice-storage
+version: v2
+
+documentation:
+  - title: Invoice Number
+    content: <b>API used to manage invoice number.</b>
+
+types:
+  sequenceNumber: !include acq-models/common/schemas/sequence_number.json
+
+traits:
+    language: !include raml-util/traits/language.raml
+
+/invoice-storage/invoice-number:
+    get:
+      is: [language]
+      description: Get generated invoice number
+      responses:
+        200:
+          body:
+            application/json:
+              type: sequenceNumber
+        400:
+          description: "Bad request, e.g. malformed request body or query parameter"
+          body:
+            text/plain:
+              example: "Unable to generate invoice number"
+        500:
+          description: "Internal server error, e.g. due to misconfiguration"
+          body:
+            text/plain:
+              example: "internal server error, contact administrator"
+

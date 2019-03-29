@@ -1,14 +1,15 @@
 {
   "tables": [
     {
-      "tableName": "invoice",
+      "tableName": "invoices",
       "generateId": true,
       "fromModuleVersion": 1.0,
       "withMetadata": true,
-      "populateJsonWithId": true
+      "populateJsonWithId": true,
+      "customSnippetPath": "invoice_number_sequence.sql"
     },
     {
-      "tableName": "invoice_line",
+      "tableName": "invoice_lines",
       "generateId": true,
       "fromModuleVersion": 1.0,
       "withMetadata": true,
