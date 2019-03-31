@@ -41,7 +41,7 @@ public class InvoiceLineNumberAPI implements InvoiceStorageInvoiceLineNumber {
 	        			asyncResultHandler.handle(Future.succeededFuture(InvoiceStorageInvoiceLineNumber.GetInvoiceStorageInvoiceLineNumberResponse
 	        					.respond200WithApplicationJson(new InvoiceLineNumber().withSequenceNumber(invoiceLineNumber))));
 	        		} else {
-	        			logErrorAndRespond400(lang, asyncResultHandler, getILNumberReply.cause());
+	        			logErrorAndRespond400(asyncResultHandler, getILNumberReply.cause());
 	        		}
 	        	} catch(Exception e) {
 	        		logErrorAndRespond500(lang, asyncResultHandler, e);
@@ -53,7 +53,7 @@ public class InvoiceLineNumberAPI implements InvoiceStorageInvoiceLineNumber {
     });
 	}
   
-  private void logErrorAndRespond400(String lang, Handler<AsyncResult<Response>> asyncResultHandler, Throwable e) {
+  private void logErrorAndRespond400(Handler<AsyncResult<Response>> asyncResultHandler, Throwable e) {
     log.error(e.getMessage(), e);
     asyncResultHandler.handle(Future.succeededFuture(GetInvoiceStorageInvoiceLineNumberResponse
       .respond400WithTextPlain(e.getMessage())));

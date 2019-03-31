@@ -39,7 +39,7 @@ private static final Logger log = LoggerFactory.getLogger(InvoiceLineNumberAPI.c
 private static final String INVOICE_TABLE = "invoice";
 private static final String INVOICE_LINE_TABLE = "invoice_line";
 private static final String INVOICE_PREFIX = "/invoice-storage/invoices/";
-//private static final String ID_FIELD_NAME = "id";
+
 private PostgresClient pgClient;
 
 private String idFieldName = "id";
@@ -91,8 +91,6 @@ private String idFieldName = "id";
     } catch (Exception e) {
       asyncResultHandler.handle(Future.succeededFuture(PostInvoiceStorageInvoicesResponse.respond500WithTextPlain(Response.Status.INTERNAL_SERVER_ERROR.getReasonPhrase())));
     }
-  
-    //PgUtil.post(INVOICE_TABLE, entity, okapiHeaders, vertxContext, PostInvoiceStorageInvoicesResponse.class, asyncResultHandler);
   }
 
   @Validate
@@ -114,7 +112,6 @@ private String idFieldName = "id";
       asyncResultHandler.handle(reply);
       deleteSequence(entity);
     });
-    // PgUtil.put(INVOICE_TABLE, entity, id, okapiHeaders, vertxContext, PutInvoiceStorageInvoicesByIdResponse.class, asyncResultHandler);
   }
 
   @Validate
@@ -178,7 +175,6 @@ private String idFieldName = "id";
   }
 
   private void deleteSequence(Invoice invoice) {
-  	//Invoice.Status status = Invoice.Status..getWorkflowStatus();
     if(invoice.getStatus() == Invoice.Status.CANCELLED || invoice.getStatus() == Invoice.Status.PAID) {
       // Try to drop sequence for the IL number but ignore failures
       pgClient.execute(DROP_SEQUENCE.getQuery(invoice.getId()), reply -> {
