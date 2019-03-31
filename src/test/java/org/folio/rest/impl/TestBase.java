@@ -9,6 +9,7 @@ import static org.junit.Assert.assertEquals;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
@@ -132,7 +133,16 @@ public abstract class TestBase {
   
   Response putData(String endpoint, String id, String input) throws MalformedURLException {
     return given()
-      .pathParam("id", id)
+    	.pathParam("id", id)
+      .header(TENANT_HEADER)
+      .contentType(ContentType.JSON)
+      .body(input)
+      .put(storageUrl(endpoint));
+  }
+  
+  Response putInvoiceNumberData(String endpoint, String id, String input) throws MalformedURLException {
+  	endpoint = endpoint + "/" + id;
+    return given()
       .header(TENANT_HEADER)
       .contentType(ContentType.JSON)
       .body(input)
@@ -166,6 +176,14 @@ public abstract class TestBase {
   void testInvalidCQLQuery(String endpoint) throws MalformedURLException {
     getData(endpoint).then().log().ifValidationFails()
       .statusCode(400);
+  }
+  
+  Response getDataByParam(String endpoint, Map<String, Object> params) throws MalformedURLException {
+    return given()
+      .params(params)
+      .header(TENANT_HEADER)
+      .contentType(ContentType.JSON)
+      .get(storageUrl(endpoint));
   }
   
   void testAllFieldsExists(JsonObject extracted, JsonObject sampleObject) {
