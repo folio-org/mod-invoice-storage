@@ -42,8 +42,6 @@ public class InvoiceLineNumberTest extends TestBase {
   public void testSequenceFlow() throws MalformedURLException {
     String sampleId = null;
     try {
-      logger.info("--- mod-invoice-storage invoice test: Testing of environment on Bad Sequence support");
-      testBadSequenceSupport();
       
       logger.info("--- mod-invoice-storage invoice test: Testing of environment on Sequence support");
       testSequenceSupport();
@@ -52,8 +50,6 @@ public class InvoiceLineNumberTest extends TestBase {
       String invoiceSample = getFile(INVOICE.getSampleFileName());
       Response response = postData(INVOICE.getEndpoint(), invoiceSample);
       logger.info("--- mod-invoice-storage response: " + response.getBody().prettyPrint());
-
-      //testCreateSequenceFailed("testCreateSequenceFailed");
       
       logger.info("--- mod-invoice-storage invoice test: Testing invoice-line numbers retrieving for existed invoice ... ");
       sampleId = response.then().extract().path("id");
@@ -104,23 +100,6 @@ public class InvoiceLineNumberTest extends TestBase {
     ResultSet rs = execute(NEXTVAL);
     execute(DROP_SEQUENCE);
     String result = rs.toJson().getJsonArray("results").getList().get(0).toString();
-    //logger.info("--- mod-invoice-storage result test: result: " + rs.toJson().encodePrettily());
-    assertEquals("[14]", result);
-    try {
-      execute(NEXTVAL);
-    } catch(Exception e) {
-      assertEquals(GenericDatabaseException.class, e.getCause().getClass());
-    }
-  }
-  
-  private void testBadSequenceSupport() {
-  	execute(DROP_SEQUENCE);
-    execute(CREATE_SEQUENCE);
-    execute(SETVAL);
-    ResultSet rs = execute(NEXTVAL);
-    execute(DROP_SEQUENCE);
-    String result = rs.toJson().getJsonArray("results").getList().get(0).toString();
-    //logger.info("--- mod-invoice-storage result test: result: " + rs.toJson().encodePrettily());
     assertEquals("[14]", result);
     try {
       execute(NEXTVAL);
@@ -164,7 +143,6 @@ public class InvoiceLineNumberTest extends TestBase {
       .extract()
       .response()
       .path("sequenceNumber"));
-    //logger.info("--- mod-invoice-storage retrieveInvoiceLineNumber(invoiceId) : " + res.getBody().prettyPrint());
   }
 
   private static ResultSet execute(String query) {
