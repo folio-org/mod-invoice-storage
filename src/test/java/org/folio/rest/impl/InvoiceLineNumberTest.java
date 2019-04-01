@@ -51,19 +51,19 @@ public class InvoiceLineNumberTest extends TestBase {
 
       logger.info("--- mod-invoice-storage invoice test: Testing invoice-line numbers retrieving for existed invoice ... ");
       sampleId = response.then().extract().path("id");
-      testGetPoLineNumberForExistedPO(sampleId);
+      testGetInvoiceLineNumberForExistedIL(sampleId);
 
       logger.info("--- mod-invoice-storage invoice test: Testing invoice-line numbers retrieving for non-existed invoice ... ");
-      testGetPoLineNumberForNonExistedPO("non-existed-invoice-id");
+      testGetInvoiceLineNumberForNonExistedIL("non-existed-invoice-id");
 
       logger.info("--- mod-invoice-storage invoice test: Editing invoice with ID: " + sampleId);
-      testPOEdit(invoiceSample, sampleId);
+      testInvoiceEdit(invoiceSample, sampleId);
 
       logger.info("--- mod-invoice-storage invoice test: Verification/confirming of sequence deletion ...");
-      testGetPoLineNumberForNonExistedPO(sampleId);
+      testGetInvoiceLineNumberForNonExistedIL(sampleId);
 
-      logger.info("--- mod-invoice-storage PO test: Testing update PO with already deleted POL numbers sequence ...");
-      testPOEdit(invoiceSample, sampleId);
+      logger.info("--- mod-invoice-storage invoice test: Testing updated invoice with already deleted POL numbers sequence ...");
+      testInvoiceEdit(invoiceSample, sampleId);
 
     } catch (Exception e) {
       logger.error(String.format("--- mod-invoice-storage-test: %s API ERROR: %s", INVOICE.name(), e.getMessage()));
@@ -73,7 +73,7 @@ public class InvoiceLineNumberTest extends TestBase {
     }
   }
 
-  private void testPOEdit(String invoiceSample, String sampleId) throws MalformedURLException {
+  private void testInvoiceEdit(String invoiceSample, String sampleId) throws MalformedURLException {
     JSONObject catJSON = new JSONObject(invoiceSample);
     catJSON.put("id", sampleId);
     catJSON.put("folioInvoiceNo", "666666");
@@ -98,19 +98,19 @@ public class InvoiceLineNumberTest extends TestBase {
     }
   }
   
-  private void testGetPoLineNumberForExistedPO(String invoiceId) throws MalformedURLException {
-    int poLineNumberInitial = retrievePoLineNumber(invoiceId);
-    logger.info("--- mod-invoice-storage invoiceLineNumberInitial: " + poLineNumberInitial);
+  private void testGetInvoiceLineNumberForExistedIL(String invoiceId) throws MalformedURLException {
+    int invoiceLineNumberInitial = retrieveInvoiceLineNumber(invoiceId);
+    logger.info("--- mod-invoice-storage invoiceLineNumberInitial: " + invoiceLineNumberInitial);
     int i = 0; int numOfCalls = 2;
     while(i++ < numOfCalls) {
-    	logger.info("--- mod-invoice-storage retrieveInvoiceLineNumber(invoiceId) : " + retrievePoLineNumber(invoiceId));
+    	logger.info("--- mod-invoice-storage retrieveInvoiceLineNumber(invoiceId) : " + retrieveInvoiceLineNumber(invoiceId));
     }
-    int poLineNumberLast = retrievePoLineNumber(invoiceId);
-    logger.info("--- mod-invoice-storage invoiceLineNumberLast: " + poLineNumberLast);
-    assertEquals(i, poLineNumberLast - poLineNumberInitial);
+    int invoiceLineNumberLast = retrieveInvoiceLineNumber(invoiceId);
+    logger.info("--- mod-invoice-storage invoiceLineNumberLast - invoiceLineNumberInitial: " + invoiceLineNumberLast + "-" + invoiceLineNumberInitial);
+    assertEquals(i, invoiceLineNumberLast - invoiceLineNumberInitial);
   }
 
-  private void testGetPoLineNumberForNonExistedPO(String invoiceId) throws MalformedURLException {
+  private void testGetInvoiceLineNumberForNonExistedIL(String invoiceId) throws MalformedURLException {
     Map<String, Object> params = new HashMap<>();
     params.put("invoiceId", invoiceId);
     getDataByParam(INVOICE_LINE_NUMBER_ENDPOINT, params)
@@ -118,7 +118,7 @@ public class InvoiceLineNumberTest extends TestBase {
       .statusCode(400);
   }
 
-  private int retrievePoLineNumber(String invoiceId) throws MalformedURLException {
+  private int retrieveInvoiceLineNumber(String invoiceId) throws MalformedURLException {
     Map<String, Object> params = new HashMap<>();
     params.put("invoiceId", invoiceId);
     return Integer.parseInt(getDataByParam(INVOICE_LINE_NUMBER_ENDPOINT, params)
@@ -127,6 +127,7 @@ public class InvoiceLineNumberTest extends TestBase {
       .extract()
       .response()
       .path("sequenceNumber"));
+    //logger.info("--- mod-invoice-storage retrieveInvoiceLineNumber(invoiceId) : " + res.getBody().prettyPrint());
   }
 
   private static ResultSet execute(String query) {

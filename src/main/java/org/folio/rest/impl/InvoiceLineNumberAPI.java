@@ -32,12 +32,14 @@ public class InvoiceLineNumberAPI implements InvoiceStorageInvoiceLineNumber {
 	    Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
     vertxContext.runOnContext((Void v) -> {
     	try {
+    		log.info("--- mod-invoice-storage Invoice line number test: invoice line number API");
         String tenantId = TenantTool.calculateTenantId(okapiHeaders.get(RestVerticle.OKAPI_HEADER_TENANT));
         PostgresClient.getInstance(vertxContext.owner(), tenantId).selectSingle(GET_IL_NUMBER_FROM_SEQUENCE.getQuery(invoiceId),
         		getILNumberReply -> {
 	        	try {
 	        		if(getILNumberReply.succeeded()) {
 	        			String invoiceLineNumber = getILNumberReply.result().getLong(0).toString();
+	        			log.info("--- mod-invoice-storage Invoice line number test: invoiceLineNumber -->" + invoiceLineNumber);
 	        			asyncResultHandler.handle(Future.succeededFuture(InvoiceStorageInvoiceLineNumber.GetInvoiceStorageInvoiceLineNumberResponse
 	        					.respond200WithApplicationJson(new InvoiceLineNumber().withSequenceNumber(invoiceLineNumber))));
 	        		} else {
