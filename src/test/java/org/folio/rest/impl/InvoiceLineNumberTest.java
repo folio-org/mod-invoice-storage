@@ -28,6 +28,7 @@ public class InvoiceLineNumberTest extends TestBase {
 
   private final Logger logger = LoggerFactory.getLogger(InvoiceLineNumberTest.class);
 
+  private static final String INVALID_INVOICE_URL = "/invoice-storage/invalid";
   private static final String INVOICE_ENDPOINT = "/invoice-storage/invoices";
   private static final String INVOICE_LINE_NUMBER_ENDPOINT = "/invoice-storage/invoice-line-number";
   private static final String SEQUENCE_ID = "\"ilNumber_8ad4b87b-9b47-4199-b0c3-5480745c6b41\"";
@@ -73,6 +74,15 @@ public class InvoiceLineNumberTest extends TestBase {
     }
   }
 
+  @Test
+  public void testInvalidInvoiceUrl() throws MalformedURLException {
+    logger.info(String.format("--- mod-invoice-storage invoice test : Invalid URL"));
+    String invoiceSample = getFile(INVOICE.getSampleFileName());
+    Response response = postData(INVALID_INVOICE_URL, invoiceSample);
+    response.then()
+    .statusCode(400);
+  }
+  
   private void testInvoiceEdit(String invoiceSample, String sampleId) throws MalformedURLException {
     JSONObject catJSON = new JSONObject(invoiceSample);
     catJSON.put("id", sampleId);
