@@ -28,7 +28,6 @@ public class InvoiceLineNumberTest extends TestBase {
 
   private final Logger logger = LoggerFactory.getLogger(InvoiceLineNumberTest.class);
 
-  private static final String INVALID_INVOICE_URL = "/invoice-storage/invalid";
   private static final String INVOICE_ENDPOINT = "/invoice-storage/invoices";
   private static final String INVOICE_LINE_NUMBER_ENDPOINT = "/invoice-storage/invoice-line-number";
   private static final String SEQUENCE_ID = "\"ilNumber_8ad4b87b-9b47-4199-b0c3-5480745c6b41\"";
@@ -51,7 +50,8 @@ public class InvoiceLineNumberTest extends TestBase {
       Response response = postData(INVOICE.getEndpoint(), invoiceSample);
       logger.info("--- mod-invoice-storage response: " + response.getBody().prettyPrint());
       
-      testPostDuplicateInvoice(invoiceSample);
+      logger.info(String.format("--- mod-invoice-storage test: Verify creating duplicate invoice fails"));
+      testCreateDuplicateInvoice(invoiceSample);
       
       logger.info("--- mod-invoice-storage invoice test: Testing invoice-line numbers retrieving for existed invoice ... ");
       sampleId = response.then().extract().path("id");
@@ -77,20 +77,10 @@ public class InvoiceLineNumberTest extends TestBase {
     }
   }
 
-  public void testPostDuplicateInvoice(String invoiceSample) throws MalformedURLException {
-    logger.info(String.format("--- mod-invoice-storage POST duplicate invoice"));
+  public void testCreateDuplicateInvoice(String invoiceSample) throws MalformedURLException {
     Response response = postData(INVOICE.getEndpoint(), invoiceSample);
     response.then()
-    .statusCode(400);
-  }
-  
-  @Test
-  public void testInvalidInvoiceUrl() throws MalformedURLException {
-    logger.info(String.format("--- mod-invoice-storage invoice test : Invalid URL"));
-    String invoiceSample = getFile(INVOICE.getSampleFileName());
-    Response response = postData(INVALID_INVOICE_URL, invoiceSample);
-    response.then()
-    .statusCode(400);
+      .statusCode(400);
   }
   
   private void testInvoiceEdit(String invoiceSample, String sampleId) throws MalformedURLException {
@@ -122,10 +112,9 @@ public class InvoiceLineNumberTest extends TestBase {
     logger.info("--- mod-invoice-storage invoiceLineNumberInitial: " + invoiceLineNumberInitial);
     int i = 0; int numOfCalls = 2;
     while(i++ < numOfCalls) {
-    	logger.info("--- mod-invoice-storage retrieveInvoiceLineNumber(invoiceId) : " + retrieveInvoiceLineNumber(invoiceId));
+    	logger.info("--- mod-invoice-storage Generate new sequence number: " + retrieveInvoiceLineNumber(invoiceId));
     }
     int invoiceLineNumberLast = retrieveInvoiceLineNumber(invoiceId);
-    logger.info("--- mod-invoice-storage invoiceLineNumberLast - invoiceLineNumberInitial: " + invoiceLineNumberLast + "-" + invoiceLineNumberInitial);
     assertEquals(i, invoiceLineNumberLast - invoiceLineNumberInitial);
   }
 

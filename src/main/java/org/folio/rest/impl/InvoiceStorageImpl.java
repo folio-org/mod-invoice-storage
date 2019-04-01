@@ -153,6 +153,13 @@ private String idFieldName = "id";
     asyncResultHandler.handle(succeededFuture(Response.status(501).build()));
   }
   
+  /**
+   * Creates a new sequence within a scope of transaction 
+   *
+   * @param Tx<Invoice>
+   *          Transaction of type Invoice
+   * @return Future of Invoice transaction with Invoice Line number sequence
+   */
   private Future<Tx<Invoice>> createSequence(Tx<Invoice> tx) {
     Future<Tx<Invoice>> future = Future.future();
 
@@ -174,6 +181,12 @@ private String idFieldName = "id";
     return future;
   }
 
+  /**
+   * Deletes a sequence associated with the Invoice
+   *
+   * @param Invoice
+   *          Invoice with the sequence number to be deleted 
+   */
   private void deleteSequence(Invoice invoice) {
     if(invoice.getStatus() == Invoice.Status.CANCELLED || invoice.getStatus() == Invoice.Status.PAID) {
       // Try to drop sequence for the IL number but ignore failures
@@ -185,6 +198,13 @@ private String idFieldName = "id";
     }
   }
   
+  /**
+   * Creates a new Invoice within the scope of its transaction 
+   *
+   * @param Tx<Invoice>
+   *          Transaction of type Invoice
+   * @return  Future of Invoice transaction with new Invoice
+   */
   private Future<Tx<Invoice>> createInvoice(Tx<Invoice> tx) {
     Future<Tx<Invoice>> future = Future.future();
 
@@ -214,6 +234,13 @@ private String idFieldName = "id";
     return future;
   }
   
+  /**
+   * Starts a new transaction to create a new Invoice and to generate a new sequence number 
+   *
+   * @param Tx<Invoice>
+   *          Transaction of type Invoice
+   * @return  Future of Invoice transaction with new Invoice
+   */
   private Future<Tx<Invoice>> startTx(Tx<Invoice> tx) {
     Future<Tx<Invoice>> future = Future.future();
 
@@ -226,6 +253,13 @@ private String idFieldName = "id";
     return future;
   }
 
+  /**
+   * Ends a transaction after creating a new Invoice and generating a new sequence number 
+   *
+   * @param Tx<Invoice>
+   *          Transaction of type Invoice
+   * @return  Future of Invoice transaction with new Invoice
+   */
   private Future<Tx<Invoice>> endTx(Tx<Invoice> tx) {
     log.debug("End transaction");
     Future<Tx<Invoice>> future = Future.future();
