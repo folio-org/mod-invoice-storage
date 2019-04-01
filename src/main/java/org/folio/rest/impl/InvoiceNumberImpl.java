@@ -29,28 +29,22 @@ public class InvoiceNumberImpl implements InvoiceStorageInvoiceNumber {
   @Override
   public void getInvoiceStorageInvoiceNumber(String lang, Map<String, String> okapiHeaders, Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
     vertxContext.runOnContext((Void v) -> {
-      try {
-        String tenantId = TenantTool.calculateTenantId(okapiHeaders.get(RestVerticle.OKAPI_HEADER_TENANT));
-        PostgresClient.getInstance(vertxContext.owner(), tenantId).select(INVOICE_NUMBER_QUERY, reply -> {
+      String tenantId = TenantTool.calculateTenantId(okapiHeaders.get(RestVerticle.OKAPI_HEADER_TENANT));
+      PostgresClient.getInstance(vertxContext.owner(), tenantId).selectSingle(INVOICE_NUMBER_QUERY, reply -> {
+        if (reply.succeeded()) {
           try {
-            if (reply.succeeded()) {
-              String invoiceNumber = reply.result().getResults().get(0).getList().get(0).toString();
-              asyncResultHandler.handle(succeededFuture(respond200WithApplicationJson(new SequenceNumber().withSequenceNumber(invoiceNumber))));
-            } else {
-              Throwable cause = reply.cause();
-              log.error(cause.getMessage(), cause);
-              asyncResultHandler.handle(succeededFuture(respond400WithTextPlain(cause.getMessage())));
-            }
-          } catch (Exception e) {
+            String invoiceNumber = reply.result().getList().get(0).toString();
+            log.debug("Retrieved invoice number: " + invoiceNumber);
+            asyncResultHandler.handle(succeededFuture(respond200WithApplicationJson(new SequenceNumber().withSequenceNumber(invoiceNumber))));
+          } catch(Exception e) {
             log.error(e.getMessage(), e);
             asyncResultHandler.handle(succeededFuture(respond500WithTextPlain(messages.getMessage(lang, MessageConsts.InternalServerError))));
           }
-        });
-      } catch (Exception e) {
-        log.error(e.getMessage(), e);
-        String message = messages.getMessage(lang, MessageConsts.InternalServerError);
-        asyncResultHandler.handle(succeededFuture(respond500WithTextPlain(message)));
-      }
+        } else {
+          log.error(reply.cause().getMessage(), reply.cause());
+          asyncResultHandler.handle(succeededFuture(respond400WithTextPlain(reply.cause().getMessage())));
+        }
+      });
     });
   }
 }
