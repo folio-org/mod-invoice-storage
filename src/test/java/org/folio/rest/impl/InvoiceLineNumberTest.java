@@ -42,6 +42,9 @@ public class InvoiceLineNumberTest extends TestBase {
   public void testSequenceFlow() throws MalformedURLException {
     String sampleId = null;
     try {
+      logger.info("--- mod-invoice-storage invoice test: Testing of environment on Bad Sequence support");
+      testBadSequenceSupport();
+      
       logger.info("--- mod-invoice-storage invoice test: Testing of environment on Sequence support");
       testSequenceSupport();
 
@@ -50,6 +53,8 @@ public class InvoiceLineNumberTest extends TestBase {
       Response response = postData(INVOICE.getEndpoint(), invoiceSample);
       logger.info("--- mod-invoice-storage response: " + response.getBody().prettyPrint());
 
+      //testCreateSequenceFailed("testCreateSequenceFailed");
+      
       logger.info("--- mod-invoice-storage invoice test: Testing invoice-line numbers retrieving for existed invoice ... ");
       sampleId = response.then().extract().path("id");
       testGetInvoiceLineNumberForExistedIL(sampleId);
@@ -62,7 +67,7 @@ public class InvoiceLineNumberTest extends TestBase {
 
       logger.info("--- mod-invoice-storage invoice test: Verification/confirming of sequence deletion ...");
       testGetInvoiceLineNumberForNonExistedIL(sampleId);
-
+      
       logger.info("--- mod-invoice-storage invoice test: Testing updated invoice with already deleted invoice-line numbers sequence ...");
       testInvoiceEdit(invoiceSample, sampleId);
 
@@ -73,7 +78,7 @@ public class InvoiceLineNumberTest extends TestBase {
       deleteDataSuccess(INVOICE.getEndpointWithId(), sampleId);
     }
   }
-
+  
   @Test
   public void testInvalidInvoiceUrl() throws MalformedURLException {
     logger.info(String.format("--- mod-invoice-storage invoice test : Invalid URL"));
@@ -108,6 +113,22 @@ public class InvoiceLineNumberTest extends TestBase {
     }
   }
   
+  private void testBadSequenceSupport() {
+  	execute(DROP_SEQUENCE);
+    execute(CREATE_SEQUENCE);
+    execute(SETVAL);
+    ResultSet rs = execute(NEXTVAL);
+    execute(DROP_SEQUENCE);
+    String result = rs.toJson().getJsonArray("results").getList().get(0).toString();
+    //logger.info("--- mod-invoice-storage result test: result: " + rs.toJson().encodePrettily());
+    assertEquals("[14]", result);
+    try {
+      execute(NEXTVAL);
+    } catch(Exception e) {
+      assertEquals(GenericDatabaseException.class, e.getCause().getClass());
+    }
+  }
+  
   private void testGetInvoiceLineNumberForExistedIL(String invoiceId) throws MalformedURLException {
     int invoiceLineNumberInitial = retrieveInvoiceLineNumber(invoiceId);
     logger.info("--- mod-invoice-storage invoiceLineNumberInitial: " + invoiceLineNumberInitial);
@@ -120,6 +141,12 @@ public class InvoiceLineNumberTest extends TestBase {
     assertEquals(i, invoiceLineNumberLast - invoiceLineNumberInitial);
   }
 
+  @Test
+  public void testGetInvoiceLineNumberWithInvalidCQLQuery() throws MalformedURLException {
+    logger.info(String.format("--- mod-invoice-storage %s test: Invalid CQL query", "invoice-line-number"));
+    testInvalidCQLQuery(INVOICE_LINE_NUMBER_ENDPOINT + "?query=invalid-query");
+  }
+  
   private void testGetInvoiceLineNumberForNonExistedIL(String invoiceId) throws MalformedURLException {
     Map<String, Object> params = new HashMap<>();
     params.put("invoiceId", invoiceId);

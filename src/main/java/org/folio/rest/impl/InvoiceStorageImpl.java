@@ -157,7 +157,7 @@ private String idFieldName = "id";
     Future<Tx<Invoice>> future = Future.future();
 
     String invoiceId = tx.getEntity().getId();
-    log.debug("Creating IL number sequence for order with id={}", invoiceId);
+    log.debug("Creating IL number sequence for invoice with id={}", invoiceId);
     try {
       pgClient.execute(tx.getConnection(), CREATE_SEQUENCE.getQuery(invoiceId), reply -> {
         if (reply.failed()) {
