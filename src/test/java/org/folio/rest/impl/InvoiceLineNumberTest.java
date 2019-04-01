@@ -45,11 +45,13 @@ public class InvoiceLineNumberTest extends TestBase {
       
       logger.info("--- mod-invoice-storage invoice test: Testing of environment on Sequence support");
       testSequenceSupport();
-
+      
       logger.info("--- mod-invoice-storage invoice test: Creating invoice/invoice-line number sequence ... ");
       String invoiceSample = getFile(INVOICE.getSampleFileName());
       Response response = postData(INVOICE.getEndpoint(), invoiceSample);
       logger.info("--- mod-invoice-storage response: " + response.getBody().prettyPrint());
+      
+      testPostDuplicateInvoice(invoiceSample);
       
       logger.info("--- mod-invoice-storage invoice test: Testing invoice-line numbers retrieving for existed invoice ... ");
       sampleId = response.then().extract().path("id");
@@ -74,6 +76,13 @@ public class InvoiceLineNumberTest extends TestBase {
       deleteDataSuccess(INVOICE.getEndpointWithId(), sampleId);
     }
   }
+
+  public void testPostDuplicateInvoice(String invoiceSample) throws MalformedURLException {
+    logger.info(String.format("--- mod-invoice-storage POST duplicate invoice"));
+    Response response = postData(INVOICE.getEndpoint(), invoiceSample);
+    response.then()
+    .statusCode(400);
+  }
   
   @Test
   public void testInvalidInvoiceUrl() throws MalformedURLException {
@@ -93,7 +102,7 @@ public class InvoiceLineNumberTest extends TestBase {
     response.then()
       .statusCode(204);
   }
-
+  
   private void testSequenceSupport() {
     execute(CREATE_SEQUENCE);
     execute(SETVAL);
