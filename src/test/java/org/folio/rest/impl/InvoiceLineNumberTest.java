@@ -62,7 +62,7 @@ public class InvoiceLineNumberTest extends TestBase {
       logger.info("--- mod-invoice-storage invoice test: Verification/confirming of sequence deletion ...");
       testGetInvoiceLineNumberForNonExistedIL(sampleId);
 
-      logger.info("--- mod-invoice-storage invoice test: Testing updated invoice with already deleted POL numbers sequence ...");
+      logger.info("--- mod-invoice-storage invoice test: Testing updated invoice with already deleted invoice-line numbers sequence ...");
       testInvoiceEdit(invoiceSample, sampleId);
 
     } catch (Exception e) {
