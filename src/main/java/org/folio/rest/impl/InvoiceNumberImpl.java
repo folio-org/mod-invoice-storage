@@ -34,7 +34,7 @@ public class InvoiceNumberImpl implements InvoiceStorageInvoiceNumber {
         if (reply.succeeded()) {
           try {
             String invoiceNumber = reply.result().getList().get(0).toString();
-            log.debug("Retrieved invoice number: " + invoiceNumber);
+            log.debug("Retrieved invoice number: {}", invoiceNumber);
             asyncResultHandler.handle(succeededFuture(respond200WithApplicationJson(new SequenceNumber().withSequenceNumber(invoiceNumber))));
           } catch(Exception e) {
             log.error(e.getMessage(), e);
