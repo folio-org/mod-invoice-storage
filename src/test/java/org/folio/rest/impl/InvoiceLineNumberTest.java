@@ -10,6 +10,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
 import org.folio.rest.persist.PostgresClient;
+import org.hamcrest.Matchers;
 import org.json.JSONObject;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -32,7 +33,8 @@ public class InvoiceLineNumberTest extends TestBase {
   private static final String INVOICE_ENDPOINT = "/invoice-storage/invoices";
   private static final String INVOICE_LINE_NUMBER_ENDPOINT = "/invoice-storage/invoice-line-number";
   private static final String SEQUENCE_ID = "\"ilNumber_8ad4b87b-9b47-4199-b0c3-5480745c6b41\"";
-
+  private static final String NON_EXISTING_INVOICE_ID = "bad500aa-aaaa-500a-aaaa-aaaaaaaaaaaa";
+  
   private static final String CREATE_SEQUENCE = "CREATE SEQUENCE " + SEQUENCE_ID;
   private static final String SETVAL = "SELECT * FROM SETVAL('" + SEQUENCE_ID + "',13)";
   private static final String NEXTVAL = "SELECT * FROM NEXTVAL('" + SEQUENCE_ID + "')";
@@ -43,35 +45,34 @@ public class InvoiceLineNumberTest extends TestBase {
     String sampleId = null;
     try {
       
-      logger.info("--- mod-invoice-storage invoice test: Testing of environment on Sequence support");
+      logger.info(String.format("--- mod-invoice-storage %s test: Testing of environment on Sequence support", INVOICE.name()));
       testSequenceSupport();
       
-      logger.info("--- mod-invoice-storage invoice test: Creating invoice and a sequence ... ");
+      logger.info(String.format("--- mod-invoice-storage %s test: Creating an invoice and a sequence ... ", INVOICE.name()));
       String invoiceSample = getFile(INVOICE.getSampleFileName());
       Response response = postData(INVOICE.getEndpoint(), invoiceSample);
-      logger.info("--- mod-invoice-storage response: " + response.getBody().prettyPrint());
       
-      logger.info(String.format("--- mod-invoice-storage test: Verify creating duplicate invoice fails"));
+      logger.info(String.format("--- mod-invoice-storage %s test: Verify creating duplicate invoice fails", INVOICE.name()));
       testCreateDuplicateInvoice(invoiceSample);
       
-      logger.info("--- mod-invoice-storage invoice test: Test retrieving invoice-line number for existed invoice and sequence ... ");
+      logger.info(String.format("--- mod-invoice-storage %s test: Test retrieving invoice-line number for existing invoice and sequence ... ", INVOICE.name()));
       sampleId = response.then().extract().path("id");
       testGetInvoiceLineNumberForExistedIL(sampleId);
 
-      logger.info("--- mod-invoice-storage invoice test: Testing invoice-line numbers retrieving for non-existed invoice ... ");
-      testGetInvoiceLineNumberForNonExistedIL("non-existed-invoice-id");
+      logger.info(String.format("--- mod-invoice-storage %s test: Testing invoice-line numbers retrieving for non-existed invoice ID: %s", INVOICE.name(), NON_EXISTING_INVOICE_ID));
+      testGetInvoiceLineNumberForNonExistedIL(NON_EXISTING_INVOICE_ID);
 
-      logger.info("--- mod-invoice-storage invoice test: Update invoice with ID which will drop existing sequence : " + sampleId);
+      logger.info(String.format("--- mod-invoice-storage %s test: Update invoice with ID %s which will drop existing sequence", INVOICE.name(), sampleId));
       testInvoiceEdit(invoiceSample, sampleId);
 
-      logger.info("--- mod-invoice-storage invoice test: Verification/confirming of sequence deletion ...");
+      logger.info(String.format("--- mod-invoice-storage %s test: Verification/confirming of sequence deletion for invoice ID: ",  INVOICE.name(), sampleId));
       testGetInvoiceLineNumberForNonExistedIL(sampleId);
       
-      logger.info("--- mod-invoice-storage invoice test: Test updating invoice with already deleted invoice-line numbers sequence ...");
+      logger.info(String.format("--- mod-invoice-storage %s test: Test updating invoice with already deleted invoice-line number sequence", INVOICE.name()));
       testInvoiceEdit(invoiceSample, sampleId);
 
     } catch (Exception e) {
-        logger.error(String.format("--- mod-invoice-storage-test: %s API ERROR: %s", INVOICE.name(), e.getMessage()));
+        logger.error(String.format("--- mod-invoice-storage test: %s API ERROR: %s", INVOICE.name(), e.getMessage()));
     } finally {
         logger.info(String.format("--- mod-invoice-storage %s test: Deleting %s with ID: %s", INVOICE.name(), INVOICE.name(), sampleId));
         deleteDataSuccess(INVOICE.getEndpointWithId(), sampleId);
@@ -81,7 +82,8 @@ public class InvoiceLineNumberTest extends TestBase {
   public void testCreateDuplicateInvoice(String invoiceSample) throws MalformedURLException {
     Response response = postData(INVOICE.getEndpoint(), invoiceSample);
     response.then()
-      .statusCode(400);
+      .statusCode(400)
+      .body(Matchers.containsString("duplicate key value violates unique constraint \"invoice_pkey\""));
   }
   
   private void testInvoiceEdit(String invoiceSample, String sampleId) throws MalformedURLException {
@@ -110,10 +112,10 @@ public class InvoiceLineNumberTest extends TestBase {
   
   private void testGetInvoiceLineNumberForExistedIL(String invoiceId) throws MalformedURLException {
     int invoiceLineNumberInitial = retrieveInvoiceLineNumber(invoiceId);
-    logger.info("--- mod-invoice-storage invoiceLineNumberInitial: " + invoiceLineNumberInitial);
+    logger.info("--- mod-invoice-storage test invoiceLineNumberInitial: " + invoiceLineNumberInitial);
     int i = 0; int numOfCalls = 2;
     while(i++ < numOfCalls) {
-    	logger.info("--- mod-invoice-storage Generate new sequence number: " + retrieveInvoiceLineNumber(invoiceId));
+    	logger.info("--- mod-invoice-storage test Generate new sequence number: " + retrieveInvoiceLineNumber(invoiceId));
     }
     int invoiceLineNumberLast = retrieveInvoiceLineNumber(invoiceId);
     assertEquals(i, invoiceLineNumberLast - invoiceLineNumberInitial);
