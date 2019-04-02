@@ -1,5 +1,8 @@
 package org.folio.rest.impl;
 
+import static io.restassured.RestAssured.given;
+import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
+import static org.folio.rest.impl.StorageTestSuite.storageUrl;
 import static org.folio.rest.utils.TestEntities.INVOICE;
 import static org.junit.Assert.assertEquals;
 
@@ -9,6 +12,7 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
+import org.folio.HttpStatus;
 import org.folio.rest.persist.PostgresClient;
 import org.json.JSONObject;
 import org.junit.Test;
@@ -16,12 +20,15 @@ import org.junit.runner.RunWith;
 
 import com.github.mauricio.async.db.postgresql.exceptions.GenericDatabaseException;
 
+import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 import io.vertx.core.Vertx;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 import io.vertx.ext.sql.ResultSet;
+import io.vertx.ext.sql.UpdateResult;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
+
 
 @RunWith(VertxUnitRunner.class)
 public class InvoiceLineNumberTest extends TestBase {
@@ -45,7 +52,7 @@ public class InvoiceLineNumberTest extends TestBase {
       logger.info("--- mod-invoice-storage invoice test: Testing of environment on Sequence support");
       testSequenceSupport();
       
-      logger.info("--- mod-invoice-storage invoice test: Creating invoice/invoice-line number sequence ... ");
+      logger.info("--- mod-invoice-storage invoice test: Creating invoice and a sequence ... ");
       String invoiceSample = getFile(INVOICE.getSampleFileName());
       Response response = postData(INVOICE.getEndpoint(), invoiceSample);
       logger.info("--- mod-invoice-storage response: " + response.getBody().prettyPrint());
@@ -53,30 +60,69 @@ public class InvoiceLineNumberTest extends TestBase {
       logger.info(String.format("--- mod-invoice-storage test: Verify creating duplicate invoice fails"));
       testCreateDuplicateInvoice(invoiceSample);
       
-      logger.info("--- mod-invoice-storage invoice test: Testing invoice-line numbers retrieving for existed invoice ... ");
+      logger.info("--- mod-invoice-storage invoice test: Test retrieving invoice-line number for existed invoice and sequence ... ");
       sampleId = response.then().extract().path("id");
       testGetInvoiceLineNumberForExistedIL(sampleId);
 
       logger.info("--- mod-invoice-storage invoice test: Testing invoice-line numbers retrieving for non-existed invoice ... ");
       testGetInvoiceLineNumberForNonExistedIL("non-existed-invoice-id");
 
-      logger.info("--- mod-invoice-storage invoice test: Editing invoice with ID: " + sampleId);
+      logger.info("--- mod-invoice-storage invoice test: Update invoice with ID which will drop existing sequence : " + sampleId);
       testInvoiceEdit(invoiceSample, sampleId);
 
       logger.info("--- mod-invoice-storage invoice test: Verification/confirming of sequence deletion ...");
       testGetInvoiceLineNumberForNonExistedIL(sampleId);
       
-      logger.info("--- mod-invoice-storage invoice test: Testing updated invoice with already deleted invoice-line numbers sequence ...");
+      logger.info("--- mod-invoice-storage invoice test: Test updating invoice with already deleted invoice-line numbers sequence ...");
       testInvoiceEdit(invoiceSample, sampleId);
 
     } catch (Exception e) {
-      logger.error(String.format("--- mod-invoice-storage-test: %s API ERROR: %s", INVOICE.name(), e.getMessage()));
-    }  finally {
-      logger.info(String.format("--- mod-invoice-storage %s test: Deleting %s with ID: %s", INVOICE.name(), INVOICE.name(), sampleId));
-      deleteDataSuccess(INVOICE.getEndpointWithId(), sampleId);
+        logger.error(String.format("--- mod-invoice-storage-test: %s API ERROR: %s", INVOICE.name(), e.getMessage()));
+    } finally {
+        logger.info(String.format("--- mod-invoice-storage %s test: Deleting %s with ID: %s", INVOICE.name(), INVOICE.name(), sampleId));
+        deleteDataSuccess(INVOICE.getEndpointWithId(), sampleId);
     }
   }
 
+  @Test
+  public void testDropSequence() throws MalformedURLException {
+    try {
+    	
+      logger.info("--- mod-invoice-storage test deleteSequenceInDb: Dropping sequence in DB ... ");
+      dropSequenceInDb();
+
+      logger.info("--- mod-invoice-storage test testProcessingErrorReply: Failure to get sequence number ... ");
+      testProcessingErrorReply();
+      
+    } catch (Exception e) {
+        logger.error(String.format("--- mod-invoice-storage-test: %s API ERROR: %s", INVOICE.name(), e.getMessage()));
+    }
+  }
+  
+  private void dropSequenceInDb() throws Exception {
+    CompletableFuture<UpdateResult> future = new CompletableFuture<>();
+    PostgresClient.getInstance(Vertx.vertx()).execute(DROP_SEQUENCE, result -> {
+      if(result.failed()) {
+        future.completeExceptionally(result.cause());
+      } else {
+        future.complete(result.result());
+      }
+    });
+    future.get(10, TimeUnit.SECONDS);
+  }
+  
+  private void testProcessingErrorReply() throws MalformedURLException {
+    given()
+      .header(TENANT_HEADER)
+      .contentType(ContentType.JSON)
+        .get(storageUrl(INVOICE_LINE_NUMBER_ENDPOINT))
+          .then()
+          .statusCode(HttpStatus.HTTP_BAD_REQUEST.toInt())
+          .contentType(TEXT_PLAIN)
+          .extract()
+          .response();
+  }
+  
   public void testCreateDuplicateInvoice(String invoiceSample) throws MalformedURLException {
     Response response = postData(INVOICE.getEndpoint(), invoiceSample);
     response.then()
@@ -103,7 +149,7 @@ public class InvoiceLineNumberTest extends TestBase {
     try {
       execute(NEXTVAL);
     } catch(Exception e) {
-      assertEquals(GenericDatabaseException.class, e.getCause().getClass());
+        assertEquals(GenericDatabaseException.class, e.getCause().getClass());
     }
   }
   

@@ -190,6 +190,7 @@ private String idFieldName = "id";
   private void deleteSequence(Invoice invoice) {
     if(invoice.getStatus() == Invoice.Status.CANCELLED || invoice.getStatus() == Invoice.Status.PAID) {
       // Try to drop sequence for the IL number but ignore failures
+    	log.debug("InvoiceStorageImpl deleteSequence Drop sequence query -- ", DROP_SEQUENCE.getQuery(invoice.getId()));
       pgClient.execute(DROP_SEQUENCE.getQuery(invoice.getId()), reply -> {
         if (reply.failed()) {
           log.error("IL number sequence for invoice with id={} failed to be dropped", reply.cause(), invoice.getId());
