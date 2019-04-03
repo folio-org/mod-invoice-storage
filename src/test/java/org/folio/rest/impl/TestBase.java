@@ -133,20 +133,20 @@ public abstract class TestBase {
   
   Response putData(String endpoint, String id, String input) throws MalformedURLException {
     return given()
-    	.pathParam("id", id)
-      .header(TENANT_HEADER)
-      .contentType(ContentType.JSON)
-      .body(input)
-      .put(storageUrl(endpoint));
+      .pathParam("id", id)
+        .header(TENANT_HEADER)
+        .contentType(ContentType.JSON)
+        .body(input)
+          .put(storageUrl(endpoint));
   }
   
   Response putInvoiceNumberData(String endpoint, String id, String input) throws MalformedURLException {
-  	endpoint = endpoint + "/" + id;
+    endpoint += "/" + id;
     return given()
       .header(TENANT_HEADER)
       .contentType(ContentType.JSON)
       .body(input)
-      .put(storageUrl(endpoint));
+        .put(storageUrl(endpoint));
   }
   
   void deleteDataSuccess(String endpoint, String id) throws MalformedURLException {
@@ -183,7 +183,7 @@ public abstract class TestBase {
       .params(params)
       .header(TENANT_HEADER)
       .contentType(ContentType.JSON)
-      .get(storageUrl(endpoint));
+        .get(storageUrl(endpoint));
   }
   
   void testAllFieldsExists(JsonObject extracted, JsonObject sampleObject) {

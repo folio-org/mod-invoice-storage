@@ -105,7 +105,7 @@ public class InvoiceLineNumberTest extends TestBase {
     assertEquals("[14]", result);
     try {
       execute(NEXTVAL);
-    } catch(Exception e) {
+    } catch (Exception e) {
         assertEquals(GenericDatabaseException.class, e.getCause().getClass());
     }
   }
@@ -114,7 +114,7 @@ public class InvoiceLineNumberTest extends TestBase {
     int invoiceLineNumberInitial = retrieveInvoiceLineNumber(invoiceId);
     logger.info("--- mod-invoice-storage test invoiceLineNumberInitial: " + invoiceLineNumberInitial);
     int i = 0; int numOfCalls = 2;
-    while(i++ < numOfCalls) {
+    while (i++ < numOfCalls) {
     	logger.info("--- mod-invoice-storage test Generate new sequence number: " + retrieveInvoiceLineNumber(invoiceId));
     }
     int invoiceLineNumberLast = retrieveInvoiceLineNumber(invoiceId);
@@ -132,7 +132,7 @@ public class InvoiceLineNumberTest extends TestBase {
     params.put("invoiceId", invoiceId);
     getDataByParam(INVOICE_LINE_NUMBER_ENDPOINT, params)
       .then()
-      .statusCode(400);
+        .statusCode(400);
   }
 
   private int retrieveInvoiceLineNumber(String invoiceId) throws MalformedURLException {
@@ -140,10 +140,10 @@ public class InvoiceLineNumberTest extends TestBase {
     params.put("invoiceId", invoiceId);
     return Integer.parseInt(getDataByParam(INVOICE_LINE_NUMBER_ENDPOINT, params)
       .then()
-      .statusCode(200)
-      .extract()
-      .response()
-      .path("sequenceNumber"));
+        .statusCode(200)
+        .extract()
+        .response()
+        .path("sequenceNumber"));
   }
 
   private static ResultSet execute(String query) {
@@ -152,17 +152,16 @@ public class InvoiceLineNumberTest extends TestBase {
     ResultSet resultSet = null;
     try {
       client.select(query, result -> {
-        if(result.succeeded()) {
+        if (result.succeeded()) {
           future.complete(result.result());
-        }
-        else {
-          future.completeExceptionally(result.cause());
+        } else {
+            future.completeExceptionally(result.cause());
         }
       });
       resultSet = future.get(10, TimeUnit.SECONDS);
     } catch (Exception e) {
-      future.completeExceptionally(e);
+        future.completeExceptionally(e);
     }
-   return resultSet;
+    return resultSet;
   }
 }
