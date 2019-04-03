@@ -64,9 +64,7 @@ private String idFieldName = "id";
   public void postInvoiceStorageInvoices(String lang, Invoice entity, Map<String, String> okapiHeaders, Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
     try {
       vertxContext.runOnContext(v -> {
-      	if (log.isDebugEnabled()) {
-      	  log.debug("Creating a new invoice");
-      	}
+      	log.info("Creating a new invoice");
         Future.succeededFuture(new Tx<>(entity))
           .compose(this::startTx)
           .compose(this::createInvoice)
@@ -83,12 +81,10 @@ private String idFieldName = "id";
                 asyncResultHandler.handle(Future.succeededFuture(PostInvoiceStorageInvoicesResponse.respond500WithTextPlain(Response.Status.INTERNAL_SERVER_ERROR.getReasonPhrase())));
               }
             } else {
-              if(log.isDebugEnabled()) {
-                log.debug("Preparing response to client");
-              }
-              asyncResultHandler.handle(Future.succeededFuture(PostInvoiceStorageInvoicesResponse
-                .respond201WithApplicationJson(reply.result().getEntity(), PostInvoiceStorageInvoicesResponse.headersFor201()
-                  .withLocation(INVOICE_PREFIX + reply.result().getEntity().getId()))));
+                log.info("Preparing response to client");          
+                asyncResultHandler.handle(Future.succeededFuture(PostInvoiceStorageInvoicesResponse
+                  .respond201WithApplicationJson(reply.result().getEntity(), PostInvoiceStorageInvoicesResponse.headersFor201()
+                    .withLocation(INVOICE_PREFIX + reply.result().getEntity().getId()))));
             }
           });
       });
@@ -168,14 +164,14 @@ private String idFieldName = "id";
     Future<Tx<Invoice>> future = Future.future();
 
     String invoiceId = tx.getEntity().getId();
-    log.debug("Creating IL number sequence for invoice with id={}", invoiceId);
+    log.info("Creating IL number sequence for invoice with id={}", invoiceId);
     try {
       pgClient.execute(tx.getConnection(), CREATE_SEQUENCE.getQuery(invoiceId), reply -> {
         if (reply.failed()) {
           log.error("IL number sequence creation for invoice with id={} failed", reply.cause(), invoiceId);
           pgClient.rollbackTx(tx.getConnection(), rb -> future.fail(new HttpStatusException(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), reply.cause().getMessage())));
         } else {
-          log.debug("IL number sequence for invoice with id={} successfully created", invoiceId);
+          log.info("IL number sequence for invoice with id={} successfully created", invoiceId);
           future.complete(tx);
         }
       });
@@ -195,9 +191,7 @@ private String idFieldName = "id";
   	String sqlQuery = DROP_SEQUENCE.getQuery(invoice.getId());
     if (invoice.getStatus() == Invoice.Status.CANCELLED || invoice.getStatus() == Invoice.Status.PAID) {
       // Try to drop sequence for the IL number but ignore failures
-    	if (log.isDebugEnabled()) {
-    	  log.debug("InvoiceStorageImpl deleteSequence Drop sequence query -- ", sqlQuery);
-    	}
+    	log.info("InvoiceStorageImpl deleteSequence Drop sequence query -- ", sqlQuery);
       pgClient.execute(sqlQuery, reply -> {
         if (reply.failed()) {
           log.error("IL number sequence for invoice with id={} failed to be dropped", reply.cause(), invoice.getId());
@@ -221,10 +215,7 @@ private String idFieldName = "id";
     	invoice.setId(UUID.randomUUID().toString());
     }
     
-    if(log.isDebugEnabled()) {
-      log.debug("Creating new invoice with id={}", invoice.getId());
-    }
-    
+    log.info("Creating new invoice with id={}", invoice.getId());
     pgClient.save(tx.getConnection(), INVOICE_TABLE, invoice.getId(), invoice, reply -> {
       if (reply.failed()) {
         log.error("Invoice creation with id={} failed", reply.cause(), invoice.getId());
@@ -237,10 +228,8 @@ private String idFieldName = "id";
           }
         });
       } else {
-      	  if (log.isDebugEnabled()) {
-            log.debug("New invoice with id={} successfully created", invoice.getId());
-      	  }
-          future.complete(tx);
+        log.info("New invoice with id={} successfully created", invoice.getId());
+        future.complete(tx);
       }
     });
     return future;
@@ -255,11 +244,8 @@ private String idFieldName = "id";
    */
   private Future<Tx<Invoice>> startTx(Tx<Invoice> tx) {
     Future<Tx<Invoice>> future = Future.future();
-
-    if (log.isDebugEnabled()) {
-      log.debug("Start transaction");
-    }
-    
+    log.info("Start transaction");
+   
     pgClient.startTx(sqlConnection -> {
       tx.setConnection(sqlConnection);
       future.complete(tx);
@@ -275,9 +261,7 @@ private String idFieldName = "id";
    * @return  Future of Invoice transaction with new Invoice
    */
   private Future<Tx<Invoice>> endTx(Tx<Invoice> tx) {
-  	if (log.isDebugEnabled()) {
-      log.debug("End transaction");
-  	}
+    log.info("End transaction");
   	
     Future<Tx<Invoice>> future = Future.future();
     pgClient.endTx(tx.getConnection(), v -> future.complete(tx));
