@@ -42,10 +42,10 @@ public class InvoiceLineNumberAPI implements InvoiceStorageInvoiceLineNumber {
 	        			asyncResultHandler.handle(Future.succeededFuture(InvoiceStorageInvoiceLineNumber.GetInvoiceStorageInvoiceLineNumberResponse
 	        					.respond200WithApplicationJson(new InvoiceLineNumber().withSequenceNumber(invoiceLineNumber))));
 	        		} else {
-	        			logErrorAndRespond400(asyncResultHandler, getILNumberReply.cause());
+	        			throw new Exception("--- InvoiceLineNumberAPI --- Unable to generate Invoice-line number from a sequence");
 	        		}
 	        	} catch(Exception e) {
-	        		logErrorAndRespond500(lang, asyncResultHandler, e);
+	        		logErrorAndRespond400(asyncResultHandler, getILNumberReply.cause());
 	        	}
         });
     	} catch(Exception e) {
