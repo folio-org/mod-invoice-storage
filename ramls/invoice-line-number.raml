@@ -1,0 +1,43 @@
+#%RAML 1.0
+title: "Invoice Storage"
+baseUri: http://github.com/folio-org/mod-invoice-storage
+version: v1
+
+documentation:
+  - title: Invoice Line Number
+    content: <b>API used to manage Invoice Line number.  This API is intended for internal use only</b>
+
+types:
+  invoice-line-number: !include acq-models/common/schemas/sequence_number.json
+  UUID:
+    type: string
+    pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$
+
+traits:
+    language: !include raml-util/traits/language.raml
+
+/invoice-storage/invoice-line-number:
+  get:
+    is: [language]
+    description: Get invoice line number
+    queryParameters:
+      invoiceId:
+        description: The UUID of a invoice
+        type:        UUID
+        required:    true
+        example:     "8ad4b87b-9b47-4199-b0c3-5480745c6b41"
+    responses:
+      200:
+        body:
+          application/json:
+            type: invoice-line-number
+      400:
+        description: "Bad request, e.g. malformed request body or query parameter"
+        body:
+          text/plain:
+            example: "Unable to generate invoice line number"
+      500:
+        description: "Internal server error, e.g. due to misconfiguration"
+        body:
+          text/plain:
+            example: "Internal server error, contact Administrator"
