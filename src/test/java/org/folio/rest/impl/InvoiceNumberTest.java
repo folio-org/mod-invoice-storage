@@ -70,7 +70,7 @@ public class InvoiceNumberTest extends TestBase {
       .contentType(ContentType.JSON)
         .get(storageUrl(INVOICE_NUMBER_ENDPOINT))
           .then()
-            .statusCode(HttpStatus.HTTP_BAD_REQUEST.toInt())
+            .statusCode(HttpStatus.HTTP_INTERNAL_SERVER_ERROR.toInt())
             .contentType(TEXT_PLAIN)
             .extract()
               .response();

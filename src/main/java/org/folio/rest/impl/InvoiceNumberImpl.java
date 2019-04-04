@@ -31,18 +31,17 @@ public class InvoiceNumberImpl implements InvoiceStorageInvoiceNumber {
     vertxContext.runOnContext((Void v) -> {
       String tenantId = TenantTool.calculateTenantId(okapiHeaders.get(RestVerticle.OKAPI_HEADER_TENANT));
       PostgresClient.getInstance(vertxContext.owner(), tenantId).selectSingle(INVOICE_NUMBER_QUERY, reply -> {
-        if (reply.succeeded()) {
-          try {
+        try {
+          if(reply.succeeded()) {
             String invoiceNumber = reply.result().getList().get(0).toString();
             log.debug("Retrieved invoice number: {}", invoiceNumber);
             asyncResultHandler.handle(succeededFuture(respond200WithApplicationJson(new SequenceNumber().withSequenceNumber(invoiceNumber))));
-          } catch(Exception e) {
-            log.error(e.getMessage(), e);
-            asyncResultHandler.handle(succeededFuture(respond500WithTextPlain(messages.getMessage(lang, MessageConsts.InternalServerError))));
+          } else {
+            throw new Exception(reply.cause());
           }
-        } else {
-          log.error(reply.cause().getMessage(), reply.cause());
-          asyncResultHandler.handle(succeededFuture(respond400WithTextPlain(reply.cause().getMessage())));
+        } catch (Exception e) {
+          log.error(e.getMessage(), e);
+          asyncResultHandler.handle(succeededFuture(respond500WithTextPlain(messages.getMessage(lang, MessageConsts.InternalServerError))));
         }
       });
     });
