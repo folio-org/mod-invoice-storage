@@ -76,6 +76,17 @@
       ]
     },
     {
+      "id": "invoice-storage.invoice-line-number",
+      "version": "1.0",
+      "handlers": [
+        {
+          "methods": ["GET"],
+          "pathPattern": "/invoice-storage/invoice-line-number",
+          "permissionsRequired": ["invoice-storage.invoice-line-number.get"]
+        }
+      ]
+    },
+    {
       "id": "_tenant",
       "version": "1.2",
       "interfaceType": "system",
@@ -144,6 +155,11 @@
       "description" : "Get invoice number"
     },
     {
+      "permissionName": "invoice-storage.invoice-line-number.get",
+      "displayName": "Invoice storage - generate invoice line number",
+      "description": "Get invoice line number"
+    },
+    {
       "permissionName": "invoice-storage.module.all",
       "displayName": "Invoice storage module - all permissions",
       "description": "Entire set of permissions needed to use the invoice module",
@@ -158,7 +174,8 @@
         "invoice-storage.invoice-lines.item.post",
         "invoice-storage.invoice-lines.item.put",
         "invoice-storage.invoice-lines.item.delete",
-        "invoice-storage.invoice-number.get"
+        "invoice-storage.invoice-number.get",
+        "invoice-storage.invoice-line-number.get"
       ],
       "visible": false
     }

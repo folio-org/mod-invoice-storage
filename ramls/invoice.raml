@@ -80,29 +80,3 @@ resourceTypes:
           exampleItem: !include acq-models/mod-invoice-storage/examples/invoice_line.sample
       put:
         is: [validate]
-
-  /invoice-line-number:
-    get:
-      is: [language]
-      description: Get invoice line number
-      queryParameters:
-        invoiceId:
-          description: invoice Id
-          type:        string
-          required:    true
-          example:     "8ad4b87b-9b47-4199-b0c3-5480745c6b41"
-      responses:
-        200:
-          body:
-            application/json:
-              type: sequenceNumber
-        400:
-          description: "Bad request, e.g. malformed request body or query parameter"
-          body:
-            text/plain:
-              example: "Unable to generate invoice line number"
-        500:
-          description: "Internal server error, e.g. due to misconfiguration"
-          body:
-            text/plain:
-              example: "Internal server error, contact Administrator"

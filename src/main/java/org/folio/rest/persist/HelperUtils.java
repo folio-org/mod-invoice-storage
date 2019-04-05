@@ -16,6 +16,9 @@ import io.vertx.core.logging.LoggerFactory;
 
 public class HelperUtils {
   private static final Logger log = LoggerFactory.getLogger(HelperUtils.class);
+  
+  private static final String IL_NUMBER_PREFIX = "ilNumber_";
+  private static final String QUOTES_SYMBOL = "\"";
 
   private HelperUtils() {
     throw new UnsupportedOperationException("Cannot instantiate utility class.");
@@ -61,5 +64,33 @@ public class HelperUtils {
       log.error(e.getMessage(), e);
       asyncResultHandler.handle(response(e.getMessage(), respond500, respond500));
     }
+  }
+  
+  public enum SequenceQuery {
+
+    CREATE_SEQUENCE {
+      @Override
+      public String getQuery(String invoiceId) {
+        return "CREATE SEQUENCE IF NOT EXISTS " + constructSequenceName(invoiceId) + " MINVALUE 1 MAXVALUE 999";
+      }
+    },
+    GET_IL_NUMBER_FROM_SEQUENCE {
+      @Override
+      public String getQuery(String invoiceId) {
+        return "SELECT * FROM NEXTVAL('" + constructSequenceName(invoiceId) + "')";
+      }
+    },
+    DROP_SEQUENCE {
+      @Override
+      public String getQuery(String invoiceId) {
+        return "DROP SEQUENCE IF EXISTS " + constructSequenceName(invoiceId);
+      }
+    };
+
+    private static String constructSequenceName(String invoiceId) {
+      return QUOTES_SYMBOL + IL_NUMBER_PREFIX + invoiceId + QUOTES_SYMBOL;
+    }
+
+    public abstract String getQuery(String invoiceId);
   }
 }
