@@ -35,6 +35,7 @@ import io.vertx.core.logging.LoggerFactory;
 
 @Suite.SuiteClasses({
   CrudTest.class,
+  InvoiceNumberTest.class,
   InvoiceLineNumberTest.class
 })
 

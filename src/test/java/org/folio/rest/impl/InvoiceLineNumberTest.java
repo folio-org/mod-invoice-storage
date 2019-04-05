@@ -1,5 +1,6 @@
 package org.folio.rest.impl;
 
+import static org.folio.rest.impl.InvoiceStorageImpl.INVOICE_TABLE;
 import static org.folio.rest.utils.TestEntities.INVOICE;
 import static org.junit.Assert.assertEquals;
 
@@ -83,7 +84,7 @@ public class InvoiceLineNumberTest extends TestBase {
     Response response = postData(INVOICE.getEndpoint(), invoiceSample);
     response.then()
       .statusCode(400)
-      .body(Matchers.containsString("duplicate key value violates unique constraint \"invoice_pkey\""));
+      .body(Matchers.containsString("duplicate key value violates unique constraint \"" + INVOICE_TABLE + "_pkey\""));
   }
   
   private void testInvoiceEdit(String invoiceSample, String sampleId) throws MalformedURLException {

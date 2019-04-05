@@ -80,23 +80,3 @@ resourceTypes:
           exampleItem: !include acq-models/mod-invoice-storage/examples/invoice_line.sample
       put:
         is: [validate]
-
-  /invoice-number:
-    get:
-      is: [language]
-      description: Get generated invoice number
-      responses:
-        200:
-          body:
-            application/json:
-              type: sequenceNumber
-        400:
-          description: "Bad request, e.g. malformed request body or query parameter"
-          body:
-            text/plain:
-              example: "Unable to generate invoice number"
-        500:
-          description: "Internal server error, e.g. due to misconfiguration"
-          body:
-            text/plain:
-              example: "internal server error, contact administrator"
