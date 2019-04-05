@@ -1,6 +1,5 @@
 package org.folio.rest.impl;
 
-import static io.vertx.core.Future.succeededFuture;
 import static org.folio.rest.persist.HelperUtils.getEntitiesCollection;
 import static org.folio.rest.persist.HelperUtils.SequenceQuery.CREATE_SEQUENCE;
 import static org.folio.rest.persist.HelperUtils.SequenceQuery.DROP_SEQUENCE;
@@ -40,14 +39,13 @@ private static final String INVOICE_PREFIX = "/invoice-storage/invoices/";
 
 private PostgresClient pgClient;
 
-private String idFieldName = "id";
 public static final String INVOICE_TABLE = "invoices";
 private static final String INVOICE_LINE_TABLE = "invoice_lines";
 private static final String ID_FIELD_NAME = "id";
 
   public InvoiceStorageImpl(Vertx vertx, String tenantId) {
     pgClient = PostgresClient.getInstance(vertx, tenantId);
-    pgClient.setIdField(idFieldName);
+    pgClient.setIdField(ID_FIELD_NAME);
   }
 
   @Validate
