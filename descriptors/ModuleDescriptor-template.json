@@ -65,7 +65,7 @@
       ]
     },
     {
-      "id": "invoice-storage.invoice-numbers",
+      "id": "invoice-storage.invoice-number",
       "version": "1.0",
       "handlers": [
         {
@@ -76,7 +76,7 @@
       ]
     },
     {
-      "id": "invoice-storage.invoice-line-numbers",
+      "id": "invoice-storage.invoice-line-number",
       "version": "1.0",
       "handlers": [
         {
