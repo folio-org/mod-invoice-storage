@@ -3,7 +3,7 @@
   "name": "Invoice CRUD module",
   "provides": [
     {
-      "id": "invoice-storage.invoice",
+      "id": "invoice-storage.invoices",
       "version": "1.0",
       "handlers": [
         {
@@ -34,7 +34,7 @@
       ]
     },
     {
-      "id": "invoice-storage.invoice-line",
+      "id": "invoice-storage.invoice-lines",
       "version": "1.0",
       "handlers": [
         {
