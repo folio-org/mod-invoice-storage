@@ -32,10 +32,10 @@ public class VoucherStorageImpl implements VoucherStorage {
 
   @Validate
   @Override
-  public void getVoucherStorageVouchers(int offset, int limit, String query, String lang,
-      Map<String, String> okapiHeaders, Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
-    EntitiesMetadataHolder<Voucher, VoucherCollection> entitiesMetadataHolder = new EntitiesMetadataHolder<>(
-        Voucher.class, VoucherCollection.class, GetVoucherStorageVouchersResponse.class);
+  public void getVoucherStorageVouchers(int offset, int limit, String query, String lang, Map<String, String> okapiHeaders,
+      Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
+    EntitiesMetadataHolder<Voucher, VoucherCollection> entitiesMetadataHolder = new EntitiesMetadataHolder<>(Voucher.class,
+        VoucherCollection.class, GetVoucherStorageVouchersResponse.class);
     QueryHolder cql = new QueryHolder(VOUCHER_TABLE, query, offset, limit, lang);
     getEntitiesCollection(entitiesMetadataHolder, cql, asyncResultHandler, vertxContext, okapiHeaders);
   }
@@ -51,8 +51,8 @@ public class VoucherStorageImpl implements VoucherStorage {
   @Override
   public void getVoucherStorageVouchersById(String id, String lang, Map<String, String> okapiHeaders,
       Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
-    PgUtil.getById(VOUCHER_TABLE, Voucher.class, id, okapiHeaders, vertxContext,
-        GetVoucherStorageVouchersByIdResponse.class, asyncResultHandler);
+    PgUtil.getById(VOUCHER_TABLE, Voucher.class, id, okapiHeaders, vertxContext, GetVoucherStorageVouchersByIdResponse.class,
+        asyncResultHandler);
   }
 
   @Validate
