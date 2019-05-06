@@ -1,0 +1,53 @@
+#%RAML 1.0
+
+title: Vouchers
+version: v1
+protocols: [ HTTP, HTTPS ]
+baseUri: http://github.com/folio-org/mod-invoice-storage
+
+documentation:
+  - title: Vouchers CRUD API
+    content: This documents the API calls that can be made to manage vouchers
+
+types:
+  voucher: !include acq-models/mod-invoice-storage/schemas/voucher.json
+  voucherCollection: !include acq-models/mod-invoice-storage/schemas/voucher_collection.json
+  errors: !include raml-util/schemas/errors.schema
+  UUID:
+    type: string
+    pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$
+
+traits:
+  validate: !include raml-util/traits/validation.raml
+  language: !include raml-util/traits/language.raml
+  pageable:  !include raml-util/traits/pageable.raml
+  searchable: !include raml-util/traits/searchable.raml
+
+resourceTypes:
+  collection: !include raml-util/rtypes/collection.raml
+  collection-item: !include raml-util/rtypes/item-collection.raml
+
+/voucher-storage:
+  /vouchers:
+    type:
+      collection:
+        schemaCollection: voucherCollection
+        schemaItem: voucher
+        exampleCollection: !include acq-models/mod-invoice-storage/examples/voucher_collection.sample
+        exampleItem: !include acq-models/mod-invoice-storage/examples/voucher.sample
+
+    get:
+      description: Get list of vouchers
+      is: [
+        pageable,
+        searchable: {description: "with valid searchable fields: for example voucherStatus", example: "voucherStatus==\"Paid\""}
+      ]
+    /{id}:
+      uriParameters:
+        id:
+          description: The UUID of a voucher
+          type: UUID
+      type:
+        collection-item:
+          schema: voucher
+          exampleItem: !include acq-models/mod-invoice-storage/examples/voucher.sample
