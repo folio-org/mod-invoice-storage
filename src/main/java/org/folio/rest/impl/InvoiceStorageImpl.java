@@ -33,7 +33,7 @@ import io.vertx.ext.web.handler.impl.HttpStatusException;
 
 public class InvoiceStorageImpl implements InvoiceStorage {
 
-private static final Logger log = LoggerFactory.getLogger(InvoiceLineNumberAPI.class);
+private static final Logger log = LoggerFactory.getLogger(InvoiceStorageImpl.class);
 
 private static final String INVOICE_PREFIX = "/invoice-storage/invoices/";
 
