@@ -119,6 +119,37 @@
       ]
     },
     {
+      "id": "invoice-storage.voucher-lines",
+      "version": "1.0",
+      "handlers": [
+        {
+          "methods": ["GET"],
+          "pathPattern": "/voucher-storage/voucher-lines",
+          "permissionsRequired": ["invoice-storage.voucher-lines.collection.get"]
+        },
+        {
+          "methods": ["POST"],
+          "pathPattern": "/voucher-storage/voucher-lines",
+          "permissionsRequired": ["invoice-storage.voucher-lines.item.post"]
+        },
+        {
+          "methods": ["GET"],
+          "pathPattern": "/voucher-storage/voucher-lines/{id}",
+          "permissionsRequired": ["invoice-storage.voucher-lines.item.get"]
+        },
+        {
+          "methods": ["PUT"],
+          "pathPattern": "/voucher-storage/voucher-lines/{id}",
+          "permissionsRequired": ["invoice-storage.voucher-lines.item.put"]
+        },
+        {
+          "methods": ["DELETE"],
+          "pathPattern": "/voucher-storage/invoice-lines/{id}",
+          "permissionsRequired": ["invoice-storage.voucher-lines.item.delete"]
+        }
+      ]
+    },
+    {
       "id": "_tenant",
       "version": "1.2",
       "interfaceType": "system",
@@ -217,6 +248,31 @@
       "description": "Delete voucher"
     },
     {
+      "permissionName": "invoice-storage.voucher-lines.collection.get",
+      "displayName": "Invoice storage - get voucher line collection",
+      "description": "Get voucher line collection"
+    },
+    {
+      "permissionName": "invoice-storage.voucher-lines.item.get",
+      "displayName": "Invoice storage - get individual voucher line",
+      "description": "Get individual voucher line"
+    },
+    {
+      "permissionName": "invoice-storage.voucher-lines.item.post",
+      "displayName": "Invoice storage - create voucher line",
+      "description": "Create voucher line"
+    },
+    {
+      "permissionName": "invoice-storage.voucher-lines.item.put",
+      "displayName": "Invoice storage - modify voucher line",
+      "description": "Modify voucher line"
+    },
+    {
+      "permissionName": "invoice-storage.voucher-lines.item.delete",
+      "displayName": "Invoice storage - delete voucher line",
+      "description": "Delete voucher line"
+    },
+    {
       "permissionName": "invoice-storage.module.all",
       "displayName": "Invoice storage module - all permissions",
       "description": "Entire set of permissions needed to use the invoice module",
@@ -237,7 +293,12 @@
         "invoice-storage.vouchers.item.get",
         "invoice-storage.vouchers.item.post",
         "invoice-storage.vouchers.item.put",
-        "invoice-storage.vouchers.item.delete"
+        "invoice-storage.vouchers.item.delete",
+        "invoice-storage.voucher-lines.collection.get",
+        "invoice-storage.voucher-lines.item.get",
+        "invoice-storage.voucher-lines.item.post",
+        "invoice-storage.voucher-lines.item.put",
+        "invoice-storage.voucher-lines.item.delete"
       ],
       "visible": false
     }
