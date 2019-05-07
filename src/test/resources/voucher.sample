@@ -11,7 +11,6 @@
   "voucherNumber": "1000",
   "batchNumber": "101",
   "invoiceId": "c0d08448-347b-418a-8c2f-5fb50248d67e",
-  "userId": "28d1057c-d137-11e8-a8d5-f2801f1b9fd1",
   "voucherLines": [
      {
         "id": "e0d08448-343b-118a-8c2f-4fb50248d672",
