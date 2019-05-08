@@ -65,7 +65,7 @@ resourceTypes:
       description: Get list of voucher lines
       is: [
         pageable,
-        searchable: {description: "with valid searchable fields: for example poLineId", example: "poLineId==\"c0d08448-347b-418a-8c2f-5fb50248d67e\""}
+        searchable: {description: "with valid searchable fields: for example poLineId", example: "externalAccountNumber==\"567891045\""}
       ]
     /{id}:
       uriParameters:
@@ -75,6 +75,6 @@ resourceTypes:
       type:
         collection-item:
           schema: voucherLine
-          exampleItem: !include acq-models/mod-invoice-storage/examples/invoice_line.sample
+          exampleItem: !include acq-models/mod-invoice-storage/examples/voucher_line.sample
       put:
         is: [validate]      
