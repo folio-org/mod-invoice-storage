@@ -47,8 +47,11 @@ public class VoucherNumberTest extends TestBase {
 
   @AfterClass
   public static void tearDown() throws Exception {
-    assertThat(voucherNumberList.get(1) - voucherNumberList.get(0), equalTo(1L));
-    assertThat(voucherNumberList.get(2) - voucherNumberList.get(0), equalTo(2L));
+
+    // Positive scenario - testing of number increase
+    for(int i = 0; i < voucherNumberList.size(); i++) {
+      assertThat(voucherNumberList.get(i) - voucherNumberList.get(0), equalTo((long) i));
+    }
 
     // Negative scenario - retrieving number from non-existed sequence
     dropSequenceInDb();
