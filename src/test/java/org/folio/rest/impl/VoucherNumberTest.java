@@ -48,6 +48,9 @@ public class VoucherNumberTest extends TestBase {
   @AfterClass
   public static void tearDown() throws Exception {
 
+    // Verify expected start value
+    assertThat(voucherNumberList.get(0), equalTo(0L));
+
     // Positive scenario - testing of number increase
     for(int i = 0; i < voucherNumberList.size(); i++) {
       assertThat(voucherNumberList.get(i) - voucherNumberList.get(0), equalTo((long) i));
