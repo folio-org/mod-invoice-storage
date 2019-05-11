@@ -119,6 +119,17 @@
       ]
     },
     {
+      "id": "voucher-storage.voucher-number",
+      "version": "1.0",
+      "handlers": [
+        {
+          "methods": ["GET"],
+          "pathPattern": "/voucher-storage/voucher-number",
+          "permissionsRequired": ["invoice-storage.voucher-number.get"]
+        }
+      ]
+    },
+    {
       "id": "_tenant",
       "version": "1.2",
       "interfaceType": "system",
@@ -217,6 +228,11 @@
       "description": "Delete voucher"
     },
     {
+      "permissionName" : "invoice-storage.voucher-number.get",
+      "displayName" : "Invoice storage - generate voucher number",
+      "description" : "Get voucher number"
+    },
+    {
       "permissionName": "invoice-storage.module.all",
       "displayName": "Invoice storage module - all permissions",
       "description": "Entire set of permissions needed to use the invoice module",
@@ -237,7 +253,8 @@
         "invoice-storage.vouchers.item.get",
         "invoice-storage.vouchers.item.post",
         "invoice-storage.vouchers.item.put",
-        "invoice-storage.vouchers.item.delete"
+        "invoice-storage.vouchers.item.delete",
+        "invoice-storage.voucher-number.get"
       ],
       "visible": false
     }

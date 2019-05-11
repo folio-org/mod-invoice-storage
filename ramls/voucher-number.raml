@@ -1,0 +1,30 @@
+#%RAML 1.0
+title: "Invoice Storage"
+baseUri: http://github.com/folio-org/mod-invoice-storage
+version: v1
+
+documentation:
+  - title: Voucher Number
+    content: <b>API used to manage voucher number.</b>
+
+types:
+  sequenceNumber: !include acq-models/common/schemas/sequence_number.json
+
+traits:
+    language: !include raml-util/traits/language.raml
+
+/voucher-storage/voucher-number:
+    get:
+      is: [language]
+      description: Get generated voucher number
+      responses:
+        200:
+          body:
+            application/json:
+              type: sequenceNumber
+        500:
+          description: "Internal server error, e.g. due to misconfiguration"
+          body:
+            text/plain:
+              example: "internal server error, contact administrator"
+
