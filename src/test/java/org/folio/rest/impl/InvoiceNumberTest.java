@@ -47,8 +47,11 @@ public class InvoiceNumberTest extends TestBase {
 
   @AfterClass
   public static void tearDown() throws Exception {
-    assertThat(invoiceNumberList.get(1) - invoiceNumberList.get(0), equalTo(1L));
-    assertThat(invoiceNumberList.get(2) - invoiceNumberList.get(0), equalTo(2L));
+
+    // Positive scenario - testing of number increase
+    for(int i = 0; i < invoiceNumberList.size(); i++) {
+      assertThat(invoiceNumberList.get(i) - invoiceNumberList.get(0), equalTo((long) i));
+    }
 
     // Negative scenario - retrieving number from non-existed sequence
     dropSequenceInDb();
