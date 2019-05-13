@@ -21,6 +21,13 @@
       "fromModuleVersion": 1.0,
       "withMetadata": true,
       "populateJsonWithId": true
+    },
+    {
+      "tableName": "voucher_lines",
+      "generateId": true,
+      "fromModuleVersion": 1.0,
+      "withMetadata": true,
+      "populateJsonWithId": true
     }
   ]
 }
