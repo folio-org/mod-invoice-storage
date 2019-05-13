@@ -94,27 +94,27 @@
         {
           "methods": ["GET"],
           "pathPattern": "/voucher-storage/vouchers",
-          "permissionsRequired": ["invoice-storage.vouchers.collection.get"]
+          "permissionsRequired": ["voucher-storage.vouchers.collection.get"]
         },
         {
           "methods": ["POST"],
           "pathPattern": "/voucher-storage/vouchers",
-          "permissionsRequired": ["invoice-storage.vouchers.item.post"]
+          "permissionsRequired": ["voucher-storage.vouchers.item.post"]
         },
         {
           "methods": ["GET"],
           "pathPattern": "/voucher-storage/vouchers/{id}",
-          "permissionsRequired": ["invoice-storage.vouchers.item.get"]
+          "permissionsRequired": ["voucher-storage.vouchers.item.get"]
         },
         {
           "methods": ["PUT"],
           "pathPattern": "/voucher-storage/vouchers/{id}",
-          "permissionsRequired": ["invoice-storage.vouchers.item.put"]
+          "permissionsRequired": ["voucher-storage.vouchers.item.put"]
         },
         {
           "methods": ["DELETE"],
           "pathPattern": "/voucher-storage/vouchers/{id}",
-          "permissionsRequired": ["invoice-storage.vouchers.item.delete"]
+          "permissionsRequired": ["voucher-storage.vouchers.item.delete"]
         }
       ]
     },
@@ -125,27 +125,27 @@
         {
           "methods": ["GET"],
           "pathPattern": "/voucher-storage/voucher-lines",
-          "permissionsRequired": ["invoice-storage.voucher-lines.collection.get"]
+          "permissionsRequired": ["voucher-storage.voucher-lines.collection.get"]
         },
         {
           "methods": ["POST"],
           "pathPattern": "/voucher-storage/voucher-lines",
-          "permissionsRequired": ["invoice-storage.voucher-lines.item.post"]
+          "permissionsRequired": ["voucher-storage.voucher-lines.item.post"]
         },
         {
           "methods": ["GET"],
           "pathPattern": "/voucher-storage/voucher-lines/{id}",
-          "permissionsRequired": ["invoice-storage.voucher-lines.item.get"]
+          "permissionsRequired": ["voucher-storage.voucher-lines.item.get"]
         },
         {
           "methods": ["PUT"],
           "pathPattern": "/voucher-storage/voucher-lines/{id}",
-          "permissionsRequired": ["invoice-storage.voucher-lines.item.put"]
+          "permissionsRequired": ["voucher-storage.voucher-lines.item.put"]
         },
         {
           "methods": ["DELETE"],
           "pathPattern": "/voucher-storage/invoice-lines/{id}",
-          "permissionsRequired": ["invoice-storage.voucher-lines.item.delete"]
+          "permissionsRequired": ["voucher-storage.voucher-lines.item.delete"]
         }
       ]
     },
@@ -223,54 +223,72 @@
       "description": "Get invoice line number"
     },
     {
-      "permissionName": "invoice-storage.vouchers.collection.get",
-      "displayName": "Invoice storage - get voucher collection",
+      "permissionName": "voucher-storage.vouchers.collection.get",
+      "displayName": "Voucher storage - get voucher collection",
       "description": "Get voucher collection"
     },
     {
-      "permissionName": "invoice-storage.vouchers.item.get",
-      "displayName": "Invoice storage - get individual voucher",
-      "description": "Get individual vouchers"
+      "permissionName": "voucher-storage.vouchers.item.get",
+      "displayName": "voucher storage - get individual voucher",
+      "description": "Get individual voucher"
     },
     {
-      "permissionName": "invoice-storage.vouchers.item.post",
-      "displayName": "Invoice storage - create voucher",
+      "permissionName": "voucher-storage.vouchers.item.post",
+      "displayName": "voucher storage - create voucher",
       "description": "Create voucher"
     },
     {
-      "permissionName": "invoice-storage.vouchers.item.put",
-      "displayName": "Invoice storage - modify invoice",
-      "description": "Modify invoice"
+      "permissionName": "voucher-storage.vouchers.item.put",
+      "displayName": "Voucher storage - modify voucher",
+      "description": "Modify voucher"
     },
     {
-      "permissionName": "invoice-storage.vouchers.item.delete",
-      "displayName": "Invoice storage - delete voucher",
+      "permissionName": "voucher-storage.vouchers.item.delete",
+      "displayName": "Voucher storage - delete voucher",
       "description": "Delete voucher"
     },
     {
-      "permissionName": "invoice-storage.voucher-lines.collection.get",
-      "displayName": "Invoice storage - get voucher line collection",
+      "permissionName": "voucher-storage.voucher-lines.collection.get",
+      "displayName": "Voucher storage - get voucher line collection",
       "description": "Get voucher line collection"
     },
     {
-      "permissionName": "invoice-storage.voucher-lines.item.get",
-      "displayName": "Invoice storage - get individual voucher line",
+      "permissionName": "voucher-storage.voucher-lines.item.get",
+      "displayName": "Voucher storage - get individual voucher line",
       "description": "Get individual voucher line"
     },
     {
-      "permissionName": "invoice-storage.voucher-lines.item.post",
-      "displayName": "Invoice storage - create voucher line",
+      "permissionName": "voucher-storage.voucher-lines.item.post",
+      "displayName": "Voucher storage - create voucher line",
       "description": "Create voucher line"
     },
     {
-      "permissionName": "invoice-storage.voucher-lines.item.put",
-      "displayName": "Invoice storage - modify voucher line",
+      "permissionName": "voucher-storage.voucher-lines.item.put",
+      "displayName": "Voucher storage - modify voucher line",
       "description": "Modify voucher line"
     },
     {
-      "permissionName": "invoice-storage.voucher-lines.item.delete",
-      "displayName": "Invoice storage - delete voucher line",
+      "permissionName": "voucher-storage.voucher-lines.item.delete",
+      "displayName": "Voucher storage - delete voucher line",
       "description": "Delete voucher line"
+    },
+    {
+      "permissionName": "voucher-storage.module.all",
+      "displayName": "Voucher storage - all permissions",
+      "description": "Entire set of permissions needed to use vouchers",
+      "subPermissions": [
+        "voucher-storage.vouchers.collection.get",
+        "voucher-storage.vouchers.item.get",
+        "voucher-storage.vouchers.item.post",
+        "voucher-storage.vouchers.item.put",
+        "voucher-storage.vouchers.item.delete",
+        "voucher-storage.voucher-lines.collection.get",
+        "voucher-storage.voucher-lines.item.get",
+        "voucher-storage.voucher-lines.item.post",
+        "voucher-storage.voucher-lines.item.put",
+        "voucher-storage.voucher-lines.item.delete"
+      ],
+      "visible": false
     },
     {
       "permissionName": "invoice-storage.module.all",
@@ -289,16 +307,7 @@
         "invoice-storage.invoice-lines.item.delete",
         "invoice-storage.invoice-number.get",
         "invoice-storage.invoice-line-number.get",
-        "invoice-storage.vouchers.collection.get",
-        "invoice-storage.vouchers.item.get",
-        "invoice-storage.vouchers.item.post",
-        "invoice-storage.vouchers.item.put",
-        "invoice-storage.vouchers.item.delete",
-        "invoice-storage.voucher-lines.collection.get",
-        "invoice-storage.voucher-lines.item.get",
-        "invoice-storage.voucher-lines.item.post",
-        "invoice-storage.voucher-lines.item.put",
-        "invoice-storage.voucher-lines.item.delete"
+        "voucher-storage.module.all"
       ],
       "visible": false
     }
