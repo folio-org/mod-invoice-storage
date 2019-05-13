@@ -125,7 +125,7 @@
         {
           "methods": ["GET"],
           "pathPattern": "/voucher-storage/voucher-number",
-          "permissionsRequired": ["invoice-storage.voucher-number.get"]
+          "permissionsRequired": ["voucher-storage.voucher-number.get"]
         }
       ]
     },
@@ -228,8 +228,8 @@
       "description": "Delete voucher"
     },
     {
-      "permissionName" : "invoice-storage.voucher-number.get",
-      "displayName" : "Invoice storage - generate voucher number",
+      "permissionName" : "voucher-storage.voucher-number.get",
+      "displayName" : "Voucher storage - generate voucher number",
       "description" : "Get voucher number"
     },
     {
@@ -254,7 +254,7 @@
         "invoice-storage.vouchers.item.post",
         "invoice-storage.vouchers.item.put",
         "invoice-storage.vouchers.item.delete",
-        "invoice-storage.voucher-number.get"
+        "voucher-storage.voucher-number.get"
       ],
       "visible": false
     }
