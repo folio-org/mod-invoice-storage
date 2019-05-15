@@ -12,6 +12,8 @@ documentation:
 types:
   voucher: !include acq-models/mod-invoice-storage/schemas/voucher.json
   voucherCollection: !include acq-models/mod-invoice-storage/schemas/voucher_collection.json
+  voucherLine: !include acq-models/mod-invoice-storage/schemas/voucher_line.json
+  voucherLineCollection: !include acq-models/mod-invoice-storage/schemas/voucher_line_collection.json
   errors: !include raml-util/schemas/errors.schema
   UUID:
     type: string
@@ -51,3 +53,28 @@ resourceTypes:
         collection-item:
           schema: voucher
           exampleItem: !include acq-models/mod-invoice-storage/examples/voucher.sample
+  /voucher-lines:
+    type:
+      collection:
+        schemaCollection: voucherLineCollection
+        schemaItem: voucherLine
+        exampleCollection: !include acq-models/mod-invoice-storage/examples/voucher_line_collection.sample
+        exampleItem: !include acq-models/mod-invoice-storage/examples/voucher_line.sample
+
+    get:
+      description: Get list of voucher lines
+      is: [
+        pageable,
+        searchable: {description: "with valid searchable fields: for example externalAccountNumber", example: "externalAccountNumber==\"567891045\""}
+      ]
+    /{id}:
+      uriParameters:
+        id:
+          description: The UUID of an voucher line
+          type: UUID
+      type:
+        collection-item:
+          schema: voucherLine
+          exampleItem: !include acq-models/mod-invoice-storage/examples/voucher_line.sample
+      put:
+        is: [validate]      

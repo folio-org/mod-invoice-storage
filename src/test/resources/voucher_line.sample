@@ -1,0 +1,9 @@
+{
+  "id": "e0d08448-343b-118a-8c2f-4fb50248d672",
+  "externalAccountNumber": "54321098",
+  "voucherLineAmount": 23.45,
+  "fundId": "172364c7-AaAa-A0C2-C12C-e35CeCcbfaF2",
+  "sourceId": "825fc0f9-6634-47ec-a750-da33c5cfbab6",
+  "fundDistributions": "efee4b3a-fcd5-40c8-8cf4-0ee3d76ddf4d",
+  "subTransactionId": "7b1f7179-b83f-4eab-a4db-3c600eebe271"
+}
