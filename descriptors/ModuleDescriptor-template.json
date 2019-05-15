@@ -144,7 +144,7 @@
         },
         {
           "methods": ["DELETE"],
-          "pathPattern": "/voucher-storage/invoice-lines/{id}",
+          "pathPattern": "/voucher-storage/voucher-lines/{id}",
           "permissionsRequired": ["voucher-storage.voucher-lines.item.delete"]
         }
       ]
