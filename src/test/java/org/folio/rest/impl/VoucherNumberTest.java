@@ -24,33 +24,36 @@ import static org.folio.rest.impl.StorageTestSuite.storageUrl;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
 
-public class InvoiceNumberTest extends TestBase {
+public class VoucherNumberTest extends TestBase {
 
   @Rule
   public RepeatRule rule = new RepeatRule();
-  private static List<Long> invoiceNumberList;
+  private static List<Long> voucherNumberList;
 
   private static final String SEQUENCE_NUMBER = "sequenceNumber";
-  private static final String INVOICE_NUMBER_ENDPOINT = "/invoice-storage/invoice-number";
-  private static final String DROP_SEQUENCE_QUERY = "DROP SEQUENCE diku_mod_invoice_storage.invoice_number";
+  private static final String VOUCHER_NUMBER_ENDPOINT = "/voucher-storage/voucher-number";
+  private static final String DROP_SEQUENCE_QUERY = "DROP SEQUENCE diku_mod_invoice_storage.voucher_number";
 
   @BeforeClass
   public static void setUp() {
-    invoiceNumberList  = new ArrayList<>();
+    voucherNumberList  = new ArrayList<>();
   }
 
   @Test
   @Repeat(3)
-  public void testGetInvoiceNumber() throws MalformedURLException {
-    invoiceNumberList.add(getNumberAsLong());
+  public void testGetVoucherNumber() throws MalformedURLException {
+    voucherNumberList.add(getNumberAsLong());
   }
 
   @AfterClass
   public static void tearDown() throws Exception {
 
+    // Verify expected start value
+    assertThat(voucherNumberList.get(0), equalTo(0L));
+
     // Positive scenario - testing of number increase
-    for(int i = 0; i < invoiceNumberList.size(); i++) {
-      assertThat(invoiceNumberList.get(i) - invoiceNumberList.get(0), equalTo((long) i));
+    for(int i = 0; i < voucherNumberList.size(); i++) {
+      assertThat(voucherNumberList.get(i) - voucherNumberList.get(0), equalTo((long) i));
     }
 
     // Negative scenario - retrieving number from non-existed sequence
@@ -59,7 +62,7 @@ public class InvoiceNumberTest extends TestBase {
   }
 
   private long getNumberAsLong() throws MalformedURLException {
-    return new Long(getData(INVOICE_NUMBER_ENDPOINT)
+    return new Long(getData(VOUCHER_NUMBER_ENDPOINT)
       .then()
         .statusCode(HttpStatus.HTTP_OK.toInt())
         .extract()
@@ -71,7 +74,7 @@ public class InvoiceNumberTest extends TestBase {
     given()
       .header(TENANT_HEADER)
       .contentType(ContentType.JSON)
-        .get(storageUrl(INVOICE_NUMBER_ENDPOINT))
+        .get(storageUrl(VOUCHER_NUMBER_ENDPOINT))
           .then()
             .statusCode(HttpStatus.HTTP_INTERNAL_SERVER_ERROR.toInt())
             .contentType(TEXT_PLAIN)

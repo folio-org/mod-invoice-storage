@@ -150,6 +150,17 @@
       ]
     },
     {
+      "id": "voucher-storage.voucher-number",
+      "version": "1.0",
+      "handlers": [
+        {
+          "methods": ["GET"],
+          "pathPattern": "/voucher-storage/voucher-number",
+          "permissionsRequired": ["voucher-storage.voucher-number.get"]
+        }
+      ]
+    },
+    {
       "id": "_tenant",
       "version": "1.2",
       "interfaceType": "system",
@@ -248,6 +259,11 @@
       "description": "Delete voucher"
     },
     {
+      "permissionName" : "voucher-storage.voucher-number.get",
+      "displayName" : "Voucher storage - generate voucher number",
+      "description" : "Get voucher number"
+    },
+    {
       "permissionName": "voucher-storage.voucher-lines.collection.get",
       "displayName": "Voucher storage - get voucher line collection",
       "description": "Get voucher line collection"
@@ -282,6 +298,7 @@
         "voucher-storage.vouchers.item.post",
         "voucher-storage.vouchers.item.put",
         "voucher-storage.vouchers.item.delete",
+        "voucher-storage.voucher-number.get",
         "voucher-storage.voucher-lines.collection.get",
         "voucher-storage.voucher-lines.item.get",
         "voucher-storage.voucher-lines.item.post",
