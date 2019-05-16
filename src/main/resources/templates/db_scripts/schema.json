@@ -21,7 +21,13 @@
       "fromModuleVersion": 1.0,
       "withMetadata": true,
       "populateJsonWithId": true,
-      "customSnippetPath": "voucher_number_sequence.sql"
+      "customSnippetPath": "voucher_number_sequence.sql",
+      "uniqueIndex": [
+        {
+          "fieldName": "voucherNumber",
+          "tOps": "ADD"
+        }
+      ]
     },
     {
       "tableName": "voucher_lines",
