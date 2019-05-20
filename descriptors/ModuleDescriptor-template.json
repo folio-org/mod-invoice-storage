@@ -232,12 +232,7 @@
       "permissionName" : "invoice-storage.invoice-number.get",
       "displayName" : "Invoice storage - generate invoice number",
       "description" : "Get invoice number"
-    },
-    {
-      "permissionName" : "invoice-storage.invoice-number.start.get",
-      "displayName" : "Invoice storage - get current start value of the invoice number",
-      "description" : "Get current start value of the invoice number"
-    },    
+    },   
     {
       "permissionName": "invoice-storage.invoice-line-number.get",
       "displayName": "Invoice storage - generate invoice line number",
@@ -274,6 +269,11 @@
       "description" : "Get voucher number"
     },
     {
+      "permissionName" : "voucher-storage.voucher-number.start.get",
+      "displayName" : "Voucher storage - get current start value of the voucher number",
+      "description" : "Get current start value of the voucher number"
+    },     
+    {
       "permissionName": "voucher-storage.voucher-lines.collection.get",
       "displayName": "Voucher storage - get voucher line collection",
       "description": "Get voucher line collection"
@@ -309,7 +309,7 @@
         "voucher-storage.vouchers.item.put",
         "voucher-storage.vouchers.item.delete",
         "voucher-storage.voucher-number.get",
-        "invoice-storage.invoice-number.start.get",
+        "invoice-storage.voucher-number.start.get",
         "voucher-storage.voucher-lines.collection.get",
         "voucher-storage.voucher-lines.item.get",
         "voucher-storage.voucher-lines.item.post",
