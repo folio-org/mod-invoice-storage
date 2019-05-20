@@ -157,6 +157,11 @@
           "methods": ["GET"],
           "pathPattern": "/voucher-storage/voucher-number",
           "permissionsRequired": ["voucher-storage.voucher-number.get"]
+        },
+        {
+          "methods": ["GET"],
+          "pathPattern": "/voucher-storage/voucher-number/start",
+          "permissionsRequired": ["voucher-storage.voucher-number.start.get"]
         }
       ]
     },
@@ -229,6 +234,11 @@
       "description" : "Get invoice number"
     },
     {
+      "permissionName" : "invoice-storage.invoice-number.start.get",
+      "displayName" : "Invoice storage - get current start value of the invoice number",
+      "description" : "Get current start value of the invoice number"
+    },    
+    {
       "permissionName": "invoice-storage.invoice-line-number.get",
       "displayName": "Invoice storage - generate invoice line number",
       "description": "Get invoice line number"
@@ -299,6 +309,7 @@
         "voucher-storage.vouchers.item.put",
         "voucher-storage.vouchers.item.delete",
         "voucher-storage.voucher-number.get",
+        "invoice-storage.invoice-number.start.get",
         "voucher-storage.voucher-lines.collection.get",
         "voucher-storage.voucher-lines.item.get",
         "voucher-storage.voucher-lines.item.post",
