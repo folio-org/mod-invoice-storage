@@ -32,7 +32,7 @@ public class VoucherNumberTest extends TestBase {
 
   private static final String SEQUENCE_NUMBER = "sequenceNumber";
   private static final String VOUCHER_NUMBER_ENDPOINT = "/voucher-storage/voucher-number";
-  private static final String VOUCHER_NUMBER_START_ENDPOINT = "/voucher-storage/voucher-number/start";
+  private static final String VOUCHER_STORAGE_VOUCHER_NUMBER_START_ENDPOINT = "/voucher-storage/voucher-number/start";
   private static final String VOUCHER_NUMBER_INVALID_START_ENDPOINT = "/voucher-storage/voucher-number/bad_start";
   private static final String DROP_SEQUENCE_QUERY = "DROP SEQUENCE diku_mod_invoice_storage.voucher_number";
 
@@ -82,7 +82,7 @@ public class VoucherNumberTest extends TestBase {
   }
 
   private long getCurrentStartValueVoucherNumber() throws MalformedURLException {
-    return new Long(getData(VOUCHER_NUMBER_START_ENDPOINT)
+    return new Long(getData(VOUCHER_STORAGE_VOUCHER_NUMBER_START_ENDPOINT)
       .then()
         .statusCode(HttpStatus.HTTP_OK.toInt())
         .extract()
