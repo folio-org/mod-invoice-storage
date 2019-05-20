@@ -232,7 +232,7 @@
       "permissionName" : "invoice-storage.invoice-number.get",
       "displayName" : "Invoice storage - generate invoice number",
       "description" : "Get invoice number"
-    },   
+    },
     {
       "permissionName": "invoice-storage.invoice-line-number.get",
       "displayName": "Invoice storage - generate invoice line number",
