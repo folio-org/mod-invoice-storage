@@ -2,14 +2,12 @@ package org.folio.rest.impl;
 
 import static io.vertx.core.Future.succeededFuture;
 import static org.folio.rest.RestVerticle.OKAPI_HEADER_TENANT;
-import static org.folio.rest.jaxrs.resource.VoucherStorageVoucherNumber.GetVoucherStorageVoucherNumberResponse.respond200WithApplicationJson;
-import static org.folio.rest.jaxrs.resource.VoucherStorageVoucherNumber.GetVoucherStorageVoucherNumberResponse.respond500WithTextPlain;
-
 import java.util.Map;
 
 import javax.ws.rs.core.Response;
 
 import org.folio.rest.jaxrs.model.SequenceNumber;
+import org.folio.rest.jaxrs.resource.VoucherStorageVoucherNumber;
 import org.folio.rest.tools.client.HttpClientFactory;
 import org.folio.rest.tools.client.interfaces.HttpClientInterface;
 import org.folio.rest.tools.messages.MessageConsts;
@@ -41,7 +39,7 @@ public class VoucherNumberHelper {
   }
   
   public void retrieveVoucherNumber(AsyncResult<JsonArray> reply, Handler<AsyncResult<Response>> asyncResultHandler,
-      Messages messages, String lang, Map<String, String> okapiHeaders, Context vertxContext) {
+      Messages messages, String lang, Context vertxContext) {
     try {
       if (reply.succeeded()) {
         String voucherNumber = reply.result()
@@ -49,15 +47,15 @@ public class VoucherNumberHelper {
           .get(0)
           .toString();
         log.debug("Retrieved voucher number: {}", voucherNumber);
-        asyncResultHandler
-          .handle(succeededFuture(respond200WithApplicationJson(new SequenceNumber().withSequenceNumber(voucherNumber))));
+        SequenceNumber sequenceNumber = new SequenceNumber().withSequenceNumber(voucherNumber);
+        asyncResultHandler.handle(succeededFuture(VoucherStorageVoucherNumber.GetVoucherStorageVoucherNumberResponse.respond200WithApplicationJson(sequenceNumber)));
       } else {
         throw new Exception(reply.cause());
       }
     } catch (Exception e) {
       log.error(e.getMessage(), e);
-      asyncResultHandler
-        .handle(succeededFuture(respond500WithTextPlain(messages.getMessage(lang, MessageConsts.InternalServerError))));
+      String msg = messages.getMessage(lang, MessageConsts.InternalServerError);
+      asyncResultHandler.handle(succeededFuture(VoucherStorageVoucherNumber.GetVoucherStorageVoucherNumberResponse.respond500WithTextPlain(msg)));
     }
   }
 }

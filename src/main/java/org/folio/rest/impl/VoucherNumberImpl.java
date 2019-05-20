@@ -23,22 +23,20 @@ public class VoucherNumberImpl implements VoucherStorageVoucherNumber {
   @Override
   public void getVoucherStorageVoucherNumber(String lang, Map<String, String> okapiHeaders,
       Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
-    VoucherNumberHelper voucherNumberHelper1 = new VoucherNumberHelper(okapiHeaders);
+    VoucherNumberHelper getVoucherNumberHelper = new VoucherNumberHelper(okapiHeaders);
     String tenantId = TenantTool.calculateTenantId(okapiHeaders.get(RestVerticle.OKAPI_HEADER_TENANT));
     PostgresClient.getInstance(vertxContext.owner(), tenantId)
-      .selectSingle(VOUCHER_NUMBER_QUERY, reply -> {
-        voucherNumberHelper1.retrieveVoucherNumber(reply, asyncResultHandler, messages, lang, okapiHeaders, vertxContext);
-      });
+      .selectSingle(VOUCHER_NUMBER_QUERY,
+          reply -> getVoucherNumberHelper.retrieveVoucherNumber(reply, asyncResultHandler, messages, lang, vertxContext));
   }
 
   @Override
   public void getVoucherStorageVoucherNumberStart(String lang, Map<String, String> okapiHeaders,
       Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
-    VoucherNumberHelper voucherNumberHelper = new VoucherNumberHelper(okapiHeaders);
+    VoucherNumberHelper getVoucherNumberStartHelper = new VoucherNumberHelper(okapiHeaders);
     String tenantId = TenantTool.calculateTenantId(okapiHeaders.get(RestVerticle.OKAPI_HEADER_TENANT));
     PostgresClient.getInstance(vertxContext.owner(), tenantId)
-      .selectSingle(CURRENT_VOUCHER_NUMBER_QUERY, reply -> {
-        voucherNumberHelper.retrieveVoucherNumber(reply, asyncResultHandler, messages, lang, okapiHeaders, vertxContext);
-      });
+      .selectSingle(CURRENT_VOUCHER_NUMBER_QUERY,
+          reply -> getVoucherNumberStartHelper.retrieveVoucherNumber(reply, asyncResultHandler, messages, lang, vertxContext));
   }
 }
