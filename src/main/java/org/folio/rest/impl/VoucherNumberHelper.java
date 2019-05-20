@@ -50,7 +50,8 @@ public class VoucherNumberHelper {
         SequenceNumber sequenceNumber = new SequenceNumber().withSequenceNumber(voucherNumber);
         asyncResultHandler.handle(succeededFuture(VoucherStorageVoucherNumber.GetVoucherStorageVoucherNumberResponse.respond200WithApplicationJson(sequenceNumber)));
       } else {
-        throw new Exception("--- VoucherNumberAPI --- Unable to retrieve Voucher number from a sequence");
+        String msg = messages.getMessage(lang, MessageConsts.InternalServerError);
+        asyncResultHandler.handle(succeededFuture(VoucherStorageVoucherNumber.GetVoucherStorageVoucherNumberResponse.respond500WithTextPlain(msg)));
       }
     } catch (Exception e) {
       log.error(e.getMessage(), e);
