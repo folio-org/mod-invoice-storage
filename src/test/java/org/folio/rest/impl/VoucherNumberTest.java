@@ -32,6 +32,8 @@ public class VoucherNumberTest extends TestBase {
 
   private static final String SEQUENCE_NUMBER = "sequenceNumber";
   private static final String VOUCHER_NUMBER_ENDPOINT = "/voucher-storage/voucher-number";
+  private static final String VOUCHER_NUMBER_START_ENDPOINT = "/voucher-storage/voucher-number/start";
+  private static final String VOUCHER_NUMBER_INVALID_START_ENDPOINT = "/voucher-storage/voucher-number/bad_start";
   private static final String DROP_SEQUENCE_QUERY = "DROP SEQUENCE diku_mod_invoice_storage.voucher_number";
 
   @BeforeClass
@@ -45,12 +47,30 @@ public class VoucherNumberTest extends TestBase {
     voucherNumberList.add(getNumberAsLong());
   }
 
+  @Test
+  public void testCurrentStartValueVoucherNumber() throws MalformedURLException {
+    int i = 3;
+    while(i <= 5) {
+      voucherNumberList.add(getNumberAsLong());
+      i++;
+    }
+
+    // Get and verify Voucher number's start value is as expected
+    assertThat(voucherNumberList.get(5), equalTo(getCurrentStartValueVoucherNumber()));
+  }
+
+  @Test
+  public void testCurrentStartValueVoucherNumberInvalidUrl() throws MalformedURLException {
+    getData(VOUCHER_NUMBER_INVALID_START_ENDPOINT).then()
+      .statusCode(400);
+  }
+
   @AfterClass
   public static void tearDown() throws Exception {
 
     // Verify expected start value
     assertThat(voucherNumberList.get(0), equalTo(0L));
-
+    
     // Positive scenario - testing of number increase
     for(int i = 0; i < voucherNumberList.size(); i++) {
       assertThat(voucherNumberList.get(i) - voucherNumberList.get(0), equalTo((long) i));
@@ -59,6 +79,15 @@ public class VoucherNumberTest extends TestBase {
     // Negative scenario - retrieving number from non-existed sequence
     dropSequenceInDb();
     testProcessingErrorReply();
+  }
+
+  private long getCurrentStartValueVoucherNumber() throws MalformedURLException {
+    return new Long(getData(VOUCHER_NUMBER_START_ENDPOINT)
+      .then()
+        .statusCode(HttpStatus.HTTP_OK.toInt())
+        .extract()
+          .response()
+            .path(SEQUENCE_NUMBER));
   }
 
   private long getNumberAsLong() throws MalformedURLException {

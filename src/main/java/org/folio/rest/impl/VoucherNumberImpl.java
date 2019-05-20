@@ -27,6 +27,7 @@ public class VoucherNumberImpl implements VoucherStorageVoucherNumber {
 
   private static final Logger log = LoggerFactory.getLogger(VoucherNumberImpl.class);
   private static final String VOUCHER_NUMBER_QUERY = "SELECT nextval('voucher_number')";
+  private static final String CURRENT_VOUCHER_NUMBER_QUERY = "SELECT currval('voucher_number')";
 
   @Override
   public void getVoucherStorageVoucherNumber(String lang, Map<String, String> okapiHeaders, Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
@@ -37,6 +38,28 @@ public class VoucherNumberImpl implements VoucherStorageVoucherNumber {
           if(reply.succeeded()) {
             String voucherNumber = reply.result().getList().get(0).toString();
             log.debug("Retrieved voucher number: {}", voucherNumber);
+            asyncResultHandler.handle(succeededFuture(respond200WithApplicationJson(new SequenceNumber().withSequenceNumber(voucherNumber))));
+          } else {
+            throw new Exception(reply.cause());
+          }
+        } catch (Exception e) {
+          log.error(e.getMessage(), e);
+          asyncResultHandler.handle(succeededFuture(respond500WithTextPlain(messages.getMessage(lang, MessageConsts.InternalServerError))));
+        }
+      });
+    });
+  }
+
+  @Override
+  public void getVoucherStorageVoucherNumberStart(String lang, Map<String, String> okapiHeaders,
+      Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
+    vertxContext.runOnContext((Void v) -> {
+      String tenantId = TenantTool.calculateTenantId(okapiHeaders.get(RestVerticle.OKAPI_HEADER_TENANT));
+      PostgresClient.getInstance(vertxContext.owner(), tenantId).selectSingle(CURRENT_VOUCHER_NUMBER_QUERY, reply -> {
+        try {
+          if(reply.succeeded()) {
+            String voucherNumber = reply.result().getList().get(0).toString();
+            log.debug("Retrieved current voucher number: {}", voucherNumber);
             asyncResultHandler.handle(succeededFuture(respond200WithApplicationJson(new SequenceNumber().withSequenceNumber(voucherNumber))));
           } else {
             throw new Exception(reply.cause());
