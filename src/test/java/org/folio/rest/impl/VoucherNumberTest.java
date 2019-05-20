@@ -49,10 +49,10 @@ public class VoucherNumberTest extends TestBase {
 
   @Test
   public void testCurrentStartValueVoucherNumber() throws MalformedURLException {
-    int i = 3;
-    while(i <= 5) {
+    int voucherNumberSequenceInitialValue = 3;
+    while(voucherNumberSequenceInitialValue <= 5) {
       voucherNumberList.add(getNumberAsLong());
-      i++;
+      voucherNumberSequenceInitialValue++;
     }
 
     // Get and verify Voucher number's start value is as expected

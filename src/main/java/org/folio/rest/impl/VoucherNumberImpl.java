@@ -37,7 +37,7 @@ public class VoucherNumberImpl implements VoucherStorageVoucherNumber {
         try {
           if(reply.succeeded()) {
             String voucherNumber = reply.result().getList().get(0).toString();
-            log.debug("Retrieved voucher number: {}", voucherNumber);
+            log.debug("Retrieved next voucher number: {}", voucherNumber);
             asyncResultHandler.handle(succeededFuture(respond200WithApplicationJson(new SequenceNumber().withSequenceNumber(voucherNumber))));
           } else {
             throw new Exception(reply.cause());
