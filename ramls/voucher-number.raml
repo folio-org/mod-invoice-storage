@@ -14,9 +14,23 @@ traits:
     language: !include raml-util/traits/language.raml
 
 /voucher-storage/voucher-number:
+  get:
+    is: [language]
+    description: Get generated voucher number
+    responses:
+      200:
+        body:
+          application/json:
+            type: sequenceNumber
+      500:
+        description: "Internal server error, e.g. due to misconfiguration"
+        body:
+          text/plain:
+            example: "internal server error, contact administrator"
+  /start:
     get:
       is: [language]
-      description: Get generated voucher number
+      description: Get current start value of voucher number sequence
       responses:
         200:
           body:
@@ -27,17 +41,3 @@ traits:
           body:
             text/plain:
               example: "internal server error, contact administrator"
-    /start:
-      get:
-        is: [language]
-        description: Get voucher number start
-        responses:
-          200:
-            body:
-              application/json:
-                type: sequenceNumber
-          500:
-            description: "Internal server error, e.g. due to misconfiguration"
-            body:
-              text/plain:
-                example: "internal server error, contact administrator"
