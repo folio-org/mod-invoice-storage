@@ -2,6 +2,7 @@ package org.folio.rest.impl;
 
 import static io.vertx.core.Future.succeededFuture;
 import static org.folio.rest.RestVerticle.OKAPI_HEADER_TENANT;
+
 import java.util.Map;
 
 import javax.ws.rs.core.Response;
@@ -11,11 +12,10 @@ import org.folio.rest.jaxrs.resource.VoucherStorageVoucherNumber;
 import org.folio.rest.tools.client.HttpClientFactory;
 import org.folio.rest.tools.client.interfaces.HttpClientInterface;
 import org.folio.rest.tools.messages.MessageConsts;
-import org.folio.rest.tools.utils.TenantTool;
 import org.folio.rest.tools.messages.Messages;
+import org.folio.rest.tools.utils.TenantTool;
 
 import io.vertx.core.AsyncResult;
-import io.vertx.core.Context;
 import io.vertx.core.Handler;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.logging.Logger;
