@@ -39,7 +39,7 @@ public class VoucherNumberHelper {
   }
   
   public void retrieveVoucherNumber(AsyncResult<JsonArray> reply, Handler<AsyncResult<Response>> asyncResultHandler,
-      Messages messages, String lang, Context vertxContext) {
+      Messages messages, String lang) {
     try {
       if (reply.succeeded()) {
         String voucherNumber = reply.result()

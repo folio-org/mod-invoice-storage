@@ -27,7 +27,7 @@ public class VoucherNumberImpl implements VoucherStorageVoucherNumber {
     String tenantId = TenantTool.calculateTenantId(okapiHeaders.get(RestVerticle.OKAPI_HEADER_TENANT));
     PostgresClient.getInstance(vertxContext.owner(), tenantId)
       .selectSingle(VOUCHER_NUMBER_QUERY,
-          reply -> getVoucherNumberHelper.retrieveVoucherNumber(reply, asyncResultHandler, messages, lang, vertxContext));
+          reply -> getVoucherNumberHelper.retrieveVoucherNumber(reply, asyncResultHandler, messages, lang));
   }
 
   @Override
@@ -37,6 +37,6 @@ public class VoucherNumberImpl implements VoucherStorageVoucherNumber {
     String tenantId = TenantTool.calculateTenantId(okapiHeaders.get(RestVerticle.OKAPI_HEADER_TENANT));
     PostgresClient.getInstance(vertxContext.owner(), tenantId)
       .selectSingle(CURRENT_VOUCHER_NUMBER_QUERY,
-          reply -> getVoucherNumberStartHelper.retrieveVoucherNumber(reply, asyncResultHandler, messages, lang, vertxContext));
+          reply -> getVoucherNumberStartHelper.retrieveVoucherNumber(reply, asyncResultHandler, messages, lang));
   }
 }
