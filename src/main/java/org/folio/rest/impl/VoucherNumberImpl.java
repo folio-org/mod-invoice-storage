@@ -57,15 +57,11 @@ public class VoucherNumberImpl implements VoucherStorageVoucherNumber {
       if(NumberUtils.isDigits(value)) {
         String tenantId = TenantTool.calculateTenantId(okapiHeaders.get(RestVerticle.OKAPI_HEADER_TENANT));
         PostgresClient.getInstance(vertxContext.owner(), tenantId).execute(String.format(SET_START_SEQUENCE_VALUE_QUERY, value), reply -> {
-          try {
-            if(reply.succeeded()) {
-              log.debug("(Re)set start value for voucher number sequence: {}", value);
-              asyncResultHandler.handle(succeededFuture(VoucherStorageVoucherNumber.PostVoucherStorageVoucherNumberStartByValueResponse.respond204()));
-            } else {
-              throw new Exception(reply.cause());
-            }
-          } catch (Exception e) {
-            log.error(e.getMessage(), e);
+          if (reply.succeeded()) {
+            log.debug("(Re)set start value for voucher number sequence: {}", value);
+            asyncResultHandler.handle(succeededFuture(VoucherStorageVoucherNumber.PostVoucherStorageVoucherNumberStartByValueResponse.respond204()));
+          } else {
+            log.error(reply.cause().getMessage(), reply.cause());
             String msg = messages.getMessage(lang, MessageConsts.InternalServerError);
             asyncResultHandler.handle(succeededFuture(VoucherStorageVoucherNumber.PostVoucherStorageVoucherNumberStartByValueResponse.respond500WithTextPlain(msg)));
           }
