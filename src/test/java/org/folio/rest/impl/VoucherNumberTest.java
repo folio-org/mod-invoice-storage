@@ -1,6 +1,7 @@
 package org.folio.rest.impl;
 
 import io.restassured.http.ContentType;
+import io.restassured.response.ValidatableResponse;
 import io.vertx.core.Vertx;
 import io.vertx.ext.sql.UpdateResult;
 import org.folio.HttpStatus;
@@ -14,7 +15,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
 import static io.restassured.RestAssured.given;
-import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
 import static org.folio.rest.impl.StorageTestSuite.storageUrl;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
@@ -22,6 +22,7 @@ import static org.junit.Assert.assertThat;
 
 public class VoucherNumberTest extends TestBase {
 
+  private static final String VALUE = "value";
   private static List<Long> voucherNumberList = new ArrayList<>();
 
   private static final String SEQUENCE_NUMBER = "sequenceNumber";
@@ -35,7 +36,7 @@ public class VoucherNumberTest extends TestBase {
 
     // Retrieve voucher numbers
     for(int i = 0; i < NUM_OF_REQUESTS; i++) {
-      voucherNumberList.add(getSequenceNumber());
+      voucherNumberList.add(getSequenceNumberValue());
     }
 
     // Verify expected start value
@@ -46,68 +47,55 @@ public class VoucherNumberTest extends TestBase {
       assertThat(voucherNumberList.get(i) - voucherNumberList.get(0), equalTo((long) i));
     }
 
-    // Verify start value changing
+    // Verify changing of start value
     long start = 11111111L;
-    changeStartValue(start);
-    assertThat(getSequenceNumber(), is(start));
+
+    changeStartValueResponse(start)
+      .statusCode(HttpStatus.HTTP_NO_CONTENT.toInt());
+
+    assertThat(getSequenceNumberValue(), is(start));
 
     // Negative scenario - changing start value with bad request
-    changeStartValueWithBadRequest();
+    changeStartValueResponse(10.1)
+      .statusCode(HttpStatus.HTTP_BAD_REQUEST.toInt())
+      .contentType(ContentType.TEXT);
 
-    // Negative scenario - retrieving number and changing start value from non-existed (deleted) sequence
+    // Negative scenario - retrieving voucher number and changing start value from non-existed (deleted) sequence
     dropSequenceInDb();
-    getSequenceNumberWithInternalServerError();
-    changeStartValueInternalServerErrorReply();
+
+    getSequenceNumberResponse()
+      .statusCode(HttpStatus.HTTP_INTERNAL_SERVER_ERROR.toInt())
+      .contentType(ContentType.TEXT);
+
+    changeStartValueResponse(100)
+      .statusCode(HttpStatus.HTTP_INTERNAL_SERVER_ERROR.toInt())
+      .contentType(ContentType.TEXT);
   }
 
-  private long getSequenceNumber() throws MalformedURLException {
-    return new Long(getData(VOUCHER_NUMBER_ENDPOINT)
-      .then()
+  private ValidatableResponse getSequenceNumberResponse() throws MalformedURLException {
+    return given()
+      .header(TENANT_HEADER)
+        .when()
+          .get(storageUrl(VOUCHER_NUMBER_ENDPOINT))
+        .then();
+  }
+
+  private ValidatableResponse changeStartValueResponse(Object value) throws MalformedURLException {
+    return given()
+      .header(TENANT_HEADER)
+      .pathParam(VALUE, value)
+        .when()
+          .post(storageUrl(VOUCHER_STORAGE_VOUCHER_NUMBER_START_ENDPOINT + "{value}"))
+        .then();
+  }
+
+  private long getSequenceNumberValue() throws MalformedURLException {
+    return Long.parseLong(
+      getSequenceNumberResponse()
         .statusCode(HttpStatus.HTTP_OK.toInt())
         .extract()
           .response()
             .path(SEQUENCE_NUMBER));
-  }
-
-  private void getSequenceNumberWithInternalServerError() throws MalformedURLException {
-    given()
-      .header(TENANT_HEADER)
-      .contentType(ContentType.JSON)
-        .get(storageUrl(VOUCHER_NUMBER_ENDPOINT))
-          .then()
-            .statusCode(HttpStatus.HTTP_INTERNAL_SERVER_ERROR.toInt())
-            .contentType(TEXT_PLAIN)
-              .extract()
-                .response();
-  }
-
-  private void changeStartValue(long value) throws MalformedURLException {
-    given()
-      .header(TENANT_HEADER)
-      .contentType(ContentType.TEXT)
-        .post(storageUrl(VOUCHER_STORAGE_VOUCHER_NUMBER_START_ENDPOINT + value))
-          .then()
-            .statusCode(HttpStatus.HTTP_NO_CONTENT.toInt());
-  }
-
-  private void changeStartValueWithBadRequest() throws MalformedURLException {
-    given()
-      .header(TENANT_HEADER)
-      .contentType(ContentType.TEXT)
-        .post(storageUrl(VOUCHER_STORAGE_VOUCHER_NUMBER_START_ENDPOINT + "100.1"))
-          .then()
-            .statusCode(HttpStatus.HTTP_BAD_REQUEST.toInt())
-            .contentType(TEXT_PLAIN);
-  }
-
-  private void changeStartValueInternalServerErrorReply() throws MalformedURLException {
-    given()
-      .header(TENANT_HEADER)
-      .contentType(ContentType.TEXT)
-        .post(storageUrl(VOUCHER_STORAGE_VOUCHER_NUMBER_START_ENDPOINT + "100"))
-          .then()
-            .statusCode(HttpStatus.HTTP_INTERNAL_SERVER_ERROR.toInt())
-            .contentType(TEXT_PLAIN);
   }
 
   private void dropSequenceInDb() throws Exception {
