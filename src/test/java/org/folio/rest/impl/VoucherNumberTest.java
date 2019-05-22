@@ -35,6 +35,8 @@ public class VoucherNumberTest extends TestBase {
   private static final String VOUCHER_STORAGE_VOUCHER_NUMBER_START_ENDPOINT = "/voucher-storage/voucher-number/start";
   private static final String VOUCHER_NUMBER_INVALID_START_ENDPOINT = "/voucher-storage/voucher-number/bad_start";
   private static final String DROP_SEQUENCE_QUERY = "DROP SEQUENCE diku_mod_invoice_storage.voucher_number";
+  private static final String RESET_START_SEQUENCE_QUERY = "ALTER SEQUENCE diku_mod_invoice_storage.voucher_number START WITH 105";
+  
 
   @BeforeClass
   public static void setUp() {
@@ -48,17 +50,19 @@ public class VoucherNumberTest extends TestBase {
   }
 
   @Test
-  public void testCurrentStartValueVoucherNumber() throws MalformedURLException {
-    int voucherNumberSequenceInitialValue = 3;
-    while(voucherNumberSequenceInitialValue <= 5) {
-      voucherNumberList.add(getNumberAsLong());
-      voucherNumberSequenceInitialValue++;
-    }
-
-    // Get and verify Voucher number's start value is as expected
-    assertThat(voucherNumberList.get(5), equalTo(getCurrentStartValueVoucherNumber()));
+  public void testCurrentStartValueVoucherNumber() throws Exception {
+    // Get and verify Voucher number's start value defaults to 0
+    assertThat(getCurrentStartValueVoucherNumber(), equalTo(0L));
   }
 
+  @Test
+  public void testResetedStartValueVoucherNumber() throws Exception {
+    // reset start value in sequence
+    resetStartSequenceInDb();
+    // verify current start value equals new reseted start value 
+    assertThat(getCurrentStartValueVoucherNumber(), equalTo(105L));
+  }
+  
   @Test
   public void testCurrentStartValueVoucherNumberInvalidUrl() throws MalformedURLException {
     getData(VOUCHER_NUMBER_INVALID_START_ENDPOINT).then()
@@ -111,6 +115,18 @@ public class VoucherNumberTest extends TestBase {
               .response();
   }
 
+  private static void resetStartSequenceInDb() throws Exception {
+    CompletableFuture<UpdateResult> future = new CompletableFuture<>();
+      PostgresClient.getInstance(Vertx.vertx()).execute(RESET_START_SEQUENCE_QUERY, result -> {
+        if(result.failed()) {
+          future.completeExceptionally(result.cause());
+        } else {
+          future.complete(result.result());
+        }
+      });
+      future.get(10, TimeUnit.SECONDS);
+  }
+  
   private static void dropSequenceInDb() throws Exception {
     CompletableFuture<UpdateResult> future = new CompletableFuture<>();
       PostgresClient.getInstance(Vertx.vertx()).execute(DROP_SEQUENCE_QUERY, result -> {

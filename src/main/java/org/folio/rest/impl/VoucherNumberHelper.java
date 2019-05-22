@@ -48,15 +48,18 @@ public class VoucherNumberHelper {
           .toString();
         log.debug("Retrieved voucher number: {}", voucherNumber);
         SequenceNumber sequenceNumber = new SequenceNumber().withSequenceNumber(voucherNumber);
-        asyncResultHandler.handle(succeededFuture(VoucherStorageVoucherNumber.GetVoucherStorageVoucherNumberResponse.respond200WithApplicationJson(sequenceNumber)));
+        asyncResultHandler.handle(succeededFuture(
+            VoucherStorageVoucherNumber.GetVoucherStorageVoucherNumberResponse.respond200WithApplicationJson(sequenceNumber)));
       } else {
         String msg = messages.getMessage(lang, MessageConsts.InternalServerError);
-        asyncResultHandler.handle(succeededFuture(VoucherStorageVoucherNumber.GetVoucherStorageVoucherNumberResponse.respond500WithTextPlain(msg)));
+        asyncResultHandler
+          .handle(succeededFuture(VoucherStorageVoucherNumber.GetVoucherStorageVoucherNumberResponse.respond500WithTextPlain(msg)));
       }
     } catch (Exception e) {
       log.error(e.getMessage(), e);
       String msg = messages.getMessage(lang, MessageConsts.InternalServerError);
-      asyncResultHandler.handle(succeededFuture(VoucherStorageVoucherNumber.GetVoucherStorageVoucherNumberResponse.respond500WithTextPlain(msg)));
+      asyncResultHandler
+        .handle(succeededFuture(VoucherStorageVoucherNumber.GetVoucherStorageVoucherNumberResponse.respond500WithTextPlain(msg)));
     }
   }
 }
