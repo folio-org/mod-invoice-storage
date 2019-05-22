@@ -59,10 +59,10 @@ public class VoucherNumberTest extends TestBase {
   public void testResetedStartValueVoucherNumber() throws Exception {
     // reset start value in sequence
     resetStartSequenceInDb();
-    // verify current start value equals new reseted start value 
+    // verify current start value equals new reseted start value
     assertThat(getCurrentStartValueVoucherNumber(), equalTo(105L));
   }
-  
+
   @Test
   public void testCurrentStartValueVoucherNumberInvalidUrl() throws MalformedURLException {
     getData(VOUCHER_NUMBER_INVALID_START_ENDPOINT).then()
