@@ -7,7 +7,6 @@ import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 import org.apache.commons.lang.math.NumberUtils;
 import org.folio.rest.RestVerticle;
-import org.folio.rest.jaxrs.model.SequenceNumber;
 import org.folio.rest.jaxrs.resource.VoucherStorageVoucherNumber;
 import org.folio.rest.persist.PostgresClient;
 import org.folio.rest.tools.messages.MessageConsts;
@@ -36,30 +35,35 @@ public class VoucherNumberImpl implements VoucherStorageVoucherNumber {
       VoucherNumberHelper getVoucherNumberStartHelper = new VoucherNumberHelper(okapiHeaders);
       String tenantId = TenantTool.calculateTenantId(okapiHeaders.get(RestVerticle.OKAPI_HEADER_TENANT));
       PostgresClient.getInstance(vertxContext.owner(), tenantId)
-        .selectSingle(VOUCHER_NUMBER_QUERY, reply -> {
-          getVoucherNumberStartHelper.retrieveVoucherNumber(reply, asyncResultHandler, messages, lang);
-        });
+        .selectSingle(VOUCHER_NUMBER_QUERY,
+            reply -> getVoucherNumberStartHelper.retrieveVoucherNumber(reply, asyncResultHandler, messages, lang));
     });
   }
 
   @Override
-  public void postVoucherStorageVoucherNumberStartByValue(String value, String lang, Map<String, String> okapiHeaders, Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
+  public void postVoucherStorageVoucherNumberStartByValue(String value, String lang, Map<String, String> okapiHeaders,
+      Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
     vertxContext.runOnContext((Void v) -> {
-      if(NumberUtils.isDigits(value)) {
+      if (NumberUtils.isDigits(value)) {
         String tenantId = TenantTool.calculateTenantId(okapiHeaders.get(RestVerticle.OKAPI_HEADER_TENANT));
-        PostgresClient.getInstance(vertxContext.owner(), tenantId).execute(String.format(SET_START_SEQUENCE_VALUE_QUERY, value), reply -> {
-          if (reply.succeeded()) {
-            log.debug("(Re)set start value for voucher number sequence: {}", value);
-            asyncResultHandler.handle(succeededFuture(VoucherStorageVoucherNumber.PostVoucherStorageVoucherNumberStartByValueResponse.respond204()));
-          } else {
-            log.error(reply.cause().getMessage(), reply.cause());
-            String msg = messages.getMessage(lang, MessageConsts.InternalServerError);
-            asyncResultHandler.handle(succeededFuture(VoucherStorageVoucherNumber.PostVoucherStorageVoucherNumberStartByValueResponse.respond500WithTextPlain(msg)));
-          }
-        });
+        PostgresClient.getInstance(vertxContext.owner(), tenantId)
+          .execute(String.format(SET_START_SEQUENCE_VALUE_QUERY, value), reply -> {
+            if (reply.succeeded()) {
+              log.debug("(Re)set start value for voucher number sequence: {}", value);
+              asyncResultHandler.handle(
+                  succeededFuture(VoucherStorageVoucherNumber.PostVoucherStorageVoucherNumberStartByValueResponse.respond204()));
+            } else {
+              log.error(reply.cause()
+                .getMessage(), reply.cause());
+              String msg = messages.getMessage(lang, MessageConsts.InternalServerError);
+              asyncResultHandler.handle(succeededFuture(
+                  VoucherStorageVoucherNumber.PostVoucherStorageVoucherNumberStartByValueResponse.respond500WithTextPlain(msg)));
+            }
+          });
       } else {
         log.debug("Illegal value: {}", value);
-        asyncResultHandler.handle(succeededFuture(VoucherStorageVoucherNumber.PostVoucherStorageVoucherNumberStartByValueResponse.respond400WithTextPlain("Bad request - illegal value")));
+        asyncResultHandler.handle(succeededFuture(VoucherStorageVoucherNumber.PostVoucherStorageVoucherNumberStartByValueResponse
+          .respond400WithTextPlain("Bad request - illegal value")));
       }
     });
   }
@@ -72,9 +76,8 @@ public class VoucherNumberImpl implements VoucherStorageVoucherNumber {
       VoucherNumberHelper getVoucherNumberStartHelper = new VoucherNumberHelper(okapiHeaders);
       String tenantId = TenantTool.calculateTenantId(okapiHeaders.get(RestVerticle.OKAPI_HEADER_TENANT));
       PostgresClient.getInstance(vertxContext.owner(), tenantId)
-        .selectSingle(CURRENT_VOUCHER_NUMBER_QUERY, reply -> {
-          getVoucherNumberStartHelper.retrieveVoucherNumber(reply, asyncResultHandler, messages, lang);
-        });
+        .selectSingle(CURRENT_VOUCHER_NUMBER_QUERY,
+            reply -> getVoucherNumberStartHelper.retrieveVoucherNumber(reply, asyncResultHandler, messages, lang));
     });
   }
 }
