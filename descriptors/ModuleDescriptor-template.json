@@ -157,6 +157,11 @@
           "methods": ["GET"],
           "pathPattern": "/voucher-storage/voucher-number",
           "permissionsRequired": ["voucher-storage.voucher-number.get"]
+        },
+        {
+          "methods": ["POST"],
+          "pathPattern": "/voucher-storage/voucher-number/start/{value}",
+          "permissionsRequired": ["voucher-storage.voucher-number.start.post"]
         }
       ]
     },
@@ -264,6 +269,11 @@
       "description" : "Get voucher number"
     },
     {
+      "permissionName" : "voucher-storage.voucher-number.start.post",
+      "displayName" : "Voucher storage - (Re)set the start value of the voucher number sequence",
+      "description" : "Post voucher number start value"
+    },
+    {
       "permissionName": "voucher-storage.voucher-lines.collection.get",
       "displayName": "Voucher storage - get voucher line collection",
       "description": "Get voucher line collection"
@@ -299,6 +309,7 @@
         "voucher-storage.vouchers.item.put",
         "voucher-storage.vouchers.item.delete",
         "voucher-storage.voucher-number.get",
+        "voucher-storage.voucher-number.start.post",
         "voucher-storage.voucher-lines.collection.get",
         "voucher-storage.voucher-lines.item.get",
         "voucher-storage.voucher-lines.item.post",
