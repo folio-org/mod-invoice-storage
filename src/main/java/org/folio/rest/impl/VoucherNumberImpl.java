@@ -70,7 +70,9 @@ public class VoucherNumberImpl implements VoucherStorageVoucherNumber {
     vertxContext.runOnContext((Void v) -> {
       if(NumberUtils.isDigits(value)) {
         String tenantId = TenantTool.calculateTenantId(okapiHeaders.get(RestVerticle.OKAPI_HEADER_TENANT));
+        log.info("String.format --> " + String.format(SET_START_SEQUENCE_VALUE_QUERY, value));
         PostgresClient.getInstance(vertxContext.owner(), tenantId).execute(String.format(SET_START_SEQUENCE_VALUE_QUERY, value), reply -> {
+          log.info("reply -> ", reply);
           if (reply.succeeded()) {
             log.debug("(Re)set start value for voucher number sequence: {}", value);
             asyncResultHandler.handle(succeededFuture(VoucherStorageVoucherNumber.PostVoucherStorageVoucherNumberStartByValueResponse.respond204()));

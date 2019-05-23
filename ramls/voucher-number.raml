@@ -28,9 +28,11 @@ traits:
           text/plain:
             example: "internal server error, contact administrator"
   /start:
+    displayName: Voucher Number
+    description: Manage Voucher numbers
+    is: [language] 
     get:
-      is: [language]
-      description: Get current start value of voucher number sequence
+      description: Get voucher number start
       responses:
         200:
           body:
@@ -41,10 +43,10 @@ traits:
           body:
             text/plain:
               example: "internal server error, contact administrator"
-    /{value}:
+    /{value}:  
+      is: [language]              
       post:
-        is: [language]
-        description: (Re)set the start value of the voucher number sequence
+        description: (Re)set the start value of the voucher number sequence 
         responses:
           204:
             description: "Start value successfully updated"
@@ -58,4 +60,3 @@ traits:
             body:
               text/plain:
                 example: "internal server error, contact administrator"
-
