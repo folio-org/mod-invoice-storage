@@ -28,6 +28,7 @@ public class VoucherNumberTest extends TestBase {
   private static final String SEQUENCE_NUMBER = "sequenceNumber";
   private static final String VOUCHER_NUMBER_ENDPOINT = "/voucher-storage/voucher-number";
   private static final String VOUCHER_STORAGE_VOUCHER_NUMBER_START_ENDPOINT = "/voucher-storage/voucher-number/start/";
+  private static final String VOUCHER_NUMBER_INVALID_START_ENDPOINT = "/voucher-storage/voucher-number/bad_start";
   private static final String DROP_SEQUENCE_QUERY = "DROP SEQUENCE diku_mod_invoice_storage.voucher_number";
   private static final int NUM_OF_REQUESTS = 3;
 
@@ -47,12 +48,17 @@ public class VoucherNumberTest extends TestBase {
       assertThat(voucherNumberList.get(i) - voucherNumberList.get(0), equalTo((long) i));
     }
 
+    assertThat(getCurrentStartValueVoucherNumber(), equalTo(0L));
+
     // Verify changing of start value
     long start = 11111111L;
 
     changeStartValueResponse(start)
       .statusCode(HttpStatus.HTTP_NO_CONTENT.toInt());
 
+    // verify current start value equals new reseted start value 
+    assertThat(getCurrentStartValueVoucherNumber(), equalTo(start));
+    
     assertThat(getSequenceNumberValue(), is(start));
 
     // Negative scenario - changing start value with bad request
@@ -71,7 +77,22 @@ public class VoucherNumberTest extends TestBase {
       .statusCode(HttpStatus.HTTP_INTERNAL_SERVER_ERROR.toInt())
       .contentType(ContentType.TEXT);
   }
-
+  
+  @Test
+  public void testCurrentStartValueVoucherNumberInvalidUrl() throws MalformedURLException {
+    getData(VOUCHER_NUMBER_INVALID_START_ENDPOINT).then()
+      .statusCode(400);
+  }
+  
+  private long getCurrentStartValueVoucherNumber() throws MalformedURLException {
+    return new Long(getData(VOUCHER_STORAGE_VOUCHER_NUMBER_START_ENDPOINT)
+      .then()
+        .statusCode(HttpStatus.HTTP_OK.toInt())
+        .extract()
+          .response()
+            .path(SEQUENCE_NUMBER));
+  }
+  
   private ValidatableResponse getSequenceNumberResponse() throws MalformedURLException {
     return given()
       .header(TENANT_HEADER)

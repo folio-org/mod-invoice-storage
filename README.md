@@ -9,6 +9,8 @@ Version 2.0. See the file "[LICENSE](LICENSE)" for more information.
 
 This is the Invoice storage module.
 
+*NOTE*: This module requires postgresql v10 or later
+ 
 ## Additional information
 
 ### Issue tracker
