@@ -1,8 +1,10 @@
 package org.folio.rest.impl;
 
 import static io.restassured.RestAssured.given;
+import static org.apache.commons.io.FileUtils.getFile;
 import static org.folio.rest.RestVerticle.OKAPI_HEADER_TENANT;
 import static org.folio.rest.impl.StorageTestSuite.storageUrl;
+import static org.folio.rest.utils.TestEntities.VOUCHER;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertEquals;
 
@@ -15,6 +17,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
 import org.apache.commons.io.IOUtils;
+import org.folio.rest.jaxrs.model.Voucher;
 import org.folio.rest.utils.TestEntities;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -187,6 +190,7 @@ public abstract class TestBase {
   }
   
   void testAllFieldsExists(JsonObject extracted, JsonObject sampleObject) {
+    sampleObject.remove("id");
     Set<String> fieldsNames = sampleObject.fieldNames();
     for (String fieldName : fieldsNames) {
       Object sampleField = sampleObject.getValue(fieldName);
@@ -197,10 +201,11 @@ public abstract class TestBase {
       }
     }
   }
+
   
-  String getFile(String filename) {
+  static String getFile(String filename) {
     String value = "";
-    try (InputStream inputStream = this.getClass().getClassLoader().getResourceAsStream(filename)) {
+    try (InputStream inputStream = TestBase.class.getClassLoader().getResourceAsStream(filename)) {
       if (inputStream != null) {
         value = IOUtils.toString(inputStream, "UTF-8");
       }
@@ -209,4 +214,5 @@ public abstract class TestBase {
     }
     return value;
   }
+
 }

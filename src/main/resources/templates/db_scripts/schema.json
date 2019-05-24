@@ -17,10 +17,10 @@
     },
     {
       "tableName": "vouchers",
-      "generateId": true,
+      "generateId": false,
       "fromModuleVersion": 1.0,
       "withMetadata": true,
-      "populateJsonWithId": true,
+      "populateJsonWithId": false,
       "customSnippetPath": "voucher_number_sequence.sql",
       "uniqueIndex": [
         {

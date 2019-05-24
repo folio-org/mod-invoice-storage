@@ -9,7 +9,7 @@ import org.folio.rest.jaxrs.model.VoucherLine;
 public enum TestEntities {
   INVOICE("/invoice-storage/invoices", Invoice.class, "invoice.sample", "note", "Updated note for invoice", 0),
   INVOICE_LINES("/invoice-storage/invoice-lines", InvoiceLine.class, "invoice_line.sample", "quantity", 5, 0),
-  VOUCHER("/voucher-storage/vouchers", Voucher.class, "voucher.sample", "batchNumber", "202", 0),
+  VOUCHER("/voucher-storage/vouchers", Voucher.class, "voucher.sample", "batchNumber", "202", 1),
   VOUCHER_LINES("/voucher-storage/voucher-lines", VoucherLine.class, "voucher_line.sample", "externalAccountNumber", "Comment from unit test", 0);
 
   // Examples should be replaced by sample data after MODINVOSTO-10 and MODINVOSTO-16

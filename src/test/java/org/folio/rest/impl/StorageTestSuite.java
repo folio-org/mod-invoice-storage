@@ -2,6 +2,8 @@ package org.folio.rest.impl;
 
 import static io.restassured.RestAssured.given;
 import static org.folio.rest.impl.TestBase.TENANT_HEADER;
+import static org.folio.rest.impl.TestBase.getFile;
+import static org.folio.rest.utils.TestEntities.VOUCHER;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -37,7 +39,8 @@ import io.vertx.core.logging.LoggerFactory;
   CrudTest.class,
   InvoiceNumberTest.class,
   InvoiceLineNumberTest.class,
-  VoucherNumberTest.class
+  VoucherNumberTest.class,
+  ForeignKeysTest.class
 })
 
 public class StorageTestSuite {
@@ -80,6 +83,7 @@ public class StorageTestSuite {
     startVerticle(options);
 
     prepareTenant();
+    prepareDataBase();
   }
 
   @AfterClass
@@ -152,6 +156,19 @@ public class StorageTestSuite {
       .delete(storageUrl(TENANT_ENDPOINT))
         .then()
           .statusCode(204);
+  }
+
+  private static void prepareDataBase() throws MalformedURLException {
+    JsonObject voucher = new JsonObject(getFile(VOUCHER.getSampleFileName()));
+    voucher.put("voucherNumber", "testNumber123");
+    given()
+      .header(TENANT_HEADER)
+      .accept(ContentType.JSON)
+      .contentType(ContentType.JSON)
+      .body(voucher.encodePrettily())
+      .post(storageUrl(VOUCHER.getEndpoint()))
+        .then()
+        .statusCode(201);
   }
 
 
