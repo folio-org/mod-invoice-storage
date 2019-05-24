@@ -10,7 +10,10 @@ public enum TestEntities {
   INVOICE("/invoice-storage/invoices", Invoice.class, "invoice.sample", "note", "Updated note for invoice", 0),
   INVOICE_LINES("/invoice-storage/invoice-lines", InvoiceLine.class, "invoice_line.sample", "quantity", 5, 0),
   VOUCHER("/voucher-storage/vouchers", Voucher.class, "voucher.sample", "batchNumber", "202", 0),
-  VOUCHER_LINES("/voucher-storage/voucher-lines", VoucherLine.class, "voucher_line.sample", "fundId", "c5754174-919b-480a-a1a0-d230fa84f1d9", 0);
+  VOUCHER_LINES("/voucher-storage/voucher-lines", VoucherLine.class, "voucher_line.sample", "externalAccountNumber", "Comment from unit test", 0);
+
+  // Examples should be replaced by sample data after MODINVOSTO-10 and MODINVOSTO-16
+  private static final String EXAMPLES_PATH = "ramls/acq-models/mod-invoice-storage/examples/";
 
   TestEntities(String endpoint, Class<?> clazz, String sampleFileName, String updatedFieldName, Object updatedFieldValue, int initialQuantity) {
     this.endpoint = endpoint;
@@ -37,7 +40,7 @@ public enum TestEntities {
   }
 
   public String getSampleFileName() {
-    return sampleFileName;
+    return EXAMPLES_PATH + sampleFileName;
   }
 
   public String getUpdatedFieldName() {
