@@ -12,10 +12,15 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 import java.net.MalformedURLException;
+import java.util.Set;
 
 import static io.restassured.RestAssured.given;
 import static org.folio.rest.impl.StorageTestSuite.storageUrl;
 import static org.junit.Assert.fail;
+
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.ValidatorFactory;
 
 @RunWith(Parameterized.class)
 public class CrudTest extends TestBase {
@@ -28,6 +33,8 @@ private final Logger logger = LoggerFactory.getLogger(CrudTest.class);
   public static TestEntities[] data() {
     return TestEntities.values();
   }
+
+  private static ValidatorFactory validationFactory = Validation.buildDefaultValidatorFactory();
 
   @Test
   public void testPositiveCases() throws MalformedURLException {
@@ -63,7 +70,7 @@ private final Logger logger = LoggerFactory.getLogger(CrudTest.class);
       testFetchingUpdatedEntity(sampleId, testEntity);    
       
 		} catch (Exception e) {
-			  logger.error(String.format("--- mod-invoice-storage-test: %s API ERROR: %s", testEntity.name(), e.getMessage()));
+			  logger.error(String.format("--- mod-invoice-storage-test: %s API ERROR: ", testEntity.name()), e);
 			  fail(e.getMessage());
 		} finally {
 			  logger.info(String.format("--- mod-invoice-storage %s test: Deleting %s with ID: %s", testEntity.name(), testEntity.name(), sampleId));
@@ -73,9 +80,20 @@ private final Logger logger = LoggerFactory.getLogger(CrudTest.class);
 			  testVerifyEntityDeletion(testEntity.getEndpointWithId(), sampleId);
 		}
   }
-  
+
   private JsonObject convertToMatchingModelJson(String sample, TestEntities testEntity) {
-    return JsonObject.mapFrom(new JsonObject(sample).mapTo(testEntity.getClazz()));
+    // Convert to corresponding class to check that only expected properties are defined
+    Object obj = new JsonObject(sample).mapTo(testEntity.getClazz());
+    JsonObject content = JsonObject.mapFrom(obj);
+    // Perform validation to remove read-only properties
+    Set<? extends ConstraintViolation<?>> validationErrors = validationFactory.getValidator().validate(obj);
+    for (ConstraintViolation<?> cv : validationErrors) {
+      // read only fields are marked with annotation @Null
+      if (cv.getConstraintDescriptor().getAnnotation() instanceof javax.validation.constraints.Null) {
+        content.remove(cv.getPropertyPath().toString());
+      }
+    }
+    return content;
   }
 
   @Test
