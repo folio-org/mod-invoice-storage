@@ -7,13 +7,13 @@ import org.folio.rest.jaxrs.model.Voucher;
 import org.folio.rest.jaxrs.model.VoucherLine;
 
 public enum TestEntities {
-  INVOICE("/invoice-storage/invoices", Invoice.class, "invoice.sample", "note", "Updated note for invoice", 0),
-  INVOICE_LINES("/invoice-storage/invoice-lines", InvoiceLine.class, "invoice_line.sample", "quantity", 5, 0),
-  VOUCHER("/voucher-storage/vouchers", Voucher.class, "voucher.sample", "batchNumber", "202", 1),
-  VOUCHER_LINES("/voucher-storage/voucher-lines", VoucherLine.class, "voucher_line.sample", "externalAccountNumber", "Comment from unit test", 0);
+  INVOICE("/invoice-storage/invoices", Invoice.class, "invoices/test_invoice.json", "note", "Updated note for invoice", 1),
+  INVOICE_LINES("/invoice-storage/invoice-lines", InvoiceLine.class, "invoice-lines/test_invoice_line.json", "quantity", 5, 0),
+  VOUCHER("/voucher-storage/vouchers", Voucher.class, "vouchers/test_voucher.json", "batchNumber", "202", 1),
+  VOUCHER_LINES("/voucher-storage/voucher-lines", VoucherLine.class, "voucher-lines/test_voucher_line.json", "externalAccountNumber", "Comment from unit test", 0);
 
   // Examples should be replaced by sample data after MODINVOSTO-10 and MODINVOSTO-16
-  private static final String EXAMPLES_PATH = "ramls/acq-models/mod-invoice-storage/examples/";
+  private static final String EXAMPLES_PATH = "data/";
 
   TestEntities(String endpoint, Class<?> clazz, String sampleFileName, String updatedFieldName, Object updatedFieldValue, int initialQuantity) {
     this.endpoint = endpoint;

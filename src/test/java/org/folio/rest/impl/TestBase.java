@@ -35,10 +35,12 @@ import io.vertx.core.json.JsonObject;
  */
 public abstract class TestBase {
 
+
   private static boolean invokeStorageTestSuiteAfter = false;
 
   static final String NON_EXISTED_ID = "bad500aa-aaaa-500a-aaaa-aaaaaaaaaaaa";
   static final Header TENANT_HEADER = new Header(OKAPI_HEADER_TENANT, "diku");
+  public static final String ID = "id";
 
   @BeforeClass
   public static void testBaseBeforeClass() throws InterruptedException, ExecutionException, TimeoutException, IOException {
@@ -68,6 +70,7 @@ public abstract class TestBase {
       .contentType(ContentType.JSON)
       .get(storageUrl(endpoint));
   }
+
 
   Response postData(String endpoint, String input) throws MalformedURLException {
     return given()

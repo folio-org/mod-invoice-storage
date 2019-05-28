@@ -46,10 +46,9 @@ private final Logger logger = LoggerFactory.getLogger(CrudTest.class);
       logger.info(String.format("--- mod-invoice-storage %s test: Creating %s ... ", testEntity.name(), testEntity.name()));
       String sample = getFile(testEntity.getSampleFileName());
       JsonObject jsonSample = new JsonObject(sample);
-      jsonSample.mapTo(testEntity.getClazz());
       jsonSample.remove("id");
       Response response = postData(testEntity.getEndpoint(), jsonSample.encodePrettily());
-      sampleId = response.then().log().ifValidationFails().extract().path("id");
+      sampleId = response.then().log().ifValidationFails().extract().path(ID);
       
       logger.info(String.format("--- mod-invoice-storage %s test: Valid fields exists ... ", testEntity.name()));
       JsonObject sampleJson = convertToMatchingModelJson(sample, testEntity);
