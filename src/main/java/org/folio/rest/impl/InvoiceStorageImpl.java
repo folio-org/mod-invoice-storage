@@ -1,26 +1,5 @@
 package org.folio.rest.impl;
 
-import static org.folio.rest.persist.HelperUtils.getEntitiesCollection;
-import static org.folio.rest.persist.HelperUtils.SequenceQuery.CREATE_SEQUENCE;
-import static org.folio.rest.persist.HelperUtils.SequenceQuery.DROP_SEQUENCE;
-
-import java.util.Map;
-import java.util.UUID;
-
-import javax.ws.rs.core.Response;
-
-import org.folio.rest.annotations.Validate;
-import org.folio.rest.jaxrs.model.Invoice;
-import org.folio.rest.jaxrs.model.InvoiceCollection;
-import org.folio.rest.jaxrs.model.InvoiceLine;
-import org.folio.rest.jaxrs.model.InvoiceLineCollection;
-import org.folio.rest.jaxrs.resource.InvoiceStorage;
-import org.folio.rest.persist.EntitiesMetadataHolder;
-import org.folio.rest.persist.PgExceptionUtil;
-import org.folio.rest.persist.PgUtil;
-import org.folio.rest.persist.PostgresClient;
-import org.folio.rest.persist.QueryHolder;
-
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Context;
 import io.vertx.core.Future;
@@ -30,14 +9,36 @@ import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 import io.vertx.ext.sql.SQLConnection;
 import io.vertx.ext.web.handler.impl.HttpStatusException;
+import org.folio.rest.annotations.Validate;
+import org.folio.rest.jaxrs.model.Invoice;
+import org.folio.rest.jaxrs.model.InvoiceCollection;
+import org.folio.rest.jaxrs.model.InvoiceLine;
+import org.folio.rest.jaxrs.model.InvoiceLineCollection;
+import org.folio.rest.jaxrs.resource.InvoiceStorage;
+import org.folio.rest.persist.Criteria.Criteria;
+import org.folio.rest.persist.Criteria.Criterion;
+import org.folio.rest.persist.EntitiesMetadataHolder;
+import org.folio.rest.persist.PgExceptionUtil;
+import org.folio.rest.persist.PgUtil;
+import org.folio.rest.persist.PostgresClient;
+import org.folio.rest.persist.QueryHolder;
+
+import javax.ws.rs.core.Response;
+import java.util.Map;
+import java.util.UUID;
+
+import static org.folio.rest.persist.HelperUtils.SequenceQuery.CREATE_SEQUENCE;
+import static org.folio.rest.persist.HelperUtils.SequenceQuery.DROP_SEQUENCE;
+import static org.folio.rest.persist.HelperUtils.getEntitiesCollection;
 
 public class InvoiceStorageImpl implements InvoiceStorage {
 
-private static final Logger log = LoggerFactory.getLogger(InvoiceStorageImpl.class);
+  private static final Logger log = LoggerFactory.getLogger(InvoiceStorageImpl.class);
 
 private static final String INVOICE_PREFIX = "/invoice-storage/invoices/";
+  public static final String INVOICE_ID_FIELD_NAME = "invoiceId";
 
-private PostgresClient pgClient;
+  private PostgresClient pgClient;
 
 public static final String INVOICE_TABLE = "invoices";
 private static final String INVOICE_LINE_TABLE = "invoice_lines";
@@ -101,7 +102,33 @@ private static final String ID_FIELD_NAME = "id";
   @Validate
   @Override
   public void deleteInvoiceStorageInvoicesById(String id, String lang, Map<String, String> okapiHeaders, Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
-    PgUtil.deleteById(INVOICE_TABLE, id, okapiHeaders, vertxContext, DeleteInvoiceStorageInvoicesByIdResponse.class, asyncResultHandler);
+    try {
+      vertxContext.runOnContext(v -> {
+        log.info("Creating a new invoice");
+        Future.succeededFuture(new TxWithId(id))
+          .compose(this::startTxWithId)
+          .compose(this::deleteInvoiceById)
+          .compose(this::deleteInvoiceLinesByInvoiceId)
+          .compose(this::endTxWithId)
+          .setHandler(reply -> {
+            if (reply.failed()) {
+              HttpStatusException cause = (HttpStatusException) reply.cause();
+              if (cause.getStatusCode() == Response.Status.BAD_REQUEST.getStatusCode()) {
+                asyncResultHandler.handle(Future.succeededFuture(DeleteInvoiceStorageInvoicesByIdResponse.respond400WithTextPlain(cause.getPayload())));
+              } else if (cause.getStatusCode() == Response.Status.NOT_FOUND.getStatusCode()) {
+                asyncResultHandler.handle(Future.succeededFuture(DeleteInvoiceStorageInvoicesByIdResponse.respond404WithTextPlain(Response.Status.NOT_FOUND.getReasonPhrase())));
+              } else {
+                asyncResultHandler.handle(Future.succeededFuture(DeleteInvoiceStorageInvoicesByIdResponse.respond500WithTextPlain(Response.Status.INTERNAL_SERVER_ERROR.getReasonPhrase())));
+              }
+            } else {
+              log.info("Preparing response to client");
+              asyncResultHandler.handle(Future.succeededFuture(DeleteInvoiceStorageInvoicesByIdResponse.respond204()));
+            }
+          });
+      });
+    } catch (Exception e) {
+      asyncResultHandler.handle(Future.succeededFuture(PostInvoiceStorageInvoicesResponse.respond500WithTextPlain(Response.Status.INTERNAL_SERVER_ERROR.getReasonPhrase())));
+    }
   }
 
   @Validate
@@ -150,7 +177,7 @@ private static final String ID_FIELD_NAME = "id";
   /**
    * Creates a new sequence within a scope of transaction
    *
-   * @param Tx<Invoice>
+   * @param tx<Invoice>
    *          Transaction of type Invoice
    * @return Future of Invoice transaction with Invoice Line number sequence
    */
@@ -178,7 +205,7 @@ private static final String ID_FIELD_NAME = "id";
   /**
    * Deletes a sequence associated with the Invoice
    *
-   * @param Invoice
+   * @param invoice
    *          Invoice with the sequence number to be deleted
    */
   private void deleteSequence(Invoice invoice) {
@@ -197,7 +224,7 @@ private static final String ID_FIELD_NAME = "id";
   /**
    * Creates a new Invoice within the scope of its transaction
    *
-   * @param Tx<Invoice>
+   * @param tx<Invoice>
    *          Transaction of type Invoice
    * @return  Future of Invoice transaction with new Invoice
    */
@@ -232,7 +259,7 @@ private static final String ID_FIELD_NAME = "id";
   /**
    * Starts a new transaction to create a new Invoice and to generate a new sequence number
    *
-   * @param Tx<Invoice>
+   * @param tx<Invoice>
    *          Transaction of type Invoice
    * @return  Future of Invoice transaction with new Invoice
    */
@@ -247,10 +274,21 @@ private static final String ID_FIELD_NAME = "id";
     return future;
   }
 
+  private Future<TxWithId> startTxWithId(TxWithId tx) {
+    Future<TxWithId> future = Future.future();
+    log.info("Start transaction");
+
+    pgClient.startTx(sqlConnection -> {
+      tx.setConnection(sqlConnection);
+      future.complete(tx);
+    });
+    return future;
+  }
+
   /**
    * Ends a transaction after creating a new Invoice and generating a new sequence number
    *
-   * @param Tx<Invoice>
+   * @param tx
    *          Transaction of type Invoice
    * @return  Future of Invoice transaction with new Invoice
    */
@@ -258,6 +296,14 @@ private static final String ID_FIELD_NAME = "id";
     log.info("End transaction");
 
     Future<Tx<Invoice>> future = Future.future();
+    pgClient.endTx(tx.getConnection(), v -> future.complete(tx));
+    return future;
+  }
+
+  private Future<TxWithId> endTxWithId(TxWithId tx) {
+    log.info("End transaction");
+
+    Future<TxWithId> future = Future.future();
     pgClient.endTx(tx.getConnection(), v -> future.complete(tx));
     return future;
   }
@@ -282,5 +328,86 @@ private static final String ID_FIELD_NAME = "id";
     void setConnection(AsyncResult<SQLConnection> sqlConnection) {
       this.sqlConnection = sqlConnection;
     }
+  }
+
+  public class TxWithId {
+
+    private AsyncResult<SQLConnection> sqlConnection;
+    private String id;
+
+    TxWithId(String id) {
+      this.id = id;
+    }
+
+    AsyncResult<SQLConnection> getConnection() {
+      return sqlConnection;
+    }
+
+    void setConnection(AsyncResult<SQLConnection> sqlConnection) {
+      this.sqlConnection = sqlConnection;
+    }
+
+    public String getId() {
+      return this.id;
+    }
+  }
+
+  private Future<TxWithId> deleteInvoiceById(TxWithId tx) {
+    Future<TxWithId> future = Future.future();
+    Criterion criterion = getCriterionByFieldNameAndValue(ID_FIELD_NAME, tx.getId());
+
+    log.info("Delete invoice with id={}", tx.getId());
+    pgClient.delete(tx.getConnection(), INVOICE_TABLE, criterion, reply -> {
+      if (reply.failed()) {
+        log.error("Invoice deletion with id={} failed", reply.cause(), tx.getId());
+        pgClient.rollbackTx(tx.getConnection(), rb -> {
+          String badRequestMessage = PgExceptionUtil.badRequestMessage(reply.cause());
+          if (badRequestMessage != null) {
+            future.fail(new HttpStatusException(Response.Status.BAD_REQUEST.getStatusCode(), badRequestMessage));
+          } else {
+            future.fail(new HttpStatusException(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), reply.cause().getMessage()));
+          }
+        });
+      } else if (reply.result().getUpdated() == 0) {
+        future.fail(new HttpStatusException(Response.Status.NOT_FOUND.getStatusCode(), "Invoice not found"));
+      } else {
+        log.info("Invoice with id={} successfully deleted", tx.getId());
+        future.complete(tx);
+      }
+    });
+    return future;
+  }
+
+  private Future<TxWithId> deleteInvoiceLinesByInvoiceId(TxWithId tx) {
+    Future<TxWithId> future = Future.future();
+    Criterion criterion = getCriterionByFieldNameAndValue(INVOICE_ID_FIELD_NAME, tx.getId());
+
+    log.info("Delete invoice lines by invoice id={}", tx.getId());
+    pgClient.delete(tx.getConnection(), INVOICE_LINE_TABLE, criterion, reply -> {
+      if (reply.failed()) {
+        log.error("Delete invoice lines by invoice id={} failed", reply.cause(), tx.getId());
+        pgClient.rollbackTx(tx.getConnection(), rb -> {
+          String badRequestMessage = PgExceptionUtil.badRequestMessage(reply.cause());
+          if (badRequestMessage != null) {
+            future.fail(new HttpStatusException(Response.Status.BAD_REQUEST.getStatusCode(), badRequestMessage));
+          } else {
+            future.fail(new HttpStatusException(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), reply.cause().getMessage()));
+          }
+        });
+      } else {
+
+        log.info("{} invoice lines of invoice with id={} successfully deleted", tx.getId() , reply.result().getKeys().size());
+        future.complete(tx);
+      }
+    });
+    return future;
+  }
+
+  private Criterion getCriterionByFieldNameAndValue(String filedName, String fieldValue) {
+    Criteria a = new Criteria();
+    a.addField("'" + filedName + "'");
+    a.setOperation("=");
+    a.setValue(fieldValue);
+    return new Criterion(a);
   }
 }
