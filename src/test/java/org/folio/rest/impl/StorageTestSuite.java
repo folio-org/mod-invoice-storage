@@ -1,7 +1,11 @@
 package org.folio.rest.impl;
 
 import static io.restassured.RestAssured.given;
+import static org.folio.rest.impl.TestBase.ID;
 import static org.folio.rest.impl.TestBase.TENANT_HEADER;
+import static org.folio.rest.impl.TestBase.getFile;
+import static org.folio.rest.utils.TestEntities.INVOICE;
+import static org.folio.rest.utils.TestEntities.VOUCHER;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -37,17 +41,21 @@ import io.vertx.core.logging.LoggerFactory;
   CrudTest.class,
   InvoiceNumberTest.class,
   InvoiceLineNumberTest.class,
-  VoucherNumberTest.class
+  VoucherNumberTest.class,
+  ForeignKeysTest.class
 })
 
 public class StorageTestSuite {
   private static final Logger logger = LoggerFactory.getLogger(StorageTestSuite.class);
+  static String EXISTENT_VOUCHER_ID;
+  static String EXISTENT_INVOICE_ID;
 
   private static Vertx vertx;
   private static int port = NetworkUtils.nextFreePort();
   public static final Header URL_TO_HEADER = new Header("X-Okapi-Url-to","http://localhost:"+port);
   private static final Header USER_ID_HEADER = new Header("X-Okapi-User-id", "28d0fb04-d137-11e8-a8d5-f2801f1b9fd1");
   private static final String TENANT_ENDPOINT = "/_/tenant";
+
 
   private StorageTestSuite() {}
 
@@ -80,10 +88,17 @@ public class StorageTestSuite {
     startVerticle(options);
 
     prepareTenant();
+
+    logger.info("Prepare database.");
+    prepareDataBase();
   }
 
   @AfterClass
   public static void after() throws InterruptedException, ExecutionException, TimeoutException, MalformedURLException {
+
+    logger.info("Clean up database");
+    cleanUpDataBase();
+
     logger.info("Delete tenant");
     deleteTenant();
 
@@ -152,6 +167,46 @@ public class StorageTestSuite {
       .delete(storageUrl(TENANT_ENDPOINT))
         .then()
           .statusCode(204);
+  }
+
+  private static void prepareDataBase() throws MalformedURLException {
+    JsonObject voucher = new JsonObject(getFile(VOUCHER.getSampleFileName()));
+    voucher.put("voucherNumber", "testNumber123");
+    EXISTENT_INVOICE_ID = given()
+      .header(TENANT_HEADER)
+      .accept(ContentType.JSON)
+      .contentType(ContentType.JSON)
+      .body(getFile(INVOICE.getSampleFileName()))
+      .post(storageUrl(INVOICE.getEndpoint()))
+      .then()
+      .statusCode(201).extract().path(ID);
+
+    EXISTENT_VOUCHER_ID = given()
+      .header(TENANT_HEADER)
+      .accept(ContentType.JSON)
+      .contentType(ContentType.JSON)
+      .body(voucher.encodePrettily())
+      .post(storageUrl(VOUCHER.getEndpoint()))
+        .then()
+        .statusCode(201).extract().path(ID);
+
+  }
+
+  private static void cleanUpDataBase() throws MalformedURLException {
+
+    given()
+      .header(TENANT_HEADER)
+      .pathParam(ID, EXISTENT_VOUCHER_ID)
+      .delete(storageUrl(VOUCHER.getEndpointWithId()))
+      .then()
+      .statusCode(204);
+
+     given()
+      .header(TENANT_HEADER)
+       .pathParam(ID, EXISTENT_INVOICE_ID)
+      .delete(storageUrl(INVOICE.getEndpointWithId()))
+      .then()
+      .statusCode(204);
   }
 
 
