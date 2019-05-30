@@ -123,6 +123,7 @@ public class InvoiceStorageImpl implements InvoiceStorage {
                 if (cause.getStatusCode() == Response.Status.NOT_FOUND.getStatusCode()) {
                   asyncResultHandler.handle(Future.succeededFuture(DeleteInvoiceStorageInvoicesByIdResponse.respond404WithTextPlain(Response.Status.NOT_FOUND.getReasonPhrase())));
                 } else {
+                  log.info("Invoice {} and associated lines were successfully deleted", tx.getId());
                   asyncResultHandler.handle(Future.succeededFuture(DeleteInvoiceStorageInvoicesByIdResponse.respond500WithTextPlain(Response.Status.INTERNAL_SERVER_ERROR.getReasonPhrase())));
                 }
               });
@@ -357,12 +358,10 @@ public class InvoiceStorageImpl implements InvoiceStorage {
     log.info("Delete invoice with id={}", tx.getId());
     pgClient.delete(tx.getConnection(), INVOICE_TABLE, criterion, reply -> {
       if (reply.failed()) {
-        log.error("Invoice deletion with id={} failed", reply.cause(), tx.getId());
         rollbackDeleteInvoiceTransaction(tx, future, reply);
       } else if (reply.result().getUpdated() == 0) {
         future.completeExceptionally(new HttpStatusException(Response.Status.NOT_FOUND.getStatusCode(), "Invoice not found"));
       } else {
-        log.info("Invoice with id={} successfully deleted", tx.getId());
         future.complete(tx);
       }
     });
@@ -371,6 +370,7 @@ public class InvoiceStorageImpl implements InvoiceStorage {
 
   private void rollbackDeleteInvoiceTransaction(TxWithId tx, CompletableFuture<TxWithId> future, AsyncResult<UpdateResult> reply) {
     pgClient.rollbackTx(tx.getConnection(), rb -> {
+      log.error("Delete invoice by id={} failed", reply.cause(), tx.getId());
       String badRequestMessage = PgExceptionUtil.badRequestMessage(reply.cause());
       if (badRequestMessage != null) {
         future.completeExceptionally(new HttpStatusException(Response.Status.BAD_REQUEST.getStatusCode(), badRequestMessage));
@@ -387,10 +387,9 @@ public class InvoiceStorageImpl implements InvoiceStorage {
     log.info("Delete invoice lines by invoice id={}", tx.getId());
     pgClient.delete(tx.getConnection(), INVOICE_LINE_TABLE, criterion, reply -> {
       if (reply.failed()) {
-        log.error("Delete invoice lines by invoice id={} failed", reply.cause(), tx.getId());
         rollbackDeleteInvoiceTransaction(tx, future, reply);
       } else {
-        log.info("{} invoice lines of invoice with id={} successfully deleted", tx.getId(), reply.result().getKeys().size());
+        log.info("{} invoice lines of invoice with id={} successfully deleted", tx.getId(), reply.result().getUpdated());
         future.complete(tx);
       }
     });
