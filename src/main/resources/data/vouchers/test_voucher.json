@@ -1,0 +1,22 @@
+{
+  "id": "a9b99f8a-7100-47f2-9903-6293d44a9905",
+  "accountingCode": "0206",
+  "amount": 23.45,
+  "batchNumber": "101",
+  "disbursementNumber": "EFT546789",
+  "disbursementDate": "2019-05-05T00:00:00.000+0000",
+  "disbursementAmount": 5,
+  "exchangeRate": 1.12,
+  "exportToAccounting": false,
+  "invoiceCurrency": "EUR",
+  "invoiceId": "733cafd3-895f-4e33-87b7-bf40dc3c8069",
+  "status": "Awaiting payment",
+  "systemCurrency": "USD",
+  "type": "Payment",
+  "voucherDate": "2019-05-06T00:00:00.000+0000",
+  "voucherNumber": "1000",
+  "metadata": {
+    "createdDate": "2019-05-06T00:00:00.000+0000",
+    "createdByUserId": "28d1057c-d137-11e8-a8d5-f2801f1b9fd1"
+  }
+}
