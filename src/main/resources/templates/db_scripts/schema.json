@@ -2,39 +2,49 @@
   "tables": [
     {
       "tableName": "invoices",
-      "generateId": true,
       "fromModuleVersion": 1.0,
       "withMetadata": true,
-      "populateJsonWithId": true,
       "customSnippetPath": "invoice_number_sequence.sql"
     },
     {
       "tableName": "invoice_lines",
-      "generateId": true,
       "fromModuleVersion": 1.0,
       "withMetadata": true,
-      "populateJsonWithId": true
+      "foreignKeys": [
+        {
+          "fieldName": "invoiceId",
+          "targetTable": "invoices"
+        }
+      ]
     },
     {
       "tableName": "vouchers",
-      "generateId": true,
       "fromModuleVersion": 1.0,
       "withMetadata": true,
-      "populateJsonWithId": true,
       "customSnippetPath": "voucher_number_sequence.sql",
       "uniqueIndex": [
         {
           "fieldName": "voucherNumber",
           "tOps": "ADD"
         }
+      ],
+      "foreignKeys": [
+        {
+          "fieldName": "invoiceId",
+          "targetTable": "invoices"
+        }
       ]
     },
     {
       "tableName": "voucher_lines",
-      "generateId": true,
       "fromModuleVersion": 1.0,
       "withMetadata": true,
-      "populateJsonWithId": true
+      "foreignKeys": [
+        {
+          "fieldName": "voucherId",
+          "targetTable": "vouchers"
+        }
+      ]
     }
   ]
 }

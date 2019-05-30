@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
+import io.vertx.core.json.JsonObject;
 import org.folio.rest.persist.PostgresClient;
 import org.hamcrest.Matchers;
 import org.json.JSONObject;
@@ -50,14 +51,18 @@ public class InvoiceLineNumberTest extends TestBase {
       testSequenceSupport();
       
       logger.info(String.format("--- mod-invoice-storage %s test: Creating an invoice and a sequence ... ", INVOICE.name()));
-      String invoiceSample = getFile(INVOICE.getSampleFileName());
+      JsonObject jsonSample = new JsonObject(getFile(INVOICE.getSampleFileName()));
+      jsonSample.remove("id");
+      String invoiceSample = jsonSample.encodePrettily();
       Response response = postData(INVOICE.getEndpoint(), invoiceSample);
-      
+
+      sampleId = response.then().extract().path("id");
+      jsonSample.put("id", sampleId);
       logger.info(String.format("--- mod-invoice-storage %s test: Verify creating duplicate invoice fails", INVOICE.name()));
-      testCreateDuplicateInvoice(invoiceSample);
+      testCreateDuplicateInvoice(jsonSample.encodePrettily());
       
       logger.info(String.format("--- mod-invoice-storage %s test: Test retrieving invoice-line number for existing invoice and sequence ... ", INVOICE.name()));
-      sampleId = response.then().extract().path("id");
+
       testGetInvoiceLineNumberForExistedIL(sampleId);
 
       logger.info(String.format("--- mod-invoice-storage %s test: Testing invoice-line numbers retrieving for non-existed invoice ID: %s", INVOICE.name(), NON_EXISTING_INVOICE_ID));
