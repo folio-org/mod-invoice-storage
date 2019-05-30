@@ -357,9 +357,7 @@ public class InvoiceStorageImpl implements InvoiceStorage {
 
     log.info("Delete invoice with id={}", tx.getId());
     pgClient.delete(tx.getConnection(), INVOICE_TABLE, criterion, reply -> {
-      if (reply.failed()) {
-        rollbackDeleteInvoiceTransaction(tx, future, reply);
-      } else if (reply.result().getUpdated() == 0) {
+      if (reply.result().getUpdated() == 0) {
         future.completeExceptionally(new HttpStatusException(Response.Status.NOT_FOUND.getStatusCode(), "Invoice not found"));
       } else {
         future.complete(tx);
