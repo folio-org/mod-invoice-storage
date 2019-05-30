@@ -5,20 +5,22 @@ import io.restassured.response.Response;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
+
 import org.folio.rest.utils.TestEntities;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
-import javax.validation.ConstraintViolation;
-import javax.validation.Validation;
-import javax.validation.ValidatorFactory;
 import java.net.MalformedURLException;
 import java.util.Set;
 
 import static io.restassured.RestAssured.given;
 import static org.folio.rest.impl.StorageTestSuite.storageUrl;
 import static org.junit.Assert.fail;
+
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.ValidatorFactory;
 
 @RunWith(Parameterized.class)
 public class CrudTest extends TestBase {
@@ -38,7 +40,7 @@ private final Logger logger = LoggerFactory.getLogger(CrudTest.class);
   public void testPositiveCases() throws MalformedURLException {
   	String sampleId = null;
     try {
-    	
+
       logger.info(String.format("--- mod-invoice-storage %s test: Verifying database's initial state ... ", testEntity.name()));
       verifyCollectionQuantity(testEntity.getEndpoint(), 0);
 
@@ -46,27 +48,27 @@ private final Logger logger = LoggerFactory.getLogger(CrudTest.class);
       String sample = getFile(testEntity.getSampleFileName());
       Response response = postData(testEntity.getEndpoint(), sample);
       sampleId = response.then().extract().path("id");
-      
+
       logger.info(String.format("--- mod-invoice-storage %s test: Valid fields exists ... ", testEntity.name()));
       JsonObject sampleJson = convertToMatchingModelJson(sample, testEntity);
       JsonObject responseJson = JsonObject.mapFrom(response.then().extract().response().as(testEntity.getClazz()));
       testAllFieldsExists(responseJson, sampleJson);
-      
+
       logger.info(String.format("--- mod-invoice-storage %s test: Verifying only 1 invoice was created ... ", testEntity.name()));
       verifyCollectionQuantity(testEntity.getEndpoint(),1);
-      
+
       logger.info(String.format("--- mod-invoice-storage %s test: Fetching %s with ID: %s", testEntity.name(), testEntity.name(), sampleId));
       testEntitySuccessfullyFetched(testEntity.getEndpointWithId(), sampleId);
-      
+
       logger.info(String.format("--- mod-invoice-storage %s test: Editing %s with ID: %s", testEntity.name(), testEntity.name(), sampleId));
       JsonObject catJSON = new JsonObject(sample);
       catJSON.put("id", sampleId);
       catJSON.put(testEntity.getUpdatedFieldName(), testEntity.getUpdatedFieldValue());
       testEntityEdit(testEntity.getEndpointWithId(), catJSON.toString(), sampleId);
-      
+
       logger.info(String.format("--- mod-invoice-storage %s test: Fetching updated %s with ID: %s", testEntity.name(), testEntity.name(), sampleId));
-      testFetchingUpdatedEntity(sampleId, testEntity);    
-      
+      testFetchingUpdatedEntity(sampleId, testEntity);
+
 		} catch (Exception e) {
 			  logger.error(String.format("--- mod-invoice-storage-test: %s API ERROR: ", testEntity.name()), e);
 			  fail(e.getMessage());
@@ -100,7 +102,7 @@ private final Logger logger = LoggerFactory.getLogger(CrudTest.class);
     getDataById(testEntity.getEndpointWithId(), NON_EXISTED_ID).then().log().ifValidationFails()
       .statusCode(404);
   }
-  
+
   @Test
   public void testEditEntityWithNonExistedId() throws MalformedURLException {
     logger.info(String.format("--- mod-invoice-storage %s put by id test: Invalid %s: %s", testEntity.name(), testEntity.name(), NON_EXISTED_ID));
@@ -120,7 +122,7 @@ private final Logger logger = LoggerFactory.getLogger(CrudTest.class);
         .then()
           .statusCode(404);
   }
-  
+
   @Test
   public void testDeleteEntityWithNonExistedId() throws MalformedURLException {
     logger.info(String.format("--- mod-invoice-storage %s delete by id test: Invalid %s: %s", testEntity.name(), testEntity.name(), NON_EXISTED_ID));
@@ -133,34 +135,5 @@ private final Logger logger = LoggerFactory.getLogger(CrudTest.class);
   public void testGetEntitiesWithInvalidCQLQuery() throws MalformedURLException {
     logger.info(String.format("--- mod-invoice-storage %s test: Invalid CQL query", testEntity.name()));
     testInvalidCQLQuery(testEntity.getEndpoint() + "?query=invalid-query");
-  }
-
-  @Test
-  public void testDeleteInvoiceAndAssociatedLines() throws MalformedURLException {
-    logger.info(String.format("--- mod-invoice-storage %s test: Delete invoice and associated invoice lines", TestEntities.INVOICE.name()));
-    String invoiceSample = getFile(TestEntities.INVOICE.getSampleFileName());
-    Response response = postData(TestEntities.INVOICE.getEndpoint(), invoiceSample);
-    String invoiceSampleId = response.then().extract().path("id");
-
-    String invoiceLineSample = getFile(TestEntities.INVOICE_LINES.getSampleFileName());
-    JsonObject invoiceLineJson = new JsonObject(invoiceLineSample);
-
-    invoiceLineJson.remove("id");
-    invoiceLineJson.put("invoiceId", invoiceSampleId);
-    invoiceLineSample = invoiceLineJson.toString();
-    String firstLineId = createEntity(TestEntities.INVOICE_LINES.getEndpoint(), invoiceLineSample);
-    logger.info("Created line with id={}", firstLineId);
-
-    String secondLineId = createEntity(TestEntities.INVOICE_LINES.getEndpoint(), invoiceLineSample);
-    logger.info("Created line with id={}", secondLineId);
-
-    verifyCollectionQuantity(TestEntities.INVOICE.getEndpoint(), 1);
-    verifyCollectionQuantity(TestEntities.INVOICE_LINES.getEndpoint(), 2);
-
-    // remove invoice
-    deleteDataSuccess(TestEntities.INVOICE.getEndpointWithId(), invoiceSampleId);
-    // verify invoice and associated invoice lines were deleted
-    verifyCollectionQuantity(TestEntities.INVOICE.getEndpoint(), 0);
-    verifyCollectionQuantity(TestEntities.INVOICE_LINES.getEndpoint(), 0);
   }
 }

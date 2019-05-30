@@ -111,7 +111,7 @@ public class InvoiceStorageImpl implements InvoiceStorage {
         startTxWithId(tx)
           .thenCompose(this::deleteInvoiceById)
           .thenCompose(this::deleteInvoiceLinesByInvoiceId)
-          .thenCompose(empty -> endTxWithId(tx))
+          .thenCompose(this::endTxWithId)
           .thenAccept(result -> {
             log.info("Preparing response to client");
             asyncResultHandler.handle(Future.succeededFuture(DeleteInvoiceStorageInvoicesByIdResponse.respond204()));
@@ -120,9 +120,7 @@ public class InvoiceStorageImpl implements InvoiceStorage {
             endTxWithId(tx)
               .thenAccept(res -> {
                 HttpStatusException cause = (HttpStatusException) t.getCause();
-                if (cause.getStatusCode() == Response.Status.BAD_REQUEST.getStatusCode()) {
-                  asyncResultHandler.handle(Future.succeededFuture(DeleteInvoiceStorageInvoicesByIdResponse.respond400WithTextPlain(cause.getPayload())));
-                } else if (cause.getStatusCode() == Response.Status.NOT_FOUND.getStatusCode()) {
+                if (cause.getStatusCode() == Response.Status.NOT_FOUND.getStatusCode()) {
                   asyncResultHandler.handle(Future.succeededFuture(DeleteInvoiceStorageInvoicesByIdResponse.respond404WithTextPlain(Response.Status.NOT_FOUND.getReasonPhrase())));
                 } else {
                   asyncResultHandler.handle(Future.succeededFuture(DeleteInvoiceStorageInvoicesByIdResponse.respond500WithTextPlain(Response.Status.INTERNAL_SERVER_ERROR.getReasonPhrase())));
