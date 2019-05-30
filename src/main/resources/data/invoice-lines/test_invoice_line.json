@@ -2,19 +2,25 @@
   "id": "e0d08448-343b-118a-8c2f-4fb50248d672",
   "adjustments": [
     {
-      "adjustmentLabel": "Service Fee",
-      "adjustmentType": "Amount",
-      "adjustmentValue": 4.00
+      "description": "Service Fee",
+      "type": "Amount",
+      "value": 4.00,
+      "prorate":"Not prorated",
+      "relationToTotal":"In addition to"
     },
     {
-      "adjustmentLabel": "Sales Tax",
-      "adjustmentType": "Percentage",
-      "adjustmentValue": 5
+      "description": "Sales Tax",
+      "type": "Percentage",
+      "value": 5,
+      "prorate":"Not prorated",
+      "relationToTotal":"In addition to"
     },
     {
-      "adjustmentLabel": "Shipping",
-      "adjustmentType": "Amount",
-      "adjustmentValue": 2.50
+      "description": "Shipping",
+      "type": "Amount",
+      "value": 2.50,
+      "prorate":"Not prorated",
+      "relationToTotal":"In addition to"
     }
   ],
   "adjustmentsTotal": 7.75,
