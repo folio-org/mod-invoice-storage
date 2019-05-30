@@ -5,22 +5,20 @@ import io.restassured.response.Response;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
-
 import org.folio.rest.utils.TestEntities;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.ValidatorFactory;
 import java.net.MalformedURLException;
 import java.util.Set;
 
 import static io.restassured.RestAssured.given;
 import static org.folio.rest.impl.StorageTestSuite.storageUrl;
 import static org.junit.Assert.fail;
-
-import javax.validation.ConstraintViolation;
-import javax.validation.Validation;
-import javax.validation.ValidatorFactory;
 
 @RunWith(Parameterized.class)
 public class CrudTest extends TestBase {
@@ -135,5 +133,34 @@ private final Logger logger = LoggerFactory.getLogger(CrudTest.class);
   public void testGetEntitiesWithInvalidCQLQuery() throws MalformedURLException {
     logger.info(String.format("--- mod-invoice-storage %s test: Invalid CQL query", testEntity.name()));
     testInvalidCQLQuery(testEntity.getEndpoint() + "?query=invalid-query");
+  }
+
+  @Test
+  public void testDeleteInvoiceAndAssociatedLines() throws MalformedURLException {
+    logger.info(String.format("--- mod-invoice-storage %s test: Delete invoice and associated invoice lines", TestEntities.INVOICE.name()));
+    String invoiceSample = getFile(TestEntities.INVOICE.getSampleFileName());
+    Response response = postData(TestEntities.INVOICE.getEndpoint(), invoiceSample);
+    String invoiceSampleId = response.then().extract().path("id");
+
+    String invoiceLineSample = getFile(TestEntities.INVOICE_LINES.getSampleFileName());
+    JsonObject invoiceLineJson = new JsonObject(invoiceLineSample);
+
+    invoiceLineJson.remove("id");
+    invoiceLineJson.put("invoiceId", invoiceSampleId);
+    invoiceLineSample = invoiceLineJson.toString();
+    String firstLineId = createEntity(TestEntities.INVOICE_LINES.getEndpoint(), invoiceLineSample);
+    logger.info("Created line with id={}", firstLineId);
+
+    String secondLineId = createEntity(TestEntities.INVOICE_LINES.getEndpoint(), invoiceLineSample);
+    logger.info("Created line with id={}", secondLineId);
+
+    verifyCollectionQuantity(TestEntities.INVOICE.getEndpoint(), 1);
+    verifyCollectionQuantity(TestEntities.INVOICE_LINES.getEndpoint(), 2);
+
+    // remove invoice
+    deleteDataSuccess(TestEntities.INVOICE.getEndpointWithId(), invoiceSampleId);
+    // verify invoice and associated invoice lines were deleted
+    verifyCollectionQuantity(TestEntities.INVOICE.getEndpoint(), 0);
+    verifyCollectionQuantity(TestEntities.INVOICE_LINES.getEndpoint(), 0);
   }
 }
