@@ -131,7 +131,7 @@ public class InvoiceStorageImpl implements InvoiceStorage {
           });
       });
     } catch (Exception e) {
-      asyncResultHandler.handle(Future.succeededFuture(PostInvoiceStorageInvoicesResponse.respond500WithTextPlain(Response.Status.INTERNAL_SERVER_ERROR.getReasonPhrase())));
+      asyncResultHandler.handle(Future.succeededFuture(DeleteInvoiceStorageInvoicesByIdResponse.respond500WithTextPlain(Response.Status.INTERNAL_SERVER_ERROR.getReasonPhrase())));
     }
   }
 
