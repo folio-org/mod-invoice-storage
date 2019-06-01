@@ -1,5 +1,29 @@
 package org.folio.rest.impl;
 
+import static org.folio.rest.persist.HelperUtils.getEntitiesCollection;
+import static org.folio.rest.persist.HelperUtils.SequenceQuery.CREATE_SEQUENCE;
+import static org.folio.rest.persist.HelperUtils.SequenceQuery.DROP_SEQUENCE;
+
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+
+import javax.ws.rs.core.Response;
+
+import org.folio.rest.annotations.Validate;
+import org.folio.rest.jaxrs.model.Invoice;
+import org.folio.rest.jaxrs.model.InvoiceCollection;
+import org.folio.rest.jaxrs.model.InvoiceLine;
+import org.folio.rest.jaxrs.model.InvoiceLineCollection;
+import org.folio.rest.jaxrs.resource.InvoiceStorage;
+import org.folio.rest.persist.EntitiesMetadataHolder;
+import org.folio.rest.persist.PgExceptionUtil;
+import org.folio.rest.persist.PgUtil;
+import org.folio.rest.persist.PostgresClient;
+import org.folio.rest.persist.QueryHolder;
+import org.folio.rest.persist.Criteria.Criteria;
+import org.folio.rest.persist.Criteria.Criterion;
+
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Context;
 import io.vertx.core.Future;
@@ -8,30 +32,7 @@ import io.vertx.core.Vertx;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 import io.vertx.ext.sql.SQLConnection;
-import io.vertx.ext.sql.UpdateResult;
 import io.vertx.ext.web.handler.impl.HttpStatusException;
-import org.folio.rest.annotations.Validate;
-import org.folio.rest.jaxrs.model.Invoice;
-import org.folio.rest.jaxrs.model.InvoiceCollection;
-import org.folio.rest.jaxrs.model.InvoiceLine;
-import org.folio.rest.jaxrs.model.InvoiceLineCollection;
-import org.folio.rest.jaxrs.resource.InvoiceStorage;
-import org.folio.rest.persist.Criteria.Criteria;
-import org.folio.rest.persist.Criteria.Criterion;
-import org.folio.rest.persist.EntitiesMetadataHolder;
-import org.folio.rest.persist.PgExceptionUtil;
-import org.folio.rest.persist.PgUtil;
-import org.folio.rest.persist.PostgresClient;
-import org.folio.rest.persist.QueryHolder;
-
-import javax.ws.rs.core.Response;
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
-
-import static org.folio.rest.persist.HelperUtils.SequenceQuery.CREATE_SEQUENCE;
-import static org.folio.rest.persist.HelperUtils.SequenceQuery.DROP_SEQUENCE;
-import static org.folio.rest.persist.HelperUtils.getEntitiesCollection;
 
 public class InvoiceStorageImpl implements InvoiceStorage {
 
@@ -103,35 +104,37 @@ public class InvoiceStorageImpl implements InvoiceStorage {
 
   @Validate
   @Override
-  public void deleteInvoiceStorageInvoicesById(String id, String lang, Map<String, String> okapiHeaders, Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
+  public void deleteInvoiceStorageInvoicesById(String id, String lang, Map<String, String> okapiHeaders,
+      Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
     try {
       vertxContext.runOnContext(v -> {
         TxWithId tx = new TxWithId(id);
         log.info("Delete invoice");
-        startTxWithId(tx)
+        startTxWithId(tx).thenCompose(this::deleteInvoiceLinesByInvoiceId)
           .thenCompose(this::deleteInvoiceById)
-          .thenCompose(this::deleteInvoiceLinesByInvoiceId)
           .thenCompose(this::endTxWithId)
           .thenAccept(result -> {
             log.info("Preparing response to client");
             asyncResultHandler.handle(Future.succeededFuture(DeleteInvoiceStorageInvoicesByIdResponse.respond204()));
           })
           .exceptionally(t -> {
-            endTxWithId(tx)
-              .thenAccept(res -> {
-                HttpStatusException cause = (HttpStatusException) t.getCause();
-                if (cause.getStatusCode() == Response.Status.NOT_FOUND.getStatusCode()) {
-                  asyncResultHandler.handle(Future.succeededFuture(DeleteInvoiceStorageInvoicesByIdResponse.respond404WithTextPlain(Response.Status.NOT_FOUND.getReasonPhrase())));
-                } else {
-                  log.info("Invoice {} and associated lines were successfully deleted", tx.getId());
-                  asyncResultHandler.handle(Future.succeededFuture(DeleteInvoiceStorageInvoicesByIdResponse.respond500WithTextPlain(Response.Status.INTERNAL_SERVER_ERROR.getReasonPhrase())));
-                }
-              });
+            rollbackDeleteInvoiceTransaction(tx, t).thenAccept(res -> {
+              HttpStatusException cause = (HttpStatusException) t.getCause();
+              if (cause.getStatusCode() == Response.Status.NOT_FOUND.getStatusCode()) {
+                asyncResultHandler.handle(Future.succeededFuture(
+                    DeleteInvoiceStorageInvoicesByIdResponse.respond404WithTextPlain(Response.Status.NOT_FOUND.getReasonPhrase())));
+              } else {
+                log.info("Invoice {} and associated lines were successfully deleted", tx.getId());
+                asyncResultHandler.handle(Future.succeededFuture(DeleteInvoiceStorageInvoicesByIdResponse
+                  .respond500WithTextPlain(Response.Status.INTERNAL_SERVER_ERROR.getReasonPhrase())));
+              }
+            });
             return null;
           });
       });
     } catch (Exception e) {
-      asyncResultHandler.handle(Future.succeededFuture(DeleteInvoiceStorageInvoicesByIdResponse.respond500WithTextPlain(Response.Status.INTERNAL_SERVER_ERROR.getReasonPhrase())));
+      asyncResultHandler.handle(Future.succeededFuture(DeleteInvoiceStorageInvoicesByIdResponse
+        .respond500WithTextPlain(Response.Status.INTERNAL_SERVER_ERROR.getReasonPhrase())));
     }
   }
 
@@ -352,42 +355,46 @@ public class InvoiceStorageImpl implements InvoiceStorage {
   }
 
   private CompletableFuture<TxWithId> deleteInvoiceById(TxWithId tx) {
+    log.info("Delete invoice with id={}", tx.getId());
+
     CompletableFuture<TxWithId> future = new CompletableFuture<>();
     Criterion criterion = getCriterionByFieldNameAndValue(ID_FIELD_NAME, tx.getId());
 
-    log.info("Delete invoice with id={}", tx.getId());
     pgClient.delete(tx.getConnection(), INVOICE_TABLE, criterion, reply -> {
-      if (reply.result().getUpdated() == 0) {
-        future.completeExceptionally(new HttpStatusException(Response.Status.NOT_FOUND.getStatusCode(), "Invoice not found"));
+      if (reply.failed()) {
+        future.completeExceptionally(new HttpStatusException(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), reply.cause().getMessage()));
       } else {
-        future.complete(tx);
+        if (reply.result().getUpdated() == 0) {
+          future.completeExceptionally(new HttpStatusException(Response.Status.NOT_FOUND.getStatusCode(), "Invoice not found"));
+        } else {
+          future.complete(tx);
+        }
       }
     });
     return future;
   }
 
-  private void rollbackDeleteInvoiceTransaction(TxWithId tx, CompletableFuture<TxWithId> future, AsyncResult<UpdateResult> reply) {
+  private CompletableFuture<Void> rollbackDeleteInvoiceTransaction(TxWithId tx, Throwable t) {
+    CompletableFuture<Void> future = new CompletableFuture<>();
+
     pgClient.rollbackTx(tx.getConnection(), rb -> {
-      log.error("Delete invoice by id={} failed", reply.cause(), tx.getId());
-      String badRequestMessage = PgExceptionUtil.badRequestMessage(reply.cause());
-      if (badRequestMessage != null) {
-        future.completeExceptionally(new HttpStatusException(Response.Status.BAD_REQUEST.getStatusCode(), badRequestMessage));
-      } else {
-        future.completeExceptionally(new HttpStatusException(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), reply.cause().getMessage()));
-      }
+      log.error("Delete invoice by id={} failed", t.getCause(), tx.getId());
+      future.complete(null);
     });
+    return future;
   }
 
   private CompletableFuture<TxWithId> deleteInvoiceLinesByInvoiceId(TxWithId tx) {
+
     CompletableFuture<TxWithId> future = new CompletableFuture<>();
     Criterion criterion = getCriterionByFieldNameAndValue(INVOICE_ID_FIELD_NAME, tx.getId());
-
     log.info("Delete invoice lines by invoice id={}", tx.getId());
+
     pgClient.delete(tx.getConnection(), INVOICE_LINE_TABLE, criterion, reply -> {
       if (reply.failed()) {
-        rollbackDeleteInvoiceTransaction(tx, future, reply);
+        future.completeExceptionally(new HttpStatusException(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), reply.cause().getMessage()));
       } else {
-        log.info("{} invoice lines of invoice with id={} successfully deleted", tx.getId(), reply.result().getUpdated());
+        log.info("{} invoice lines of invoice with id={} successfully deleted", reply.result().getUpdated(), tx.getId());
         future.complete(tx);
       }
     });
