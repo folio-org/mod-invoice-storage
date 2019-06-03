@@ -110,7 +110,9 @@ public class InvoiceStorageImpl implements InvoiceStorage {
       vertxContext.runOnContext(v -> {
         TxWithId tx = new TxWithId(id);
         log.info("Delete invoice");
-        startTxWithId(tx).thenCompose(this::deleteInvoiceLinesByInvoiceId)
+        startTxWithId(tx)
+          .thenCompose(this::deleteInvoiceLinesByInvoiceId)
+          .thenCompose(this::deleteSequence)
           .thenCompose(this::deleteInvoiceById)
           .thenCompose(this::endTxWithId)
           .thenAccept(result -> {
@@ -380,6 +382,23 @@ public class InvoiceStorageImpl implements InvoiceStorage {
     pgClient.rollbackTx(tx.getConnection(), rb -> {
       log.error("Delete invoice by id={} failed", t.getCause(), tx.getId());
       future.complete(null);
+    });
+    return future;
+  }
+
+  private CompletableFuture<TxWithId> deleteSequence(TxWithId txWithId) {
+    CompletableFuture<TxWithId> future = new CompletableFuture<>();
+
+    String sqlQuery = DROP_SEQUENCE.getQuery(txWithId.getId());
+    log.info("InvoiceStorageImpl deleteSequence Drop sequence query -- ", sqlQuery);
+    pgClient.execute(sqlQuery, reply -> {
+      if (reply.failed()) {
+        log.error("IL number sequence for invoice with id={} failed to be dropped", reply.cause(), txWithId.getId());
+        future.completeExceptionally(new HttpStatusException(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), reply.cause()
+          .getMessage()));
+      } else {
+        future.complete(txWithId);
+      }
     });
     return future;
   }
