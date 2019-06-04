@@ -42,7 +42,8 @@ import io.vertx.core.logging.LoggerFactory;
   InvoiceNumberTest.class,
   InvoiceLineNumberTest.class,
   VoucherNumberTest.class,
-  ForeignKeysTest.class
+  ForeignKeysTest.class,
+  TenantSampleDataTest.class
 })
 
 public class StorageTestSuite {
