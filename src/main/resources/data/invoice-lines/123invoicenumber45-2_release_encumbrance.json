@@ -1,0 +1,25 @@
+{
+  "id": "c8e41fdc-ae66-44a1-a194-bed0066672b6",
+  "adjustments": [
+  ],
+  "adjustmentsTotal": 0.00,
+  "description": "Some description",
+  "fundDistributions": [
+    {
+      "code": "UNIV-SUBN",
+      "encumbrance": "eb506834-6c70-4239-8d1a-6414a5b08018",
+      "fundId": "4428a37c-8bae-4f0d-865d-970d83d5ad55",
+      "percentage": 100.0
+    }
+  ],
+  "invoiceId": "733cafd3-895f-4e33-87b7-bf40dc3c8069",
+  "invoiceLineNumber": "123invoicenumber45-1",
+  "invoiceLineStatus": "Approved",
+  "poLineId": "fe09e437-e487-1d59-bffb-dca466e3f2ef",
+  "productId": "3257204",
+  "productIdType": "Publisher Number",
+  "quantity": 1,
+  "releaseEncumbrance": true,
+  "subTotal": 150,
+  "total": 150
+}

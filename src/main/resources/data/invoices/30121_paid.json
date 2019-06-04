@@ -1,0 +1,30 @@
+{
+  "id": "40796c4a-ff0a-40ba-9a1d-c24c12dd4424",
+  "adjustments": [
+    {
+      "description": "Sales Tax",
+      "type": "Percentage",
+      "value": 2.00,
+      "prorate":"Not prorated",
+      "relationToTotal":"In addition to"
+    }
+  ],
+  "adjustmentsTotal": 4000.00,
+  "approvedBy": "b72a28f6-04fc-489f-be18-ad53a3a64f67",
+  "approvalDate": "2018-07-26T00:00:00Z",
+  "currency": "USD",
+  "folioInvoiceNo": "30121",
+  "invoiceDate": "2018-07-25T00:00:00Z",
+  "paymentTerms": "Payment in Advance",
+  "paymentMethod": "EFT",
+  "status": "Paid",
+  "source": "4a151bd6-771e-405c-9cbe-0dcd035c58c4",
+  "subTotal": 200000.00,
+  "total": 204000.00,
+  "vendorInvoiceNo": "NM23141",
+  "voucherNumber": "223",
+  "poNumbers": [
+    "S60402"
+  ],
+  "vendorId": "80fb5168-cdf1-11e8-a8d5-f2801f1b9fd1"
+}

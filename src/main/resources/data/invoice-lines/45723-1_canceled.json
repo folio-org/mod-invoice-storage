@@ -1,0 +1,23 @@
+{
+  "id": "48c217a2-29d9-48b2-a0c9-bcfb3859cbf0",
+  "adjustments": [
+  ],
+  "adjustmentsTotal": 0.00,
+  "description": "Some description",
+  "fundDistributions": [
+    {
+      "code": "GIFTS-ONE-TIME",
+      "encumbrance": "eb506834-6c70-4239-8d1a-6414a5b08016",
+      "fundId": "6506b79b-7702-48b2-9774-a1c538fdd34e",
+      "percentage": 100.0
+    }
+  ],
+  "invoiceId": "07bb89be-dd4a-42f8-bbd0-a648e14bac5d",
+  "invoiceLineNumber": "45723-1",
+  "invoiceLineStatus": "Cancelled",
+  "poLineId": "67df7bd0-ff70-2ad2-9162-54acb3e9180e",
+  "quantity": 1,
+  "releaseEncumbrance": true,
+  "subTotal": 25.00,
+  "total": 25.00
+}

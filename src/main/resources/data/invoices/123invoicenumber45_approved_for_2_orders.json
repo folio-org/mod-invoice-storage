@@ -16,29 +16,22 @@
       "relationToTotal":"In addition to"
     }
   ],
-  "adjustmentsTotal": 11.50,
-  "chkSubscriptionOverlap": false,
+  "adjustmentsTotal": 127.50,
   "currency": "USD",
   "folioInvoiceNo": "123invoicenumber45",
-  "invoiceDate": "2018-07-20T00:00:00.000+0000",
-  "lockTotal": true,
+  "invoiceDate": "2018-07-25T00:00:00.000+0000",
   "note": "Some note",
-  "acquisitionsUnit": "d79b0bcc-dcad-1e4e-abb7-dbfcad5bb3bb",
-  "paymentDue": "2018-08-29T00:00:00.000+0000",
   "paymentTerms": "Payment in Advance",
   "paymentMethod": "EFT",
-  "status": "Reviewed",
+  "status": "Approved",
   "source": "024b6f41-c5c6-4280-858e-33fba452a334",
-  "subTotal": 50.00,
-  "total": 61.50,
+  "subTotal": 1150.00,
+  "total": 1277.50,
   "vendorInvoiceNo": "YK75851",
-  "disbursementNumber": "58",
   "voucherNumber": "478",
-  "paymentId": "a5065f0d-fb88-4d23-b0c1-57e754fba40e",
-  "disbursementDate": "2018-08-19T00:00:00.000+0000",
   "poNumbers": [
-    "AB268758XYZ"
+    "313000",
+    "312325"
   ],
-  "vendorId": "168f8a63-d612-406e-813f-c7527f241ac3",
-  "manualPayment": true
+  "vendorId": "c0fb5956-cdf1-11e8-a8d5-f2801f1b9fd1"
 }

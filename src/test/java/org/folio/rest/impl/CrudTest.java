@@ -1,26 +1,26 @@
 package org.folio.rest.impl;
 
-import io.restassured.http.ContentType;
-import io.restassured.response.Response;
-import io.vertx.core.json.JsonObject;
-import io.vertx.core.logging.Logger;
-import io.vertx.core.logging.LoggerFactory;
+import static io.restassured.RestAssured.given;
+import static org.folio.rest.impl.StorageTestSuite.storageUrl;
+import static org.junit.Assert.fail;
+
+import java.net.MalformedURLException;
+import java.util.Set;
+
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.ValidatorFactory;
 
 import org.folio.rest.utils.TestEntities;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
-import java.net.MalformedURLException;
-import java.util.Set;
-
-import static io.restassured.RestAssured.given;
-import static org.folio.rest.impl.StorageTestSuite.storageUrl;
-import static org.junit.Assert.fail;
-
-import javax.validation.ConstraintViolation;
-import javax.validation.Validation;
-import javax.validation.ValidatorFactory;
+import io.restassured.http.ContentType;
+import io.restassured.response.Response;
+import io.vertx.core.json.JsonObject;
+import io.vertx.core.logging.Logger;
+import io.vertx.core.logging.LoggerFactory;
 
 @RunWith(Parameterized.class)
 public class CrudTest extends TestBase {
@@ -41,7 +41,7 @@ private final Logger logger = LoggerFactory.getLogger(CrudTest.class);
   	String sampleId = null;
     try {
       logger.info(String.format("--- mod-invoice-storage %s test: Verifying database's initial state ... ", testEntity.name()));
-      verifyCollectionQuantity(testEntity.getEndpoint(), testEntity.getInitialQuantity());
+      int initialQuantity = verifyGetCollection(testEntity.getEndpoint());
 
       logger.info(String.format("--- mod-invoice-storage %s test: Creating %s ... ", testEntity.name(), testEntity.name()));
       String sample = getFile(testEntity.getSampleFileName());
@@ -56,7 +56,7 @@ private final Logger logger = LoggerFactory.getLogger(CrudTest.class);
       testAllFieldsExists(responseJson, sampleJson);
       
       logger.info(String.format("--- mod-invoice-storage %s test: Verifying only 1 invoice was created ... ", testEntity.name()));
-      verifyCollectionQuantity(testEntity.getEndpoint(),testEntity.getInitialQuantity() + 1);
+      verifyCollectionQuantity(testEntity.getEndpoint(),initialQuantity + 1);
       
       logger.info(String.format("--- mod-invoice-storage %s test: Fetching %s with ID: %s", testEntity.name(), testEntity.name(), sampleId));
       testEntitySuccessfullyFetched(testEntity.getEndpointWithId(), sampleId);
@@ -114,7 +114,7 @@ private final Logger logger = LoggerFactory.getLogger(CrudTest.class);
   }
 
   @Test
-  public void deleteByIdTest() throws MalformedURLException {
+  public void deleteByNonExistedIdTest() throws MalformedURLException {
     given()
       .pathParam("id", NON_EXISTED_ID)
       .header(TENANT_HEADER)

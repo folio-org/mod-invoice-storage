@@ -1,0 +1,23 @@
+{
+  "id": "041c1fe8-adfa-44eb-b6b3-f85acdd71f81",
+  "adjustments": [
+  ],
+  "adjustmentsTotal": 0.00,
+  "approvedBy": "b72a28f6-04fc-489f-be18-ad53a3a64f67",
+  "approvalDate": "2014-07-15T09:00:00Z",
+  "currency": "USD",
+  "folioInvoiceNo": "10411",
+  "invoiceDate": "2014-07-14T00:00:00Z",
+  "paymentTerms": "Payment in Advance",
+  "paymentMethod": "EFT",
+  "status": "Paid",
+  "source": "4a151bd6-771e-405c-9cbe-0dcd035c58c4",
+  "subTotal": 75.00,
+  "total": 75.00,
+  "vendorInvoiceNo": "AD14125",
+  "voucherNumber": "345",
+  "poNumbers": [
+    "268879"
+  ],
+  "vendorId": "60fb4bfa-cdf1-11e8-a8d5-f2801f1b9fd1"
+}

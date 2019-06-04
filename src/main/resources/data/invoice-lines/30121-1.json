@@ -1,0 +1,25 @@
+{
+  "id": "9b0b32e3-ef48-4bb8-91a5-750a850cc63c",
+  "adjustments": [
+  ],
+  "adjustmentsTotal": 0.00,
+  "description": "With shipping",
+  "fundDistributions": [
+    {
+      "code": "ENDOW-SUBN",
+      "encumbrance": "eb506834-6c70-4239-8d1a-6414a5b08008",
+      "fundId": "1714f71f-b845-444b-a79e-a577487a6f7d",
+      "percentage": 100.0
+    }
+  ],
+  "invoiceId": "40796c4a-ff0a-40ba-9a1d-c24c12dd4424",
+  "invoiceLineNumber": "30121-1",
+  "invoiceLineStatus": "Paid",
+  "poLineId": "a0fb5514-cdf1-11e8-a8d5-f2801f1b9fd1",
+  "productId": "807922",
+  "productIdType": "Vendor Title Number",
+  "quantity": 1,
+  "releaseEncumbrance": false,
+  "subTotal": 200000.00,
+  "total": 200000.00
+}

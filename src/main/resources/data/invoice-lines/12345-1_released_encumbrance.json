@@ -1,0 +1,32 @@
+{
+  "id": "1bafe8ac-e7fd-437e-bfe6-4a94a01fb16e",
+  "adjustments": [
+    {
+      "description": "Service Fee",
+      "type": "Amount",
+      "value": 5.00,
+      "prorate":"Not prorated",
+      "relationToTotal":"In addition to"
+    }
+  ],
+  "adjustmentsTotal": 5,
+  "description": "Some description",
+  "fundDistributions": [
+    {
+      "code": "USHIST",
+      "encumbrance": "eb506834-6c70-4239-8d1a-6414a5b08005",
+      "fundId": "65032151-39a5-4cef-8810-5350eb316300",
+      "percentage": 100.0
+    }
+  ],
+  "invoiceId": "6b8bc989-834d-4a14-945b-4c5442ae09af",
+  "invoiceLineNumber": "12345-1",
+  "invoiceLineStatus": "Paid",
+  "poLineId": "852d0f06-290a-279c-92cf-aee87befc6be",
+  "productId": "9781450351430",
+  "productIdType": "ISBN",
+  "quantity": 1,
+  "releaseEncumbrance": true,
+  "subTotal": 20,
+  "total": 25
+}
