@@ -6,6 +6,7 @@ import static org.folio.rest.persist.HelperUtils.SequenceQuery.DROP_SEQUENCE;
 
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 import javax.ws.rs.core.Response;
 
@@ -20,6 +21,8 @@ import org.folio.rest.persist.PgExceptionUtil;
 import org.folio.rest.persist.PgUtil;
 import org.folio.rest.persist.PostgresClient;
 import org.folio.rest.persist.QueryHolder;
+import org.folio.rest.persist.Criteria.Criteria;
+import org.folio.rest.persist.Criteria.Criterion;
 
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Context;
@@ -33,15 +36,16 @@ import io.vertx.ext.web.handler.impl.HttpStatusException;
 
 public class InvoiceStorageImpl implements InvoiceStorage {
 
-private static final Logger log = LoggerFactory.getLogger(InvoiceStorageImpl.class);
+  private static final Logger log = LoggerFactory.getLogger(InvoiceStorageImpl.class);
 
-private static final String INVOICE_PREFIX = "/invoice-storage/invoices/";
+  private static final String INVOICE_PREFIX = "/invoice-storage/invoices/";
 
-private PostgresClient pgClient;
+  private PostgresClient pgClient;
 
-public static final String INVOICE_TABLE = "invoices";
-private static final String INVOICE_LINE_TABLE = "invoice_lines";
-private static final String ID_FIELD_NAME = "id";
+  public static final String INVOICE_TABLE = "invoices";
+  private static final String INVOICE_LINE_TABLE = "invoice_lines";
+  private static final String ID_FIELD_NAME = "id";
+  private static final String INVOICE_ID_FIELD_NAME = "invoiceId";
 
   public InvoiceStorageImpl(Vertx vertx, String tenantId) {
     pgClient = PostgresClient.getInstance(vertx, tenantId);
@@ -63,7 +67,7 @@ private static final String ID_FIELD_NAME = "id";
   public void postInvoiceStorageInvoices(String lang, Invoice entity, Map<String, String> okapiHeaders, Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
     try {
       vertxContext.runOnContext(v -> {
-      	log.info("Creating a new invoice");
+        log.info("Creating a new invoice");
         Future.succeededFuture(new Tx<>(entity))
           .compose(this::startTx)
           .compose(this::createInvoice)
@@ -80,10 +84,10 @@ private static final String ID_FIELD_NAME = "id";
                 asyncResultHandler.handle(Future.succeededFuture(PostInvoiceStorageInvoicesResponse.respond500WithTextPlain(Response.Status.INTERNAL_SERVER_ERROR.getReasonPhrase())));
               }
             } else {
-                log.info("Preparing response to client");
-                asyncResultHandler.handle(Future.succeededFuture(PostInvoiceStorageInvoicesResponse
-                  .respond201WithApplicationJson(reply.result().getEntity(), PostInvoiceStorageInvoicesResponse.headersFor201()
-                    .withLocation(INVOICE_PREFIX + reply.result().getEntity().getId()))));
+              log.info("Preparing response to client");
+              asyncResultHandler.handle(Future.succeededFuture(PostInvoiceStorageInvoicesResponse
+                .respond201WithApplicationJson(reply.result().getEntity(), PostInvoiceStorageInvoicesResponse.headersFor201()
+                  .withLocation(INVOICE_PREFIX + reply.result().getEntity().getId()))));
             }
           });
       });
@@ -95,13 +99,45 @@ private static final String ID_FIELD_NAME = "id";
   @Validate
   @Override
   public void getInvoiceStorageInvoicesById(String id, String lang, Map<String, String> okapiHeaders, Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
-    PgUtil.getById(INVOICE_TABLE, Invoice.class, id, okapiHeaders,vertxContext, GetInvoiceStorageInvoicesByIdResponse.class, asyncResultHandler);
+    PgUtil.getById(INVOICE_TABLE, Invoice.class, id, okapiHeaders, vertxContext, GetInvoiceStorageInvoicesByIdResponse.class, asyncResultHandler);
   }
 
   @Validate
   @Override
-  public void deleteInvoiceStorageInvoicesById(String id, String lang, Map<String, String> okapiHeaders, Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
-    PgUtil.deleteById(INVOICE_TABLE, id, okapiHeaders, vertxContext, DeleteInvoiceStorageInvoicesByIdResponse.class, asyncResultHandler);
+  public void deleteInvoiceStorageInvoicesById(String id, String lang, Map<String, String> okapiHeaders,
+      Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
+    try {
+      vertxContext.runOnContext(v -> {
+        TxWithId tx = new TxWithId(id);
+        log.info("Delete invoice");
+        startTxWithId(tx)
+          .thenCompose(this::deleteInvoiceLinesByInvoiceId)
+          .thenCompose(this::deleteSequence)
+          .thenCompose(this::deleteInvoiceById)
+          .thenCompose(this::endTxWithId)
+          .thenAccept(result -> {
+            log.info("Preparing response to client");
+            asyncResultHandler.handle(Future.succeededFuture(DeleteInvoiceStorageInvoicesByIdResponse.respond204()));
+          })
+          .exceptionally(t -> {
+            rollbackDeleteInvoiceTransaction(tx, t).thenAccept(res -> {
+              HttpStatusException cause = (HttpStatusException) t.getCause();
+              if (cause.getStatusCode() == Response.Status.NOT_FOUND.getStatusCode()) {
+                asyncResultHandler.handle(Future.succeededFuture(
+                    DeleteInvoiceStorageInvoicesByIdResponse.respond404WithTextPlain(Response.Status.NOT_FOUND.getReasonPhrase())));
+              } else {
+                log.info("Invoice {} and associated lines were successfully deleted", tx.getId());
+                asyncResultHandler.handle(Future.succeededFuture(DeleteInvoiceStorageInvoicesByIdResponse
+                  .respond500WithTextPlain(Response.Status.INTERNAL_SERVER_ERROR.getReasonPhrase())));
+              }
+            });
+            return null;
+          });
+      });
+    } catch (Exception e) {
+      asyncResultHandler.handle(Future.succeededFuture(DeleteInvoiceStorageInvoicesByIdResponse
+        .respond500WithTextPlain(Response.Status.INTERNAL_SERVER_ERROR.getReasonPhrase())));
+    }
   }
 
   @Validate
@@ -150,8 +186,7 @@ private static final String ID_FIELD_NAME = "id";
   /**
    * Creates a new sequence within a scope of transaction
    *
-   * @param Tx<Invoice>
-   *          Transaction of type Invoice
+   * @param tx<Invoice> Transaction of type Invoice
    * @return Future of Invoice transaction with Invoice Line number sequence
    */
   private Future<Tx<Invoice>> createSequence(Tx<Invoice> tx) {
@@ -178,14 +213,13 @@ private static final String ID_FIELD_NAME = "id";
   /**
    * Deletes a sequence associated with the Invoice
    *
-   * @param Invoice
-   *          Invoice with the sequence number to be deleted
+   * @param invoice Invoice with the sequence number to be deleted
    */
   private void deleteSequence(Invoice invoice) {
-  	String sqlQuery = DROP_SEQUENCE.getQuery(invoice.getId());
+    String sqlQuery = DROP_SEQUENCE.getQuery(invoice.getId());
     if (invoice.getStatus() == Invoice.Status.CANCELLED || invoice.getStatus() == Invoice.Status.PAID) {
       // Try to drop sequence for the IL number but ignore failures
-    	log.info("InvoiceStorageImpl deleteSequence Drop sequence query -- ", sqlQuery);
+      log.info("InvoiceStorageImpl deleteSequence Drop sequence query -- ", sqlQuery);
       pgClient.execute(sqlQuery, reply -> {
         if (reply.failed()) {
           log.error("IL number sequence for invoice with id={} failed to be dropped", reply.cause(), invoice.getId());
@@ -197,16 +231,15 @@ private static final String ID_FIELD_NAME = "id";
   /**
    * Creates a new Invoice within the scope of its transaction
    *
-   * @param Tx<Invoice>
-   *          Transaction of type Invoice
-   * @return  Future of Invoice transaction with new Invoice
+   * @param tx<Invoice> Transaction of type Invoice
+   * @return Future of Invoice transaction with new Invoice
    */
   private Future<Tx<Invoice>> createInvoice(Tx<Invoice> tx) {
     Future<Tx<Invoice>> future = Future.future();
 
     Invoice invoice = tx.getEntity();
     if (invoice.getId() == null) {
-    	invoice.setId(UUID.randomUUID().toString());
+      invoice.setId(UUID.randomUUID().toString());
     }
 
     log.info("Creating new invoice with id={}", invoice.getId());
@@ -232,9 +265,8 @@ private static final String ID_FIELD_NAME = "id";
   /**
    * Starts a new transaction to create a new Invoice and to generate a new sequence number
    *
-   * @param Tx<Invoice>
-   *          Transaction of type Invoice
-   * @return  Future of Invoice transaction with new Invoice
+   * @param tx<Invoice> Transaction of type Invoice
+   * @return Future of Invoice transaction with new Invoice
    */
   private Future<Tx<Invoice>> startTx(Tx<Invoice> tx) {
     Future<Tx<Invoice>> future = Future.future();
@@ -247,17 +279,35 @@ private static final String ID_FIELD_NAME = "id";
     return future;
   }
 
+  private CompletableFuture<TxWithId> startTxWithId(TxWithId tx) {
+    CompletableFuture<TxWithId> future = new CompletableFuture<>();
+    log.info("Start transaction");
+
+    pgClient.startTx(sqlConnection -> {
+      tx.setConnection(sqlConnection);
+      future.complete(tx);
+    });
+    return future;
+  }
+
   /**
    * Ends a transaction after creating a new Invoice and generating a new sequence number
    *
-   * @param Tx<Invoice>
-   *          Transaction of type Invoice
-   * @return  Future of Invoice transaction with new Invoice
+   * @param tx Transaction of type Invoice
+   * @return Future of Invoice transaction with new Invoice
    */
   private Future<Tx<Invoice>> endTx(Tx<Invoice> tx) {
     log.info("End transaction");
 
     Future<Tx<Invoice>> future = Future.future();
+    pgClient.endTx(tx.getConnection(), v -> future.complete(tx));
+    return future;
+  }
+
+  private CompletableFuture<TxWithId> endTxWithId(TxWithId tx) {
+    log.info("End transaction");
+
+    CompletableFuture<TxWithId> future = new CompletableFuture<>();
     pgClient.endTx(tx.getConnection(), v -> future.complete(tx));
     return future;
   }
@@ -282,5 +332,99 @@ private static final String ID_FIELD_NAME = "id";
     void setConnection(AsyncResult<SQLConnection> sqlConnection) {
       this.sqlConnection = sqlConnection;
     }
+  }
+
+  public class TxWithId {
+
+    private AsyncResult<SQLConnection> sqlConnection;
+    private String id;
+
+    TxWithId(String id) {
+      this.id = id;
+    }
+
+    AsyncResult<SQLConnection> getConnection() {
+      return sqlConnection;
+    }
+
+    void setConnection(AsyncResult<SQLConnection> sqlConnection) {
+      this.sqlConnection = sqlConnection;
+    }
+
+    public String getId() {
+      return this.id;
+    }
+  }
+
+  private CompletableFuture<TxWithId> deleteInvoiceById(TxWithId tx) {
+    log.info("Delete invoice with id={}", tx.getId());
+
+    CompletableFuture<TxWithId> future = new CompletableFuture<>();
+    Criterion criterion = getCriterionByFieldNameAndValue(ID_FIELD_NAME, tx.getId());
+
+    pgClient.delete(tx.getConnection(), INVOICE_TABLE, criterion, reply -> {
+      if (reply.failed()) {
+        future.completeExceptionally(new HttpStatusException(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), reply.cause().getMessage()));
+      } else {
+        if (reply.result().getUpdated() == 0) {
+          future.completeExceptionally(new HttpStatusException(Response.Status.NOT_FOUND.getStatusCode(), "Invoice not found"));
+        } else {
+          future.complete(tx);
+        }
+      }
+    });
+    return future;
+  }
+
+  private CompletableFuture<Void> rollbackDeleteInvoiceTransaction(TxWithId tx, Throwable t) {
+    CompletableFuture<Void> future = new CompletableFuture<>();
+
+    pgClient.rollbackTx(tx.getConnection(), rb -> {
+      log.error("Delete invoice by id={} failed", t.getCause(), tx.getId());
+      future.complete(null);
+    });
+    return future;
+  }
+
+  private CompletableFuture<TxWithId> deleteSequence(TxWithId txWithId) {
+    CompletableFuture<TxWithId> future = new CompletableFuture<>();
+
+    String sqlQuery = DROP_SEQUENCE.getQuery(txWithId.getId());
+    log.info("InvoiceStorageImpl deleteSequence Drop sequence query -- ", sqlQuery);
+    pgClient.execute(sqlQuery, reply -> {
+      if (reply.failed()) {
+        log.error("IL number sequence for invoice with id={} failed to be dropped", reply.cause(), txWithId.getId());
+        future.completeExceptionally(new HttpStatusException(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), reply.cause()
+          .getMessage()));
+      } else {
+        future.complete(txWithId);
+      }
+    });
+    return future;
+  }
+
+  private CompletableFuture<TxWithId> deleteInvoiceLinesByInvoiceId(TxWithId tx) {
+
+    CompletableFuture<TxWithId> future = new CompletableFuture<>();
+    Criterion criterion = getCriterionByFieldNameAndValue(INVOICE_ID_FIELD_NAME, tx.getId());
+    log.info("Delete invoice lines by invoice id={}", tx.getId());
+
+    pgClient.delete(tx.getConnection(), INVOICE_LINE_TABLE, criterion, reply -> {
+      if (reply.failed()) {
+        future.completeExceptionally(new HttpStatusException(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), reply.cause().getMessage()));
+      } else {
+        log.info("{} invoice lines of invoice with id={} successfully deleted", reply.result().getUpdated(), tx.getId());
+        future.complete(tx);
+      }
+    });
+    return future;
+  }
+
+  private Criterion getCriterionByFieldNameAndValue(String filedName, String fieldValue) {
+    Criteria a = new Criteria();
+    a.addField("'" + filedName + "'");
+    a.setOperation("=");
+    a.setValue(fieldValue);
+    return new Criterion(a);
   }
 }
