@@ -1,22 +1,9 @@
 {
   "id": "733cafd3-895f-4e33-87b7-bf40dc3c8069",
   "adjustments": [
-    {
-      "description": "Sales Tax",
-      "type": "Percentage",
-      "value": 6,
-      "prorate":"Not prorated",
-      "relationToTotal":"In addition to"
-    },
-    {
-      "description": "Shipping",
-      "type": "Amount",
-      "value": 8.50,
-      "prorate":"Not prorated",
-      "relationToTotal":"In addition to"
-    }
+
   ],
-  "adjustmentsTotal": 127.50,
+  "adjustmentsTotal": 50.00,
   "currency": "USD",
   "folioInvoiceNo": "123invoicenumber45",
   "invoiceDate": "2018-07-25T00:00:00.000+0000",
@@ -26,7 +13,7 @@
   "status": "Approved",
   "source": "024b6f41-c5c6-4280-858e-33fba452a334",
   "subTotal": 1150.00,
-  "total": 1277.50,
+  "total": 1200.00,
   "vendorInvoiceNo": "YK75851",
   "voucherNumber": "478",
   "poNumbers": [
