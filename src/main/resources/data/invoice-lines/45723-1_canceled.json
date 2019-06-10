@@ -19,7 +19,7 @@
   "productId": "5456",
   "productIdType": "Publisher Number",
   "quantity": 1,
-  "releaseEncumbrance": true,
-  "subTotal": 25.00,
-  "total": 25.00
+  "releaseEncumbrance": false,
+  "subTotal": 3000.00,
+  "total": 3000.00
 }

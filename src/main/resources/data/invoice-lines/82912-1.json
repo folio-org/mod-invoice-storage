@@ -5,11 +5,18 @@
       "description":"Shipping",
       "type":"Amount",
       "value":10.00,
-      "prorate":"By line",
+      "prorate":"Not prorated",
       "relationToTotal":"In addition to"
+    },
+    {
+      "description": "Discount",
+      "type": "Amount",
+      "value": -20.00,
+      "prorate": "Not prorated",
+      "relationToTotal": "In addition to"
     }
   ],
-  "adjustmentsTotal": 10,
+  "adjustmentsTotal": -10,
   "description": "With shipping",
   "fundDistributions": [
     {
@@ -28,5 +35,5 @@
   "quantity": 1,
   "releaseEncumbrance": true,
   "subTotal": 800.00,
-  "total": 810.00
+  "total": 790.00
 }

@@ -5,7 +5,7 @@
       "description":"Shipping",
       "type":"Amount",
       "value":10.00,
-      "prorate":"By line",
+      "prorate":"Not prorated",
       "relationToTotal":"In addition to"
     }
   ],
