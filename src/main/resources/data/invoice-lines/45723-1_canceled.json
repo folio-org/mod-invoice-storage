@@ -16,6 +16,8 @@
   "invoiceLineNumber": "45723-1",
   "invoiceLineStatus": "Cancelled",
   "poLineId": "67df7bd0-ff70-2ad2-9162-54acb3e9180e",
+  "productId": "5456",
+  "productIdType": "Publisher Number",
   "quantity": 1,
   "releaseEncumbrance": true,
   "subTotal": 25.00,
