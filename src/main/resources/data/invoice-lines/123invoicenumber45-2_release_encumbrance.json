@@ -17,7 +17,7 @@
   "invoiceLineStatus": "Approved",
   "poLineId": "fe09e437-e487-1d59-bffb-dca466e3f2ef",
   "productId": "3257204",
-  "productIdType": "Publisher Number",
+  "productIdType": "b5d8cdc4-9441-487c-90cf-0c7ec97728eb",
   "quantity": 1,
   "releaseEncumbrance": true,
   "subTotal": 150,

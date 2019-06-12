@@ -31,7 +31,7 @@
   "invoiceLineStatus": "Open",
   "poLineId": "abbd1cef-a8ee-3d07-93b2-71c1387e61b1",
   "productId": "9780866989732",
-  "productIdType": "ISBN",
+  "productIdType": "8261054f-be78-422d-bd51-4ed9f33c3422",
   "quantity": 1,
   "releaseEncumbrance": true,
   "subTotal": 800.00,

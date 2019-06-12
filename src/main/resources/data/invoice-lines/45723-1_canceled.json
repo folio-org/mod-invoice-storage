@@ -17,7 +17,7 @@
   "invoiceLineStatus": "Cancelled",
   "poLineId": "67df7bd0-ff70-2ad2-9162-54acb3e9180e",
   "productId": "5456",
-  "productIdType": "Publisher Number",
+  "productIdType": "b5d8cdc4-9441-487c-90cf-0c7ec97728eb",
   "quantity": 1,
   "releaseEncumbrance": false,
   "subTotal": 3000.00,

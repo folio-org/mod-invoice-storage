@@ -16,14 +16,20 @@
       "relationToTotal":"In addition to"
     }
   ],
-  "adjustmentsTotal": 50,
+  "adjustmentsTotal": 55,
   "description": "Some description",
   "fundDistributions": [
     {
-      "code": "UNIV-SUBN",
-      "encumbrance": "eb506834-6c70-4239-8d1a-6414a5b08007",
-      "fundId": "4428a37c-8bae-4f0d-865d-970d83d5ad55",
-      "percentage": 100.0
+      "code": "USHIST",
+      "encumbrance": "1c8fc9f4-d2cc-4bd1-aa9a-cb02291cbe65",
+      "fundId": "1d1574f1-9196-4a57-8d1f-3b2e4309eb81",
+      "percentage": 50
+    },
+    {
+      "code": "EUHIST",
+      "encumbrance": "5f9bfc74-f6ff-4877-be1f-793f8ce90ade",
+      "fundId": "63157e96-0693-426d-b0df-948bacdfdb08",
+      "percentage": 50
     }
   ],
   "invoiceId": "733cafd3-895f-4e33-87b7-bf40dc3c8069",
@@ -31,9 +37,18 @@
   "invoiceLineStatus": "Approved",
   "poLineId": "90fb53f2-cdf1-11e8-a8d5-f2801f1b9fd1",
   "productId": "0552142352",
-  "productIdType": "ISBN",
+  "productIdType": "8261054f-be78-422d-bd51-4ed9f33c3422",
   "quantity": 3,
   "releaseEncumbrance": false,
-  "subTotal": 1000,
-  "total": 1050
+  "subscriptionInfo": "Subscription information",
+  "subscriptionStart": "2018-08-01T00:00:00.000+0000",
+  "subscriptionEnd": "2019-01-01T00:00:00.000+0000",
+  "subTotal": 1000.00,
+  "total": 1050.00,
+  "vendorRefNo": "1",
+  "metadata": {
+    "createdDate": "2018-07-19T00:00:00.000+0000",
+    "createdByUserId": "28d1057c-d137-11e8-a8d5-f2801f1b9fd1"
+  }
 }
+
