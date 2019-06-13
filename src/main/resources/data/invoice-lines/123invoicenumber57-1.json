@@ -1,0 +1,32 @@
+{
+  "id": "0155fee2-9b2d-4020-9b91-060d0d102209",
+  "adjustments": [
+    {
+      "description": "Sales Tax",
+      "type": "Percentage",
+      "value": 5,
+      "prorate":"Not prorated",
+      "relationToTotal":"In addition to"
+    }
+  ],
+  "adjustmentsTotal": 100,
+  "description": "Some description",
+  "fundDistributions": [
+    {
+      "code": "UNIV-SUBN",
+      "encumbrance": "eb506834-6c70-4239-8d1a-6414a5b08007",
+      "fundId": "4428a37c-8bae-4f0d-865d-970d83d5ad55",
+      "percentage": 100.0
+    }
+  ],
+  "invoiceId": "859c2cd1-420a-4d3b-abbb-dfcb3a3087fd",
+  "invoiceLineNumber": "123invoicenumber57-1",
+  "invoiceLineStatus": "Reviewed",
+  "poLineId": "90fb53f2-cdf1-11e8-a8d5-f2801f1b9fd1",
+  "productId": "9780552142352",
+  "productIdType": "8261054f-be78-422d-bd51-4ed9f33c3422",
+  "quantity": 4,
+  "releaseEncumbrance": true,
+  "subTotal": 2000,
+  "total": 2100
+}

@@ -41,7 +41,7 @@ public class InvoiceTest extends TestBase {
     // remove invoice
     deleteDataSuccess(INVOICE.getEndpointWithId(), invoiceSampleId);
     // verify invoice and associated invoice lines were deleted
-    verifyCollectionQuantity(INVOICE.getEndpoint(), INVOICE.getInitialQuantity());
+    verifyCollectionQuantity(INVOICE.getEndpoint(), 1);
     verifyCollectionQuantity(TestEntities.INVOICE_LINES.getEndpoint(), 0);
   }
 

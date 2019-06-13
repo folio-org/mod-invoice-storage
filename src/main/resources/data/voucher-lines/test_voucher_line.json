@@ -22,9 +22,5 @@
     "e0d08448-343b-118a-8c2f-4fb50248d672"
   ],
   "subTransactionId": "7b1f7179-b83f-4eab-a4db-3c600eebe271",
-  "voucherId": "a9b99f8a-7100-47f2-9903-6293d44a9905",
-  "metadata": {
-    "createdDate": "2019-05-06T00:00:00.000+0000",
-    "createdByUserId": "28d1057c-d137-11e8-a8d5-f2801f1b9fd1"
-  }
+  "voucherId": "a9b99f8a-7100-47f2-9903-6293d44a9905"
 }

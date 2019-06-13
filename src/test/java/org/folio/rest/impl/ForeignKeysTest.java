@@ -62,13 +62,7 @@ public class ForeignKeysTest extends TestBase {
   }
 
   @Test
-  public void testDeleteInvoiceThatInvoiceLinesReferencedTo() throws MalformedURLException {
-    String invoiceLine = getFile(INVOICE_LINES.getSampleFileName());
-    String sampleId = postData(INVOICE_LINES.getEndpoint(), invoiceLine).then().statusCode(201).extract().path(ID);
-
-    deleteData(INVOICE.getEndpointWithId(), StorageTestSuite.EXISTENT_INVOICE_ID).then().statusCode(500);
-
-    deleteData(INVOICE_LINES.getEndpointWithId(), sampleId).then().statusCode(204);
+  public void testDeleteInvoiceThatVoucherReferencedTo() throws MalformedURLException {
 
     deleteData(INVOICE.getEndpointWithId(), StorageTestSuite.EXISTENT_INVOICE_ID).then().statusCode(500);
   }

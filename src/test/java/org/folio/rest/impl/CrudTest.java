@@ -41,7 +41,7 @@ private final Logger logger = LoggerFactory.getLogger(CrudTest.class);
   	String sampleId = null;
     try {
       logger.info(String.format("--- mod-invoice-storage %s test: Verifying database's initial state ... ", testEntity.name()));
-      verifyCollectionQuantity(testEntity.getEndpoint(), testEntity.getInitialQuantity());
+      int initialQuantity = verifyGetCollection(testEntity.getEndpoint());
 
       logger.info(String.format("--- mod-invoice-storage %s test: Creating %s ... ", testEntity.name(), testEntity.name()));
       String sample = getFile(testEntity.getSampleFileName());
@@ -56,7 +56,7 @@ private final Logger logger = LoggerFactory.getLogger(CrudTest.class);
       testAllFieldsExists(responseJson, sampleJson);
       
       logger.info(String.format("--- mod-invoice-storage %s test: Verifying only 1 invoice was created ... ", testEntity.name()));
-      verifyCollectionQuantity(testEntity.getEndpoint(),testEntity.getInitialQuantity() + 1);
+      verifyCollectionQuantity(testEntity.getEndpoint(),initialQuantity + 1);
       
       logger.info(String.format("--- mod-invoice-storage %s test: Fetching %s with ID: %s", testEntity.name(), testEntity.name(), sampleId));
       testEntitySuccessfullyFetched(testEntity.getEndpointWithId(), sampleId);

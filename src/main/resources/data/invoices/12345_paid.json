@@ -1,0 +1,38 @@
+{
+  "id": "6b8bc989-834d-4a14-945b-4c5442ae09af",
+  "adjustments": [
+    {
+      "description": "Sales Tax",
+      "fundDistributions": [
+        {
+          "code": "USHIST",
+          "encumbrance": "1c8fc9f4-d2cc-4bd1-aa9a-cb02291cbe65",
+          "fundId": "1d1574f1-9196-4a57-8d1f-3b2e4309eb81",
+          "percentage": 100
+        }],
+      "type": "Percentage",
+      "value": 5.00,
+      "prorate":"Not prorated",
+      "relationToTotal":"In addition to"
+    }
+  ],
+  "adjustmentsTotal": 6.00,
+  "approvedBy": "b72a28f6-04fc-489f-be18-ad53a3a64f67",
+  "approvalDate": "2019-05-20T00:00:00Z",
+  "currency": "USD",
+  "folioInvoiceNo": "12345",
+  "invoiceDate": "2019-05-18T00:00:00Z",
+  "note": "Some note",
+  "paymentTerms": "Payment in Advance",
+  "paymentMethod": "EFT",
+  "status": "Paid",
+  "source": "4a151bd6-771e-405c-9cbe-0dcd035c58c4",
+  "subTotal": 20.00,
+  "total": 26.00,
+  "vendorInvoiceNo": "JU57851",
+  "voucherNumber": "578",
+  "poNumbers": [
+    "36547"
+  ],
+  "vendorId": "13fb64dc-cdf1-11e8-a8d5-f2801f1b9fd1"
+}

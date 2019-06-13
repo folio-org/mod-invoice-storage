@@ -1,0 +1,32 @@
+{
+  "id": "b940547c-000f-4be0-a778-8f57f8794566",
+  "adjustments": [
+    {
+      "description":"Shipping",
+      "type":"Amount",
+      "value":10.00,
+      "prorate":"Not prorated",
+      "relationToTotal":"In addition to"
+    }
+  ],
+  "adjustmentsTotal": 10,
+  "description": "With shipping",
+  "fundDistributions": [
+    {
+      "code": "STATE-SUBN",
+      "encumbrance": "eb506834-6c70-4239-8d1a-6414a5b08001",
+      "fundId": "e54b1f4d-7d05-4b1a-9368-3c36b75d8ac6",
+      "percentage": 100.0
+    }
+  ],
+  "invoiceId": "50129fe1-ca11-43be-a2dd-e1adfb0ead29",
+  "invoiceLineNumber": "19284-1",
+  "invoiceLineStatus": "Paid",
+  "poLineId": "57ae37a8-dbfa-2e6f-aecd-dcc24d784b0b",
+  "productId": "0956687695",
+  "productIdType": "8261054f-be78-422d-bd51-4ed9f33c3422",
+  "quantity": 1,
+  "releaseEncumbrance": false,
+  "subTotal": 342.00,
+  "total": 352.00
+}

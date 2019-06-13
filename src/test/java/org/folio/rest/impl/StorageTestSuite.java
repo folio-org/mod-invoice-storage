@@ -43,7 +43,8 @@ import io.vertx.core.logging.LoggerFactory;
   InvoiceNumberTest.class,
   InvoiceLineNumberTest.class,
   VoucherNumberTest.class,
-  ForeignKeysTest.class
+  ForeignKeysTest.class,
+  TenantSampleDataTest.class
 })
 
 public class StorageTestSuite {
@@ -179,8 +180,8 @@ public class StorageTestSuite {
       .contentType(ContentType.JSON)
       .body(getFile(INVOICE.getSampleFileName()))
       .post(storageUrl(INVOICE.getEndpoint()))
-      .then()
-      .statusCode(201).extract().path(ID);
+        .then()
+          .statusCode(201).extract().path(ID);
 
     EXISTENT_VOUCHER_ID = given()
       .header(TENANT_HEADER)
@@ -199,15 +200,15 @@ public class StorageTestSuite {
       .header(TENANT_HEADER)
       .pathParam(ID, EXISTENT_VOUCHER_ID)
       .delete(storageUrl(VOUCHER.getEndpointWithId()))
-      .then()
-      .statusCode(204);
+        .then()
+          .statusCode(204);
 
-     given()
+    given()
       .header(TENANT_HEADER)
-       .pathParam(ID, EXISTENT_INVOICE_ID)
+      .pathParam(ID, EXISTENT_INVOICE_ID)
       .delete(storageUrl(INVOICE.getEndpointWithId()))
-      .then()
-      .statusCode(204);
+        .then()
+          .statusCode(204);
   }
 
 

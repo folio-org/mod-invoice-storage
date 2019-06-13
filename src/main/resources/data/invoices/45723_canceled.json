@@ -1,0 +1,17 @@
+{
+  "id": "07bb89be-dd4a-42f8-bbd0-a648e14bac5d",
+  "adjustments": [
+  ],
+  "adjustmentsTotal": 0.00,
+  "currency": "USD",
+  "folioInvoiceNo": "45723",
+  "invoiceDate": "2018-07-20T00:00:00Z",
+  "paymentMethod": "EFT",
+  "status": "Cancelled",
+  "source": "4a151bd6-771e-405c-9cbe-0dcd035c58c4",
+  "subTotal": 3000.00,
+  "total": 3000.00,
+  "vendorInvoiceNo": "DU10938",
+  "voucherNumber": "452",
+  "vendorId": "13fb64dc-cdf1-11e8-a8d5-f2801f1b9fd1"
+}

@@ -1,0 +1,20 @@
+{
+  "id": "859c2cd1-420a-4d3b-abbb-dfcb3a3087fd",
+  "adjustments": [
+  ],
+  "adjustmentsTotal":100.00,
+  "currency": "USD",
+  "folioInvoiceNo": "123invoicenumber57",
+  "invoiceDate": "2018-07-27T00:00:00.000+0000",
+  "paymentMethod": "EFT",
+  "status": "Reviewed",
+  "source": "024b6f41-c5c6-4280-858e-33fba452a334",
+  "subTotal": 2000.00,
+  "total": 2100.00,
+  "vendorInvoiceNo": "YK75852",
+  "voucherNumber": "532",
+  "poNumbers": [
+    "313000"
+  ],
+  "vendorId": "c0fb5956-cdf1-11e8-a8d5-f2801f1b9fd1"
+}
