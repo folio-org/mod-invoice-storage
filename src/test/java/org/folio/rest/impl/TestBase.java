@@ -40,6 +40,7 @@ public abstract class TestBase {
 
   static final String NON_EXISTED_ID = "bad500aa-aaaa-500a-aaaa-aaaaaaaaaaaa";
   static final Header TENANT_HEADER = new Header(OKAPI_HEADER_TENANT, "diku");
+  static final Header TENANT_WITHOUT_DB_HEADER = new Header(OKAPI_HEADER_TENANT, "no_db_tenant");
   public static final String ID = "id";
 
   @BeforeClass
@@ -82,16 +83,19 @@ public abstract class TestBase {
       .get(storageUrl(endpoint));
   }
 
-
   Response postData(String endpoint, String input) throws MalformedURLException {
+    return postData(endpoint, input, TENANT_HEADER);
+  }
+
+  Response postData(String endpoint, String input, Header tenant) throws MalformedURLException {
     return given()
-      .header(TENANT_HEADER)
+      .header(tenant)
       .accept(ContentType.JSON)
       .contentType(ContentType.JSON)
       .body(input)
       .post(storageUrl(endpoint));
   }
-  
+
   String createEntity(String endpoint, String entity) throws MalformedURLException {
     return postData(endpoint, entity)
       .then().log().ifValidationFails()

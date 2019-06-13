@@ -1,6 +1,5 @@
 package org.folio.rest.impl;
 
-import io.restassured.response.Response;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
@@ -8,6 +7,7 @@ import org.folio.rest.utils.TestEntities;
 import org.junit.Test;
 
 import java.net.MalformedURLException;
+import java.util.UUID;
 
 import static org.folio.rest.utils.TestEntities.INVOICE;
 
@@ -21,9 +21,8 @@ public class InvoiceTest extends TestBase {
     JsonObject invoiceJson = new JsonObject(invoiceSample);
     invoiceJson.remove("id");
     invoiceSample = invoiceJson.toString();
-    Response response = postData(INVOICE.getEndpoint(), invoiceSample);
+    String invoiceSampleId = createEntity(INVOICE.getEndpoint(), invoiceSample);
 
-    String invoiceSampleId = response.then().extract().path("id");
     String invoiceLineSample = getFile(TestEntities.INVOICE_LINES.getSampleFileName());
     JsonObject invoiceLineJson = new JsonObject(invoiceLineSample);
     invoiceLineJson.remove("id");
@@ -45,4 +44,25 @@ public class InvoiceTest extends TestBase {
     verifyCollectionQuantity(TestEntities.INVOICE_LINES.getEndpoint(), 0);
   }
 
+  @Test
+  public void testCreateInvoiceNoDb() throws MalformedURLException {
+    logger.info(String.format("--- mod-invoice-storage %s test: Attempt to create invoice when no DB initialized", INVOICE.name()));
+    String invoiceSample = getFile(INVOICE.getSampleFileName());
+    JsonObject invoiceJson = new JsonObject(invoiceSample);
+    invoiceJson.remove("id");
+    invoiceSample = invoiceJson.toString();
+
+    postData(INVOICE.getEndpoint(), invoiceSample, TENANT_WITHOUT_DB_HEADER)
+      .then().log().ifValidationFails()
+      .statusCode(500);
+  }
+
+  @Test
+  public void testDeleteInvoiceNoDb() throws MalformedURLException {
+    logger.info(String.format("--- mod-invoice-storage %s test: Attempt to delete invoice when no DB initialized", INVOICE.name()));
+
+    deleteData(INVOICE.getEndpointWithId(), UUID.randomUUID().toString(), TENANT_WITHOUT_DB_HEADER)
+      .then().log().ifValidationFails()
+      .statusCode(500);
+  }
 }
