@@ -28,7 +28,7 @@ public class ForeignKeysTest extends TestBase {
     String voucherLine = getFile(VOUCHER_LINES.getSampleFileName());
     String sampleId = postData(VOUCHER_LINES.getEndpoint(), voucherLine).then().statusCode(201).extract().path(ID);
 
-    deleteData(VOUCHER.getEndpointWithId(), StorageTestSuite.EXISTENT_VOUCHER_ID).then().statusCode(500);
+    deleteData(VOUCHER.getEndpointWithId(), StorageTestSuite.EXISTENT_VOUCHER_ID).then().statusCode(400);
 
     deleteData(VOUCHER_LINES.getEndpointWithId(), sampleId).then().statusCode(204);
   }
@@ -64,7 +64,7 @@ public class ForeignKeysTest extends TestBase {
   @Test
   public void testDeleteInvoiceThatVoucherReferencedTo() throws MalformedURLException {
 
-    deleteData(INVOICE.getEndpointWithId(), StorageTestSuite.EXISTENT_INVOICE_ID).then().statusCode(500);
+    deleteData(INVOICE.getEndpointWithId(), StorageTestSuite.EXISTENT_INVOICE_ID).then().statusCode(400);
   }
 
   @Test

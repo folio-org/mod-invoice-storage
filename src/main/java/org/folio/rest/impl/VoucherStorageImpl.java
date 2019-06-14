@@ -5,7 +5,6 @@ import static org.folio.rest.persist.HelperUtils.getEntitiesCollection;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Context;
 import io.vertx.core.Handler;
-import io.vertx.core.Vertx;
 import java.util.Map;
 import javax.ws.rs.core.Response;
 import org.folio.rest.annotations.Validate;
@@ -16,21 +15,12 @@ import org.folio.rest.jaxrs.model.VoucherLineCollection;
 import org.folio.rest.jaxrs.resource.VoucherStorage;
 import org.folio.rest.persist.EntitiesMetadataHolder;
 import org.folio.rest.persist.PgUtil;
-import org.folio.rest.persist.PostgresClient;
 import org.folio.rest.persist.QueryHolder;
 
 public class VoucherStorageImpl implements VoucherStorage {
 
-  private PostgresClient pgClient;
-
   public static final String VOUCHER_TABLE = "vouchers";
   public static final String VOUCHER_LINE_TABLE = "voucher_lines";
-  private static final String ID_FIELD_NAME = "id";
-
-  public VoucherStorageImpl(Vertx vertx, String tenantId) {
-    pgClient = PostgresClient.getInstance(vertx, tenantId);
-    pgClient.setIdField(ID_FIELD_NAME);
-  }
 
   @Validate
   @Override
