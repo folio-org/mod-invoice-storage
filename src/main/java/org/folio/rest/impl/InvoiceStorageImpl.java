@@ -36,9 +36,10 @@ import io.vertx.ext.web.handler.impl.HttpStatusException;
 
 public class InvoiceStorageImpl implements InvoiceStorage {
 
-  public static final String INVOICE_TABLE = "invoices";
   private static final Logger log = LoggerFactory.getLogger(InvoiceStorageImpl.class);
+
   private static final String INVOICE_PREFIX = "/invoice-storage/invoices/";
+  public static final String INVOICE_TABLE = "invoices";
   private static final String INVOICE_LINE_TABLE = "invoice_lines";
   private static final String INVOICE_ID_FIELD_NAME = "invoiceId";
   private PostgresClient pgClient;
@@ -49,11 +50,9 @@ public class InvoiceStorageImpl implements InvoiceStorage {
 
   @Validate
   @Override
-  public void getInvoiceStorageInvoices(int offset, int limit, String query, String lang, Map<String, String> okapiHeaders,
-      Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
+  public void getInvoiceStorageInvoices(int offset, int limit, String query, String lang, Map<String, String> okapiHeaders, Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
     vertxContext.runOnContext((Void v) -> {
-      EntitiesMetadataHolder<Invoice, InvoiceCollection> entitiesMetadataHolder = new EntitiesMetadataHolder<>(Invoice.class,
-          InvoiceCollection.class, GetInvoiceStorageInvoicesResponse.class);
+      EntitiesMetadataHolder<Invoice, InvoiceCollection> entitiesMetadataHolder = new EntitiesMetadataHolder<>(Invoice.class, InvoiceCollection.class, GetInvoiceStorageInvoicesResponse.class);
       QueryHolder cql = new QueryHolder(INVOICE_TABLE, query, offset, limit, lang);
       getEntitiesCollection(entitiesMetadataHolder, cql, asyncResultHandler, vertxContext, okapiHeaders);
     });
@@ -61,8 +60,7 @@ public class InvoiceStorageImpl implements InvoiceStorage {
 
   @Validate
   @Override
-  public void postInvoiceStorageInvoices(String lang, Invoice entity, Map<String, String> okapiHeaders,
-      Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
+  public void postInvoiceStorageInvoices(String lang, Invoice entity, Map<String, String> okapiHeaders, Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
     try {
       vertxContext.runOnContext(v -> {
         log.info("Creating a new invoice");
@@ -74,6 +72,7 @@ public class InvoiceStorageImpl implements InvoiceStorage {
           .compose(this::endTx)
           .setHandler(reply -> {
             if (reply.failed()) {
+              // The result of rollback operation is not so important, main failure cause is used to build the response
               rollbackTransaction(tx).setHandler(res -> {
                 HttpStatusException cause = (HttpStatusException) reply.cause();
                 if (cause.getStatusCode() == Response.Status.BAD_REQUEST.getStatusCode()) {
@@ -103,10 +102,8 @@ public class InvoiceStorageImpl implements InvoiceStorage {
 
   @Validate
   @Override
-  public void getInvoiceStorageInvoicesById(String id, String lang, Map<String, String> okapiHeaders,
-      Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
-    PgUtil.getById(INVOICE_TABLE, Invoice.class, id, okapiHeaders, vertxContext, GetInvoiceStorageInvoicesByIdResponse.class,
-        asyncResultHandler);
+  public void getInvoiceStorageInvoicesById(String id, String lang, Map<String, String> okapiHeaders, Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
+    PgUtil.getById(INVOICE_TABLE, Invoice.class, id, okapiHeaders, vertxContext, GetInvoiceStorageInvoicesByIdResponse.class, asyncResultHandler);
   }
 
   @Validate
@@ -128,6 +125,7 @@ public class InvoiceStorageImpl implements InvoiceStorage {
               HttpStatusException cause = (HttpStatusException) result.cause();
               log.error("Invoice {} and associated lines if any were failed to be deleted", cause, tx.getEntity());
 
+              // The result of rollback operation is not so important, main failure cause is used to build the response
               rollbackTransaction(tx).setHandler(res -> {
                 if (cause.getStatusCode() == Response.Status.NOT_FOUND.getStatusCode()) {
                   asyncResultHandler.handle(succeededFuture(
@@ -153,8 +151,7 @@ public class InvoiceStorageImpl implements InvoiceStorage {
 
   @Validate
   @Override
-  public void putInvoiceStorageInvoicesById(String id, String lang, Invoice entity, Map<String, String> okapiHeaders,
-      Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
+  public void putInvoiceStorageInvoicesById(String id, String lang, Invoice entity, Map<String, String> okapiHeaders, Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
     PgUtil.put(INVOICE_TABLE, entity, id, okapiHeaders, vertxContext, PutInvoiceStorageInvoicesByIdResponse.class, reply -> {
       asyncResultHandler.handle(reply);
       deleteSequence(entity);
@@ -163,11 +160,9 @@ public class InvoiceStorageImpl implements InvoiceStorage {
 
   @Validate
   @Override
-  public void getInvoiceStorageInvoiceLines(int offset, int limit, String query, String lang, Map<String, String> okapiHeaders,
-      Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
+  public void getInvoiceStorageInvoiceLines(int offset, int limit, String query, String lang, Map<String, String> okapiHeaders, Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
     vertxContext.runOnContext((Void v) -> {
-      EntitiesMetadataHolder<InvoiceLine, InvoiceLineCollection> entitiesMetadataHolder = new EntitiesMetadataHolder<>(
-          InvoiceLine.class, InvoiceLineCollection.class, GetInvoiceStorageInvoiceLinesResponse.class);
+      EntitiesMetadataHolder<InvoiceLine, InvoiceLineCollection> entitiesMetadataHolder = new EntitiesMetadataHolder<>(InvoiceLine.class, InvoiceLineCollection.class, GetInvoiceStorageInvoiceLinesResponse.class);
       QueryHolder cql = new QueryHolder(INVOICE_LINE_TABLE, query, offset, limit, lang);
       getEntitiesCollection(entitiesMetadataHolder, cql, asyncResultHandler, vertxContext, okapiHeaders);
     });
@@ -175,34 +170,26 @@ public class InvoiceStorageImpl implements InvoiceStorage {
 
   @Validate
   @Override
-  public void postInvoiceStorageInvoiceLines(String lang, InvoiceLine entity, Map<String, String> okapiHeaders,
-      Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
-    PgUtil.post(INVOICE_LINE_TABLE, entity, okapiHeaders, vertxContext, PostInvoiceStorageInvoiceLinesResponse.class,
-        asyncResultHandler);
+  public void postInvoiceStorageInvoiceLines(String lang, InvoiceLine entity, Map<String, String> okapiHeaders, Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
+    PgUtil.post(INVOICE_LINE_TABLE, entity, okapiHeaders, vertxContext, PostInvoiceStorageInvoiceLinesResponse.class, asyncResultHandler);
   }
 
   @Validate
   @Override
-  public void putInvoiceStorageInvoiceLinesById(String id, String lang, InvoiceLine entity, Map<String, String> okapiHeaders,
-      Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
-    PgUtil.put(INVOICE_LINE_TABLE, entity, id, okapiHeaders, vertxContext, PutInvoiceStorageInvoiceLinesByIdResponse.class,
-        asyncResultHandler);
+  public void putInvoiceStorageInvoiceLinesById(String id, String lang, InvoiceLine entity, Map<String, String> okapiHeaders, Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
+    PgUtil.put(INVOICE_LINE_TABLE, entity, id, okapiHeaders, vertxContext, PutInvoiceStorageInvoiceLinesByIdResponse.class, asyncResultHandler);
   }
 
   @Validate
   @Override
-  public void getInvoiceStorageInvoiceLinesById(String id, String lang, Map<String, String> okapiHeaders,
-      Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
-    PgUtil.getById(INVOICE_LINE_TABLE, InvoiceLine.class, id, okapiHeaders, vertxContext,
-        GetInvoiceStorageInvoiceLinesByIdResponse.class, asyncResultHandler);
+  public void getInvoiceStorageInvoiceLinesById(String id, String lang, Map<String, String> okapiHeaders, Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
+    PgUtil.getById(INVOICE_LINE_TABLE, InvoiceLine.class, id, okapiHeaders, vertxContext, GetInvoiceStorageInvoiceLinesByIdResponse.class, asyncResultHandler);
   }
 
   @Validate
   @Override
-  public void deleteInvoiceStorageInvoiceLinesById(String id, String lang, Map<String, String> okapiHeaders,
-      Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
-    PgUtil.deleteById(INVOICE_LINE_TABLE, id, okapiHeaders, vertxContext, DeleteInvoiceStorageInvoiceLinesByIdResponse.class,
-        asyncResultHandler);
+  public void deleteInvoiceStorageInvoiceLinesById(String id, String lang, Map<String, String> okapiHeaders, Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
+    PgUtil.deleteById(INVOICE_LINE_TABLE, id, okapiHeaders, vertxContext, DeleteInvoiceStorageInvoiceLinesByIdResponse.class, asyncResultHandler);
   }
 
   /**
@@ -261,8 +248,7 @@ public class InvoiceStorageImpl implements InvoiceStorage {
 
     Invoice invoice = tx.getEntity();
     if (invoice.getId() == null) {
-      invoice.setId(UUID.randomUUID()
-        .toString());
+      invoice.setId(UUID.randomUUID().toString());
     }
 
     log.info("Creating new invoice with id={}", invoice.getId());
@@ -308,8 +294,8 @@ public class InvoiceStorageImpl implements InvoiceStorage {
   /**
    * Ends a transaction
    *
-   * @param tx Transaction of type Invoice
-   * @return Future of Invoice transaction with new Invoice
+   * @param tx Transaction holder
+   * @return future which is completed when transaction committed
    */
   private <T> Future<Tx<T>> endTx(Tx<T> tx) {
     log.info("End transaction");
@@ -317,6 +303,28 @@ public class InvoiceStorageImpl implements InvoiceStorage {
     Future<Tx<T>> future = Future.future();
     pgClient.endTx(tx.getConnection(), v -> future.complete(tx));
     return future;
+  }
+
+  public class Tx<T> {
+
+    private T entity;
+    private AsyncResult<SQLConnection> sqlConnection;
+
+    Tx(T entity) {
+      this.entity = entity;
+    }
+
+    public T getEntity() {
+      return entity;
+    }
+
+    AsyncResult<SQLConnection> getConnection() {
+      return sqlConnection;
+    }
+
+    void setConnection(AsyncResult<SQLConnection> sqlConnection) {
+      this.sqlConnection = sqlConnection;
+    }
   }
 
   private Future<Tx<String>> deleteInvoiceById(Tx<String> tx) {
@@ -387,27 +395,5 @@ public class InvoiceStorageImpl implements InvoiceStorage {
     a.setOperation("=");
     a.setVal(fieldValue);
     return new Criterion(a);
-  }
-
-  public class Tx<T> {
-
-    private T entity;
-    private AsyncResult<SQLConnection> sqlConnection;
-
-    Tx(T entity) {
-      this.entity = entity;
-    }
-
-    public T getEntity() {
-      return entity;
-    }
-
-    AsyncResult<SQLConnection> getConnection() {
-      return sqlConnection;
-    }
-
-    void setConnection(AsyncResult<SQLConnection> sqlConnection) {
-      this.sqlConnection = sqlConnection;
-    }
   }
 }
