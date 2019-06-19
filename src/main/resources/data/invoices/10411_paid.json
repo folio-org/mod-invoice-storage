@@ -6,6 +6,7 @@
   "approvedBy": "b72a28f6-04fc-489f-be18-ad53a3a64f67",
   "approvalDate": "2014-07-15T09:00:00Z",
   "currency": "USD",
+  "exportToAccounting": false,
   "folioInvoiceNo": "10411",
   "invoiceDate": "2014-07-14T00:00:00Z",
   "paymentTerms": "Payment in Advance",

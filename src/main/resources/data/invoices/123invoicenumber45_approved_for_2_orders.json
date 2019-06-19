@@ -5,6 +5,7 @@
   ],
   "adjustmentsTotal": 50.00,
   "currency": "USD",
+  "exportToAccounting": false,
   "folioInvoiceNo": "123invoicenumber45",
   "invoiceDate": "2018-07-25T00:00:00.000+0000",
   "note": "Some note",
