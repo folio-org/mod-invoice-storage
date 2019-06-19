@@ -4,6 +4,7 @@
   ],
   "adjustmentsTotal":100.00,
   "currency": "USD",
+  "exportToAccounting": false,
   "folioInvoiceNo": "123invoicenumber57",
   "invoiceDate": "2018-07-27T00:00:00.000+0000",
   "paymentMethod": "EFT",

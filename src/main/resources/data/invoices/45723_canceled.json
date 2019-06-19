@@ -4,6 +4,7 @@
   ],
   "adjustmentsTotal": 0.00,
   "currency": "USD",
+  "exportToAccounting": false,
   "folioInvoiceNo": "45723",
   "invoiceDate": "2018-07-20T00:00:00Z",
   "paymentMethod": "EFT",

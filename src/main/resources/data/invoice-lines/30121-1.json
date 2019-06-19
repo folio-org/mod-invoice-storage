@@ -1,8 +1,15 @@
 {
   "id": "9b0b32e3-ef48-4bb8-91a5-750a850cc63c",
   "adjustments": [
+    {
+      "description": "Discount",
+      "type": "Amount",
+      "value": -200.00,
+      "prorate":"Not prorated",
+      "relationToTotal":"In addition to"
+    }
   ],
-  "adjustmentsTotal": 0.00,
+  "adjustmentsTotal": -200.00,
   "description": "With shipping",
   "fundDistributions": [
     {
@@ -21,5 +28,5 @@
   "quantity": 1,
   "releaseEncumbrance": false,
   "subTotal": 200000.00,
-  "total": 200000.00
+  "total": 199800.00
 }
