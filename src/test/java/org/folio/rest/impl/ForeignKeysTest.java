@@ -1,17 +1,20 @@
 package org.folio.rest.impl;
 
-import io.vertx.core.json.JsonObject;
+import static org.folio.rest.utils.TestEntities.ACQUISITIONS_UNIT_ASSIGNMENTS;
+import static org.folio.rest.utils.TestEntities.INVOICE;
+import static org.folio.rest.utils.TestEntities.INVOICE_LINES;
+import static org.folio.rest.utils.TestEntities.VOUCHER;
+import static org.folio.rest.utils.TestEntities.VOUCHER_LINES;
+
+import java.net.MalformedURLException;
+
+import org.folio.rest.jaxrs.model.AcquisitionsUnitAssignment;
 import org.folio.rest.jaxrs.model.InvoiceLine;
 import org.folio.rest.jaxrs.model.Voucher;
 import org.folio.rest.jaxrs.model.VoucherLine;
 import org.junit.Test;
 
-import java.net.MalformedURLException;
-
-import static org.folio.rest.utils.TestEntities.INVOICE;
-import static org.folio.rest.utils.TestEntities.INVOICE_LINES;
-import static org.folio.rest.utils.TestEntities.VOUCHER;
-import static org.folio.rest.utils.TestEntities.VOUCHER_LINES;
+import io.vertx.core.json.JsonObject;
 
 public class ForeignKeysTest extends TestBase {
 
@@ -85,5 +88,13 @@ public class ForeignKeysTest extends TestBase {
     voucher.setInvoiceId(NON_EXISTED_ID);
 
     putData(VOUCHER.getEndpointWithId(), StorageTestSuite.EXISTENT_VOUCHER_ID, JsonObject.mapFrom(voucher).encodePrettily()).then().statusCode(400);
+  }
+
+  @Test
+  public void testCreateAssignemtReferencedToNonExistentInvoice() throws MalformedURLException {
+    AcquisitionsUnitAssignment aua = new JsonObject(getFile(ACQUISITIONS_UNIT_ASSIGNMENTS.getSampleFileName())).mapTo(AcquisitionsUnitAssignment.class);
+    aua.setRecordId(NON_EXISTED_ID);
+
+    postData(ACQUISITIONS_UNIT_ASSIGNMENTS.getEndpoint(), JsonObject.mapFrom(aua).encodePrettily()).then().statusCode(400);
   }
 }
