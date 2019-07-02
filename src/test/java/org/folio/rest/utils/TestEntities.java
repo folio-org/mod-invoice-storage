@@ -12,7 +12,7 @@ public enum TestEntities {
   INVOICE_LINES("/invoice-storage/invoice-lines", InvoiceLine.class, "invoice-lines/123invoicenumber45-1.json", "quantity", 5, 9),
   VOUCHER("/voucher-storage/vouchers", Voucher.class, "vouchers/test_voucher.json", "batchNumber", "202", 1),
   VOUCHER_LINES("/voucher-storage/voucher-lines", VoucherLine.class, "voucher-lines/test_voucher_line.json", "externalAccountNumber", "Comment from unit test", 1),
-  ACQUISITIONS_UNIT_ASSIGNMENTS("/invoice-storage/acquisitions-unit-assignments", AcquisitionsUnitAssignment.class, "data/acquisitions-unit-assignments/AUA-5c499782.json", "recordId", "05bdf3c8-01f0-4ddb-bd6c-6efd465f9e33", 1);
+  ACQUISITIONS_UNIT_ASSIGNMENTS("/invoice-storage/acquisitions-unit-assignments", AcquisitionsUnitAssignment.class, "acquisitions-unit-assignments/AUA-5c499782.json", "recordId", "733cafd3-895f-4e33-87b7-bf40dc3c8069", 1);
 
   private static final String SAMPLES_PATH = "data/";
 

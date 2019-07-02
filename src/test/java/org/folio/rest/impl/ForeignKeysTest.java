@@ -59,6 +59,7 @@ public class ForeignKeysTest extends TestBase {
   @Test
   public void testCreateVoucherReferencedToNonExistentInvoice() throws MalformedURLException {
     Voucher voucher = new JsonObject(getFile(VOUCHER.getSampleFileName())).mapTo(Voucher.class);
+    voucher.setId(null);
     voucher.setInvoiceId(NON_EXISTED_ID);
 
     postData(VOUCHER.getEndpoint(), JsonObject.mapFrom(voucher).encodePrettily()).then().statusCode(400);
@@ -66,7 +67,6 @@ public class ForeignKeysTest extends TestBase {
 
   @Test
   public void testDeleteInvoiceThatVoucherReferencedTo() throws MalformedURLException {
-
     deleteData(INVOICE.getEndpointWithId(), StorageTestSuite.EXISTENT_INVOICE_ID).then().statusCode(400);
   }
 
