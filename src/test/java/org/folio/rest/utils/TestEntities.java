@@ -15,7 +15,6 @@ public enum TestEntities {
   ACQUISITIONS_UNIT_ASSIGNMENTS("/invoice-storage/acquisitions-unit-assignments", AcquisitionsUnitAssignment.class, "acquisitions-unit-assignments/AUA-5c499782.json", "recordId", "733cafd3-895f-4e33-87b7-bf40dc3c8069", 1);
 
   private static final String SAMPLES_PATH = "data/";
-
   TestEntities(String endpoint, Class<?> clazz, String sampleFileName, String updatedFieldName, Object updatedFieldValue, int initialQuantity) {
     this.endpoint = endpoint;
     this.clazz = clazz;
@@ -25,8 +24,10 @@ public enum TestEntities {
     this.initialQuantity = initialQuantity;
   }
 
+
   private int initialQuantity;
   private String endpoint;
+  private String sampleId;
   private String sampleFileName;
   private String updatedFieldName;
   private Object updatedFieldValue;
@@ -58,5 +59,13 @@ public enum TestEntities {
 
   public Class<?> getClazz() {
     return clazz;
+  }
+
+  public String getId() {
+    return sampleId;
+  }
+
+  public void setId(String id) {
+    this.sampleId = id;
   }
 }

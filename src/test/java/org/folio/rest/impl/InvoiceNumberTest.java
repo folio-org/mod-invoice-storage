@@ -1,16 +1,10 @@
 package org.folio.rest.impl;
 
-import io.restassured.http.ContentType;
-import io.vertx.core.Vertx;
-import io.vertx.ext.sql.UpdateResult;
-import io.vertx.ext.unit.junit.Repeat;
-import io.vertx.ext.unit.junit.RepeatRule;
-import org.folio.HttpStatus;
-import org.folio.rest.persist.PostgresClient;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
+import static io.restassured.RestAssured.given;
+import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
+import static org.folio.rest.impl.StorageTestSuite.storageUrl;
+import static org.hamcrest.Matchers.equalTo;
+import static org.junit.Assert.assertThat;
 
 import java.net.MalformedURLException;
 import java.util.ArrayList;
@@ -18,11 +12,18 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
-import static io.restassured.RestAssured.given;
-import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
-import static org.folio.rest.impl.StorageTestSuite.storageUrl;
-import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.assertThat;
+import org.folio.HttpStatus;
+import org.folio.rest.persist.PostgresClient;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Rule;
+import org.junit.Test;
+
+import io.restassured.http.ContentType;
+import io.vertx.core.Vertx;
+import io.vertx.ext.sql.UpdateResult;
+import io.vertx.ext.unit.junit.Repeat;
+import io.vertx.ext.unit.junit.RepeatRule;
 
 public class InvoiceNumberTest extends TestBase {
 
