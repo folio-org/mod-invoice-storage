@@ -6,7 +6,7 @@ import java.net.MalformedURLException;
 import java.util.UUID;
 
 import org.folio.rest.utils.TestEntities;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
@@ -41,7 +41,7 @@ public class InvoiceTest extends TestBase {
     // remove invoice
     deleteDataSuccess(INVOICE.getEndpointWithId(), invoiceSampleId);
     // verify invoice and associated invoice lines were deleted
-    verifyCollectionQuantity(INVOICE.getEndpoint(), 1);
+    verifyCollectionQuantity(INVOICE.getEndpoint(), 0);
     verifyCollectionQuantity(TestEntities.INVOICE_LINES.getEndpoint(), 0);
   }
 

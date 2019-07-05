@@ -14,7 +14,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.folio.HttpStatus;
 import org.folio.rest.persist.PostgresClient;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import io.restassured.http.ContentType;
 import io.restassured.response.ValidatableResponse;

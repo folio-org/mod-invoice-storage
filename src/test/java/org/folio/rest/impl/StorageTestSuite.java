@@ -37,7 +37,7 @@ public class StorageTestSuite {
 
   private static Vertx vertx;
   private static int port = NetworkUtils.nextFreePort();
-  public static final Header URL_TO_HEADER = new Header("X-Okapi-Url-to","http://localhost:"+port);
+  public static final Header URL_TO_HEADER = new Header("X-Okapi-Url-to", "http://localhost:" + port);
 
   private StorageTestSuite() {}
 
@@ -122,4 +122,6 @@ public class StorageTestSuite {
   class TenantSampleDataTestNested extends TenantSampleDataTest {}
   @Nested
   class EntitiesCrudTestNested extends EntitiesCrudTest {}
+  @Nested
+  class VoucherNumberTestNested extends VoucherNumberTest {}
 }

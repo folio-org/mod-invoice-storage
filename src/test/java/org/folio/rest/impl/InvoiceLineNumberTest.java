@@ -13,9 +13,7 @@ import java.util.concurrent.TimeUnit;
 import org.folio.rest.persist.PostgresClient;
 import org.hamcrest.Matchers;
 import org.json.JSONObject;
-import org.junit.Test;
-import org.junit.platform.runner.JUnitPlatform;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 
 import com.github.mauricio.async.db.postgresql.exceptions.GenericDatabaseException;
 
@@ -26,14 +24,13 @@ import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 import io.vertx.ext.sql.ResultSet;
 
-@RunWith(JUnitPlatform.class)
 public class InvoiceLineNumberTest extends TestBase {
 
   private final Logger logger = LoggerFactory.getLogger(InvoiceLineNumberTest.class);
 
   private static final String INVOICE_LINE_NUMBER_ENDPOINT = "/invoice-storage/invoice-line-number";
   private static final String SEQUENCE_ID = "\"ilNumber_8ad4b87b-9b47-4199-b0c3-5480745c6b41\"";
-  private static final String NON_EXISTING_INVOICE_ID = "bad500aa-aaaa-500a-aaaa-aaaaaaaaaaaa";
+  private static final String NON_EXISTING_INVOICE_ID = "f6b47acf-361a-497e-9ddb-45e3802df902";
   
   private static final String CREATE_SEQUENCE = "CREATE SEQUENCE " + SEQUENCE_ID;
   private static final String SETVAL = "SELECT * FROM SETVAL('" + SEQUENCE_ID + "',13)";

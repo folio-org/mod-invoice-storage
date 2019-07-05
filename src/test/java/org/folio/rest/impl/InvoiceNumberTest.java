@@ -14,39 +14,33 @@ import java.util.concurrent.TimeUnit;
 
 import org.folio.HttpStatus;
 import org.folio.rest.persist.PostgresClient;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.RepeatedTest;
 
 import io.restassured.http.ContentType;
 import io.vertx.core.Vertx;
 import io.vertx.ext.sql.UpdateResult;
-import io.vertx.ext.unit.junit.Repeat;
-import io.vertx.ext.unit.junit.RepeatRule;
 
 public class InvoiceNumberTest extends TestBase {
 
-  @Rule
-  public RepeatRule rule = new RepeatRule();
   private static List<Long> invoiceNumberList;
 
   private static final String SEQUENCE_NUMBER = "sequenceNumber";
   private static final String INVOICE_NUMBER_ENDPOINT = "/invoice-storage/invoice-number";
   private static final String DROP_SEQUENCE_QUERY = "DROP SEQUENCE diku_mod_invoice_storage.invoice_number";
 
-  @BeforeClass
+  @BeforeAll
   public static void setUp() {
     invoiceNumberList  = new ArrayList<>();
   }
 
-  @Test
-  @Repeat(3)
+  @RepeatedTest(3)
   public void testGetInvoiceNumber() throws MalformedURLException {
     invoiceNumberList.add(getNumberAsLong());
   }
 
-  @AfterClass
+  @AfterAll
   public static void tearDown() throws Exception {
 
     // Positive scenario - testing of number increase
