@@ -3,7 +3,7 @@
   "adjustments": [
 
   ],
-  "adjustmentsTotal": 50.00,
+  "adjustmentsTotal": 40.00,
   "currency": "USD",
   "exportToAccounting": false,
   "folioInvoiceNo": "123invoicenumber45",
@@ -14,7 +14,7 @@
   "status": "Approved",
   "source": "024b6f41-c5c6-4280-858e-33fba452a334",
   "subTotal": 1150.00,
-  "total": 1200.00,
+  "total": 1190.00,
   "vendorInvoiceNo": "YK75851",
   "voucherNumber": "478",
   "poNumbers": [
