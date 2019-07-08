@@ -49,7 +49,7 @@ class EntitiesCrudTest extends TestBase {
   @Order(1)
   @EnumSource(TestEntities.class)
   void testVerifyCollection(TestEntities testEntity) throws MalformedURLException {
-    logger.info(String.format("--- mod-orders-storage %s test: Verifying database's initial state ... ", testEntity.name()));
+    logger.info(String.format("--- mod-invoice-storage %s test: Verifying database's initial state ... ", testEntity.name()));
     verifyCollectionQuantity(testEntity.getEndpoint(), 0);
 
   }
@@ -58,13 +58,13 @@ class EntitiesCrudTest extends TestBase {
   @Order(2)
   @EnumSource(TestEntities.class)
   void testPostData(TestEntities testEntity) throws MalformedURLException {
-    logger.info(String.format("--- mod-orders-storage %s test: Creating %s ... ", testEntity.name(), testEntity.name()));
+    logger.info(String.format("--- mod-invoice-storage %s test: Creating %s ... ", testEntity.name(), testEntity.name()));
     sample = getSample(testEntity.getSampleFileName());
     Response response = postData(testEntity.getEndpoint(), sample);
     testEntity.setId(response.then()
       .extract()
       .path("id"));
-    logger.info(String.format("--- mod-orders-storage %s test: Valid fields exists ... ", testEntity.name()));
+    logger.info(String.format("--- mod-invoice-storage %s test: Valid fields exists ... ", testEntity.name()));
     JsonObject sampleJson = convertToMatchingModelJson(sample, testEntity);
     JsonObject responseJson = JsonObject.mapFrom(response.then()
       .extract()
@@ -77,7 +77,7 @@ class EntitiesCrudTest extends TestBase {
   @Order(3)
   @EnumSource(TestEntities.class)
   void testVerifyCollectionQuantity(TestEntities testEntity) throws MalformedURLException {
-    logger.info(String.format("--- mod-orders-storage %s test: Verifying only 1 adjustment was created ... ", testEntity.name()));
+    logger.info(String.format("--- mod-invoice-storage %s test: Verifying only 1 adjustment was created ... ", testEntity.name()));
     verifyCollectionQuantity(testEntity.getEndpoint(), 1);
 
   }
@@ -86,7 +86,7 @@ class EntitiesCrudTest extends TestBase {
   @Order(4)
   @EnumSource(TestEntities.class)
   void testGetById(TestEntities testEntity) throws MalformedURLException {
-    logger.info(String.format("--- mod-orders-storage %s test: Fetching %s with ID: %s", testEntity.name(), testEntity.name(),
+    logger.info(String.format("--- mod-invoice-storage %s test: Fetching %s with ID: %s", testEntity.name(), testEntity.name(),
         testEntity.getId()));
     testEntitySuccessfullyFetched(testEntity.getEndpointWithId(), testEntity.getId());
   }
@@ -95,7 +95,7 @@ class EntitiesCrudTest extends TestBase {
   @Order(5)
   @EnumSource(TestEntities.class)
   void testPutById(TestEntities testEntity) throws MalformedURLException {
-    logger.info(String.format("--- mod-orders-storage %s test: Editing %s with ID: %s", testEntity.name(), testEntity.name(),
+    logger.info(String.format("--- mod-invoice-storage %s test: Editing %s with ID: %s", testEntity.name(), testEntity.name(),
         testEntity.getId()));
     JsonObject catJSON = new JsonObject(getSample(testEntity.getSampleFileName()));
     catJSON.put("id", testEntity.getId());
@@ -108,7 +108,7 @@ class EntitiesCrudTest extends TestBase {
   @Order(6)
   @EnumSource(TestEntities.class)
   void testVerifyPut(TestEntities testEntity) throws MalformedURLException {
-    logger.info(String.format("--- mod-orders-storage %s test: Fetching updated %s with ID: %s", testEntity.name(),
+    logger.info(String.format("--- mod-invoice-storage %s test: Fetching updated %s with ID: %s", testEntity.name(),
         testEntity.name(), testEntity.getId()));
     testFetchingUpdatedEntity(testEntity.getId(), testEntity);
   }
@@ -117,7 +117,7 @@ class EntitiesCrudTest extends TestBase {
   @Order(7)
   @MethodSource("deleteFailOrder")
   void testDeleteEndpointForeignKeyFailure(TestEntities testEntity) throws MalformedURLException {
-    logger.info(String.format("--- mod-orders-storages %s test: Deleting %s with ID: %s", testEntity.name(), testEntity.name(),
+    logger.info(String.format("--- mod-invoice-storages %s test: Deleting %s with ID: %s", testEntity.name(), testEntity.name(),
         testEntity.getId()));
     deleteData(testEntity.getEndpointWithId(), testEntity.getId()).then()
       .log()
@@ -129,7 +129,7 @@ class EntitiesCrudTest extends TestBase {
   @Order(8)
   @MethodSource("deleteOrder")
   void testDeleteEndpoint(TestEntities testEntity) throws MalformedURLException {
-    logger.info(String.format("--- mod-orders-storages %s test: Deleting %s with ID: %s", testEntity.name(), testEntity.name(),
+    logger.info(String.format("--- mod-invoice-storages %s test: Deleting %s with ID: %s", testEntity.name(), testEntity.name(),
         testEntity.getId()));
     deleteData(testEntity.getEndpointWithId(), testEntity.getId()).then()
       .log()
@@ -141,7 +141,7 @@ class EntitiesCrudTest extends TestBase {
   @Order(9)
   @EnumSource(TestEntities.class)
   void testVerifyDelete(TestEntities testEntity) throws MalformedURLException {
-    logger.info(String.format("--- mod-orders-storages %s test: Verify %s is deleted with ID: %s", testEntity.name(),
+    logger.info(String.format("--- mod-invoice-storages %s test: Verify %s is deleted with ID: %s", testEntity.name(),
         testEntity.name(), testEntity.getId()));
     testVerifyEntityDeletion(testEntity.getEndpointWithId(), testEntity.getId());
   }
@@ -149,7 +149,7 @@ class EntitiesCrudTest extends TestBase {
   @ParameterizedTest
   @MethodSource("createFailOrder")
   void testPostFailsOnForeignKeyDependencies(TestEntities testEntity) throws MalformedURLException {
-    logger.info(String.format("--- mod-orders-storage %s test: Creating %s ... fails", testEntity.name(), testEntity.name()));
+    logger.info(String.format("--- mod-invoice-storage %s test: Creating %s ... fails", testEntity.name(), testEntity.name()));
     sample = getSample(testEntity.getSampleFileName());
     Response response = postData(testEntity.getEndpoint(), sample);
     response.then()
@@ -160,7 +160,7 @@ class EntitiesCrudTest extends TestBase {
   @ParameterizedTest
   @EnumSource(TestEntities.class)
   void testFetchEntityWithNonExistedId(TestEntities testEntity) throws MalformedURLException {
-    logger.info(String.format("--- mod-orders-storage %s get by id test: Invalid %s: %s", testEntity.name(), testEntity.name(),
+    logger.info(String.format("--- mod-invoice-storage %s get by id test: Invalid %s: %s", testEntity.name(), testEntity.name(),
         NON_EXISTED_ID));
     getDataById(testEntity.getEndpointWithId(), NON_EXISTED_ID).then()
       .log()
@@ -171,7 +171,7 @@ class EntitiesCrudTest extends TestBase {
   @ParameterizedTest
   @EnumSource(TestEntities.class)
   void testEditEntityWithNonExistedId(TestEntities testEntity) throws MalformedURLException {
-    logger.info(String.format("--- mod-orders-storage %s put by id test: Invalid %s: %s", testEntity.name(), testEntity.name(),
+    logger.info(String.format("--- mod-invoice-storage %s put by id test: Invalid %s: %s", testEntity.name(), testEntity.name(),
         NON_EXISTED_ID));
     String sampleData = getFile(testEntity.getSampleFileName());
     putData(testEntity.getEndpointWithId(), NON_EXISTED_ID, sampleData).then()
@@ -183,7 +183,7 @@ class EntitiesCrudTest extends TestBase {
   @ParameterizedTest
   @EnumSource(TestEntities.class)
   void testDeleteEntityWithNonExistedId(TestEntities testEntity) throws MalformedURLException {
-    logger.info(String.format("--- mod-orders-storage %s delete by id test: Invalid %s: %s", testEntity.name(), testEntity.name(),
+    logger.info(String.format("--- mod-invoice-storage %s delete by id test: Invalid %s: %s", testEntity.name(), testEntity.name(),
         NON_EXISTED_ID));
     deleteData(testEntity.getEndpointWithId(), NON_EXISTED_ID).then()
       .log()
@@ -194,7 +194,7 @@ class EntitiesCrudTest extends TestBase {
   @ParameterizedTest
   @EnumSource(TestEntities.class)
   void testGetEntitiesWithInvalidCQLQuery(TestEntities testEntity) throws MalformedURLException {
-    logger.info(String.format("--- mod-orders-storage %s test: Invalid CQL query", testEntity.name()));
+    logger.info(String.format("--- mod-invoice-storage %s test: Invalid CQL query", testEntity.name()));
     testInvalidCQLQuery(testEntity.getEndpoint() + "?query=invalid-query");
   }
 
