@@ -1,8 +1,22 @@
 {
   "id": "c8e41fdc-ae66-44a1-a194-bed0066672b6",
   "adjustments": [
+    {
+      "description": "Service Fee",
+      "type": "Amount",
+      "value": 11.00,
+      "prorate":"Not prorated",
+      "relationToTotal":"In addition to"
+    },
+    {
+      "description": "Discount",
+      "type": "Amount",
+      "value": -21.00,
+      "prorate":"Not prorated",
+      "relationToTotal":"In addition to"
+    }
   ],
-  "adjustmentsTotal": 0.00,
+  "adjustmentsTotal": -10.00,
   "description": "Some description",
   "fundDistributions": [
     {
@@ -21,5 +35,5 @@
   "quantity": 1,
   "releaseEncumbrance": true,
   "subTotal": 150,
-  "total": 150
+  "total": 140
 }
