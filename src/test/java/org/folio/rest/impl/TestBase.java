@@ -1,10 +1,9 @@
 package org.folio.rest.impl;
 
 import static io.restassured.RestAssured.given;
-import static org.apache.commons.io.FileUtils.getFile;
 import static org.folio.rest.RestVerticle.OKAPI_HEADER_TENANT;
 import static org.folio.rest.impl.StorageTestSuite.storageUrl;
-import static org.folio.rest.utils.TestEntities.VOUCHER;
+import static org.folio.rest.utils.TestEntities.INVOICE;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertEquals;
 
@@ -17,7 +16,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
 import org.apache.commons.io.IOUtils;
-import org.folio.rest.jaxrs.model.Voucher;
 import org.folio.rest.utils.TestEntities;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -50,17 +48,6 @@ public abstract class TestBase {
       invokeStorageTestSuiteAfter = true;
       StorageTestSuite.before();
     }
-  }
-
-  int verifyGetCollection(String endpoint) throws MalformedURLException {
-    return getData(endpoint, TENANT_HEADER)
-      .then()
-      .log().all()
-      .statusCode(200)
-      .extract()
-        .body()
-          .jsonPath().get("totalRecords");
-
   }
 
   void verifyCollectionQuantity(String endpoint, int quantity, Header tenantHeader) throws MalformedURLException {
@@ -161,13 +148,13 @@ public abstract class TestBase {
           .put(storageUrl(endpoint));
   }
   
-  Response putInvoiceNumberData(String endpoint, String id, String input) throws MalformedURLException {
-    endpoint += "/" + id;
+  Response putInvoiceNumberData(String id, String input) throws MalformedURLException {
     return given()
+      .pathParam("id", id)
       .header(TENANT_HEADER)
       .contentType(ContentType.JSON)
       .body(input)
-        .put(storageUrl(endpoint));
+        .put(storageUrl(INVOICE.getEndpointWithId()));
   }
   
   void deleteDataSuccess(String endpoint, String id) throws MalformedURLException {

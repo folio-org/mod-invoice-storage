@@ -1,10 +1,13 @@
 package org.folio.rest.impl;
 
-import io.vertx.core.AsyncResult;
-import io.vertx.core.Context;
-import io.vertx.core.Handler;
-import io.vertx.core.logging.Logger;
-import io.vertx.core.logging.LoggerFactory;
+import static io.vertx.core.Future.succeededFuture;
+import static org.folio.rest.jaxrs.resource.InvoiceStorageInvoiceNumber.GetInvoiceStorageInvoiceNumberResponse.respond200WithApplicationJson;
+import static org.folio.rest.jaxrs.resource.InvoiceStorageInvoiceNumber.GetInvoiceStorageInvoiceNumberResponse.respond500WithTextPlain;
+
+import java.util.Map;
+
+import javax.ws.rs.core.Response;
+
 import org.folio.rest.RestVerticle;
 import org.folio.rest.jaxrs.model.SequenceNumber;
 import org.folio.rest.jaxrs.resource.InvoiceStorageInvoiceNumber;
@@ -13,11 +16,11 @@ import org.folio.rest.tools.messages.MessageConsts;
 import org.folio.rest.tools.messages.Messages;
 import org.folio.rest.tools.utils.TenantTool;
 
-import javax.ws.rs.core.Response;
-import java.util.Map;
-
-import static io.vertx.core.Future.succeededFuture;
-import static org.folio.rest.jaxrs.resource.InvoiceStorageInvoiceNumber.GetInvoiceStorageInvoiceNumberResponse.*;
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Context;
+import io.vertx.core.Handler;
+import io.vertx.core.logging.Logger;
+import io.vertx.core.logging.LoggerFactory;
 
 public class InvoiceNumberImpl implements InvoiceStorageInvoiceNumber {
 

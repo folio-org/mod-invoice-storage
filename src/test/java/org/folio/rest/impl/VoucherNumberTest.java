@@ -1,12 +1,10 @@
 package org.folio.rest.impl;
 
-import io.restassured.http.ContentType;
-import io.restassured.response.ValidatableResponse;
-import io.vertx.core.Vertx;
-import io.vertx.ext.sql.UpdateResult;
-import org.folio.HttpStatus;
-import org.folio.rest.persist.PostgresClient;
-import org.junit.Test;
+import static io.restassured.RestAssured.given;
+import static org.folio.rest.impl.StorageTestSuite.storageUrl;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
 
 import java.net.MalformedURLException;
 import java.util.ArrayList;
@@ -14,11 +12,14 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
-import static io.restassured.RestAssured.given;
-import static org.folio.rest.impl.StorageTestSuite.storageUrl;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import org.folio.HttpStatus;
+import org.folio.rest.persist.PostgresClient;
+import org.junit.jupiter.api.Test;
+
+import io.restassured.http.ContentType;
+import io.restassured.response.ValidatableResponse;
+import io.vertx.core.Vertx;
+import io.vertx.ext.sql.UpdateResult;
 
 public class VoucherNumberTest extends TestBase {
 

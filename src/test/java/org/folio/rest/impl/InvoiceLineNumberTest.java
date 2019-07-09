@@ -10,32 +10,27 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
-import io.vertx.core.json.JsonObject;
 import org.folio.rest.persist.PostgresClient;
 import org.hamcrest.Matchers;
 import org.json.JSONObject;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 
 import com.github.mauricio.async.db.postgresql.exceptions.GenericDatabaseException;
 
 import io.restassured.response.Response;
 import io.vertx.core.Vertx;
+import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 import io.vertx.ext.sql.ResultSet;
-import io.vertx.ext.unit.junit.VertxUnitRunner;
 
-
-@RunWith(VertxUnitRunner.class)
 public class InvoiceLineNumberTest extends TestBase {
 
   private final Logger logger = LoggerFactory.getLogger(InvoiceLineNumberTest.class);
 
-  private static final String INVOICE_ENDPOINT = "/invoice-storage/invoices";
   private static final String INVOICE_LINE_NUMBER_ENDPOINT = "/invoice-storage/invoice-line-number";
   private static final String SEQUENCE_ID = "\"ilNumber_8ad4b87b-9b47-4199-b0c3-5480745c6b41\"";
-  private static final String NON_EXISTING_INVOICE_ID = "bad500aa-aaaa-500a-aaaa-aaaaaaaaaaaa";
+  private static final String NON_EXISTING_INVOICE_ID = "f6b47acf-361a-497e-9ddb-45e3802df902";
   
   private static final String CREATE_SEQUENCE = "CREATE SEQUENCE " + SEQUENCE_ID;
   private static final String SETVAL = "SELECT * FROM SETVAL('" + SEQUENCE_ID + "',13)";
@@ -71,7 +66,7 @@ public class InvoiceLineNumberTest extends TestBase {
       logger.info(String.format("--- mod-invoice-storage %s test: Update invoice with ID %s which will drop existing sequence", INVOICE.name(), sampleId));
       testInvoiceEdit(invoiceSample, sampleId);
 
-      logger.info(String.format("--- mod-invoice-storage %s test: Verification/confirming of sequence deletion for invoice ID: ",  INVOICE.name(), sampleId));
+      logger.info(String.format("--- mod-invoice-storage %s test: Verification/confirming of sequence deletion for invoice ID: %s",  INVOICE.name(), sampleId));
       testGetInvoiceLineNumberForNonExistedIL(sampleId);
       
       logger.info(String.format("--- mod-invoice-storage %s test: Test updating invoice with already deleted invoice-line number sequence", INVOICE.name()));
@@ -84,8 +79,8 @@ public class InvoiceLineNumberTest extends TestBase {
         deleteDataSuccess(INVOICE.getEndpointWithId(), sampleId);
     }
   }
-  
-  public void testCreateDuplicateInvoice(String invoiceSample) throws MalformedURLException {
+
+  private void testCreateDuplicateInvoice(String invoiceSample) throws MalformedURLException {
     Response response = postData(INVOICE.getEndpoint(), invoiceSample);
     response.then()
       .statusCode(400)
@@ -97,7 +92,7 @@ public class InvoiceLineNumberTest extends TestBase {
     catJSON.put("id", sampleId);
     catJSON.put("folioInvoiceNo", "666666");
     catJSON.put("status", "Cancelled");
-    Response response = putInvoiceNumberData(INVOICE_ENDPOINT, sampleId, catJSON.toString());
+    Response response = putInvoiceNumberData(sampleId, catJSON.toString());
     response.then()
       .statusCode(204);
   }

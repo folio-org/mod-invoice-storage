@@ -1,5 +1,7 @@
 package org.folio.rest.impl;
 
+import static org.folio.rest.persist.HelperUtils.SequenceQuery.GET_IL_NUMBER_FROM_SEQUENCE;
+
 import java.util.Map;
 
 import javax.ws.rs.core.Response;
@@ -12,14 +14,13 @@ import org.folio.rest.persist.PostgresClient;
 import org.folio.rest.tools.messages.MessageConsts;
 import org.folio.rest.tools.messages.Messages;
 import org.folio.rest.tools.utils.TenantTool;
+
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Context;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
-
-import static org.folio.rest.persist.HelperUtils.SequenceQuery.GET_IL_NUMBER_FROM_SEQUENCE;
 
 public class InvoiceLineNumberAPI implements InvoiceStorageInvoiceLineNumber {
 

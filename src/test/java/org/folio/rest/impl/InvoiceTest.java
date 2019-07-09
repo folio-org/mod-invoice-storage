@@ -1,15 +1,16 @@
 package org.folio.rest.impl;
 
-import io.vertx.core.json.JsonObject;
-import io.vertx.core.logging.Logger;
-import io.vertx.core.logging.LoggerFactory;
-import org.folio.rest.utils.TestEntities;
-import org.junit.Test;
+import static org.folio.rest.utils.TestEntities.INVOICE;
 
 import java.net.MalformedURLException;
 import java.util.UUID;
 
-import static org.folio.rest.utils.TestEntities.INVOICE;
+import org.folio.rest.utils.TestEntities;
+import org.junit.jupiter.api.Test;
+
+import io.vertx.core.json.JsonObject;
+import io.vertx.core.logging.Logger;
+import io.vertx.core.logging.LoggerFactory;
 
 public class InvoiceTest extends TestBase {
   private final Logger logger = LoggerFactory.getLogger(InvoiceTest.class);
@@ -34,13 +35,13 @@ public class InvoiceTest extends TestBase {
     String secondLineId = createEntity(TestEntities.INVOICE_LINES.getEndpoint(), invoiceLineSample);
     logger.info("Created line with id={}", secondLineId);
 
-    verifyCollectionQuantity(INVOICE.getEndpoint(), 2);
+    verifyCollectionQuantity(INVOICE.getEndpoint(), 1);
     verifyCollectionQuantity(TestEntities.INVOICE_LINES.getEndpoint(), 2);
 
     // remove invoice
     deleteDataSuccess(INVOICE.getEndpointWithId(), invoiceSampleId);
     // verify invoice and associated invoice lines were deleted
-    verifyCollectionQuantity(INVOICE.getEndpoint(), 1);
+    verifyCollectionQuantity(INVOICE.getEndpoint(), 0);
     verifyCollectionQuantity(TestEntities.INVOICE_LINES.getEndpoint(), 0);
   }
 

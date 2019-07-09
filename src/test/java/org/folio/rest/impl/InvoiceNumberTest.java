@@ -1,16 +1,10 @@
 package org.folio.rest.impl;
 
-import io.restassured.http.ContentType;
-import io.vertx.core.Vertx;
-import io.vertx.ext.sql.UpdateResult;
-import io.vertx.ext.unit.junit.Repeat;
-import io.vertx.ext.unit.junit.RepeatRule;
-import org.folio.HttpStatus;
-import org.folio.rest.persist.PostgresClient;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
+import static io.restassured.RestAssured.given;
+import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
+import static org.folio.rest.impl.StorageTestSuite.storageUrl;
+import static org.hamcrest.Matchers.equalTo;
+import static org.junit.Assert.assertThat;
 
 import java.net.MalformedURLException;
 import java.util.ArrayList;
@@ -18,34 +12,35 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
-import static io.restassured.RestAssured.given;
-import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
-import static org.folio.rest.impl.StorageTestSuite.storageUrl;
-import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.assertThat;
+import org.folio.HttpStatus;
+import org.folio.rest.persist.PostgresClient;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.RepeatedTest;
+
+import io.restassured.http.ContentType;
+import io.vertx.core.Vertx;
+import io.vertx.ext.sql.UpdateResult;
 
 public class InvoiceNumberTest extends TestBase {
 
-  @Rule
-  public RepeatRule rule = new RepeatRule();
   private static List<Long> invoiceNumberList;
 
   private static final String SEQUENCE_NUMBER = "sequenceNumber";
   private static final String INVOICE_NUMBER_ENDPOINT = "/invoice-storage/invoice-number";
   private static final String DROP_SEQUENCE_QUERY = "DROP SEQUENCE diku_mod_invoice_storage.invoice_number";
 
-  @BeforeClass
+  @BeforeAll
   public static void setUp() {
     invoiceNumberList  = new ArrayList<>();
   }
 
-  @Test
-  @Repeat(3)
+  @RepeatedTest(3)
   public void testGetInvoiceNumber() throws MalformedURLException {
     invoiceNumberList.add(getNumberAsLong());
   }
 
-  @AfterClass
+  @AfterAll
   public static void tearDown() throws Exception {
 
     // Positive scenario - testing of number increase
