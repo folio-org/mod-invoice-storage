@@ -1,5 +1,6 @@
 {
   "id": "6b8bc989-834d-4a14-945b-4c5442ae09af",
+  "accountingCode": "3456",
   "adjustments": [
     {
       "description": "Sales Tax",
@@ -27,7 +28,7 @@
   "paymentTerms": "Payment in Advance",
   "paymentMethod": "EFT",
   "status": "Paid",
-  "source": "4a151bd6-771e-405c-9cbe-0dcd035c58c4",
+  "source": "API",
   "subTotal": 20.00,
   "total": 26.00,
   "vendorInvoiceNo": "JU57851",
