@@ -66,6 +66,11 @@
           "tOps": "ADD"
         }
       ]
+    },
+    {
+      "tableName": "documents",
+      "fromModuleVersion": 1.0,
+      "withMetadata": true
     }
   ]
 }

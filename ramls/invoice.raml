@@ -10,6 +10,8 @@ documentation:
     content: This documents the API calls that can be made to manage invoices
 
 types:
+  document: !include acq-models/mod-invoice-storage/schemas/document.json
+  documentCollection: !include acq-models/mod-invoice-storage/schemas/document_collection.json
   invoice: !include acq-models/mod-invoice-storage/schemas/invoice.json
   invoiceCollection: !include acq-models/mod-invoice-storage/schemas/invoice_collection.json
   invoiceLine: !include acq-models/mod-invoice-storage/schemas/invoice_line.json
@@ -54,6 +56,14 @@ resourceTypes:
         collection-item:
           schema: invoice
           exampleItem: !include acq-models/mod-invoice-storage/examples/invoice.sample
+
+      /documents:
+        type:
+          collection:
+            schemaCollection: invoiceCollection
+            schemaItem: invoice
+            exampleCollection: !include acq-models/mod-invoice-storage/examples/document_collection.sample
+            exampleItem: !include acq-models/mod-invoice-storage/examples/document.sample
 
   /invoice-lines:
     type:
