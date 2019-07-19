@@ -13,14 +13,20 @@ public class QueryHolder {
 	private int offset;
 	private int limit;
 	private String lang;
+  private String searchField;
 
-	public QueryHolder(String table, String query, int offset, int limit, String lang) {
-		this.table = table;
-		this.query = query;
-		this.offset = offset;
-		this.limit = limit;
-		this.lang = lang;
-	}
+  public QueryHolder(String table, String searchField, String query, int offset, int limit, String lang) {
+    this.table = table;
+    this.searchField = searchField;
+    this.query = query;
+    this.offset = offset;
+    this.limit = limit;
+    this.lang = lang;
+  }
+
+  public QueryHolder(String table, String query, int offset, int limit, String lang) {
+    this(table, HelperUtils.JSONB, query, offset, limit, lang);
+  }
 
 	public String getTable() {
 		return table;
@@ -29,6 +35,10 @@ public class QueryHolder {
 	public String getQuery() {
 		return query;
 	}
+
+  public String getSearchField() {
+    return searchField;
+  }
 
 	public int getOffset() {
 		return offset;
@@ -48,4 +58,5 @@ public class QueryHolder {
       .setLimit(new Limit(limit))
       .setOffset(new Offset(offset));
   }
+
 }

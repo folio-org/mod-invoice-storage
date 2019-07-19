@@ -84,11 +84,15 @@ public abstract class TestBase {
   }
 
   String createEntity(String endpoint, String entity) throws MalformedURLException {
-    return postData(endpoint, entity)
-      .then().log().ifValidationFails()
-        .statusCode(201)
-        .extract()
-          .path("id");
+    return createEntity(endpoint, entity, TENANT_HEADER);
+  }
+
+  String createEntity(String endpoint, String entity, Header tenant) throws MalformedURLException {
+    return postData(endpoint, entity, tenant)
+      .then().log().all()
+      .statusCode(201)
+      .extract()
+      .path("id");
   }
   
   @AfterClass
