@@ -387,7 +387,8 @@
         "voucher-storage.voucher-lines.item.get",
         "voucher-storage.voucher-lines.item.post",
         "voucher-storage.voucher-lines.item.put",
-        "voucher-storage.voucher-lines.item.delete"
+        "voucher-storage.voucher-lines.item.delete",
+        "voucher-storage.acquisitions-unit-assignments.all"
       ],
       "visible": false
     },
@@ -483,8 +484,7 @@
         "invoice-storage.invoice-number.get",
         "invoice-storage.invoice-line-number.get",
         "voucher-storage.module.all",
-        "invoice-storage.acquisitions-unit-assignments.all",
-        "voucher-storage.acquisitions-unit-assignments.all"
+        "invoice-storage.acquisitions-unit-assignments.all"
       ],
       "visible": false
     }
