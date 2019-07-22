@@ -60,10 +60,26 @@ resourceTypes:
       /documents:
         type:
           collection:
-            schemaCollection: invoiceCollection
-            schemaItem: invoice
+            schemaCollection: documentCollection
+            schemaItem: document
             exampleCollection: !include acq-models/mod-invoice-storage/examples/document_collection.sample
             exampleItem: !include acq-models/mod-invoice-storage/examples/document.sample
+        /{documentId}:
+          uriParameters:
+            documentId:
+              description: The UUID of a document
+              type: UUID
+          type:
+            collection-item:
+              schema: document
+              exampleItem: !include acq-models/mod-invoice-storage/examples/document.sample
+          put:
+            responses:
+              501:
+                description: "Internal server error, method not implemented"
+                body:
+                  text/plain:
+                    example: "Internal server error, method not implemented"
 
   /invoice-lines:
     type:

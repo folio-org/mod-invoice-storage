@@ -11,6 +11,7 @@ import java.util.UUID;
 import javax.ws.rs.core.Response;
 
 import org.folio.rest.annotations.Validate;
+import org.folio.rest.jaxrs.model.Document;
 import org.folio.rest.jaxrs.model.Invoice;
 import org.folio.rest.jaxrs.model.InvoiceCollection;
 import org.folio.rest.jaxrs.model.InvoiceLine;
@@ -160,6 +161,40 @@ public class InvoiceStorageImpl implements InvoiceStorage {
 
   @Validate
   @Override
+  public void getInvoiceStorageInvoicesDocumentsById(String id, String lang, Map<String, String> okapiHeaders,
+      Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
+
+  }
+
+  @Validate
+  @Override
+  public void postInvoiceStorageInvoicesDocumentsById(String id, String lang, Document entity, Map<String, String> okapiHeaders,
+      Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
+
+  }
+
+  @Validate
+  @Override
+  public void getInvoiceStorageInvoicesDocumentsByIdAndDocumentId(String id, String documentId, String lang,
+      Map<String, String> okapiHeaders, Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
+
+  }
+
+  @Validate
+  @Override
+  public void deleteInvoiceStorageInvoicesDocumentsByIdAndDocumentId(String id, String documentId, String lang,
+      Map<String, String> okapiHeaders, Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
+
+  }
+
+  @Override
+  public void putInvoiceStorageInvoicesDocumentsByIdAndDocumentId(String id, String documentId, String lang, Document entity,
+      Map<String, String> okapiHeaders, Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
+    asyncResultHandler.handle(succeededFuture(PutInvoiceStorageInvoicesDocumentsByIdAndDocumentIdResponse.respond501WithTextPlain(Response.Status.NOT_IMPLEMENTED.getReasonPhrase())));
+  }
+
+  @Validate
+  @Override
   public void getInvoiceStorageInvoiceLines(int offset, int limit, String query, String lang, Map<String, String> okapiHeaders, Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
     vertxContext.runOnContext((Void v) -> {
       EntitiesMetadataHolder<InvoiceLine, InvoiceLineCollection> entitiesMetadataHolder = new EntitiesMetadataHolder<>(InvoiceLine.class, InvoiceLineCollection.class, GetInvoiceStorageInvoiceLinesResponse.class);
@@ -304,7 +339,6 @@ public class InvoiceStorageImpl implements InvoiceStorage {
     pgClient.endTx(tx.getConnection(), v -> future.complete(tx));
     return future;
   }
-
   public class Tx<T> {
 
     private T entity;
