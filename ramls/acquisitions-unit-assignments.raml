@@ -54,3 +54,32 @@ resourceTypes:
     put:
       description: Update acquisitions unit assignment
       is: [validate]
+
+/voucher-storage/acquisitions-unit-assignments:
+  type:
+    collection:
+      exampleCollection: !include acq-models/common/examples/acquisitions_unit_assignment_collection.sample
+      exampleItem: !include acq-models/common/examples/acquisitions_unit_assignment_post.sample
+      schemaCollection: acquisitions-unit-assignment-collection
+      schemaItem: acquisitions-unit-assignment
+  post:
+    description: Create new acquisitions unit assignment
+    is: [validate]
+  get:
+    description: Get list of acquisitions unit assignments
+    is: [
+      searchable: {description: "with valid searchable fields: for example recordId", example: "[\"recordId\", \"a9b99f8a-7100-47f2-9903-6293d44a9905\"]"},
+      pageable
+    ]
+  /{id}:
+    uriParameters:
+      id:
+        description: The UUID of a acquisitions unit assignment
+        type: UUID
+    type:
+      collection-item:
+        exampleItem: !include acq-models/common/examples/acquisitions_unit_assignment_get.sample
+        schema: acquisitions-unit-assignment
+    put:
+      description: Update acquisitions unit assignment
+      is: [validate]
