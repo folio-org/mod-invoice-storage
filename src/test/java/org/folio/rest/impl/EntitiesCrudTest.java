@@ -24,6 +24,7 @@ class EntitiesCrudTest extends TestBase {
 
   static Stream<TestEntities> deleteOrder() {
     return Stream.of(
+      TestEntities.VOUCHER_ACQUISITIONS_UNIT_ASSIGNMENTS,
       TestEntities.ACQUISITIONS_UNIT_ASSIGNMENTS,
       TestEntities.VOUCHER_LINES,
       TestEntities.VOUCHER,
@@ -39,6 +40,7 @@ class EntitiesCrudTest extends TestBase {
 
   static Stream<TestEntities> createFailOrder() {
     return Stream.of(
+      TestEntities.VOUCHER_ACQUISITIONS_UNIT_ASSIGNMENTS,
       TestEntities.ACQUISITIONS_UNIT_ASSIGNMENTS,
       TestEntities.VOUCHER_LINES,
       TestEntities.VOUCHER,
@@ -51,7 +53,6 @@ class EntitiesCrudTest extends TestBase {
   void testVerifyCollection(TestEntities testEntity) throws MalformedURLException {
     logger.info(String.format("--- mod-invoice-storage %s test: Verifying database's initial state ... ", testEntity.name()));
     verifyCollectionQuantity(testEntity.getEndpoint(), 0);
-
   }
 
   @ParameterizedTest
