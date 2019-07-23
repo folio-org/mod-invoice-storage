@@ -71,11 +71,6 @@
       "tableName": "documents",
       "fromModuleVersion": 1.0,
       "withMetadata": true
-    },
-    {
-      "tableName": "document_data",
-      "fromModuleVersion": 1.0,
-      "withMetadata": true
     }
   ]
 }

@@ -11,6 +11,7 @@ import java.util.UUID;
 
 import javax.ws.rs.core.Response;
 
+import org.apache.commons.lang3.StringUtils;
 import org.folio.rest.annotations.Validate;
 import org.folio.rest.jaxrs.model.Document;
 import org.folio.rest.jaxrs.model.DocumentCollection;
@@ -44,8 +45,11 @@ public class InvoiceStorageImpl implements InvoiceStorage {
   private static final String INVOICE_PREFIX = "/invoice-storage/invoices/";
   public static final String INVOICE_TABLE = "invoices";
   private static final String INVOICE_LINE_TABLE = "invoice_lines";
-  private static final String DOCUMENT_TABLE = "document";
+  private static final String DOCUMENT_TABLE = "documents";
+  private static final String DOCUMENT_METADATA_FIELD_NAME = "documentMetadata";
   private static final String INVOICE_ID_FIELD_NAME = "invoiceId";
+  private static final String INVOICE_ID_MISMATCH_ERROR_MESSAGE = "Invoice id mismatch";
+
   private PostgresClient pgClient;
 
   public InvoiceStorageImpl(Vertx vertx, String tenantId) {
@@ -166,58 +170,65 @@ public class InvoiceStorageImpl implements InvoiceStorage {
   @Override
   public void getInvoiceStorageInvoicesDocumentsById(String id, String lang, Map<String, String> okapiHeaders,
       Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
-      log.info("Get document list by invoice id");
-      vertxContext.runOnContext((Void v) -> {
-        try {
-          Criterion criterion = getCriterionByFieldNameAndValue(INVOICE_ID_FIELD_NAME, id);
+    log.info("Get document list by invoice id");
+    vertxContext.runOnContext((Void v) -> {
+      try {
+        Criterion criterion = getDocumentsByInvoiceIdCriterion(id);
 
         pgClient.get(DOCUMENT_TABLE, Document.class, criterion, false, reply -> {
-            try {
-              if (reply.succeeded()) {
-                DocumentCollection collection = new DocumentCollection();
-                List<Document> results = reply.result().getResults();
-                collection.setDocuments(results);
+          try {
+            if (reply.succeeded()) {
+              DocumentCollection collection = new DocumentCollection();
+              List<Document> results = reply.result().getResults();
+              collection.setDocuments(results);
 
-                Integer totalRecords = reply.result().getResultInfo().getTotalRecords();
-                collection.setTotalRecords(totalRecords);
+              Integer totalRecords = reply.result().getResultInfo().getTotalRecords();
+              collection.setTotalRecords(totalRecords);
 
-                collection.getDocuments().forEach(document-> document.setContents(null));
-                asyncResultHandler.handle(Future.succeededFuture(GetInvoiceStorageInvoicesDocumentsByIdResponse.respond200WithApplicationJson(collection)));
-              } else {
-                log.error(reply.cause().getMessage(), reply.cause());
-                asyncResultHandler.handle(Future.succeededFuture(GetInvoiceStorageInvoicesDocumentsByIdResponse.respond400WithTextPlain(reply.cause().getMessage())));
-              }
-            } catch (Exception e) {
-              log.error(e.getMessage(), e);
-              asyncResultHandler.handle(Future.succeededFuture(GetInvoiceStorageInvoicesDocumentsByIdResponse.respond500WithTextPlain(Response.Status.INTERNAL_SERVER_ERROR.getReasonPhrase())));
+              //remove base64 content from response
+              collection.getDocuments().forEach(document -> document.setContents(null));
+
+              asyncResultHandler.handle(Future.succeededFuture(GetInvoiceStorageInvoicesDocumentsByIdResponse.respond200WithApplicationJson(collection)));
+            } else {
+              log.error(reply.cause().getMessage(), reply.cause());
+              asyncResultHandler
+                .handle(Future.succeededFuture(GetInvoiceStorageInvoicesDocumentsByIdResponse.respond400WithTextPlain(reply.cause().getMessage())));
             }
-          });
-        } catch (Exception e) {
-          log.error(e.getMessage(), e);
-          asyncResultHandler.handle(Future.succeededFuture(GetInvoiceStorageInvoicesDocumentsByIdResponse.respond500WithTextPlain(Response.Status.INTERNAL_SERVER_ERROR.getReasonPhrase())));
-        }
-      });
-    }
+          } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            asyncResultHandler.handle(Future.succeededFuture(GetInvoiceStorageInvoicesDocumentsByIdResponse.respond500WithTextPlain(Response.Status.INTERNAL_SERVER_ERROR.getReasonPhrase())));
+          }
+        });
+      } catch (Exception e) {
+        log.error(e.getMessage(), e);
+        asyncResultHandler.handle(Future.succeededFuture(GetInvoiceStorageInvoicesDocumentsByIdResponse.respond500WithTextPlain(Response.Status.INTERNAL_SERVER_ERROR.getReasonPhrase())));
+      }
+    });
+  }
 
   @Validate
   @Override
   public void postInvoiceStorageInvoicesDocumentsById(String id, String lang, Document entity, Map<String, String> okapiHeaders,
       Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
-    PgUtil.post(DOCUMENT_TABLE, entity, okapiHeaders, vertxContext, PostInvoiceStorageInvoiceLinesResponse.class, asyncResultHandler);
+    if (StringUtils.equals(entity.getDocumentMetadata().getInvoiceId(), id) ) {
+      PgUtil.post(DOCUMENT_TABLE, entity, okapiHeaders, vertxContext, PostInvoiceStorageInvoicesDocumentsByIdResponse.class, asyncResultHandler);
+    } else {
+      asyncResultHandler.handle(io.vertx.core.Future.succeededFuture(PostInvoiceStorageInvoicesDocumentsByIdResponse.respond400WithTextPlain(INVOICE_ID_MISMATCH_ERROR_MESSAGE)));
+    }
   }
 
   @Validate
   @Override
   public void getInvoiceStorageInvoicesDocumentsByIdAndDocumentId(String id, String documentId, String lang,
       Map<String, String> okapiHeaders, Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
-    PgUtil.getById(DOCUMENT_TABLE, InvoiceLine.class, id, okapiHeaders, vertxContext, GetInvoiceStorageInvoiceLinesByIdResponse.class, asyncResultHandler);
+    PgUtil.getById(DOCUMENT_TABLE, Document.class, documentId, okapiHeaders, vertxContext, GetInvoiceStorageInvoicesDocumentsByIdAndDocumentIdResponse.class, asyncResultHandler);
   }
 
   @Validate
   @Override
   public void deleteInvoiceStorageInvoicesDocumentsByIdAndDocumentId(String id, String documentId, String lang,
       Map<String, String> okapiHeaders, Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
-    PgUtil.deleteById(DOCUMENT_TABLE, id, okapiHeaders, vertxContext, DeleteInvoiceStorageInvoiceLinesByIdResponse.class, asyncResultHandler);
+    PgUtil.deleteById(DOCUMENT_TABLE, documentId, okapiHeaders, vertxContext, DeleteInvoiceStorageInvoicesDocumentsByIdAndDocumentIdResponse.class, asyncResultHandler);
   }
 
   @Override
@@ -456,11 +467,20 @@ public class InvoiceStorageImpl implements InvoiceStorage {
     return future;
   }
 
-  private Criterion getCriterionByFieldNameAndValue(String filedName, String fieldValue) {
+  private Criterion getCriterionByFieldNameAndValue(String fieldName, String fieldValue) {
     Criteria a = new Criteria();
-    a.addField("'" + filedName + "'");
+    a.addField("'" + fieldName + "'");
     a.setOperation("=");
     a.setVal(fieldValue);
+    return new Criterion(a);
+  }
+
+  private Criterion getDocumentsByInvoiceIdCriterion(String id) {
+    Criteria a = new Criteria();
+    a.addField("'" + DOCUMENT_METADATA_FIELD_NAME + "'");
+    a.addField("'" + INVOICE_ID_FIELD_NAME + "'");
+    a.setOperation("=");
+    a.setVal(id);
     return new Criterion(a);
   }
 }
