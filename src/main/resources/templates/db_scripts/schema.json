@@ -2,12 +2,12 @@
   "scripts": [
     {
       "run": "after",
-      "snippet": "CREATE OR REPLACE VIEW vouchers_view AS SELECT vouchers.id AS id, vouchers.jsonb AS jsonb, COALESCE(acquisitions_unit_assignments.jsonb, '{}'::jsonb) || vouchers.jsonb AS metadata FROM vouchers LEFT JOIN acquisitions_unit_assignments ON (acquisitions_unit_assignments.jsonb -> 'recordId'::text) = (vouchers.jsonb -> 'id'::text);",
+      "snippet": "CREATE OR REPLACE VIEW vouchers_view AS SELECT vouchers.id AS id, vouchers.jsonb AS jsonb, COALESCE(voucher_acquisitions_unit_assignments.jsonb, '{}'::jsonb) || vouchers.jsonb AS metadata FROM vouchers LEFT JOIN voucher_acquisitions_unit_assignments ON (voucher_acquisitions_unit_assignments.jsonb -> 'recordId'::text) = (vouchers.jsonb -> 'id'::text);",
       "fromModuleVersion": "1.0"
     },
     {
       "run": "after",
-      "snippet": "CREATE OR REPLACE VIEW voucher_lines_view AS SELECT voucher_lines.id AS id, voucher_lines.jsonb AS jsonb, COALESCE(acquisitions_unit_assignments.jsonb, '{}'::jsonb) || voucher_lines.jsonb AS metadata FROM voucher_lines LEFT JOIN acquisitions_unit_assignments ON (acquisitions_unit_assignments.jsonb -> 'recordId'::text) = (voucher_lines.jsonb -> 'voucherId'::text);",
+      "snippet": "CREATE OR REPLACE VIEW voucher_lines_view AS SELECT voucher_lines.id AS id, voucher_lines.jsonb AS jsonb, COALESCE(voucher_acquisitions_unit_assignments.jsonb, '{}'::jsonb) || voucher_lines.jsonb AS metadata FROM voucher_lines LEFT JOIN voucher_acquisitions_unit_assignments ON (voucher_acquisitions_unit_assignments.jsonb -> 'recordId'::text) = (voucher_lines.jsonb -> 'voucherId'::text);",
       "fromModuleVersion": "1.0"
     }
   ],
@@ -62,6 +62,12 @@
       "tableName": "acquisitions_unit_assignments",
       "fromModuleVersion": 1.0,
       "withMetadata": true,
+      "foreignKeys": [
+        {
+          "fieldName": "recordId",
+          "targetTable": "invoices"
+        }
+      ],
       "index": [
         {
           "fieldName": "recordId",

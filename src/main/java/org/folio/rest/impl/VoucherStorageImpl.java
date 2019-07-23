@@ -2,7 +2,6 @@ package org.folio.rest.impl;
 
 import static org.folio.rest.persist.HelperUtils.ID_FIELD_NAME;
 import static org.folio.rest.persist.HelperUtils.METADATA;
-import static org.folio.rest.persist.HelperUtils.getEntitiesCollection;
 import static org.folio.rest.persist.HelperUtils.getEntitiesCollectionWithDistinctOn;
 
 import java.util.Map;

@@ -23,7 +23,7 @@ public class HelperUtils {
   
   private static final String IL_NUMBER_PREFIX = "ilNumber_";
   private static final String QUOTES_SYMBOL = "\"";
-  private static final Pattern orderBy = Pattern.compile("(?<=ORDER BY).*?(?=$|DESC.*$|LIMIT.*$|OFFSET.*$)");
+  private static final Pattern ORDER_BY = Pattern.compile("(?<=ORDER BY).*?(?=$|DESC.*$|LIMIT.*$|OFFSET.*$)");
 
   public static final String ID_FIELD_NAME = "id";
   public static final String METADATA = "metadata";
@@ -34,53 +34,11 @@ public class HelperUtils {
     throw new UnsupportedOperationException("Cannot instantiate utility class.");
   }
 
-  public static <T, E> void getEntitiesCollection(EntitiesMetadataHolder<T, E> entitiesMetadataHolder, QueryHolder queryHolder, Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext, Map<String, String> okapiHeaders) {
-		String[] fieldList = { "*" };
-
-		final Method respond500;
-
-		try {
-			respond500 = entitiesMetadataHolder.getRespond500WithTextPlainMethod();
-		} catch (Exception e) {
-			log.error(e.getMessage(), e);
-			asyncResultHandler.handle(response(e.getMessage(), null, null));
-			return;
-		}
-
-    try {
-      Method respond200 = entitiesMetadataHolder.getRespond200WithApplicationJson();
-      Method respond400 = entitiesMetadataHolder.getRespond400WithTextPlainMethod();
-      PostgresClient postgresClient = PgUtil.postgresClient(vertxContext, okapiHeaders);
-      postgresClient.get(queryHolder.getTable(), entitiesMetadataHolder.getClazz(), fieldList, queryHolder.buildCQLQuery(), true, false, reply -> {
-        try {
-          if (reply.succeeded()) {
-            E collection = entitiesMetadataHolder.getCollectionClazz().newInstance();
-            List<T> results = reply.result().getResults();
-            Method setResults =  entitiesMetadataHolder.getSetResultsMethod();
-            Method setTotalRecordsMethod =  entitiesMetadataHolder.getSetTotalRecordsMethod();
-            setResults.invoke(collection, results);
-            Integer totalRecords = reply.result().getResultInfo().getTotalRecords();
-            setTotalRecordsMethod.invoke(collection, totalRecords);
-            asyncResultHandler.handle(response(collection, respond200, respond500));
-          } else {
-            asyncResultHandler.handle(response(reply.cause().getLocalizedMessage(), respond400, respond500));
-          }
-        } catch (Exception e) {
-          log.error(e.getMessage(), e);
-          asyncResultHandler.handle(response(e.getMessage(), respond500, respond500));
-        }
-      });
-    } catch (Exception e) {
-      log.error(e.getMessage(), e);
-      asyncResultHandler.handle(response(e.getMessage(), respond500, respond500));
-    }
-  }
-
   public static <T, E> void getEntitiesCollectionWithDistinctOn(EntitiesMetadataHolder<T, E> entitiesMetadataHolder, QueryHolder queryHolder, String sortField, Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext, Map<String, String> okapiHeaders) {
     Method respond500 = getRespond500(entitiesMetadataHolder, asyncResultHandler);
     Method respond400 = getRespond400(entitiesMetadataHolder, asyncResultHandler);
     try {
-      Matcher matcher = orderBy.matcher(queryHolder.buildCQLQuery().toString());
+      Matcher matcher = ORDER_BY.matcher(queryHolder.buildCQLQuery().toString());
       String inLowerUnaccentSortField = wrapInLowerUnaccent(String.format("%s->>'%s'", queryHolder.getSearchField(), sortField));
       String distinctOn = matcher.find() ? matcher.group(0) + ", " + inLowerUnaccentSortField : inLowerUnaccentSortField;
       PostgresClient postgresClient = PgUtil.postgresClient(vertxContext, okapiHeaders);

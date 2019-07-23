@@ -53,7 +53,7 @@ public class QueryHolder {
 	}
 
   public CQLWrapper buildCQLQuery() throws FieldException {
-    CQL2PgJSON cql2PgJSON = new CQL2PgJSON(String.format("%s.jsonb", table));
+    CQL2PgJSON cql2PgJSON = new CQL2PgJSON(String.format("%s.%s", table, searchField));
     return new CQLWrapper(cql2PgJSON, query)
       .setLimit(new Limit(limit))
       .setOffset(new Offset(offset));
