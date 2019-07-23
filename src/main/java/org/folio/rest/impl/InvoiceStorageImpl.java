@@ -5,6 +5,7 @@ import static org.folio.rest.persist.HelperUtils.getEntitiesCollection;
 import static org.folio.rest.persist.HelperUtils.SequenceQuery.CREATE_SEQUENCE;
 import static org.folio.rest.persist.HelperUtils.SequenceQuery.DROP_SEQUENCE;
 
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -12,6 +13,7 @@ import javax.ws.rs.core.Response;
 
 import org.folio.rest.annotations.Validate;
 import org.folio.rest.jaxrs.model.Document;
+import org.folio.rest.jaxrs.model.DocumentCollection;
 import org.folio.rest.jaxrs.model.Invoice;
 import org.folio.rest.jaxrs.model.InvoiceCollection;
 import org.folio.rest.jaxrs.model.InvoiceLine;
@@ -42,6 +44,7 @@ public class InvoiceStorageImpl implements InvoiceStorage {
   private static final String INVOICE_PREFIX = "/invoice-storage/invoices/";
   public static final String INVOICE_TABLE = "invoices";
   private static final String INVOICE_LINE_TABLE = "invoice_lines";
+  private static final String DOCUMENT_TABLE = "document";
   private static final String INVOICE_ID_FIELD_NAME = "invoiceId";
   private PostgresClient pgClient;
 
@@ -163,28 +166,58 @@ public class InvoiceStorageImpl implements InvoiceStorage {
   @Override
   public void getInvoiceStorageInvoicesDocumentsById(String id, String lang, Map<String, String> okapiHeaders,
       Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
+      log.info("Get document list by invoice id");
+      vertxContext.runOnContext((Void v) -> {
+        try {
+          Criterion criterion = getCriterionByFieldNameAndValue(INVOICE_ID_FIELD_NAME, id);
 
-  }
+        pgClient.get(DOCUMENT_TABLE, Document.class, criterion, false, reply -> {
+            try {
+              if (reply.succeeded()) {
+                DocumentCollection collection = new DocumentCollection();
+                List<Document> results = reply.result().getResults();
+                collection.setDocuments(results);
+
+                Integer totalRecords = reply.result().getResultInfo().getTotalRecords();
+                collection.setTotalRecords(totalRecords);
+
+                collection.getDocuments().forEach(document-> document.setContents(null));
+                asyncResultHandler.handle(Future.succeededFuture(GetInvoiceStorageInvoicesDocumentsByIdResponse.respond200WithApplicationJson(collection)));
+              } else {
+                log.error(reply.cause().getMessage(), reply.cause());
+                asyncResultHandler.handle(Future.succeededFuture(GetInvoiceStorageInvoicesDocumentsByIdResponse.respond400WithTextPlain(reply.cause().getMessage())));
+              }
+            } catch (Exception e) {
+              log.error(e.getMessage(), e);
+              asyncResultHandler.handle(Future.succeededFuture(GetInvoiceStorageInvoicesDocumentsByIdResponse.respond500WithTextPlain(Response.Status.INTERNAL_SERVER_ERROR.getReasonPhrase())));
+            }
+          });
+        } catch (Exception e) {
+          log.error(e.getMessage(), e);
+          asyncResultHandler.handle(Future.succeededFuture(GetInvoiceStorageInvoicesDocumentsByIdResponse.respond500WithTextPlain(Response.Status.INTERNAL_SERVER_ERROR.getReasonPhrase())));
+        }
+      });
+    }
 
   @Validate
   @Override
   public void postInvoiceStorageInvoicesDocumentsById(String id, String lang, Document entity, Map<String, String> okapiHeaders,
       Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
-
+    PgUtil.post(DOCUMENT_TABLE, entity, okapiHeaders, vertxContext, PostInvoiceStorageInvoiceLinesResponse.class, asyncResultHandler);
   }
 
   @Validate
   @Override
   public void getInvoiceStorageInvoicesDocumentsByIdAndDocumentId(String id, String documentId, String lang,
       Map<String, String> okapiHeaders, Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
-
+    PgUtil.getById(DOCUMENT_TABLE, InvoiceLine.class, id, okapiHeaders, vertxContext, GetInvoiceStorageInvoiceLinesByIdResponse.class, asyncResultHandler);
   }
 
   @Validate
   @Override
   public void deleteInvoiceStorageInvoicesDocumentsByIdAndDocumentId(String id, String documentId, String lang,
       Map<String, String> okapiHeaders, Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
-
+    PgUtil.deleteById(DOCUMENT_TABLE, id, okapiHeaders, vertxContext, DeleteInvoiceStorageInvoiceLinesByIdResponse.class, asyncResultHandler);
   }
 
   @Override
