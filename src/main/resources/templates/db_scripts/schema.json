@@ -68,6 +68,27 @@
       ]
     },
     {
+      "tableName": "voucher_acquisitions_unit_assignments",
+      "fromModuleVersion": 1.0,
+      "withMetadata": true,
+      "foreignKeys": [
+        {
+          "fieldName": "recordId",
+          "targetTable": "vouchers"
+        }
+      ],
+      "index": [
+        {
+          "fieldName": "recordId",
+          "tOps": "ADD"
+        },
+        {
+          "fieldName": "acquisitionsUnitId",
+          "tOps": "ADD"
+        }
+      ]
+    },
+    {
       "tableName": "documents",
       "fromModuleVersion": 1.0,
       "withMetadata": true
