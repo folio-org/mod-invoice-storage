@@ -1,15 +1,15 @@
 package org.folio.rest.impl;
 
 import static org.folio.rest.utils.TestEntities.INVOICE;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import java.net.MalformedURLException;
 
 import org.folio.rest.jaxrs.model.Document;
 import org.folio.rest.jaxrs.model.DocumentCollection;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
