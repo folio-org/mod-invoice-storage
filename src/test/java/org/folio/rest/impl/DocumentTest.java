@@ -11,7 +11,6 @@ import org.folio.rest.jaxrs.model.Document;
 import org.folio.rest.jaxrs.model.DocumentCollection;
 import org.junit.Test;
 
-import io.restassured.response.Response;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
@@ -37,7 +36,11 @@ public class DocumentTest extends TestBase {
       postData(INVOICE.getEndpoint(), invoiceSample).then().statusCode(201);
 
       String sampleDocument = getFile(SAMPLE_DOCUMENT_FILE);
-      Response response = postData(DOCUMENT_ENDPOINT, sampleDocument);
+      Document documentResponse = postData(DOCUMENT_ENDPOINT, sampleDocument).then()
+        .statusCode(201)
+        .extract()
+        .response()
+        .as(Document.class);
 
       logger.info("--- mod-invoice-storage Document test: Try to create document with mismatched id");
       postData(DOCUMENT_ENDPOINT, getFile(SAMPLE_DOCUMENT_FILE_2)).then().statusCode(400);
@@ -45,7 +48,7 @@ public class DocumentTest extends TestBase {
       logger.info("--- mod-invoice-storage  test: Valid fields exists ... ");
       JsonObject sampleJson = JsonObject.mapFrom(new JsonObject(sampleDocument).mapTo(Document.class));
 
-      JsonObject responseJson = JsonObject.mapFrom(response.then().extract().response().as(Document.class));
+      JsonObject responseJson = JsonObject.mapFrom(documentResponse);
       testAllFieldsExists(responseJson, sampleJson);
 
       logger.info(String.format("--- mod-invoice-storage  test: Fetching with ID: %s", INVOICE_ID));

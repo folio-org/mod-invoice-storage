@@ -90,8 +90,14 @@
     },
     {
       "tableName": "documents",
-      "fromModuleVersion": 1.0,
-      "withMetadata": true
+      "fromModuleVersion": 1.1,
+      "withMetadata": true,
+      "foreignKeys": [
+        {
+          "fieldName": "documentMetadata.invoiceId",
+          "targetTable": "invoices"
+        }
+      ]
     }
   ]
 }

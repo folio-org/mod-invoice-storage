@@ -30,7 +30,6 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 
-
 @RunWith(JUnitPlatform.class)
 public class StorageTestSuite {
   private static final Logger logger = LoggerFactory.getLogger(StorageTestSuite.class);
@@ -51,7 +50,6 @@ public class StorageTestSuite {
 
   @BeforeAll
   public static void before() throws IOException, InterruptedException, ExecutionException, TimeoutException {
-
     // tests expect English error messages only, no Danish/German/...
     Locale.setDefault(Locale.US);
 

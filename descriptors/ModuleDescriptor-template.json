@@ -34,6 +34,37 @@
       ]
     },
     {
+      "id": "invoice-storage.invoices.documents",
+      "version": "1.0",
+      "handlers": [
+        {
+          "methods": ["GET"],
+          "pathPattern": "/invoice-storage/invoices/{id}/documents",
+          "permissionsRequired": ["invoice-storage.invoices.documents.collection.get"]
+        },
+        {
+          "methods": ["POST"],
+          "pathPattern": "/invoice-storage/invoices{id}/documents",
+          "permissionsRequired": ["invoice-storage.invoices.documents.item.post"]
+        },
+        {
+          "methods": ["GET"],
+          "pathPattern": "/invoice-storage/invoices/{id}/documents/{documentId}",
+          "permissionsRequired": ["invoice-storage.invoices.documents.item.get"]
+        },
+        {
+          "methods": ["PUT"],
+          "pathPattern": "/invoice-storage/invoices/{id}/documents/{documentId}",
+          "permissionsRequired": ["invoice-storage.invoices.documents.item.put"]
+        },
+        {
+          "methods": ["DELETE"],
+          "pathPattern": "/invoice-storage/invoices/{id}/documents/{documentId}",
+          "permissionsRequired": ["invoice-storage.invoices.documents.item.delete"]
+        }
+      ]
+    },
+    {
       "id": "invoice-storage.invoice-lines",
       "version": "1.0",
       "handlers": [
@@ -271,6 +302,31 @@
       "description": "Delete invoice"
     },
     {
+      "permissionName": "invoice-storage.invoices.documents.collection.get",
+      "displayName": "Invoice storage - get document collection",
+      "description": "Get documents collection"
+    },
+    {
+      "permissionName": "invoice-storage.invoices.documents.item.get",
+      "displayName": "Invoice storage - get individual document",
+      "description": "Get individual document"
+    },
+    {
+      "permissionName": "invoice-storage.invoices.documents.item.post",
+      "displayName": "Invoice storage - create document",
+      "description": "Create document"
+    },
+    {
+      "permissionName": "invoice-storage.invoices.documents.item.put",
+      "displayName": "Invoice storage - modify document",
+      "description": "Modify document"
+    },
+    {
+      "permissionName": "invoice-storage.invoices.documents.item.delete",
+      "displayName": "Invoice storage - delete document",
+      "description": "Delete document"
+    },
+    {
       "permissionName": "invoice-storage.invoice-lines.collection.get",
       "displayName": "Invoice storage - get invoice line collection",
       "description": "Get invoice line collection"
@@ -476,6 +532,11 @@
         "invoice-storage.invoices.item.post",
         "invoice-storage.invoices.item.put",
         "invoice-storage.invoices.item.delete",
+        "invoice-storage.invoices.documents.collection.get",
+        "invoice-storage.invoices.documents.item.get",
+        "invoice-storage.invoices.documents.item.post",
+        "invoice-storage.invoices.documents.item.put",
+        "invoice-storage.invoices.documents.item.delete",
         "invoice-storage.invoice-lines.collection.get",
         "invoice-storage.invoice-lines.item.get",
         "invoice-storage.invoice-lines.item.post",
