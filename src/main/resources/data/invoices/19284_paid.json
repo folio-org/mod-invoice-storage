@@ -1,5 +1,6 @@
 {
   "id": "50129fe1-ca11-43be-a2dd-e1adfb0ead29",
+  "accountingCode": "4567",
   "adjustments": [
   ],
   "adjustmentsTotal":10.00,
@@ -11,7 +12,7 @@
   "invoiceDate": "2018-07-01T00:00:00Z",
   "paymentMethod": "EFT",
   "status": "Paid",
-  "source": "024b6f41-c5c6-4280-858e-33fba452a334",
+  "source": "User",
   "subTotal": 342.00,
   "total": 352.00,
   "vendorInvoiceNo": "LS9834",

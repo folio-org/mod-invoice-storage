@@ -1,5 +1,6 @@
 {
   "id": "041c1fe8-adfa-44eb-b6b3-f85acdd71f81",
+  "accountingCode": "2345",
   "adjustments": [
   ],
   "adjustmentsTotal": 0.00,
@@ -12,7 +13,7 @@
   "paymentTerms": "Payment in Advance",
   "paymentMethod": "EFT",
   "status": "Paid",
-  "source": "4a151bd6-771e-405c-9cbe-0dcd035c58c4",
+  "source": "EDI",
   "subTotal": 75.00,
   "total": 75.00,
   "vendorInvoiceNo": "AD14125",
