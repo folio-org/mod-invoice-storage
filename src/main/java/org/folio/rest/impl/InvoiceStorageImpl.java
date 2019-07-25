@@ -206,7 +206,12 @@ public class InvoiceStorageImpl implements InvoiceStorage {
   @Override
   public void postInvoiceStorageInvoicesDocumentsById(String id, String lang, Document entity, Map<String, String> okapiHeaders,
       Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
-    vertxContext.runOnContext((Void v) ->
+    vertxContext.runOnContext((Void v) ->{
+      if (!StringUtils.equals(entity.getInvoiceId(), id)) {
+        asyncResultHandler.handle(Future.succeededFuture(PostInvoiceStorageInvoicesDocumentsByIdResponse.respond500WithTextPlain(INVOICE_ID_MISMATCH_ERROR_MESSAGE)));
+        return;
+      }
+
       pgClient.getClient().getConnection(sqlConnection -> {
         try {
           String tenantId = TenantTool.calculateTenantId(okapiHeaders.get(RestVerticle.OKAPI_HEADER_TENANT));
@@ -230,7 +235,7 @@ public class InvoiceStorageImpl implements InvoiceStorage {
           log.error(e.getMessage(), e);
           asyncResultHandler.handle(Future.succeededFuture(PostInvoiceStorageInvoicesDocumentsByIdResponse.respond500WithTextPlain(e.getCause().getMessage())));
         }
-      })
+      });}
     );
   }
 
