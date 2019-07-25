@@ -1,5 +1,6 @@
 {
   "id": "733cafd3-895f-4e33-87b7-bf40dc3c8069",
+  "accountingCode": "1234",
   "adjustments": [
   ],
   "currency": "USD",
@@ -10,7 +11,7 @@
   "paymentTerms": "Payment in Advance",
   "paymentMethod": "EFT",
   "status": "Approved",
-  "source": "024b6f41-c5c6-4280-858e-33fba452a334",
+  "source": "User",
   "vendorInvoiceNo": "YK75851",
   "voucherNumber": "478",
   "poNumbers": [
