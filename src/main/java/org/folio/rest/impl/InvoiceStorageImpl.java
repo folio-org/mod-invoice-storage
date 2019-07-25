@@ -4,6 +4,7 @@ import static io.vertx.core.Future.succeededFuture;
 import static org.folio.rest.persist.HelperUtils.getEntitiesCollection;
 import static org.folio.rest.persist.HelperUtils.SequenceQuery.CREATE_SEQUENCE;
 import static org.folio.rest.persist.HelperUtils.SequenceQuery.DROP_SEQUENCE;
+import static org.folio.rest.persist.PostgresClient.pojo2json;
 
 import java.util.List;
 import java.util.Map;
@@ -12,6 +13,7 @@ import java.util.UUID;
 import javax.ws.rs.core.Response;
 
 import org.apache.commons.lang3.StringUtils;
+import org.folio.rest.RestVerticle;
 import org.folio.rest.annotations.Validate;
 import org.folio.rest.jaxrs.model.Document;
 import org.folio.rest.jaxrs.model.DocumentCollection;
@@ -27,12 +29,14 @@ import org.folio.rest.persist.PostgresClient;
 import org.folio.rest.persist.QueryHolder;
 import org.folio.rest.persist.Criteria.Criteria;
 import org.folio.rest.persist.Criteria.Criterion;
+import org.folio.rest.tools.utils.TenantTool;
 
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Context;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 import io.vertx.ext.sql.SQLConnection;
@@ -46,9 +50,9 @@ public class InvoiceStorageImpl implements InvoiceStorage {
   public static final String INVOICE_TABLE = "invoices";
   private static final String INVOICE_LINE_TABLE = "invoice_lines";
   private static final String DOCUMENT_TABLE = "documents";
-  private static final String DOCUMENT_METADATA_FIELD_NAME = "documentMetadata";
   private static final String INVOICE_ID_FIELD_NAME = "invoiceId";
   private static final String INVOICE_ID_MISMATCH_ERROR_MESSAGE = "Invoice id mismatch";
+  private static final String DOCUMENT_LOCATION = "/invoice-storage/invoices/%s/documents/%s";
 
   private PostgresClient pgClient;
 
@@ -173,8 +177,7 @@ public class InvoiceStorageImpl implements InvoiceStorage {
     log.info("Get document list by invoice id");
     vertxContext.runOnContext((Void v) -> {
       try {
-        Criterion criterion = getDocumentsByInvoiceIdCriterion(id);
-
+        Criterion criterion = getCriterionByFieldNameAndValue(INVOICE_ID_FIELD_NAME, id);
         pgClient.get(DOCUMENT_TABLE, Document.class, criterion, false, reply -> {
           try {
             if (reply.succeeded()) {
@@ -182,17 +185,13 @@ public class InvoiceStorageImpl implements InvoiceStorage {
               List<Document> results = reply.result().getResults();
               collection.setDocuments(results);
 
-              Integer totalRecords = reply.result().getResultInfo().getTotalRecords();
+              Integer totalRecords = reply.result().getResults().size();
               collection.setTotalRecords(totalRecords);
-
-              //remove base64 content from response
-              collection.getDocuments().forEach(document -> document.setContents(null));
 
               asyncResultHandler.handle(Future.succeededFuture(GetInvoiceStorageInvoicesDocumentsByIdResponse.respond200WithApplicationJson(collection)));
             } else {
               log.error(reply.cause().getMessage(), reply.cause());
-              asyncResultHandler
-                .handle(Future.succeededFuture(GetInvoiceStorageInvoicesDocumentsByIdResponse.respond400WithTextPlain(reply.cause().getMessage())));
+              asyncResultHandler.handle(Future.succeededFuture(GetInvoiceStorageInvoicesDocumentsByIdResponse.respond400WithTextPlain(reply.cause().getMessage())));
             }
           } catch (Exception e) {
             log.error(e.getMessage(), e);
@@ -210,18 +209,73 @@ public class InvoiceStorageImpl implements InvoiceStorage {
   @Override
   public void postInvoiceStorageInvoicesDocumentsById(String id, String lang, Document entity, Map<String, String> okapiHeaders,
       Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
-    if (StringUtils.equals(entity.getDocumentMetadata().getInvoiceId(), id) ) {
-      PgUtil.post(DOCUMENT_TABLE, entity, okapiHeaders, vertxContext, PostInvoiceStorageInvoicesDocumentsByIdResponse.class, asyncResultHandler);
-    } else {
-      asyncResultHandler.handle(io.vertx.core.Future.succeededFuture(PostInvoiceStorageInvoicesDocumentsByIdResponse.respond400WithTextPlain(INVOICE_ID_MISMATCH_ERROR_MESSAGE)));
-    }
+    vertxContext.runOnContext((Void v) -> {
+      pgClient.getClient().getConnection(sqlConnection -> {
+        try {
+          if (sqlConnection.failed()) {
+            asyncResultHandler.handle(Future.succeededFuture(PostInvoiceStorageInvoicesDocumentsByIdResponse.respond500WithTextPlain(sqlConnection.cause().getMessage())));
+            return;
+          }
+          String tenantId = TenantTool.calculateTenantId(okapiHeaders.get(RestVerticle.OKAPI_HEADER_TENANT));
+          String fullTableName = PostgresClient.convertToPsqlStandard(tenantId) + "." + DOCUMENT_TABLE;
+
+          boolean base64Exists = entity.getContents() != null && StringUtils.isNotEmpty(entity.getContents().getData());
+          String sql = "INSERT INTO " + fullTableName + " (id, " + (base64Exists ? "document_data," : "") + " jsonb) VALUES (?," + (base64Exists ? "?," : "") + " ?::JSON) RETURNING id";
+          JsonArray jsonArray = prepareDocumentQueryParams(entity);
+
+          sqlConnection.result().queryWithParams(sql, jsonArray, query -> {
+            if (query.failed()) {
+              asyncResultHandler.handle(Future.succeededFuture(PostInvoiceStorageInvoicesDocumentsByIdResponse.respond500WithTextPlain(query.cause().getMessage())));
+            } else {
+              entity.setId(query.result().getResults().get(0).getList().get(0).toString());
+              asyncResultHandler.handle(Future.succeededFuture(PostInvoiceStorageInvoicesDocumentsByIdResponse
+                .respond201WithApplicationJson(entity, PostInvoiceStorageInvoicesDocumentsByIdResponse.headersFor201()
+                  .withLocation(String.format(DOCUMENT_LOCATION, id, entity.getId())))));
+            }
+          });
+        } catch (Exception e) {
+          log.error(e.getMessage(), e);
+          asyncResultHandler.handle(Future.succeededFuture(PostInvoiceStorageInvoicesDocumentsByIdResponse.respond500WithTextPlain(e.getCause().getMessage())));
+        }
+      });
+    });
   }
 
   @Validate
   @Override
   public void getInvoiceStorageInvoicesDocumentsByIdAndDocumentId(String id, String documentId, String lang,
       Map<String, String> okapiHeaders, Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
-    PgUtil.getById(DOCUMENT_TABLE, Document.class, documentId, okapiHeaders, vertxContext, GetInvoiceStorageInvoicesDocumentsByIdAndDocumentIdResponse.class, asyncResultHandler);
+    vertxContext.runOnContext((Void v) -> {
+      try {
+        Criterion criterion = getCriterionByFieldNameAndValue("id", documentId);
+        pgClient.get(DOCUMENT_TABLE, Document.class, criterion, false, reply -> {
+          try {
+            if (reply.succeeded()) {
+              if (reply.result().getResults().isEmpty()){
+                asyncResultHandler.handle(Future.succeededFuture(GetInvoiceStorageInvoicesDocumentsByIdAndDocumentIdResponse.respond404WithTextPlain(Response.Status.NOT_FOUND.getReasonPhrase())));
+                return;
+              }
+
+              Document document = reply.result().getResults().get(0);
+              if (!StringUtils.equals(document.getInvoiceId(), id)) {
+                asyncResultHandler.handle(Future.succeededFuture(GetInvoiceStorageInvoicesDocumentsByIdAndDocumentIdResponse.respond500WithTextPlain(INVOICE_ID_MISMATCH_ERROR_MESSAGE)));
+              }
+
+              asyncResultHandler.handle(Future.succeededFuture(GetInvoiceStorageInvoicesDocumentsByIdAndDocumentIdResponse.respond200WithApplicationJson(document)));
+            } else {
+              log.error(reply.cause().getMessage(), reply.cause());
+              asyncResultHandler.handle(Future.succeededFuture(GetInvoiceStorageInvoicesDocumentsByIdAndDocumentIdResponse.respond500WithTextPlain(reply.cause().getMessage())));
+            }
+          } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            asyncResultHandler.handle(Future.succeededFuture(GetInvoiceStorageInvoicesDocumentsByIdAndDocumentIdResponse.respond500WithTextPlain(Response.Status.INTERNAL_SERVER_ERROR.getReasonPhrase())));
+          }
+        });
+      } catch (Exception e) {
+        log.error(e.getMessage(), e);
+        asyncResultHandler.handle(Future.succeededFuture(GetInvoiceStorageInvoicesDocumentsByIdAndDocumentIdResponse.respond500WithTextPlain(Response.Status.INTERNAL_SERVER_ERROR.getReasonPhrase())));
+      }
+    });
   }
 
   @Validate
@@ -475,12 +529,18 @@ public class InvoiceStorageImpl implements InvoiceStorage {
     return new Criterion(a);
   }
 
-  private Criterion getDocumentsByInvoiceIdCriterion(String id) {
-    Criteria a = new Criteria();
-    a.addField("'" + DOCUMENT_METADATA_FIELD_NAME + "'");
-    a.addField("'" + INVOICE_ID_FIELD_NAME + "'");
-    a.setOperation("=");
-    a.setVal(id);
-    return new Criterion(a);
+  private JsonArray prepareDocumentQueryParams(Document entity) throws Exception {
+    JsonArray queryParams = new JsonArray();
+
+    queryParams.add(entity.getId() == null ? UUID.randomUUID().toString() : entity.getId());
+
+    if (entity.getContents() != null && StringUtils.isNotEmpty(entity.getContents().getData())){
+      queryParams.add(entity.getContents().getData());
+    }
+
+    entity.setContents(null);
+    queryParams.add(pojo2json(entity));
+
+    return queryParams;
   }
 }

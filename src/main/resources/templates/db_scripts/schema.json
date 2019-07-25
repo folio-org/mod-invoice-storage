@@ -94,10 +94,11 @@
       "withMetadata": true,
       "foreignKeys": [
         {
-          "fieldName": "documentMetadata.invoiceId",
+          "fieldName": "invoiceId",
           "targetTable": "invoices"
         }
-      ]
+      ],
+      "customSnippetPath" : "document_table.sql"
     }
   ]
 }

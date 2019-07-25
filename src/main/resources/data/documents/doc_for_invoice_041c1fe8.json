@@ -1,12 +1,6 @@
 {
   "id": "c3dd51d7-95fa-44fc-87fb-f843befb2b9a",
-  "documentMetadata": {
-    "name": "sample.pdf",
-    "invoiceId": "041c1fe8-adfa-44eb-b6b3-f85acdd71f81",
-    "url": "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
-    "metadata": {
-      "createdDate": "2018-07-19T00:00:00.000+0000",
-      "createdByUserId": "28d1057c-d137-11e8-a8d5-f2801f1b9fd1"
-    }
-  }
+  "name": "sample.pdf",
+  "invoiceId": "041c1fe8-adfa-44eb-b6b3-f85acdd71f81",
+  "url": "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
 }

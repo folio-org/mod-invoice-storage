@@ -2,18 +2,17 @@ package org.folio.rest.impl;
 
 import static org.folio.rest.utils.TestEntities.INVOICE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.net.MalformedURLException;
 
 import org.folio.rest.jaxrs.model.Document;
 import org.folio.rest.jaxrs.model.DocumentCollection;
-import org.junit.jupiter.api.Test;
 
-import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
+import org.junit.jupiter.api.Test;
 
 public class DocumentTest extends TestBase {
   private static final String SAMPLE_INVOICE_FILE = "data/invoices/12345_paid.json";
@@ -36,20 +35,14 @@ public class DocumentTest extends TestBase {
       postData(INVOICE.getEndpoint(), invoiceSample).then().statusCode(201);
 
       String sampleDocument = getFile(SAMPLE_DOCUMENT_FILE);
-      Document documentResponse = postData(DOCUMENT_ENDPOINT, sampleDocument).then()
+      postData(DOCUMENT_ENDPOINT, sampleDocument).then()
         .statusCode(201)
         .extract()
         .response()
         .as(Document.class);
 
       logger.info("--- mod-invoice-storage Document test: Try to create document with mismatched id");
-      postData(DOCUMENT_ENDPOINT, getFile(SAMPLE_DOCUMENT_FILE_2)).then().statusCode(400);
-
-      logger.info("--- mod-invoice-storage  test: Valid fields exists ... ");
-      JsonObject sampleJson = JsonObject.mapFrom(new JsonObject(sampleDocument).mapTo(Document.class));
-
-      JsonObject responseJson = JsonObject.mapFrom(documentResponse);
-      testAllFieldsExists(responseJson, sampleJson);
+      postData(DOCUMENT_ENDPOINT, getFile(SAMPLE_DOCUMENT_FILE_2)).then().statusCode(500);
 
       logger.info(String.format("--- mod-invoice-storage  test: Fetching with ID: %s", INVOICE_ID));
       Document createdDocument = getDataById(DOCUMENT_ENDPOINT_WITH_ID, DOCUMENT_ID).then()
@@ -58,7 +51,7 @@ public class DocumentTest extends TestBase {
         .extract()
         .body().as(Document.class);
 
-      assertEquals(INVOICE_ID, createdDocument.getDocumentMetadata().getInvoiceId());
+      assertEquals(INVOICE_ID, createdDocument.getInvoiceId());
 
       DocumentCollection documents = getData(DOCUMENT_ENDPOINT)
         .then()
