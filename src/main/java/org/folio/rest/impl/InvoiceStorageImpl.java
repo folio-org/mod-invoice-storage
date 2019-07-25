@@ -180,19 +180,16 @@ public class InvoiceStorageImpl implements InvoiceStorage {
         Criterion criterion = getCriterionByFieldNameAndValue(INVOICE_ID_FIELD_NAME, id);
         pgClient.get(DOCUMENT_TABLE, Document.class, criterion, false, reply -> {
           try {
-            if (reply.succeeded()) {
-              DocumentCollection collection = new DocumentCollection();
-              List<Document> results = reply.result().getResults();
-              collection.setDocuments(results);
+            List<Document> results = reply.result().getResults();
 
-              Integer totalRecords = reply.result().getResults().size();
-              collection.setTotalRecords(totalRecords);
+            DocumentCollection collection = new DocumentCollection();
+            collection.setDocuments(results);
 
-              asyncResultHandler.handle(Future.succeededFuture(GetInvoiceStorageInvoicesDocumentsByIdResponse.respond200WithApplicationJson(collection)));
-            } else {
-              log.error(reply.cause().getMessage(), reply.cause());
-              asyncResultHandler.handle(Future.succeededFuture(GetInvoiceStorageInvoicesDocumentsByIdResponse.respond400WithTextPlain(reply.cause().getMessage())));
-            }
+            Integer totalRecords = reply.result().getResults().size();
+            collection.setTotalRecords(totalRecords);
+
+            asyncResultHandler.handle(Future.succeededFuture(GetInvoiceStorageInvoicesDocumentsByIdResponse.respond200WithApplicationJson(collection)));
+
           } catch (Exception e) {
             log.error(e.getMessage(), e);
             asyncResultHandler.handle(Future.succeededFuture(GetInvoiceStorageInvoicesDocumentsByIdResponse.respond500WithTextPlain(Response.Status.INTERNAL_SERVER_ERROR.getReasonPhrase())));
@@ -209,13 +206,9 @@ public class InvoiceStorageImpl implements InvoiceStorage {
   @Override
   public void postInvoiceStorageInvoicesDocumentsById(String id, String lang, Document entity, Map<String, String> okapiHeaders,
       Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
-    vertxContext.runOnContext((Void v) -> {
+    vertxContext.runOnContext((Void v) ->
       pgClient.getClient().getConnection(sqlConnection -> {
         try {
-          if (sqlConnection.failed()) {
-            asyncResultHandler.handle(Future.succeededFuture(PostInvoiceStorageInvoicesDocumentsByIdResponse.respond500WithTextPlain(sqlConnection.cause().getMessage())));
-            return;
-          }
           String tenantId = TenantTool.calculateTenantId(okapiHeaders.get(RestVerticle.OKAPI_HEADER_TENANT));
           String fullTableName = PostgresClient.convertToPsqlStandard(tenantId) + "." + DOCUMENT_TABLE;
 
@@ -237,8 +230,8 @@ public class InvoiceStorageImpl implements InvoiceStorage {
           log.error(e.getMessage(), e);
           asyncResultHandler.handle(Future.succeededFuture(PostInvoiceStorageInvoicesDocumentsByIdResponse.respond500WithTextPlain(e.getCause().getMessage())));
         }
-      });
-    });
+      })
+    );
   }
 
   @Validate
