@@ -1,1 +1,1 @@
-ALTER TABLE ${myuniversity}_${mymodule}.DOCUMENTS ADD COLUMN document_data text;
+ALTER TABLE ${myuniversity}_${mymodule}.DOCUMENTS ADD COLUMN IF NOT EXISTS document_data text;
