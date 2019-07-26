@@ -194,7 +194,7 @@ public class InvoiceStorageImpl implements InvoiceStorage {
             } else {
               log.error(reply.cause().getMessage(), reply.cause());
               asyncResultHandler
-                .handle(Future.succeededFuture(GetInvoiceStorageInvoicesDocumentsByIdResponse.respond400WithTextPlain(reply.cause().getMessage())));
+                .handle(Future.succeededFuture(GetInvoiceStorageInvoicesDocumentsByIdResponse.respond500WithTextPlain(reply.cause().getMessage())));
             }
           } catch (Exception e) {
             log.error(e.getMessage(), e);
@@ -214,16 +214,12 @@ public class InvoiceStorageImpl implements InvoiceStorage {
       Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
     vertxContext.runOnContext((Void v) ->{
       if (!StringUtils.equals(entity.getInvoiceId(), id)) {
-        asyncResultHandler.handle(Future.succeededFuture(PostInvoiceStorageInvoicesDocumentsByIdResponse.respond500WithTextPlain(INVOICE_ID_MISMATCH_ERROR_MESSAGE)));
+        asyncResultHandler.handle(Future.succeededFuture(PostInvoiceStorageInvoicesDocumentsByIdResponse.respond400WithTextPlain(INVOICE_ID_MISMATCH_ERROR_MESSAGE)));
         return;
       }
 
       pgClient.getClient().getConnection(sqlConnection -> {
         try {
-          if (sqlConnection.failed()) {
-            asyncResultHandler.handle(Future.succeededFuture(PostInvoiceStorageInvoicesDocumentsByIdResponse.respond500WithTextPlain(sqlConnection.cause().getMessage())));
-            return;
-          }
           String tenantId = TenantTool.calculateTenantId(okapiHeaders.get(RestVerticle.OKAPI_HEADER_TENANT));
           String fullTableName = PostgresClient.convertToPsqlStandard(tenantId) + "." + DOCUMENT_TABLE;
 
