@@ -42,7 +42,7 @@ public class DocumentTest extends TestBase {
         .as(Document.class);
 
       logger.info("--- mod-invoice-storage Document test: Try to create document with mismatched id");
-      postData(DOCUMENT_ENDPOINT, getFile(SAMPLE_DOCUMENT_FILE_2)).then().statusCode(500);
+      postData(DOCUMENT_ENDPOINT, getFile(SAMPLE_DOCUMENT_FILE_2)).then().statusCode(400);
 
       logger.info(String.format("--- mod-invoice-storage  test: Fetching with ID: %s", INVOICE_ID));
       Document createdDocument = getDataById(DOCUMENT_ENDPOINT_WITH_ID, DOCUMENT_ID).then()
