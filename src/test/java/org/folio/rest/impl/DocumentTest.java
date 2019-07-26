@@ -3,6 +3,7 @@ package org.folio.rest.impl;
 import static org.folio.rest.utils.TestEntities.INVOICE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.net.MalformedURLException;
@@ -52,6 +53,7 @@ public class DocumentTest extends TestBase {
         .body().as(Document.class);
 
       assertEquals(INVOICE_ID, createdDocument.getInvoiceId());
+      assertNotNull(createdDocument.getContents().getData());
 
       DocumentCollection documents = getData(DOCUMENT_ENDPOINT)
         .then()

@@ -12,9 +12,11 @@ import java.util.UUID;
 
 import javax.ws.rs.core.Response;
 
+import io.vertx.core.json.JsonObject;
 import org.apache.commons.lang3.StringUtils;
 import org.folio.rest.RestVerticle;
 import org.folio.rest.annotations.Validate;
+import org.folio.rest.jaxrs.model.Contents;
 import org.folio.rest.jaxrs.model.Document;
 import org.folio.rest.jaxrs.model.DocumentCollection;
 import org.folio.rest.jaxrs.model.Invoice;
@@ -248,19 +250,21 @@ public class InvoiceStorageImpl implements InvoiceStorage {
   @Validate
   @Override
   public void getInvoiceStorageInvoicesDocumentsByIdAndDocumentId(String id, String documentId, String lang,
-      Map<String, String> okapiHeaders, Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
+    Map<String, String> okapiHeaders, Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
     vertxContext.runOnContext((Void v) -> {
       try {
-        Criterion criterion = getCriterionByFieldNameAndValue("id", documentId);
-        pgClient.get(DOCUMENT_TABLE, Document.class, criterion, false, reply -> {
+        String query ="SELECT jsonb, document_data FROM " + DOCUMENT_TABLE + " WHERE id ='"+ documentId + "'";
+        pgClient.select(query, reply -> {
           try {
             if (reply.succeeded()) {
               if (reply.result().getResults().isEmpty()){
                 asyncResultHandler.handle(Future.succeededFuture(GetInvoiceStorageInvoicesDocumentsByIdAndDocumentIdResponse.respond404WithTextPlain(Response.Status.NOT_FOUND.getReasonPhrase())));
-                return;
               }
+              List tableFields = reply.result().getResults().get(0).getList();
+              Document document = (new JsonObject((String)tableFields.get(0))).mapTo(Document.class);
+              String base64 = (String) tableFields.get(1);
+              document.setContents(new Contents().withData(base64));
 
-              Document document = reply.result().getResults().get(0);
               if (!StringUtils.equals(document.getInvoiceId(), id)) {
                 asyncResultHandler.handle(Future.succeededFuture(GetInvoiceStorageInvoicesDocumentsByIdAndDocumentIdResponse.respond500WithTextPlain(INVOICE_ID_MISMATCH_ERROR_MESSAGE)));
               }
