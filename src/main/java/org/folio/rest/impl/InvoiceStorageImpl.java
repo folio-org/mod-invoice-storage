@@ -180,16 +180,22 @@ public class InvoiceStorageImpl implements InvoiceStorage {
         Criterion criterion = getCriterionByFieldNameAndValue(INVOICE_ID_FIELD_NAME, id);
         pgClient.get(DOCUMENT_TABLE, Document.class, criterion, false, reply -> {
           try {
-            List<Document> results = reply.result().getResults();
+            if (reply.succeeded()) {
 
-            DocumentCollection collection = new DocumentCollection();
-            collection.setDocuments(results);
+              List<Document> results = reply.result().getResults();
 
-            Integer totalRecords = reply.result().getResults().size();
-            collection.setTotalRecords(totalRecords);
+              DocumentCollection collection = new DocumentCollection();
+              collection.setDocuments(results);
 
-            asyncResultHandler.handle(Future.succeededFuture(GetInvoiceStorageInvoicesDocumentsByIdResponse.respond200WithApplicationJson(collection)));
+              Integer totalRecords = reply.result().getResults().size();
+              collection.setTotalRecords(totalRecords);
 
+              asyncResultHandler.handle(Future.succeededFuture(GetInvoiceStorageInvoicesDocumentsByIdResponse.respond200WithApplicationJson(collection)));
+            } else {
+              log.error(reply.cause().getMessage(), reply.cause());
+              asyncResultHandler
+                .handle(Future.succeededFuture(GetInvoiceStorageInvoicesDocumentsByIdResponse.respond400WithTextPlain(reply.cause().getMessage())));
+            }
           } catch (Exception e) {
             log.error(e.getMessage(), e);
             asyncResultHandler.handle(Future.succeededFuture(GetInvoiceStorageInvoicesDocumentsByIdResponse.respond500WithTextPlain(Response.Status.INTERNAL_SERVER_ERROR.getReasonPhrase())));
@@ -214,6 +220,10 @@ public class InvoiceStorageImpl implements InvoiceStorage {
 
       pgClient.getClient().getConnection(sqlConnection -> {
         try {
+          if (sqlConnection.failed()) {
+            asyncResultHandler.handle(Future.succeededFuture(PostInvoiceStorageInvoicesDocumentsByIdResponse.respond500WithTextPlain(sqlConnection.cause().getMessage())));
+            return;
+          }
           String tenantId = TenantTool.calculateTenantId(okapiHeaders.get(RestVerticle.OKAPI_HEADER_TENANT));
           String fullTableName = PostgresClient.convertToPsqlStandard(tenantId) + "." + DOCUMENT_TABLE;
 

@@ -124,4 +124,6 @@ public class StorageTestSuite {
   class VoucherNumberTestNested extends VoucherNumberTest {}
   @Nested
   class DocumentTestNested extends DocumentTest {}
+  @Nested
+  class HelperUtilsTestNested extends HelperUtilsTest{}
 }
