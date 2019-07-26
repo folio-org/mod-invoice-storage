@@ -1,6 +1,7 @@
 package org.folio.rest.impl;
 
-import static org.folio.rest.persist.HelperUtils.getEntitiesCollection;
+import static org.folio.rest.persist.HelperUtils.ID_FIELD_NAME;
+import static org.folio.rest.persist.HelperUtils.getEntitiesCollectionWithDistinctOn;
 
 import java.util.Map;
 
@@ -22,17 +23,28 @@ import io.vertx.core.Handler;
 
 public class VoucherStorageImpl implements VoucherStorage {
 
+  public static final String ACQUISITIONS_UNIT_ASSIGNMENTS = "acquisitionsUnitAssignments.";
   public static final String VOUCHER_TABLE = "vouchers";
   public static final String VOUCHER_LINE_TABLE = "voucher_lines";
+  public static final String VOUCHERS_VIEW = "vouchers_view";
+  private static final String VOUCHER_LINES_VIEW = "voucher_lines_view";
 
   @Validate
   @Override
   public void getVoucherStorageVouchers(int offset, int limit, String query, String lang, Map<String, String> okapiHeaders,
       Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
-    EntitiesMetadataHolder<Voucher, VoucherCollection> entitiesMetadataHolder = new EntitiesMetadataHolder<>(Voucher.class,
-        VoucherCollection.class, GetVoucherStorageVouchersResponse.class);
-    QueryHolder cql = new QueryHolder(VOUCHER_TABLE, query, offset, limit, lang);
-    getEntitiesCollection(entitiesMetadataHolder, cql, asyncResultHandler, vertxContext, okapiHeaders);
+    String tableName = getTableName(query, VOUCHER_TABLE, VOUCHERS_VIEW);
+    EntitiesMetadataHolder<Voucher, VoucherCollection> entitiesMetadataHolder = new EntitiesMetadataHolder<>(
+      Voucher.class, VoucherCollection.class, GetVoucherStorageVouchersResponse.class);
+    QueryHolder cql = new QueryHolder(tableName, query, offset, limit, lang);
+    getEntitiesCollectionWithDistinctOn(entitiesMetadataHolder, cql, ID_FIELD_NAME, asyncResultHandler, vertxContext, okapiHeaders);
+  }
+
+  private String getTableName(String cql, String table, String view) {
+    if(cql != null && cql.contains(ACQUISITIONS_UNIT_ASSIGNMENTS)){
+      return view;
+    }
+    return table;
   }
 
   @Validate
@@ -71,10 +83,11 @@ public class VoucherStorageImpl implements VoucherStorage {
   public void getVoucherStorageVoucherLines(int offset, int limit, String query, String lang, Map<String, String> okapiHeaders,
       Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
     vertxContext.runOnContext((Void v) -> {
+      String tableName = getTableName(query, VOUCHER_LINE_TABLE, VOUCHER_LINES_VIEW);
       EntitiesMetadataHolder<VoucherLine, VoucherLineCollection> entitiesMetadataHolder = new EntitiesMetadataHolder<>(
           VoucherLine.class, VoucherLineCollection.class, GetVoucherStorageVoucherLinesResponse.class);
-      QueryHolder cql = new QueryHolder(VOUCHER_LINE_TABLE, query, offset, limit, lang);
-      getEntitiesCollection(entitiesMetadataHolder, cql, asyncResultHandler, vertxContext, okapiHeaders);
+      QueryHolder cql = new QueryHolder(tableName, query, offset, limit, lang);
+      getEntitiesCollectionWithDistinctOn(entitiesMetadataHolder, cql, ID_FIELD_NAME, asyncResultHandler, vertxContext, okapiHeaders);
     });
   }
 

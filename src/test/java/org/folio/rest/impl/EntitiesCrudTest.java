@@ -27,15 +27,15 @@ class EntitiesCrudTest extends TestBase {
       TestEntities.VOUCHER_ACQUISITIONS_UNIT_ASSIGNMENTS,
       TestEntities.ACQUISITIONS_UNIT_ASSIGNMENTS,
       TestEntities.VOUCHER_LINES,
-      TestEntities.VOUCHER,
+      TestEntities.VOUCHERS,
       TestEntities.INVOICE_LINES,
-      TestEntities.INVOICE);
+      TestEntities.INVOICES);
   }
 
   static Stream<TestEntities> deleteFailOrder() {
     return Stream.of(
-      TestEntities.VOUCHER,
-      TestEntities.INVOICE);
+      TestEntities.VOUCHERS,
+      TestEntities.INVOICES);
   }
 
   static Stream<TestEntities> createFailOrder() {
@@ -43,7 +43,7 @@ class EntitiesCrudTest extends TestBase {
       TestEntities.VOUCHER_ACQUISITIONS_UNIT_ASSIGNMENTS,
       TestEntities.ACQUISITIONS_UNIT_ASSIGNMENTS,
       TestEntities.VOUCHER_LINES,
-      TestEntities.VOUCHER,
+      TestEntities.VOUCHERS,
       TestEntities.INVOICE_LINES);
   }
 

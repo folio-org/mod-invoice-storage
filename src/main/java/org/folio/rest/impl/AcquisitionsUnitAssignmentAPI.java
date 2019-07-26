@@ -1,7 +1,5 @@
 package org.folio.rest.impl;
 
-import static org.folio.rest.persist.HelperUtils.getEntitiesCollection;
-
 import java.util.Map;
 
 import javax.ws.rs.core.Response;
@@ -11,9 +9,7 @@ import org.folio.rest.jaxrs.model.AcquisitionsUnitAssignment;
 import org.folio.rest.jaxrs.model.AcquisitionsUnitAssignmentCollection;
 import org.folio.rest.jaxrs.resource.InvoiceStorageAcquisitionsUnitAssignments;
 import org.folio.rest.jaxrs.resource.VoucherStorageAcquisitionsUnitAssignments;
-import org.folio.rest.persist.EntitiesMetadataHolder;
 import org.folio.rest.persist.PgUtil;
-import org.folio.rest.persist.QueryHolder;
 
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Context;
@@ -35,12 +31,8 @@ public class AcquisitionsUnitAssignmentAPI implements InvoiceStorageAcquisitions
   @Validate
   public void getInvoiceStorageAcquisitionsUnitAssignments(String query, int offset, int limit, String lang,
       Map<String, String> okapiHeaders, Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
-    vertxContext.runOnContext((Void v) -> {
-      EntitiesMetadataHolder<AcquisitionsUnitAssignment, AcquisitionsUnitAssignmentCollection> entitiesMetadataHolder = new EntitiesMetadataHolder<>(
-          AcquisitionsUnitAssignment.class, AcquisitionsUnitAssignmentCollection.class, GetInvoiceStorageAcquisitionsUnitAssignmentsResponse.class);
-      QueryHolder cql = new QueryHolder(ACQUISITIONS_UNIT_ASSIGNMENTS_TABLE, query, offset, limit, lang);
-      getEntitiesCollection(entitiesMetadataHolder, cql, asyncResultHandler, vertxContext, okapiHeaders);
-    });
+    PgUtil.get(ACQUISITIONS_UNIT_ASSIGNMENTS_TABLE, AcquisitionsUnitAssignment.class, AcquisitionsUnitAssignmentCollection.class,
+      query, offset, limit, okapiHeaders, vertxContext, GetInvoiceStorageAcquisitionsUnitAssignmentsResponse.class, asyncResultHandler);
   }
 
   @Override
@@ -75,12 +67,8 @@ public class AcquisitionsUnitAssignmentAPI implements InvoiceStorageAcquisitions
   @Override
   public void getVoucherStorageAcquisitionsUnitAssignments(String query, int offset, int limit, String lang,
       Map<String, String> okapiHeaders, Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
-    vertxContext.runOnContext((Void v) -> {
-      EntitiesMetadataHolder<AcquisitionsUnitAssignment, AcquisitionsUnitAssignmentCollection> entitiesMetadataHolder = new EntitiesMetadataHolder<>(
-          AcquisitionsUnitAssignment.class, AcquisitionsUnitAssignmentCollection.class, GetVoucherStorageAcquisitionsUnitAssignmentsResponse.class);
-      QueryHolder cql = new QueryHolder(VOUCHER_ACQUISITIONS_UNIT_ASSIGNMENTS_TABLE, query, offset, limit, lang);
-      getEntitiesCollection(entitiesMetadataHolder, cql, asyncResultHandler, vertxContext, okapiHeaders);
-    });
+    PgUtil.get(VOUCHER_ACQUISITIONS_UNIT_ASSIGNMENTS_TABLE, AcquisitionsUnitAssignment.class, AcquisitionsUnitAssignmentCollection.class,
+      query, offset, limit, okapiHeaders, vertxContext, GetVoucherStorageAcquisitionsUnitAssignmentsResponse.class, asyncResultHandler);
   }
 
   @Validate

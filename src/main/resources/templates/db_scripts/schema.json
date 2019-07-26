@@ -88,5 +88,39 @@
         }
       ]
     }
+  ],
+  "views" : [
+    {
+      "viewName": "vouchers_view",
+      "join": [
+        {
+          "table": {
+            "tableName": "vouchers",
+            "joinOnField": "id"
+          },
+          "joinTable": {
+            "tableName": "voucher_acquisitions_unit_assignments",
+            "joinOnField": "recordId",
+            "jsonFieldAlias": "group_jsonb"
+          }
+        }
+      ]
+    },
+    {
+      "viewName": "voucher_lines_view",
+      "join": [
+        {
+          "table": {
+            "tableName": "voucher_lines",
+            "joinOnField": "voucherId"
+          },
+          "joinTable": {
+            "tableName": "voucher_acquisitions_unit_assignments",
+            "joinOnField": "recordId",
+            "jsonFieldAlias": "group_jsonb"
+          }
+        }
+      ]
+    }
   ]
 }

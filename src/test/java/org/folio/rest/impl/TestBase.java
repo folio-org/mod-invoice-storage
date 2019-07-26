@@ -3,7 +3,7 @@ package org.folio.rest.impl;
 import static io.restassured.RestAssured.given;
 import static org.folio.rest.RestVerticle.OKAPI_HEADER_TENANT;
 import static org.folio.rest.impl.StorageTestSuite.storageUrl;
-import static org.folio.rest.utils.TestEntities.INVOICE;
+import static org.folio.rest.utils.TestEntities.INVOICES;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertEquals;
 
@@ -84,11 +84,15 @@ public abstract class TestBase {
   }
 
   String createEntity(String endpoint, String entity) throws MalformedURLException {
-    return postData(endpoint, entity)
-      .then().log().ifValidationFails()
-        .statusCode(201)
-        .extract()
-          .path("id");
+    return createEntity(endpoint, entity, TENANT_HEADER);
+  }
+
+  String createEntity(String endpoint, String entity, Header tenant) throws MalformedURLException {
+    return postData(endpoint, entity, tenant)
+      .then().log().all()
+      .statusCode(201)
+      .extract()
+      .path("id");
   }
   
   @AfterClass
@@ -154,7 +158,7 @@ public abstract class TestBase {
       .header(TENANT_HEADER)
       .contentType(ContentType.JSON)
       .body(input)
-        .put(storageUrl(INVOICE.getEndpointWithId()));
+        .put(storageUrl(INVOICES.getEndpointWithId()));
   }
   
   void deleteDataSuccess(String endpoint, String id) throws MalformedURLException {

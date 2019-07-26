@@ -13,59 +13,79 @@ import io.vertx.core.Context;
 import io.vertx.core.Handler;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
+import org.folio.rest.persist.cql.CQLQueryValidationException;
+import org.folio.rest.persist.interfaces.Results;
 
 public class HelperUtils {
+
   private static final Logger log = LoggerFactory.getLogger(HelperUtils.class);
   
   private static final String IL_NUMBER_PREFIX = "ilNumber_";
   private static final String QUOTES_SYMBOL = "\"";
+  public static final String ID_FIELD_NAME = "id";
+
 
   private HelperUtils() {
     throw new UnsupportedOperationException("Cannot instantiate utility class.");
   }
 
-  public static <T, E> void getEntitiesCollection(EntitiesMetadataHolder<T, E> entitiesMetadataHolder, QueryHolder queryHolder, Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext, Map<String, String> okapiHeaders) {
-		String[] fieldList = { "*" };
-
-		final Method respond500;
-
-		try {
-			respond500 = entitiesMetadataHolder.getRespond500WithTextPlainMethod();
-		} catch (Exception e) {
-			log.error(e.getMessage(), e);
-			asyncResultHandler.handle(response(e.getMessage(), null, null));
-			return;
-		}
-
+  public static <T, E> void getEntitiesCollectionWithDistinctOn(EntitiesMetadataHolder<T, E> entitiesMetadataHolder, QueryHolder queryHolder, String sortField, Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext, Map<String, String> okapiHeaders) {
+    Method respond500 = getRespond500(entitiesMetadataHolder, asyncResultHandler);
+    Method respond400 = getRespond400(entitiesMetadataHolder, asyncResultHandler);
     try {
-      Method respond200 = entitiesMetadataHolder.getRespond200WithApplicationJson();
-      Method respond400 = entitiesMetadataHolder.getRespond400WithTextPlainMethod();
       PostgresClient postgresClient = PgUtil.postgresClient(vertxContext, okapiHeaders);
-      postgresClient.get(queryHolder.getTable(), entitiesMetadataHolder.getClazz(), fieldList, queryHolder.buildCQLQuery(), true, false, reply -> {
-        try {
-          if (reply.succeeded()) {
-            E collection = entitiesMetadataHolder.getCollectionClazz().newInstance();
-            List<T> results = reply.result().getResults();
-            Method setResults =  entitiesMetadataHolder.getSetResultsMethod();
-            Method setTotalRecordsMethod =  entitiesMetadataHolder.getSetTotalRecordsMethod();
-            setResults.invoke(collection, results);
-            Integer totalRecords = reply.result().getResultInfo().getTotalRecords();
-            setTotalRecordsMethod.invoke(collection, totalRecords);
-            asyncResultHandler.handle(response(collection, respond200, respond500));
-          } else {
-            asyncResultHandler.handle(response(reply.cause().getLocalizedMessage(), respond400, respond500));
-          }
-        } catch (Exception e) {
-          log.error(e.getMessage(), e);
-          asyncResultHandler.handle(response(e.getMessage(), respond500, respond500));
-        }
-      });
+      postgresClient.get(queryHolder.getTable(), entitiesMetadataHolder.getClazz(), QueryHolder.JSONB, queryHolder.buildCQLQuery().toString(), true, false, false, null, sortField,
+        reply -> processDbReply(entitiesMetadataHolder, asyncResultHandler, respond500, respond400, reply));
+    } catch (CQLQueryValidationException e) {
+      log.error(e.getMessage(), e);
+      asyncResultHandler.handle(response(e.getMessage(), respond400, respond500));
     } catch (Exception e) {
       log.error(e.getMessage(), e);
       asyncResultHandler.handle(response(e.getMessage(), respond500, respond500));
     }
   }
-  
+
+  private static Method getRespond500(EntitiesMetadataHolder entitiesMetadataHolder, Handler<AsyncResult<Response>> asyncResultHandler) {
+    try {
+      return entitiesMetadataHolder.getRespond500WithTextPlainMethod();
+    } catch (Exception e) {
+      log.error(e.getMessage(), e);
+      asyncResultHandler.handle(response(e.getMessage(), null, null));
+      return null;
+    }
+  }
+
+  private static Method getRespond400(EntitiesMetadataHolder entitiesMetadataHolder, Handler<AsyncResult<Response>> asyncResultHandler) {
+    try {
+      return entitiesMetadataHolder.getRespond400WithTextPlainMethod();
+    } catch (Exception e) {
+      log.error(e.getMessage(), e);
+      asyncResultHandler.handle(response(e.getMessage(), null, null));
+      return null;
+    }
+  }
+
+  private static <T, E> void processDbReply(EntitiesMetadataHolder<T, E> entitiesMetadataHolder, Handler<AsyncResult<Response>> asyncResultHandler, Method respond500, Method respond400, AsyncResult<Results<T>> reply) {
+    try {
+      Method respond200 = entitiesMetadataHolder.getRespond200WithApplicationJson();
+      if (reply.succeeded()) {
+        E collection = entitiesMetadataHolder.getCollectionClazz().newInstance();
+        List<T> results = reply.result().getResults();
+        Method setResults =  entitiesMetadataHolder.getSetResultsMethod();
+        Method setTotalRecordsMethod =  entitiesMetadataHolder.getSetTotalRecordsMethod();
+        setResults.invoke(collection, results);
+        Integer totalRecords = reply.result().getResultInfo().getTotalRecords();
+        setTotalRecordsMethod.invoke(collection, totalRecords);
+        asyncResultHandler.handle(response(collection, respond200, respond500));
+      } else {
+        asyncResultHandler.handle(response(reply.cause().getLocalizedMessage(), respond400, respond500));
+      }
+    } catch (Exception e) {
+      log.error(e.getMessage(), e);
+      asyncResultHandler.handle(response(e.getMessage(), respond500, respond500));
+    }
+  }
+
   public enum SequenceQuery {
 
     CREATE_SEQUENCE {
