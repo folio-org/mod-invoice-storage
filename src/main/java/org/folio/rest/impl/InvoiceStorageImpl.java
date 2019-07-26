@@ -265,10 +265,6 @@ public class InvoiceStorageImpl implements InvoiceStorage {
               String base64 = (String) tableFields.get(1);
               document.setContents(new Contents().withData(base64));
 
-              if (!StringUtils.equals(document.getInvoiceId(), id)) {
-                asyncResultHandler.handle(Future.succeededFuture(GetInvoiceStorageInvoicesDocumentsByIdAndDocumentIdResponse.respond500WithTextPlain(INVOICE_ID_MISMATCH_ERROR_MESSAGE)));
-              }
-
               asyncResultHandler.handle(Future.succeededFuture(GetInvoiceStorageInvoicesDocumentsByIdAndDocumentIdResponse.respond200WithApplicationJson(document)));
             } else {
               log.error(reply.cause().getMessage(), reply.cause());

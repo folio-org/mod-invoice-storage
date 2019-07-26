@@ -24,6 +24,7 @@ import mockit.MockUp;
 class HelperUtilsTest extends TestBase {
 
   private static final String DOCUMENTS_ENDPOINT = "/invoice-storage/invoices/6b8bc989-834d-4a14-945b-4c5442ae09af/documents";
+  private static final String DOCUMENT_ID = "433f8140-001e-4605-b5a8-f02793f3d2ec";
 
   private static RequestSpecification rs = given().header(TENANT_HEADER)
     .header(USER_ID_HEADER)
@@ -40,6 +41,19 @@ class HelperUtilsTest extends TestBase {
       }
     };
     get(storageUrl(DOCUMENTS_ENDPOINT)).statusCode(HttpStatus.HTTP_INTERNAL_SERVER_ERROR.toInt()).contentType(TEXT_PLAIN);
+  }
+
+  @Test
+  void getDocumentByIdPgClientRuntimeException() throws Exception {
+    new MockUp<PostgresClient>() {
+      @Mock
+      PostgresClient select(String query, Handler<AsyncResult<Results<Document>>> replyHandler) {
+        replyHandler.handle(Future.failedFuture(new RuntimeException()));
+        return null;
+      }
+    };
+
+    get(storageUrl(DOCUMENTS_ENDPOINT + "/" + DOCUMENT_ID)).statusCode(HttpStatus.HTTP_INTERNAL_SERVER_ERROR.toInt()).contentType(TEXT_PLAIN);
   }
 
   private ValidatableResponse get(URL endpoint) {
