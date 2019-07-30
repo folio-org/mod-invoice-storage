@@ -2,20 +2,20 @@ package org.folio.rest.impl;
 
 import static org.folio.rest.utils.TestEntities.INVOICE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.net.MalformedURLException;
 
-import org.folio.rest.jaxrs.model.Document;
 import org.folio.rest.jaxrs.model.DocumentCollection;
+import org.folio.rest.jaxrs.model.InvoiceDocument;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
-import org.junit.jupiter.api.Test;
 
-public class DocumentTest extends TestBase {
+class DocumentTest extends TestBase {
   private static final String SAMPLE_INVOICE_FILE = "data/invoices/12345_paid.json";
   private static final String SAMPLE_DOCUMENT_FILE = "data/documents/doc_for_invoice_6b8bc989.json";
   private static final String SAMPLE_DOCUMENT_FILE_2 = "data/documents/doc_for_invoice_07bb89be.json";
@@ -27,7 +27,7 @@ public class DocumentTest extends TestBase {
   private final Logger logger = LoggerFactory.getLogger(DocumentTest.class);
 
   @Test
-  public void testDocumentsCrud() throws MalformedURLException {
+  void testDocumentsCrud() throws MalformedURLException {
     try {
       logger.info("--- mod-invoice-storage Document test:");
 
@@ -40,19 +40,19 @@ public class DocumentTest extends TestBase {
         .statusCode(201)
         .extract()
         .response()
-        .as(Document.class);
+        .as(InvoiceDocument.class);
 
       logger.info("--- mod-invoice-storage Document test: Try to create document with mismatched id");
       postData(DOCUMENT_ENDPOINT, getFile(SAMPLE_DOCUMENT_FILE_2)).then().statusCode(400);
 
       logger.info(String.format("--- mod-invoice-storage  test: Fetching with ID: %s", INVOICE_ID));
-      Document createdDocument = getDataById(DOCUMENT_ENDPOINT_WITH_ID, DOCUMENT_ID).then()
+      InvoiceDocument createdDocument = getDataById(DOCUMENT_ENDPOINT_WITH_ID, DOCUMENT_ID).then()
         .log().ifValidationFails()
         .statusCode(200).log().ifValidationFails()
         .extract()
-        .body().as(Document.class);
+        .body().as(InvoiceDocument.class);
 
-      assertEquals(INVOICE_ID, createdDocument.getInvoiceId());
+      assertEquals(INVOICE_ID, createdDocument.getDocumentMetadata().getInvoiceId());
       assertNotNull(createdDocument.getContents().getData());
 
       DocumentCollection documents = getData(DOCUMENT_ENDPOINT)
@@ -61,12 +61,7 @@ public class DocumentTest extends TestBase {
         .statusCode(200).log().ifValidationFails()
         .extract()
         .body().as(DocumentCollection.class);
-
-      // check base64 content not present in documents list
-      boolean base64Exists = documents.getDocuments()
-        .stream()
-        .anyMatch(document -> document.getContents() != null);
-      assertFalse(base64Exists);
+      Assertions.assertTrue(documents.getTotalRecords() > 0);
 
       // test edit document
       putData(DOCUMENT_ENDPOINT_WITH_ID, DOCUMENT_ID, sampleDocument).then()
@@ -90,7 +85,7 @@ public class DocumentTest extends TestBase {
   }
 
   @Test
-  public void testFetchEntityWithNonExistedId() throws MalformedURLException {
+  void testFetchEntityWithNonExistedId() throws MalformedURLException {
     logger.info(String.format("--- mod-invoice-storage get document by id test: Invalid id: %s", NON_EXISTED_ID));
     getDataById(DOCUMENT_ENDPOINT_WITH_ID, NON_EXISTED_ID).then()
       .log()
@@ -99,7 +94,7 @@ public class DocumentTest extends TestBase {
   }
 
   @Test
-  public void testDeleteEntityWithNonExistedId() throws MalformedURLException {
+  void testDeleteEntityWithNonExistedId() throws MalformedURLException {
     logger.info(String.format("--- mod-invoice-storage delete document by id test: Invalid id: %s", NON_EXISTED_ID));
     deleteData(DOCUMENT_ENDPOINT_WITH_ID, NON_EXISTED_ID).then()
       .log()

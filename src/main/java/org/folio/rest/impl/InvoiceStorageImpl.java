@@ -21,6 +21,7 @@ import org.folio.rest.jaxrs.model.Document;
 import org.folio.rest.jaxrs.model.DocumentCollection;
 import org.folio.rest.jaxrs.model.Invoice;
 import org.folio.rest.jaxrs.model.InvoiceCollection;
+import org.folio.rest.jaxrs.model.InvoiceDocument;
 import org.folio.rest.jaxrs.model.InvoiceLine;
 import org.folio.rest.jaxrs.model.InvoiceLineCollection;
 import org.folio.rest.jaxrs.resource.InvoiceStorage;
@@ -212,10 +213,10 @@ public class InvoiceStorageImpl implements InvoiceStorage {
 
   @Validate
   @Override
-  public void postInvoiceStorageInvoicesDocumentsById(String id, String lang, Document entity, Map<String, String> okapiHeaders,
+  public void postInvoiceStorageInvoicesDocumentsById(String id, String lang, InvoiceDocument entity, Map<String, String> okapiHeaders,
       Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
     vertxContext.runOnContext((Void v) ->{
-      if (!StringUtils.equals(entity.getInvoiceId(), id)) {
+      if (!StringUtils.equals(entity.getDocumentMetadata().getInvoiceId(), id)) {
         asyncResultHandler.handle(Future.succeededFuture(PostInvoiceStorageInvoicesDocumentsByIdResponse.respond400WithTextPlain(INVOICE_ID_MISMATCH_ERROR_MESSAGE)));
         return;
       }
@@ -233,10 +234,10 @@ public class InvoiceStorageImpl implements InvoiceStorage {
             if (query.failed()) {
               asyncResultHandler.handle(Future.succeededFuture(PostInvoiceStorageInvoicesDocumentsByIdResponse.respond500WithTextPlain(query.cause().getMessage())));
             } else {
-              entity.setId(query.result().getResults().get(0).getList().get(0).toString());
+              entity.getDocumentMetadata().setId(query.result().getResults().get(0).getList().get(0).toString());
               asyncResultHandler.handle(Future.succeededFuture(PostInvoiceStorageInvoicesDocumentsByIdResponse
                 .respond201WithApplicationJson(entity, PostInvoiceStorageInvoicesDocumentsByIdResponse.headersFor201()
-                  .withLocation(String.format(DOCUMENT_LOCATION, id, entity.getId())))));
+                  .withLocation(String.format(DOCUMENT_LOCATION, id, entity.getDocumentMetadata().getId())))));
             }
           });
         } catch (Exception e) {
@@ -261,7 +262,7 @@ public class InvoiceStorageImpl implements InvoiceStorage {
                 asyncResultHandler.handle(Future.succeededFuture(GetInvoiceStorageInvoicesDocumentsByIdAndDocumentIdResponse.respond404WithTextPlain(Response.Status.NOT_FOUND.getReasonPhrase())));
               }
               List tableFields = reply.result().getResults().get(0).getList();
-              Document document = (new JsonObject((String)tableFields.get(0))).mapTo(Document.class);
+              InvoiceDocument document = (new JsonObject((String)tableFields.get(0))).mapTo(InvoiceDocument.class);
               String base64 = (String) tableFields.get(1);
               document.setContents(new Contents().withData(base64));
 
@@ -290,7 +291,7 @@ public class InvoiceStorageImpl implements InvoiceStorage {
   }
 
   @Override
-  public void putInvoiceStorageInvoicesDocumentsByIdAndDocumentId(String id, String documentId, String lang, Document entity,
+  public void putInvoiceStorageInvoicesDocumentsByIdAndDocumentId(String id, String documentId, String lang, InvoiceDocument entity,
       Map<String, String> okapiHeaders, Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
     asyncResultHandler.handle(succeededFuture(PutInvoiceStorageInvoicesDocumentsByIdAndDocumentIdResponse.respond501WithTextPlain(Response.Status.NOT_IMPLEMENTED.getReasonPhrase())));
   }
@@ -533,17 +534,16 @@ public class InvoiceStorageImpl implements InvoiceStorage {
     return new Criterion(a);
   }
 
-  private JsonArray prepareDocumentQueryParams(Document entity) throws Exception {
+  private JsonArray prepareDocumentQueryParams(InvoiceDocument entity) throws Exception {
     JsonArray queryParams = new JsonArray();
 
-    queryParams.add(entity.getId() == null ? UUID.randomUUID().toString() : entity.getId());
+    queryParams.add(entity.getDocumentMetadata().getId() == null ? UUID.randomUUID().toString() : entity.getDocumentMetadata().getId());
 
     if (entity.getContents() != null && StringUtils.isNotEmpty(entity.getContents().getData())){
       queryParams.add(entity.getContents().getData());
     }
 
-    entity.setContents(null);
-    queryParams.add(pojo2json(entity));
+    queryParams.add(pojo2json(entity.getDocumentMetadata()));
 
     return queryParams;
   }
