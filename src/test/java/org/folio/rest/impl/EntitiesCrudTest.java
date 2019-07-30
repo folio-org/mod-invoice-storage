@@ -24,7 +24,6 @@ class EntitiesCrudTest extends TestBase {
 
   static Stream<TestEntities> deleteOrder() {
     return Stream.of(
-      TestEntities.VOUCHER_ACQUISITIONS_UNIT_ASSIGNMENTS,
       TestEntities.ACQUISITIONS_UNIT_ASSIGNMENTS,
       TestEntities.VOUCHER_LINES,
       TestEntities.VOUCHER,
@@ -40,7 +39,6 @@ class EntitiesCrudTest extends TestBase {
 
   static Stream<TestEntities> createFailOrder() {
     return Stream.of(
-      TestEntities.VOUCHER_ACQUISITIONS_UNIT_ASSIGNMENTS,
       TestEntities.ACQUISITIONS_UNIT_ASSIGNMENTS,
       TestEntities.VOUCHER_LINES,
       TestEntities.VOUCHER,
