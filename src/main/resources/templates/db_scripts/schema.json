@@ -45,27 +45,6 @@
           "targetTable": "vouchers"
         }
       ]
-    },
-    {
-      "tableName": "acquisitions_unit_assignments",
-      "fromModuleVersion": 1.0,
-      "withMetadata": true,
-      "foreignKeys": [
-        {
-          "fieldName": "recordId",
-          "targetTable": "invoices"
-        }
-      ],
-      "index": [
-        {
-          "fieldName": "recordId",
-          "tOps": "ADD"
-        },
-        {
-          "fieldName": "acquisitionsUnitId",
-          "tOps": "ADD"
-        }
-      ]
     }
   ]
 }
