@@ -171,37 +171,6 @@
       ]
     },
     {
-      "id": "invoice-storage.acquisitions-unit-assignments",
-      "version": "1.0",
-      "handlers": [
-        {
-          "methods": ["GET"],
-          "pathPattern": "/invoice-storage/acquisitions-unit-assignments",
-          "permissionsRequired": ["invoice-storage.acquisitions-unit-assignments.collection.get"]
-        },
-        {
-          "methods": ["POST"],
-          "pathPattern": "/invoice-storage/acquisitions-unit-assignments",
-          "permissionsRequired": ["invoice-storage.acquisitions-unit-assignments.item.post"]
-        },
-        {
-          "methods": ["GET"],
-          "pathPattern": "/invoice-storage/acquisitions-unit-assignments/{id}",
-          "permissionsRequired": ["invoice-storage.acquisitions-unit-assignments.item.get"]
-        },
-        {
-          "methods": ["PUT"],
-          "pathPattern": "/invoice-storage/acquisitions-unit-assignments/{id}",
-          "permissionsRequired": ["invoice-storage.acquisitions-unit-assignments.item.put"]
-        },
-        {
-          "methods": ["DELETE"],
-          "pathPattern": "/invoice-storage/acquisitions-unit-assignments/{id}",
-          "permissionsRequired": ["invoice-storage.acquisitions-unit-assignments.item.delete"]
-        }
-      ]
-    },
-    {
       "id": "_tenant",
       "version": "1.2",
       "interfaceType": "system",
