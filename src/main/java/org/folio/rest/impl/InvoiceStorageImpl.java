@@ -12,13 +12,13 @@ import java.util.UUID;
 
 import javax.ws.rs.core.Response;
 
-import io.vertx.core.json.JsonObject;
 import org.apache.commons.lang3.StringUtils;
 import org.folio.rest.RestVerticle;
 import org.folio.rest.annotations.Validate;
 import org.folio.rest.jaxrs.model.Contents;
 import org.folio.rest.jaxrs.model.Document;
 import org.folio.rest.jaxrs.model.DocumentCollection;
+import org.folio.rest.jaxrs.model.DocumentMetadata;
 import org.folio.rest.jaxrs.model.Invoice;
 import org.folio.rest.jaxrs.model.InvoiceCollection;
 import org.folio.rest.jaxrs.model.InvoiceDocument;
@@ -40,6 +40,7 @@ import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 import io.vertx.ext.sql.SQLConnection;
@@ -223,8 +224,11 @@ public class InvoiceStorageImpl implements InvoiceStorage {
 
       pgClient.getClient().getConnection(sqlConnection -> {
         try {
+
           String tenantId = TenantTool.calculateTenantId(okapiHeaders.get(RestVerticle.OKAPI_HEADER_TENANT));
           String fullTableName = PostgresClient.convertToPsqlStandard(tenantId) + "." + DOCUMENT_TABLE;
+
+          entity.getDocumentMetadata().setMetadata(entity.getMetadata());
 
           boolean base64Exists = entity.getContents() != null && StringUtils.isNotEmpty(entity.getContents().getData());
           String sql = "INSERT INTO " + fullTableName + " (id, " + (base64Exists ? "document_data," : "") + " jsonb) VALUES (?," + (base64Exists ? "?," : "") + " ?::JSON) RETURNING id";
@@ -235,6 +239,7 @@ public class InvoiceStorageImpl implements InvoiceStorage {
               asyncResultHandler.handle(Future.succeededFuture(PostInvoiceStorageInvoicesDocumentsByIdResponse.respond500WithTextPlain(query.cause().getMessage())));
             } else {
               entity.getDocumentMetadata().setId(query.result().getResults().get(0).getList().get(0).toString());
+
               asyncResultHandler.handle(Future.succeededFuture(PostInvoiceStorageInvoicesDocumentsByIdResponse
                 .respond201WithApplicationJson(entity, PostInvoiceStorageInvoicesDocumentsByIdResponse.headersFor201()
                   .withLocation(String.format(DOCUMENT_LOCATION, id, entity.getDocumentMetadata().getId())))));
@@ -254,17 +259,24 @@ public class InvoiceStorageImpl implements InvoiceStorage {
     Map<String, String> okapiHeaders, Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
     vertxContext.runOnContext((Void v) -> {
       try {
-        String query ="SELECT jsonb, document_data FROM " + DOCUMENT_TABLE + " WHERE id ='"+ documentId + "'";
+        String query = "SELECT jsonb, document_data FROM " + DOCUMENT_TABLE + " WHERE id ='" + documentId + "'";
         pgClient.select(query, reply -> {
           try {
             if (reply.succeeded()) {
               if (reply.result().getResults().isEmpty()){
                 asyncResultHandler.handle(Future.succeededFuture(GetInvoiceStorageInvoicesDocumentsByIdAndDocumentIdResponse.respond404WithTextPlain(Response.Status.NOT_FOUND.getReasonPhrase())));
               }
-              List tableFields = reply.result().getResults().get(0).getList();
-              InvoiceDocument document = (new JsonObject((String)tableFields.get(0))).mapTo(InvoiceDocument.class);
-              String base64 = (String) tableFields.get(1);
-              document.setContents(new Contents().withData(base64));
+              InvoiceDocument document = new InvoiceDocument();
+
+              List queryResults = reply.result().getResults().get(0).getList();
+              
+              DocumentMetadata documentMetadata = (new JsonObject((String) queryResults.get(0))).mapTo(DocumentMetadata.class);
+              document.setDocumentMetadata(documentMetadata);
+
+              String base64Content = (String) queryResults.get(1);
+              if (StringUtils.isNotEmpty(base64Content)){
+                document.setContents(new Contents().withData(base64Content));
+              }
 
               asyncResultHandler.handle(Future.succeededFuture(GetInvoiceStorageInvoicesDocumentsByIdAndDocumentIdResponse.respond200WithApplicationJson(document)));
             } else {
