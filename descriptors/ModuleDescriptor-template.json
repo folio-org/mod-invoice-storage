@@ -233,37 +233,6 @@
       ]
     },
     {
-      "id": "voucher-storage.acquisitions-unit-assignments",
-      "version": "1.0",
-      "handlers": [
-        {
-          "methods": ["GET"],
-          "pathPattern": "/voucher-storage/acquisitions-unit-assignments",
-          "permissionsRequired": ["voucher-storage.acquisitions-unit-assignments.collection.get"]
-        },
-        {
-          "methods": ["POST"],
-          "pathPattern": "/voucher-storage/acquisitions-unit-assignments",
-          "permissionsRequired": ["voucher-storage.acquisitions-unit-assignments.item.post"]
-        },
-        {
-          "methods": ["GET"],
-          "pathPattern": "/voucher-storage/acquisitions-unit-assignments/{id}",
-          "permissionsRequired": ["voucher-storage.acquisitions-unit-assignments.item.get"]
-        },
-        {
-          "methods": ["PUT"],
-          "pathPattern": "/voucher-storage/acquisitions-unit-assignments/{id}",
-          "permissionsRequired": ["voucher-storage.acquisitions-unit-assignments.item.put"]
-        },
-        {
-          "methods": ["DELETE"],
-          "pathPattern": "/voucher-storage/acquisitions-unit-assignments/{id}",
-          "permissionsRequired": ["voucher-storage.acquisitions-unit-assignments.item.delete"]
-        }
-      ]
-    },
-    {
       "id": "_tenant",
       "version": "1.2",
       "interfaceType": "system",
@@ -443,8 +412,7 @@
         "voucher-storage.voucher-lines.item.get",
         "voucher-storage.voucher-lines.item.post",
         "voucher-storage.voucher-lines.item.put",
-        "voucher-storage.voucher-lines.item.delete",
-        "voucher-storage.acquisitions-unit-assignments.all"
+        "voucher-storage.voucher-lines.item.delete"
       ],
       "visible": false
     },
@@ -483,43 +451,6 @@
         "invoice-storage.acquisitions-unit-assignments.item.get",
         "invoice-storage.acquisitions-unit-assignments.item.put",
         "invoice-storage.acquisitions-unit-assignments.item.delete"
-      ]
-    },
-    {
-      "permissionName" : "voucher-storage.acquisitions-unit-assignments.collection.get",
-      "displayName" : "acquisitions-unit-assignments-collection get",
-      "description" : "Get a collection of acquisitions unit assignments to use voucher"
-    },
-    {
-      "permissionName" : "voucher-storage.acquisitions-unit-assignments.item.post",
-      "displayName" : "acquisitions-unit-assignment-item post",
-      "description" : "Create a new acquisitions unit assignment to use voucher"
-    },
-    {
-      "permissionName" : "voucher-storage.acquisitions-unit-assignments.item.get",
-      "displayName" : "acquisitions-unit-assignment-item get",
-      "description" : "Fetch an acquisitions unit assignment to use voucher"
-    },
-    {
-      "permissionName" : "voucher-storage.acquisitions-unit-assignments.item.put",
-      "displayName" : "acquisitions-unit-assignment put",
-      "description" : "Update an acquisitions unit assignment to use voucher"
-    },
-    {
-      "permissionName" : "voucher-storage.acquisitions-unit-assignments.item.delete",
-      "displayName" : "acquisitions-unit-assignment-item delete",
-      "description" : "Delete an acquisitions unit assignment associated to use voucher"
-    },
-    {
-      "permissionName" : "voucher-storage.acquisitions-unit-assignments.all",
-      "displayName" : "All acquisitions-unit-assignment perms",
-      "description" : "All permissions for the acquisitions-unit-assignments associated to voucher",
-      "subPermissions" : [
-        "voucher-storage.acquisitions-unit-assignments.collection.get",
-        "voucher-storage.acquisitions-unit-assignments.item.post",
-        "voucher-storage.acquisitions-unit-assignments.item.get",
-        "voucher-storage.acquisitions-unit-assignments.item.put",
-        "voucher-storage.acquisitions-unit-assignments.item.delete"
       ]
     },
     {
