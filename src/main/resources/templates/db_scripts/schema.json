@@ -1,10 +1,28 @@
 {
+  "scripts": [
+    {
+      "run": "after",
+      "snippet": "CREATE OR REPLACE VIEW invoice_lines_view AS SELECT invoice_lines.id AS id, invoice_lines.jsonb AS jsonb, jsonb_build_object('acqUnitIds', invoices.jsonb->'acqUnitIds') || invoice_lines.jsonb AS metadata FROM invoice_lines LEFT JOIN invoices ON (invoice_lines.jsonb -> 'invoiceId'::text) = (invoices.jsonb -> 'id'::text);",
+      "fromModuleVersion": "1.0"
+    },
+    {
+      "run": "after",
+      "snippet": "CREATE OR REPLACE VIEW voucher_lines_view AS SELECT voucher_lines.id AS id, voucher_lines.jsonb AS jsonb, jsonb_build_object('acqUnitIds', vouchers.jsonb->'acqUnitIds') || voucher_lines.jsonb AS metadata FROM voucher_lines LEFT JOIN vouchers ON (voucher_lines.jsonb -> 'voucherId'::text) = (vouchers.jsonb -> 'id'::text);",
+      "fromModuleVersion": "1.0"
+    }
+  ],
   "tables": [
     {
       "tableName": "invoices",
       "fromModuleVersion": 1.0,
       "withMetadata": true,
-      "customSnippetPath": "invoice_number_sequence.sql"
+      "customSnippetPath": "invoice_number_sequence.sql",
+      "index": [
+        {
+          "fieldName": "acqUnitIds",
+          "caseSensitive": false
+        }
+      ]
     },
     {
       "tableName": "invoice_lines",
@@ -26,6 +44,10 @@
         {
           "fieldName": "voucherNumber",
           "tOps": "ADD"
+        },
+        {
+          "fieldName": "acqUnitIds",
+          "caseSensitive": false
         }
       ],
       "foreignKeys": [

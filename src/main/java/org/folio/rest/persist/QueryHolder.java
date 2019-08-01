@@ -13,14 +13,16 @@ public class QueryHolder {
 	private int offset;
 	private int limit;
 	private String lang;
+  private String searchField;
 
-	public QueryHolder(String table, String query, int offset, int limit, String lang) {
-		this.table = table;
-		this.query = query;
-		this.offset = offset;
-		this.limit = limit;
-		this.lang = lang;
-	}
+  public QueryHolder(String table, String searchField, String query, int offset, int limit, String lang) {
+    this.table = table;
+    this.searchField = searchField;
+    this.query = query;
+    this.offset = offset;
+    this.limit = limit;
+    this.lang = lang;
+  }
 
 	public String getTable() {
 		return table;
@@ -30,22 +32,18 @@ public class QueryHolder {
 		return query;
 	}
 
-	public int getOffset() {
-		return offset;
-	}
-
-	public int getLimit() {
-		return limit;
-	}
-
 	public String getLang() {
 		return lang;
 	}
 
   public CQLWrapper buildCQLQuery() throws FieldException {
-    CQL2PgJSON cql2PgJSON = new CQL2PgJSON(String.format("%s.jsonb", table));
+    CQL2PgJSON cql2PgJSON = new CQL2PgJSON(String.format("%s.%s", table, searchField));
     return new CQLWrapper(cql2PgJSON, query)
       .setLimit(new Limit(limit))
       .setOffset(new Offset(offset));
+  }
+
+  public String getSearchField() {
+    return searchField;
   }
 }

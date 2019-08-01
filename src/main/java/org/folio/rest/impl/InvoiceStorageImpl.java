@@ -1,7 +1,9 @@
 package org.folio.rest.impl;
 
 import static io.vertx.core.Future.succeededFuture;
-import static org.folio.rest.persist.HelperUtils.getEntitiesCollection;
+import static org.folio.rest.persist.HelperUtils.ID_FIELD_NAME;
+import static org.folio.rest.persist.HelperUtils.METADATA;
+import static org.folio.rest.persist.HelperUtils.getEntitiesCollectionWithDistinctOn;
 import static org.folio.rest.persist.HelperUtils.SequenceQuery.CREATE_SEQUENCE;
 import static org.folio.rest.persist.HelperUtils.SequenceQuery.DROP_SEQUENCE;
 
@@ -41,6 +43,7 @@ public class InvoiceStorageImpl implements InvoiceStorage {
   private static final String INVOICE_PREFIX = "/invoice-storage/invoices/";
   public static final String INVOICE_TABLE = "invoices";
   private static final String INVOICE_LINE_TABLE = "invoice_lines";
+  private static final String INVOICE_LINE_VIEW = "invoice_lines_view";
   private static final String INVOICE_ID_FIELD_NAME = "invoiceId";
   private PostgresClient pgClient;
 
@@ -51,11 +54,8 @@ public class InvoiceStorageImpl implements InvoiceStorage {
   @Validate
   @Override
   public void getInvoiceStorageInvoices(int offset, int limit, String query, String lang, Map<String, String> okapiHeaders, Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
-    vertxContext.runOnContext((Void v) -> {
-      EntitiesMetadataHolder<Invoice, InvoiceCollection> entitiesMetadataHolder = new EntitiesMetadataHolder<>(Invoice.class, InvoiceCollection.class, GetInvoiceStorageInvoicesResponse.class);
-      QueryHolder cql = new QueryHolder(INVOICE_TABLE, query, offset, limit, lang);
-      getEntitiesCollection(entitiesMetadataHolder, cql, asyncResultHandler, vertxContext, okapiHeaders);
-    });
+    PgUtil.get(INVOICE_TABLE, Invoice.class, InvoiceCollection.class, query, offset, limit, okapiHeaders,
+      vertxContext, GetInvoiceStorageInvoicesResponse.class, asyncResultHandler);
   }
 
   @Validate
@@ -163,8 +163,8 @@ public class InvoiceStorageImpl implements InvoiceStorage {
   public void getInvoiceStorageInvoiceLines(int offset, int limit, String query, String lang, Map<String, String> okapiHeaders, Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
     vertxContext.runOnContext((Void v) -> {
       EntitiesMetadataHolder<InvoiceLine, InvoiceLineCollection> entitiesMetadataHolder = new EntitiesMetadataHolder<>(InvoiceLine.class, InvoiceLineCollection.class, GetInvoiceStorageInvoiceLinesResponse.class);
-      QueryHolder cql = new QueryHolder(INVOICE_LINE_TABLE, query, offset, limit, lang);
-      getEntitiesCollection(entitiesMetadataHolder, cql, asyncResultHandler, vertxContext, okapiHeaders);
+      QueryHolder cql = new QueryHolder(INVOICE_LINE_VIEW, METADATA, query, offset, limit, lang);
+      getEntitiesCollectionWithDistinctOn(entitiesMetadataHolder, cql, ID_FIELD_NAME, asyncResultHandler, vertxContext, okapiHeaders);
     });
   }
 

@@ -3,7 +3,7 @@ package org.folio.rest.impl;
 import static io.restassured.RestAssured.given;
 import static org.folio.rest.RestVerticle.OKAPI_HEADER_TENANT;
 import static org.folio.rest.impl.StorageTestSuite.storageUrl;
-import static org.folio.rest.utils.TestEntities.INVOICE;
+import static org.folio.rest.utils.TestEntities.INVOICES;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertEquals;
 
@@ -88,7 +88,7 @@ public abstract class TestBase {
       .then().log().ifValidationFails()
         .statusCode(201)
         .extract()
-          .path("id");
+          .path(ID);
   }
   
   @AfterClass
@@ -107,13 +107,17 @@ public abstract class TestBase {
     getDataById(endpoint, id)
       .then().log().ifValidationFails()
         .statusCode(200)
-        .body("id", equalTo(id));
+        .body(ID, equalTo(id));
   }
-  
+
   Response getDataById(String endpoint, String id) throws MalformedURLException {
+    return getDataById(endpoint, id, TENANT_HEADER);
+  }
+
+  Response getDataById(String endpoint, String id, Header tenant) throws MalformedURLException {
     return given()
-      .pathParam("id", id)
-      .header(TENANT_HEADER)
+      .pathParam(ID, id)
+      .header(tenant)
       .contentType(ContentType.JSON)
       .get(storageUrl(endpoint));
   }
@@ -138,23 +142,27 @@ public abstract class TestBase {
               .get(subObject.getUpdatedFieldName());
     assertEquals(existedValue, subObject.getUpdatedFieldValue());
   }
-  
-  Response putData(String endpoint, String id, String input) throws MalformedURLException {
+
+  Response putData(String endpoint, String id, String input, Header tenant) throws MalformedURLException {
     return given()
-      .pathParam("id", id)
-        .header(TENANT_HEADER)
-        .contentType(ContentType.JSON)
-        .body(input)
-          .put(storageUrl(endpoint));
+      .pathParam(ID, id)
+      .header(tenant)
+      .contentType(ContentType.JSON)
+      .body(input)
+      .put(storageUrl(endpoint));
+  }
+
+  Response putData(String endpoint, String id, String input) throws MalformedURLException {
+    return putData(endpoint, id, input, TENANT_HEADER);
   }
   
   Response putInvoiceNumberData(String id, String input) throws MalformedURLException {
     return given()
-      .pathParam("id", id)
+      .pathParam(ID, id)
       .header(TENANT_HEADER)
       .contentType(ContentType.JSON)
       .body(input)
-        .put(storageUrl(INVOICE.getEndpointWithId()));
+        .put(storageUrl(INVOICES.getEndpointWithId()));
   }
   
   void deleteDataSuccess(String endpoint, String id) throws MalformedURLException {
@@ -169,7 +177,7 @@ public abstract class TestBase {
 
   Response deleteData(String endpoint, String id, Header tenantHeader) throws MalformedURLException {
     return given()
-      .pathParam("id", id)
+      .pathParam(ID, id)
       .header(tenantHeader)
       .contentType(ContentType.JSON)
       .delete(storageUrl(endpoint));
@@ -195,7 +203,7 @@ public abstract class TestBase {
   }
   
   void testAllFieldsExists(JsonObject extracted, JsonObject sampleObject) {
-    sampleObject.remove("id");
+    sampleObject.remove(ID);
     Set<String> fieldsNames = sampleObject.fieldNames();
     for (String fieldName : fieldsNames) {
       Object sampleField = sampleObject.getValue(fieldName);

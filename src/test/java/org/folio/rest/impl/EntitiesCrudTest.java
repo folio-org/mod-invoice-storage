@@ -25,21 +25,21 @@ class EntitiesCrudTest extends TestBase {
   static Stream<TestEntities> deleteOrder() {
     return Stream.of(
       TestEntities.VOUCHER_LINES,
-      TestEntities.VOUCHER,
+      TestEntities.VOUCHERS,
       TestEntities.INVOICE_LINES,
-      TestEntities.INVOICE);
+      TestEntities.INVOICES);
   }
 
   static Stream<TestEntities> deleteFailOrder() {
     return Stream.of(
-      TestEntities.VOUCHER,
-      TestEntities.INVOICE);
+      TestEntities.VOUCHERS,
+      TestEntities.INVOICES);
   }
 
   static Stream<TestEntities> createFailOrder() {
     return Stream.of(
       TestEntities.VOUCHER_LINES,
-      TestEntities.VOUCHER,
+      TestEntities.VOUCHERS,
       TestEntities.INVOICE_LINES);
   }
 
