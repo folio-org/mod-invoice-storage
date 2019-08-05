@@ -53,11 +53,6 @@
           "permissionsRequired": ["invoice-storage.invoices.documents.item.get"]
         },
         {
-          "methods": ["PUT"],
-          "pathPattern": "/invoice-storage/invoices/{id}/documents/{documentId}",
-          "permissionsRequired": ["invoice-storage.invoices.documents.item.put"]
-        },
-        {
           "methods": ["DELETE"],
           "pathPattern": "/invoice-storage/invoices/{id}/documents/{documentId}",
           "permissionsRequired": ["invoice-storage.invoices.documents.item.delete"]
@@ -118,7 +113,7 @@
       ]
     },
     {
-      
+
       "id": "voucher-storage.vouchers",
       "version": "1.0",
       "handlers": [
