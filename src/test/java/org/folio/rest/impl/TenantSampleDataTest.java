@@ -10,9 +10,11 @@ import static org.folio.rest.utils.TenantApiTestUtil.prepareTenant;
 import static org.folio.rest.utils.TestEntities.INVOICE_LINES;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.notNullValue;
 
 import java.net.MalformedURLException;
 
+import org.folio.rest.jaxrs.model.InvoiceCollection;
 import org.folio.rest.jaxrs.model.InvoiceLine;
 import org.folio.rest.jaxrs.model.InvoiceLineCollection;
 import org.folio.rest.persist.PostgresClient;
@@ -22,6 +24,7 @@ import org.junit.jupiter.api.Test;
 
 import io.restassured.http.ContentType;
 import io.restassured.http.Header;
+import io.restassured.response.ValidatableResponse;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
@@ -119,7 +122,35 @@ public class TenantSampleDataTest extends TestBase{
       .statusCode(201);
     for (TestEntities entity : TestEntities.values()) {
       logger.info("Test expected quantity for " + entity.name());
-      verifyCollectionQuantity(entity.getEndpoint(), entity.getInitialQuantity(), ANOTHER_TENANT_HEADER);
+      ValidatableResponse response = verifyCollectionQuantity(entity.getEndpoint(), entity.getInitialQuantity(),
+          ANOTHER_TENANT_HEADER);
+
+      switch (entity) {
+      case INVOICE: {
+        response.extract()
+          .as(InvoiceCollection.class)
+          .getInvoices()
+          .forEach(invoice -> {
+            assertThat(invoice.getAdjustmentsTotal(), notNullValue());
+            assertThat(invoice.getSubTotal(), notNullValue());
+            assertThat(invoice.getTotal(), notNullValue());
+          });
+        break;
+      }
+      case INVOICE_LINES: {
+        response.extract()
+          .as(InvoiceLineCollection.class)
+          .getInvoiceLines()
+          .forEach(line -> {
+            assertThat(line.getAdjustmentsTotal(), notNullValue());
+            assertThat(line.getSubTotal(), notNullValue());
+            assertThat(line.getTotal(), notNullValue());
+          });
+        break;
+      }
+      default:
+        break;
+      }
     }
   }
 
