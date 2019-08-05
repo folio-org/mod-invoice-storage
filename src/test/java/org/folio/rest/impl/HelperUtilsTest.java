@@ -31,19 +31,6 @@ class HelperUtilsTest extends TestBase {
     .header(X_OKAPI_TOKEN);
 
   @Test
-  void getDocumentsPgClientRuntimeException() throws Exception {
-    new MockUp<PostgresClient>() {
-      @Mock
-      PostgresClient get(String table, Class<Document> clazz, Criterion filter, boolean returnCount,
-          Handler<AsyncResult<Results<Document>>> replyHandler) {
-        replyHandler.handle(Future.failedFuture(new RuntimeException()));
-        return null;
-      }
-    };
-    get(storageUrl(DOCUMENTS_ENDPOINT)).statusCode(HttpStatus.HTTP_INTERNAL_SERVER_ERROR.toInt()).contentType(TEXT_PLAIN);
-  }
-
-  @Test
   void getDocumentByIdPgClientRuntimeException() throws Exception {
     new MockUp<PostgresClient>() {
       @Mock

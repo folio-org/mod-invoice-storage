@@ -255,11 +255,6 @@
       "description": "Create document"
     },
     {
-      "permissionName": "invoice-storage.invoices.documents.item.put",
-      "displayName": "Invoice storage - modify document",
-      "description": "Modify document"
-    },
-    {
       "permissionName": "invoice-storage.invoices.documents.item.delete",
       "displayName": "Invoice storage - delete document",
       "description": "Delete document"
@@ -398,7 +393,6 @@
         "invoice-storage.invoices.documents.collection.get",
         "invoice-storage.invoices.documents.item.get",
         "invoice-storage.invoices.documents.item.post",
-        "invoice-storage.invoices.documents.item.put",
         "invoice-storage.invoices.documents.item.delete",
         "invoice-storage.invoice-lines.collection.get",
         "invoice-storage.invoice-lines.item.get",

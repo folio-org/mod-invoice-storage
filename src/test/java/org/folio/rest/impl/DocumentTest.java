@@ -63,12 +63,6 @@ class DocumentTest extends TestBase {
         .body().as(DocumentCollection.class);
       Assertions.assertTrue(documents.getTotalRecords() > 0);
 
-      // test edit document
-      putData(DOCUMENT_ENDPOINT_WITH_ID, DOCUMENT_ID, sampleDocument).then()
-        .log()
-        .ifValidationFails()
-        .statusCode(501);
-
     } catch (Exception e) {
       logger.error(String.format("--- mod-invoice-storage-test:  API ERROR: %s", e.getMessage()));
       fail(e.getMessage());
