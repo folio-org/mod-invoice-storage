@@ -67,6 +67,12 @@ resourceTypes:
             schemaItem: invoiceDocument
             exampleCollection: !include acq-models/mod-invoice-storage/examples/document_collection.sample
             exampleItem: !include acq-models/mod-invoice-storage/examples/document.sample
+        get:
+          description: Get list of documents
+          is: [
+            pageable,
+            searchable: {description: "with valid searchable fields: for example metadata.createdDate", example: "metadata.createdDate > '2018-07-19T00:00:00.000+0000'"}
+          ]
         /{documentId}:
           description: Get and Delete a specific invoice. Update operation is not allowed
           uriParameters:

@@ -17,10 +17,19 @@ import io.vertx.core.logging.LoggerFactory;
 
 class DocumentTest extends TestBase {
   private static final String SAMPLE_INVOICE_FILE = "data/invoices/12345_paid.json";
+  private static final String SAMPLE_INVOICE_FILE_2 = "data/invoices/30121_paid.json";
+
   private static final String SAMPLE_DOCUMENT_FILE = "data/documents/doc_for_invoice_6b8bc989.json";
   private static final String SAMPLE_DOCUMENT_FILE_2 = "data/documents/doc_for_invoice_07bb89be.json";
+  private static final String SAMPLE_DOCUMENT_FILE_3 = "data/documents/doc_for_invoice_40796c4a.json";
+  private static final String SAMPLE_DOCUMENT_INVALID_INVOICE = "data/documents/doc_for_invoice_733cafd3.json";
+
   private static final String INVOICE_ID = "6b8bc989-834d-4a14-945b-4c5442ae09af";
+ private static final String ANOTHER_INVOICE_ID = "40796c4a-ff0a-40ba-9a1d-c24c12dd4424";
+
   private static final String DOCUMENT_ENDPOINT = "/invoice-storage/invoices/" + INVOICE_ID + "/documents";
+  private static final String ANOTHER_DOCUMENT_ENDPOINT = "/invoice-storage/invoices/" + ANOTHER_INVOICE_ID + "/documents";
+
   private static final String DOCUMENT_ENDPOINT_WITH_ID = DOCUMENT_ENDPOINT + "/{id}";
   private static final String DOCUMENT_ID = "433f8140-001e-4605-b5a8-f02793f3d2ec";
 
@@ -31,19 +40,30 @@ class DocumentTest extends TestBase {
     try {
       logger.info("--- mod-invoice-storage Document test:");
 
-      // prepare invoice
-      String invoiceSample = getFile(SAMPLE_INVOICE_FILE);
-      postData(INVOICE.getEndpoint(), invoiceSample).then().statusCode(201);
+      // prepare invoices
+      postData(INVOICE.getEndpoint(), getFile(SAMPLE_INVOICE_FILE)).then().statusCode(201);
+      postData(INVOICE.getEndpoint(), getFile(SAMPLE_INVOICE_FILE_2)).then().statusCode(201);
 
-      String sampleDocument = getFile(SAMPLE_DOCUMENT_FILE);
-      postData(DOCUMENT_ENDPOINT, sampleDocument).then()
+      InvoiceDocument invoiceDocument1 = postData(DOCUMENT_ENDPOINT, getFile(SAMPLE_DOCUMENT_FILE)).then()
+        .statusCode(201)
+        .extract()
+        .response()
+        .as(InvoiceDocument.class);
+
+      InvoiceDocument invoiceDocument2 = postData(DOCUMENT_ENDPOINT, getFile(SAMPLE_DOCUMENT_FILE_2)).then()
+        .statusCode(201)
+        .extract()
+        .response()
+        .as(InvoiceDocument.class);
+
+      InvoiceDocument invoiceDocument3 = postData(ANOTHER_DOCUMENT_ENDPOINT, getFile(SAMPLE_DOCUMENT_FILE_3)).then()
         .statusCode(201)
         .extract()
         .response()
         .as(InvoiceDocument.class);
 
       logger.info("--- mod-invoice-storage Document test: Try to create document with mismatched id");
-      postData(DOCUMENT_ENDPOINT, getFile(SAMPLE_DOCUMENT_FILE_2)).then().statusCode(400);
+      postData(DOCUMENT_ENDPOINT, getFile(SAMPLE_DOCUMENT_INVALID_INVOICE)).then().statusCode(400);
 
       logger.info(String.format("--- mod-invoice-storage  test: Fetching with ID: %s", INVOICE_ID));
       InvoiceDocument createdDocument = getDataById(DOCUMENT_ENDPOINT_WITH_ID, DOCUMENT_ID).then()
@@ -61,13 +81,23 @@ class DocumentTest extends TestBase {
         .statusCode(200).log().ifValidationFails()
         .extract()
         .body().as(DocumentCollection.class);
-      Assertions.assertTrue(documents.getTotalRecords() > 0);
+      Assertions.assertEquals(2, documents.getTotalRecords());
+
+      DocumentCollection documents2 = getData(DOCUMENT_ENDPOINT + "?query=name==sample.pdf OR name<>sample.pdf sortBy name")
+        .then()
+        .log().ifValidationFails()
+        .statusCode(200).log().ifValidationFails()
+        .extract()
+        .body().as(DocumentCollection.class);
+      Assertions.assertEquals(3, documents2.getTotalRecords());
 
     } catch (Exception e) {
       logger.error(String.format("--- mod-invoice-storage-test:  API ERROR: %s", e.getMessage()));
       fail(e.getMessage());
     } finally {
       logger.info(String.format("--- mod-invoice-storage test: Deleting document with ID: %s", DOCUMENT_ID));
+      deleteDataSuccess(DOCUMENT_ENDPOINT_WITH_ID, DOCUMENT_ID);
+      deleteDataSuccess(DOCUMENT_ENDPOINT_WITH_ID, DOCUMENT_ID);
       deleteDataSuccess(DOCUMENT_ENDPOINT_WITH_ID, DOCUMENT_ID);
       testVerifyEntityDeletion(DOCUMENT_ENDPOINT_WITH_ID, DOCUMENT_ID);
 

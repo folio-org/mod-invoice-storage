@@ -13,17 +13,13 @@ import java.util.UUID;
 import javax.ws.rs.core.Response;
 
 import org.apache.commons.lang3.StringUtils;
+import org.folio.cql2pgjson.CQL2PgJSON;
 import org.folio.rest.RestVerticle;
 import org.folio.rest.annotations.Validate;
-import org.folio.rest.jaxrs.model.Contents;
-import org.folio.rest.jaxrs.model.DocumentCollection;
-import org.folio.rest.jaxrs.model.DocumentMetadata;
-import org.folio.rest.jaxrs.model.Invoice;
-import org.folio.rest.jaxrs.model.InvoiceCollection;
-import org.folio.rest.jaxrs.model.InvoiceDocument;
-import org.folio.rest.jaxrs.model.InvoiceLine;
-import org.folio.rest.jaxrs.model.InvoiceLineCollection;
+import org.folio.rest.jaxrs.model.*;
 import org.folio.rest.jaxrs.resource.InvoiceStorage;
+import org.folio.rest.persist.Criteria.Limit;
+import org.folio.rest.persist.Criteria.Offset;
 import org.folio.rest.persist.EntitiesMetadataHolder;
 import org.folio.rest.persist.PgExceptionUtil;
 import org.folio.rest.persist.PgUtil;
@@ -31,6 +27,7 @@ import org.folio.rest.persist.PostgresClient;
 import org.folio.rest.persist.QueryHolder;
 import org.folio.rest.persist.Criteria.Criteria;
 import org.folio.rest.persist.Criteria.Criterion;
+import org.folio.rest.persist.cql.CQLWrapper;
 import org.folio.rest.tools.utils.TenantTool;
 
 import io.vertx.core.AsyncResult;
@@ -175,19 +172,49 @@ public class InvoiceStorageImpl implements InvoiceStorage {
 
   @Validate
   @Override
-  public void getInvoiceStorageInvoicesDocumentsById(String id, String lang, Map<String, String> okapiHeaders,
-      Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
+  public void getInvoiceStorageInvoicesDocumentsById(String id, int offset, int limit, String query, String lang,
+      Map<String, String> okapiHeaders, Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
+    vertxContext.runOnContext((Void v) -> {
+      try {
+        EntitiesMetadataHolder<Document, DocumentCollection> entitiesMetadataHolder = new EntitiesMetadataHolder<>(Document.class, DocumentCollection.class, GetInvoiceStorageInvoicesDocumentsByIdResponse.class);
+        String getByIdQuery = INVOICE_ID_FIELD_NAME + "==" + id;
+        CQL2PgJSON cql2PgJSON = new CQL2PgJSON(String.format("%s.jsonb", DOCUMENT_TABLE));
 
-    String cqlQuery = INVOICE_ID_FIELD_NAME + "=" + id;
-    PgUtil.get(DOCUMENT_TABLE, DocumentMetadata.class, DocumentCollection.class, cqlQuery, 0, 999, okapiHeaders, vertxContext,
-        GetInvoiceStorageInvoicesDocumentsByIdResponse.class, asyncResultHandler);
+        CQLWrapper combinedQueryWrapper = new CQLWrapper()
+          .setLimit(new Limit(limit))
+          .setOffset(new Offset(offset))
+          .setQuery(getByIdQuery);
+
+        CQLWrapper queryByIdWrapper = new CQLWrapper(cql2PgJSON, getByIdQuery);
+        CQLWrapper queryWrapper = new CQLWrapper(cql2PgJSON, query);
+
+
+        combinedQueryWrapper.addWrapper(queryByIdWrapper);
+        combinedQueryWrapper.addWrapper(queryWrapper);
+
+        pgClient.get(DOCUMENT_TABLE, Document.class, combinedQueryWrapper, true, false, reply -> {
+          if (reply.succeeded()) {
+            DocumentCollection documentCollection = new DocumentCollection();
+            documentCollection.setDocuments(reply.result().getResults());
+            documentCollection.setTotalRecords(reply.result().getResults().size());
+            asyncResultHandler.handle(Future.succeededFuture(GetInvoiceStorageInvoicesDocumentsByIdResponse.respond200WithApplicationJson(documentCollection)));
+          } else {
+            asyncResultHandler.handle(Future.succeededFuture(GetInvoiceStorageInvoicesDocumentsByIdResponse.respond500WithTextPlain(reply.cause().getMessage())));
+          }
+        });
+      } catch (Exception e) {
+        asyncResultHandler
+          .handle(Future.succeededFuture(GetInvoiceStorageInvoicesDocumentsByIdResponse.respond500WithTextPlain(e.getCause()
+            .getMessage())));
+      }
+    });
   }
 
   @Validate
   @Override
   public void postInvoiceStorageInvoicesDocumentsById(String id, String lang, InvoiceDocument entity, Map<String, String> okapiHeaders,
       Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
-    vertxContext.runOnContext((Void v) ->{
+    vertxContext.runOnContext((Void v) -> {
       if (!StringUtils.equals(entity.getDocumentMetadata().getInvoiceId(), id)) {
         asyncResultHandler.handle(Future.succeededFuture(PostInvoiceStorageInvoicesDocumentsByIdResponse.respond400WithTextPlain(INVOICE_ID_MISMATCH_ERROR_MESSAGE)));
         return;
@@ -228,7 +255,10 @@ public class InvoiceStorageImpl implements InvoiceStorage {
     Map<String, String> okapiHeaders, Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
     vertxContext.runOnContext((Void v) -> {
       try {
-        String query = "SELECT jsonb, document_data FROM " + DOCUMENT_TABLE + " WHERE id ='" + documentId + "'";
+        String tenantId = TenantTool.calculateTenantId(okapiHeaders.get(RestVerticle.OKAPI_HEADER_TENANT));
+        String fullTableName = PostgresClient.convertToPsqlStandard(tenantId) + "." + DOCUMENT_TABLE;
+
+        String query = "SELECT jsonb, document_data FROM " + fullTableName + " WHERE id ='" + documentId + "' AND invoiceId='" + id + "'";
         pgClient.select(query, reply -> {
           try {
             if (reply.succeeded()) {
