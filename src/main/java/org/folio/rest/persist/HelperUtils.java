@@ -1,10 +1,13 @@
 package org.folio.rest.persist;
 
+import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.folio.rest.persist.PgUtil.response;
 
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.ws.rs.core.Response;
 
@@ -13,12 +16,15 @@ import io.vertx.core.Context;
 import io.vertx.core.Handler;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
+import one.util.streamex.StreamEx;
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 
 public class HelperUtils {
   private static final Logger log = LoggerFactory.getLogger(HelperUtils.class);
-  
   private static final String IL_NUMBER_PREFIX = "ilNumber_";
   private static final String QUOTES_SYMBOL = "\"";
+  private static final Pattern CQL_SORT_BY_PATTERN = Pattern.compile("(.*)(\\ssortBy\\s.*)", Pattern.CASE_INSENSITIVE);
 
   private HelperUtils() {
     throw new UnsupportedOperationException("Cannot instantiate utility class.");
@@ -65,7 +71,7 @@ public class HelperUtils {
       asyncResultHandler.handle(response(e.getMessage(), respond500, respond500));
     }
   }
-  
+
   public enum SequenceQuery {
 
     CREATE_SEQUENCE {
@@ -92,5 +98,24 @@ public class HelperUtils {
     }
 
     public abstract String getQuery(String invoiceId);
+  }
+
+  public static String combineCqlExpressions(String term, String... expressions) {
+    if (ArrayUtils.isEmpty(expressions)) {
+      return EMPTY;
+    }
+
+    String sorting = EMPTY;
+
+    // Check whether last expression contains sorting query. If it does, extract it to be added in the end of the resulting query
+    Matcher matcher = CQL_SORT_BY_PATTERN.matcher(expressions[expressions.length - 1]);
+    if (matcher.find()) {
+      expressions[expressions.length - 1] = matcher.group(1);
+      sorting = matcher.group(2);
+    }
+
+    return StreamEx.of(expressions)
+      .filter(StringUtils::isNotBlank)
+      .joining(") " + term + " (", "(", ")") + sorting;
   }
 }

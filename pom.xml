@@ -94,6 +94,11 @@
       <version>${jmockit.version}</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>one.util</groupId>
+      <artifactId>streamex</artifactId>
+      <version>0.6.8</version>
+    </dependency>
   </dependencies>
 
   <build>

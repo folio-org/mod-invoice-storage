@@ -1,6 +1,7 @@
 package org.folio.rest.impl;
 
 import static io.vertx.core.Future.succeededFuture;
+import static org.folio.rest.persist.HelperUtils.combineCqlExpressions;
 import static org.folio.rest.persist.HelperUtils.getEntitiesCollection;
 import static org.folio.rest.persist.HelperUtils.SequenceQuery.CREATE_SEQUENCE;
 import static org.folio.rest.persist.HelperUtils.SequenceQuery.DROP_SEQUENCE;
@@ -13,28 +14,16 @@ import java.util.UUID;
 import javax.ws.rs.core.Response;
 
 import org.apache.commons.lang3.StringUtils;
-import org.folio.cql2pgjson.CQL2PgJSON;
 import org.folio.rest.RestVerticle;
 import org.folio.rest.annotations.Validate;
 import org.folio.rest.jaxrs.model.*;
 import org.folio.rest.jaxrs.resource.InvoiceStorage;
-import org.folio.rest.persist.Criteria.Limit;
-import org.folio.rest.persist.Criteria.Offset;
-import org.folio.rest.persist.EntitiesMetadataHolder;
-import org.folio.rest.persist.PgExceptionUtil;
-import org.folio.rest.persist.PgUtil;
-import org.folio.rest.persist.PostgresClient;
-import org.folio.rest.persist.QueryHolder;
+import org.folio.rest.persist.*;
 import org.folio.rest.persist.Criteria.Criteria;
 import org.folio.rest.persist.Criteria.Criterion;
-import org.folio.rest.persist.cql.CQLWrapper;
 import org.folio.rest.tools.utils.TenantTool;
 
-import io.vertx.core.AsyncResult;
-import io.vertx.core.Context;
-import io.vertx.core.Future;
-import io.vertx.core.Handler;
-import io.vertx.core.Vertx;
+import io.vertx.core.*;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
@@ -174,40 +163,12 @@ public class InvoiceStorageImpl implements InvoiceStorage {
   @Override
   public void getInvoiceStorageInvoicesDocumentsById(String id, int offset, int limit, String query, String lang,
       Map<String, String> okapiHeaders, Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
-    vertxContext.runOnContext((Void v) -> {
-      try {
-        EntitiesMetadataHolder<Document, DocumentCollection> entitiesMetadataHolder = new EntitiesMetadataHolder<>(Document.class, DocumentCollection.class, GetInvoiceStorageInvoicesDocumentsByIdResponse.class);
-        String getByIdQuery = INVOICE_ID_FIELD_NAME + "==" + id;
-        CQL2PgJSON cql2PgJSON = new CQL2PgJSON(String.format("%s.jsonb", DOCUMENT_TABLE));
+    String getByIdQuery = INVOICE_ID_FIELD_NAME + "==" + id;
+    String resultQuery = StringUtils.isNotEmpty(query) ? combineCqlExpressions("and", getByIdQuery, query) : getByIdQuery;
 
-        CQLWrapper combinedQueryWrapper = new CQLWrapper()
-          .setLimit(new Limit(limit))
-          .setOffset(new Offset(offset))
-          .setQuery(getByIdQuery);
-
-        CQLWrapper queryByIdWrapper = new CQLWrapper(cql2PgJSON, getByIdQuery);
-        CQLWrapper queryWrapper = new CQLWrapper(cql2PgJSON, query);
-
-
-        combinedQueryWrapper.addWrapper(queryByIdWrapper);
-        combinedQueryWrapper.addWrapper(queryWrapper);
-
-        pgClient.get(DOCUMENT_TABLE, Document.class, combinedQueryWrapper, true, false, reply -> {
-          if (reply.succeeded()) {
-            DocumentCollection documentCollection = new DocumentCollection();
-            documentCollection.setDocuments(reply.result().getResults());
-            documentCollection.setTotalRecords(reply.result().getResults().size());
-            asyncResultHandler.handle(Future.succeededFuture(GetInvoiceStorageInvoicesDocumentsByIdResponse.respond200WithApplicationJson(documentCollection)));
-          } else {
-            asyncResultHandler.handle(Future.succeededFuture(GetInvoiceStorageInvoicesDocumentsByIdResponse.respond500WithTextPlain(reply.cause().getMessage())));
-          }
-        });
-      } catch (Exception e) {
-        asyncResultHandler
-          .handle(Future.succeededFuture(GetInvoiceStorageInvoicesDocumentsByIdResponse.respond500WithTextPlain(e.getCause()
-            .getMessage())));
-      }
-    });
+    EntitiesMetadataHolder<Document, DocumentCollection> entitiesMetadataHolder = new EntitiesMetadataHolder<>(Document.class, DocumentCollection.class, GetInvoiceStorageInvoicesDocumentsByIdResponse.class);
+    QueryHolder cql = new QueryHolder(DOCUMENT_TABLE, resultQuery, offset, limit, lang);
+    getEntitiesCollection(entitiesMetadataHolder, cql, asyncResultHandler, vertxContext, okapiHeaders);
   }
 
   @Validate
