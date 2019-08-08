@@ -30,13 +30,7 @@
           "methods": ["DELETE"],
           "pathPattern": "/invoice-storage/invoices/{id}",
           "permissionsRequired": ["invoice-storage.invoices.item.delete"]
-        }
-      ]
-    },
-    {
-      "id": "invoice-storage.invoices.documents",
-      "version": "1.0",
-      "handlers": [
+        },
         {
           "methods": ["GET"],
           "pathPattern": "/invoice-storage/invoices/{id}/documents",
