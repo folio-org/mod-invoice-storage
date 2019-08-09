@@ -30,6 +30,26 @@
           "methods": ["DELETE"],
           "pathPattern": "/invoice-storage/invoices/{id}",
           "permissionsRequired": ["invoice-storage.invoices.item.delete"]
+        },
+        {
+          "methods": ["GET"],
+          "pathPattern": "/invoice-storage/invoices/{id}/documents",
+          "permissionsRequired": ["invoice-storage.invoices.documents.collection.get"]
+        },
+        {
+          "methods": ["POST"],
+          "pathPattern": "/invoice-storage/invoices/{id}/documents",
+          "permissionsRequired": ["invoice-storage.invoices.documents.item.post"]
+        },
+        {
+          "methods": ["GET"],
+          "pathPattern": "/invoice-storage/invoices/{id}/documents/{documentId}",
+          "permissionsRequired": ["invoice-storage.invoices.documents.item.get"]
+        },
+        {
+          "methods": ["DELETE"],
+          "pathPattern": "/invoice-storage/invoices/{id}/documents/{documentId}",
+          "permissionsRequired": ["invoice-storage.invoices.documents.item.delete"]
         }
       ]
     },
@@ -87,7 +107,7 @@
       ]
     },
     {
-      
+
       "id": "voucher-storage.vouchers",
       "version": "1.0",
       "handlers": [
@@ -207,6 +227,26 @@
       "permissionName": "invoice-storage.invoices.item.delete",
       "displayName": "Invoice storage - delete invoice",
       "description": "Delete invoice"
+    },
+    {
+      "permissionName": "invoice-storage.invoices.documents.collection.get",
+      "displayName": "Invoice storage - get document collection",
+      "description": "Get documents collection"
+    },
+    {
+      "permissionName": "invoice-storage.invoices.documents.item.get",
+      "displayName": "Invoice storage - get individual document",
+      "description": "Get individual document"
+    },
+    {
+      "permissionName": "invoice-storage.invoices.documents.item.post",
+      "displayName": "Invoice storage - create document",
+      "description": "Create document"
+    },
+    {
+      "permissionName": "invoice-storage.invoices.documents.item.delete",
+      "displayName": "Invoice storage - delete document",
+      "description": "Delete document"
     },
     {
       "permissionName": "invoice-storage.invoice-lines.collection.get",
@@ -339,6 +379,10 @@
         "invoice-storage.invoices.item.post",
         "invoice-storage.invoices.item.put",
         "invoice-storage.invoices.item.delete",
+        "invoice-storage.invoices.documents.collection.get",
+        "invoice-storage.invoices.documents.item.get",
+        "invoice-storage.invoices.documents.item.post",
+        "invoice-storage.invoices.documents.item.delete",
         "invoice-storage.invoice-lines.collection.get",
         "invoice-storage.invoice-lines.item.get",
         "invoice-storage.invoice-lines.item.post",

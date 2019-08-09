@@ -13,13 +13,14 @@
     </licenses>
 
   <properties>
-    <raml-module-builder.version>26.1.0</raml-module-builder.version>
+    <raml-module-builder.version>26.2.4</raml-module-builder.version>
     <vertx.version>3.5.4</vertx.version>
     <junit.version>4.12</junit.version>
     <junit-jupiter-version>5.4.2</junit-jupiter-version>
     <rest-assured.version>3.3.0</rest-assured.version>
     <ramlfiles_path>${basedir}/ramls</ramlfiles_path>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <jmockit.version>1.46</jmockit.version>
   </properties>
 
   <dependencyManagement>
@@ -87,6 +88,17 @@
       <version>1.4.2</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.jmockit</groupId>
+      <artifactId>jmockit</artifactId>
+      <version>${jmockit.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>one.util</groupId>
+      <artifactId>streamex</artifactId>
+      <version>0.6.8</version>
+    </dependency>
   </dependencies>
 
   <build>
@@ -117,6 +129,9 @@
           <systemPropertyVariables>
             <vertx.logger-delegate-factory-class-name>io.vertx.core.logging.Log4j2LogDelegateFactory</vertx.logger-delegate-factory-class-name>
           </systemPropertyVariables>
+          <argLine>
+            @{argLine} -javaagent:${settings.localRepository}/org/jmockit/jmockit/${jmockit.version}/jmockit-${jmockit.version}.jar
+          </argLine>
           <excludes>
             <exclude>org/folio/rest/impl/*Test.java</exclude>
           </excludes>

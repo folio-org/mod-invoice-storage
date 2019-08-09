@@ -2,6 +2,7 @@ package org.folio.rest.impl;
 
 import static io.restassured.RestAssured.given;
 import static org.folio.rest.RestVerticle.OKAPI_HEADER_TENANT;
+import static org.folio.rest.RestVerticle.OKAPI_HEADER_TOKEN;
 import static org.folio.rest.impl.StorageTestSuite.storageUrl;
 import static org.folio.rest.utils.TestEntities.INVOICE;
 import static org.hamcrest.Matchers.equalTo;
@@ -40,6 +41,9 @@ public abstract class TestBase {
   static final String NON_EXISTED_ID = "bad500aa-aaaa-500a-aaaa-aaaaaaaaaaaa";
   static final Header TENANT_HEADER = new Header(OKAPI_HEADER_TENANT, "diku");
   static final Header TENANT_WITHOUT_DB_HEADER = new Header(OKAPI_HEADER_TENANT, "no_db_tenant");
+  static final Header USER_ID_HEADER = new Header("X-Okapi-User-id", "28d0fb04-d137-11e8-a8d5-f2801f1b9fd1");
+  static final Header X_OKAPI_TOKEN = new Header(OKAPI_HEADER_TOKEN, "eyJhbGciOiJIUzI1NiJ9");
+
   public static final String ID = "id";
 
   @BeforeClass
@@ -78,6 +82,8 @@ public abstract class TestBase {
   Response postData(String endpoint, String input, Header tenant) throws MalformedURLException {
     return given()
       .header(tenant)
+      .header(USER_ID_HEADER)
+      .header(X_OKAPI_TOKEN)
       .accept(ContentType.JSON)
       .contentType(ContentType.JSON)
       .body(input)

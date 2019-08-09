@@ -1,34 +1,31 @@
 package org.folio.rest.impl;
 
 import static io.vertx.core.Future.succeededFuture;
+import static org.folio.rest.persist.HelperUtils.combineCqlExpressions;
 import static org.folio.rest.persist.HelperUtils.getEntitiesCollection;
 import static org.folio.rest.persist.HelperUtils.SequenceQuery.CREATE_SEQUENCE;
 import static org.folio.rest.persist.HelperUtils.SequenceQuery.DROP_SEQUENCE;
+import static org.folio.rest.persist.PostgresClient.pojo2json;
 
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 import javax.ws.rs.core.Response;
 
+import org.apache.commons.lang3.StringUtils;
+import org.folio.rest.RestVerticle;
 import org.folio.rest.annotations.Validate;
-import org.folio.rest.jaxrs.model.Invoice;
-import org.folio.rest.jaxrs.model.InvoiceCollection;
-import org.folio.rest.jaxrs.model.InvoiceLine;
-import org.folio.rest.jaxrs.model.InvoiceLineCollection;
+import org.folio.rest.jaxrs.model.*;
 import org.folio.rest.jaxrs.resource.InvoiceStorage;
-import org.folio.rest.persist.EntitiesMetadataHolder;
-import org.folio.rest.persist.PgExceptionUtil;
-import org.folio.rest.persist.PgUtil;
-import org.folio.rest.persist.PostgresClient;
-import org.folio.rest.persist.QueryHolder;
+import org.folio.rest.persist.*;
 import org.folio.rest.persist.Criteria.Criteria;
 import org.folio.rest.persist.Criteria.Criterion;
+import org.folio.rest.tools.utils.TenantTool;
 
-import io.vertx.core.AsyncResult;
-import io.vertx.core.Context;
-import io.vertx.core.Future;
-import io.vertx.core.Handler;
-import io.vertx.core.Vertx;
+import io.vertx.core.*;
+import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 import io.vertx.ext.sql.SQLConnection;
@@ -41,7 +38,11 @@ public class InvoiceStorageImpl implements InvoiceStorage {
   private static final String INVOICE_PREFIX = "/invoice-storage/invoices/";
   public static final String INVOICE_TABLE = "invoices";
   private static final String INVOICE_LINE_TABLE = "invoice_lines";
+  private static final String DOCUMENT_TABLE = "documents";
   private static final String INVOICE_ID_FIELD_NAME = "invoiceId";
+  private static final String INVOICE_ID_MISMATCH_ERROR_MESSAGE = "Invoice id mismatch";
+  private static final String DOCUMENT_LOCATION = "/invoice-storage/invoices/%s/documents/%s";
+
   private PostgresClient pgClient;
 
   public InvoiceStorageImpl(Vertx vertx, String tenantId) {
@@ -156,6 +157,111 @@ public class InvoiceStorageImpl implements InvoiceStorage {
       asyncResultHandler.handle(reply);
       deleteSequence(entity);
     });
+  }
+
+  @Validate
+  @Override
+  public void getInvoiceStorageInvoicesDocumentsById(String id, int offset, int limit, String query, String lang,
+      Map<String, String> okapiHeaders, Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
+    String getByIdQuery = INVOICE_ID_FIELD_NAME + "==" + id;
+    String resultQuery = StringUtils.isNotEmpty(query) ? combineCqlExpressions("and", getByIdQuery, query) : getByIdQuery;
+
+    EntitiesMetadataHolder<Document, DocumentCollection> entitiesMetadataHolder = new EntitiesMetadataHolder<>(Document.class, DocumentCollection.class, GetInvoiceStorageInvoicesDocumentsByIdResponse.class);
+    QueryHolder cql = new QueryHolder(DOCUMENT_TABLE, resultQuery, offset, limit, lang);
+    getEntitiesCollection(entitiesMetadataHolder, cql, asyncResultHandler, vertxContext, okapiHeaders);
+  }
+
+  @Validate
+  @Override
+  public void postInvoiceStorageInvoicesDocumentsById(String id, String lang, InvoiceDocument entity, Map<String, String> okapiHeaders,
+      Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
+    vertxContext.runOnContext((Void v) -> {
+      if (!StringUtils.equals(entity.getDocumentMetadata().getInvoiceId(), id)) {
+        asyncResultHandler.handle(Future.succeededFuture(PostInvoiceStorageInvoicesDocumentsByIdResponse.respond400WithTextPlain(INVOICE_ID_MISMATCH_ERROR_MESSAGE)));
+        return;
+      }
+
+      pgClient.getClient().getConnection(sqlConnection -> {
+        try {
+
+          String tenantId = TenantTool.calculateTenantId(okapiHeaders.get(RestVerticle.OKAPI_HEADER_TENANT));
+          String fullTableName = PostgresClient.convertToPsqlStandard(tenantId) + "." + DOCUMENT_TABLE;
+
+          entity.getDocumentMetadata().setMetadata(entity.getMetadata());
+
+          boolean base64Exists = entity.getContents() != null && StringUtils.isNotEmpty(entity.getContents().getData());
+          String sql = "INSERT INTO " + fullTableName + " (id, " + (base64Exists ? "document_data," : "") + " jsonb) VALUES (?," + (base64Exists ? "?," : "") + " ?::JSON) RETURNING id";
+          JsonArray jsonArray = prepareDocumentQueryParams(entity);
+
+          pgClient.execute(sqlConnection, sql, jsonArray, reply -> {
+            if (reply.succeeded()) {
+              asyncResultHandler.handle(Future.succeededFuture(PostInvoiceStorageInvoicesDocumentsByIdResponse
+                .respond201WithApplicationJson(entity, PostInvoiceStorageInvoicesDocumentsByIdResponse.headersFor201()
+                  .withLocation(String.format(DOCUMENT_LOCATION, id, entity.getDocumentMetadata().getId())))));
+            } else {
+              asyncResultHandler.handle(Future.succeededFuture(PostInvoiceStorageInvoicesDocumentsByIdResponse.respond500WithTextPlain(reply.cause().getMessage())));
+            }
+          });
+        } catch (Exception e) {
+          log.error(e.getMessage(), e);
+          asyncResultHandler.handle(Future.succeededFuture(PostInvoiceStorageInvoicesDocumentsByIdResponse.respond500WithTextPlain(e.getCause().getMessage())));
+        }
+      });}
+    );
+  }
+
+  @Validate
+  @Override
+  public void getInvoiceStorageInvoicesDocumentsByIdAndDocumentId(String id, String documentId, String lang,
+    Map<String, String> okapiHeaders, Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
+    vertxContext.runOnContext((Void v) -> {
+      try {
+        String tenantId = TenantTool.calculateTenantId(okapiHeaders.get(RestVerticle.OKAPI_HEADER_TENANT));
+        String fullTableName = PostgresClient.convertToPsqlStandard(tenantId) + "." + DOCUMENT_TABLE;
+
+        String query = "SELECT jsonb, document_data FROM " + fullTableName + " WHERE id ='" + documentId + "' AND invoiceId='" + id + "'";
+        pgClient.select(query, reply -> {
+          try {
+            if (reply.succeeded()) {
+              if (reply.result().getResults().isEmpty()){
+                asyncResultHandler.handle(Future.succeededFuture(GetInvoiceStorageInvoicesDocumentsByIdAndDocumentIdResponse.respond404WithTextPlain(Response.Status.NOT_FOUND.getReasonPhrase())));
+                return;
+              }
+              InvoiceDocument invoiceDocument = new InvoiceDocument();
+
+              List queryResults = reply.result().getResults().get(0).getList();
+
+              DocumentMetadata documentMetadata = (new JsonObject((String) queryResults.get(0))).mapTo(DocumentMetadata.class);
+              invoiceDocument.setDocumentMetadata(documentMetadata);
+              invoiceDocument.setMetadata(documentMetadata.getMetadata());
+
+              String base64Content = (String) queryResults.get(1);
+              if (StringUtils.isNotEmpty(base64Content)){
+                invoiceDocument.setContents(new Contents().withData(base64Content));
+              }
+
+              asyncResultHandler.handle(Future.succeededFuture(GetInvoiceStorageInvoicesDocumentsByIdAndDocumentIdResponse.respond200WithApplicationJson(invoiceDocument)));
+            } else {
+              log.error(reply.cause().getMessage(), reply.cause());
+              asyncResultHandler.handle(Future.succeededFuture(GetInvoiceStorageInvoicesDocumentsByIdAndDocumentIdResponse.respond500WithTextPlain(reply.cause().getMessage())));
+            }
+          } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            asyncResultHandler.handle(Future.succeededFuture(GetInvoiceStorageInvoicesDocumentsByIdAndDocumentIdResponse.respond500WithTextPlain(Response.Status.INTERNAL_SERVER_ERROR.getReasonPhrase())));
+          }
+        });
+      } catch (Exception e) {
+        log.error(e.getMessage(), e);
+        asyncResultHandler.handle(Future.succeededFuture(GetInvoiceStorageInvoicesDocumentsByIdAndDocumentIdResponse.respond500WithTextPlain(Response.Status.INTERNAL_SERVER_ERROR.getReasonPhrase())));
+      }
+    });
+  }
+
+  @Validate
+  @Override
+  public void deleteInvoiceStorageInvoicesDocumentsByIdAndDocumentId(String id, String documentId, String lang,
+      Map<String, String> okapiHeaders, Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
+    PgUtil.deleteById(DOCUMENT_TABLE, documentId, okapiHeaders, vertxContext, DeleteInvoiceStorageInvoicesDocumentsByIdAndDocumentIdResponse.class, asyncResultHandler);
   }
 
   @Validate
@@ -304,7 +410,6 @@ public class InvoiceStorageImpl implements InvoiceStorage {
     pgClient.endTx(tx.getConnection(), v -> future.complete(tx));
     return future;
   }
-
   public class Tx<T> {
 
     private T entity;
@@ -389,11 +494,28 @@ public class InvoiceStorageImpl implements InvoiceStorage {
     return future;
   }
 
-  private Criterion getCriterionByFieldNameAndValue(String filedName, String fieldValue) {
+  private Criterion getCriterionByFieldNameAndValue(String fieldName, String fieldValue) {
     Criteria a = new Criteria();
-    a.addField("'" + filedName + "'");
+    a.addField("'" + fieldName + "'");
     a.setOperation("=");
     a.setVal(fieldValue);
     return new Criterion(a);
+  }
+
+  private JsonArray prepareDocumentQueryParams(InvoiceDocument entity) throws Exception {
+    JsonArray queryParams = new JsonArray();
+
+    if (entity.getDocumentMetadata().getId() == null) {
+      entity.getDocumentMetadata().setId(UUID.randomUUID().toString());
+    }
+    queryParams.add(entity.getDocumentMetadata().getId());
+
+    if (entity.getContents() != null && StringUtils.isNotEmpty(entity.getContents().getData())){
+      queryParams.add(entity.getContents().getData());
+    }
+
+    queryParams.add(pojo2json(entity.getDocumentMetadata()));
+
+    return queryParams;
   }
 }

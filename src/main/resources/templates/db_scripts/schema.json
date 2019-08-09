@@ -45,6 +45,24 @@
           "targetTable": "vouchers"
         }
       ]
+    },
+    {
+      "tableName": "documents",
+      "fromModuleVersion": 1.1,
+      "withMetadata": true,
+      "foreignKeys": [
+        {
+          "fieldName": "invoiceId",
+          "targetTable": "invoices"
+        }
+      ],
+      "index": [
+        {
+          "fieldName": "invoiceId",
+          "tOps": "ADD"
+        }
+      ],
+      "customSnippetPath" : "document_table.sql"
     }
   ]
 }
