@@ -38,7 +38,7 @@
         },
         {
           "methods": ["POST"],
-          "pathPattern": "/invoice-storage/invoices{id}/documents",
+          "pathPattern": "/invoice-storage/invoices/{id}/documents",
           "permissionsRequired": ["invoice-storage.invoices.documents.item.post"]
         },
         {
