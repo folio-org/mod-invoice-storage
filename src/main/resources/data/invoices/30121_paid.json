@@ -3,7 +3,7 @@
   "accountingCode": "5678",
   "adjustments": [
   ],
-  "adjustmentsTotal": 0.00,
+  "adjustmentsTotal": -200.00,
   "approvedBy": "b72a28f6-04fc-489f-be18-ad53a3a64f67",
   "approvalDate": "2018-07-26T00:00:00Z",
   "currency": "USD",
@@ -15,7 +15,7 @@
   "status": "Paid",
   "source": "User",
   "subTotal": 200000.00,
-  "total": 200000.00,
+  "total": 199800.00,
   "vendorInvoiceNo": "NM23141",
   "voucherNumber": "223",
   "poNumbers": [

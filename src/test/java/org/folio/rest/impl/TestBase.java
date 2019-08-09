@@ -24,6 +24,7 @@ import org.junit.BeforeClass;
 import io.restassured.http.ContentType;
 import io.restassured.http.Header;
 import io.restassured.response.Response;
+import io.restassured.response.ValidatableResponse;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 
@@ -54,8 +55,8 @@ public abstract class TestBase {
     }
   }
 
-  void verifyCollectionQuantity(String endpoint, int quantity, Header tenantHeader) throws MalformedURLException {
-    getData(endpoint, tenantHeader)
+  ValidatableResponse verifyCollectionQuantity(String endpoint, int quantity, Header tenantHeader) throws MalformedURLException {
+    return getData(endpoint, tenantHeader)
       .then()
       .log().all()
       .statusCode(200)
@@ -96,7 +97,7 @@ public abstract class TestBase {
         .extract()
           .path("id");
   }
-  
+
   @AfterClass
   public static void testBaseAfterClass()
     throws InterruptedException,
@@ -115,7 +116,7 @@ public abstract class TestBase {
         .statusCode(200)
         .body("id", equalTo(id));
   }
-  
+
   Response getDataById(String endpoint, String id) throws MalformedURLException {
     return given()
       .pathParam("id", id)
@@ -123,17 +124,17 @@ public abstract class TestBase {
       .contentType(ContentType.JSON)
       .get(storageUrl(endpoint));
   }
-  
+
   Response getData(String endpoint) throws MalformedURLException {
     return getData(endpoint, TENANT_HEADER);
   }
-  
+
   void testEntityEdit(String endpoint, String entitySample, String id) throws MalformedURLException {
     putData(endpoint, id, entitySample)
       .then().log().ifValidationFails()
       .statusCode(204);
   }
-  
+
   void testFetchingUpdatedEntity(String id, TestEntities subObject) throws MalformedURLException {
     Object existedValue = getDataById(subObject.getEndpointWithId(), id)
       .then()
@@ -144,7 +145,7 @@ public abstract class TestBase {
               .get(subObject.getUpdatedFieldName());
     assertEquals(existedValue, subObject.getUpdatedFieldValue());
   }
-  
+
   Response putData(String endpoint, String id, String input) throws MalformedURLException {
     return given()
       .pathParam("id", id)
@@ -153,7 +154,7 @@ public abstract class TestBase {
         .body(input)
           .put(storageUrl(endpoint));
   }
-  
+
   Response putInvoiceNumberData(String id, String input) throws MalformedURLException {
     return given()
       .pathParam("id", id)
@@ -162,7 +163,7 @@ public abstract class TestBase {
       .body(input)
         .put(storageUrl(INVOICE.getEndpointWithId()));
   }
-  
+
   void deleteDataSuccess(String endpoint, String id) throws MalformedURLException {
     deleteData(endpoint, id)
       .then().log().ifValidationFails()
@@ -180,18 +181,18 @@ public abstract class TestBase {
       .contentType(ContentType.JSON)
       .delete(storageUrl(endpoint));
   }
-  
+
   void testVerifyEntityDeletion(String endpoint, String id) throws MalformedURLException {
     getDataById(endpoint, id)
       .then()
         .statusCode(404);
   }
-  
+
   void testInvalidCQLQuery(String endpoint) throws MalformedURLException {
     getData(endpoint).then().log().ifValidationFails()
       .statusCode(400);
   }
-  
+
   Response getDataByParam(String endpoint, Map<String, Object> params) throws MalformedURLException {
     return given()
       .params(params)
@@ -199,7 +200,7 @@ public abstract class TestBase {
       .contentType(ContentType.JSON)
         .get(storageUrl(endpoint));
   }
-  
+
   void testAllFieldsExists(JsonObject extracted, JsonObject sampleObject) {
     sampleObject.remove("id");
     Set<String> fieldsNames = sampleObject.fieldNames();
@@ -213,7 +214,7 @@ public abstract class TestBase {
     }
   }
 
-  
+
   static String getFile(String filename) {
     String value = "";
     try (InputStream inputStream = TestBase.class.getClassLoader().getResourceAsStream(filename)) {

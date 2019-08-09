@@ -3,6 +3,7 @@
   "accountingCode": "1234",
   "adjustments": [
   ],
+  "adjustmentsTotal": 45.00,
   "currency": "USD",
   "exportToAccounting": false,
   "folioInvoiceNo": "123invoicenumber45",
@@ -12,6 +13,8 @@
   "paymentMethod": "EFT",
   "status": "Approved",
   "source": "User",
+  "subTotal": 1150.00,
+  "total": 1195.00,
   "vendorInvoiceNo": "YK75851",
   "voucherNumber": "478",
   "poNumbers": [
