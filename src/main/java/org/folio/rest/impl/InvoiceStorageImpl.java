@@ -466,7 +466,7 @@ public class InvoiceStorageImpl implements InvoiceStorage {
 
     String sqlQuery = DROP_SEQUENCE.getQuery(txWithId.getEntity());
     log.info("InvoiceStorageImpl deleteSequence Drop sequence query -- ", sqlQuery);
-    pgClient.execute(sqlQuery, reply -> {
+    pgClient.execute(txWithId.getConnection(), sqlQuery, reply -> {
       if (reply.failed()) {
         log.error("IL number sequence for invoice with id={} failed to be dropped", reply.cause(), txWithId.getEntity());
         handleFailure(future, reply);
