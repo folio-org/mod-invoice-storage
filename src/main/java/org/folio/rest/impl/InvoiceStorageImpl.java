@@ -173,41 +173,37 @@ public class InvoiceStorageImpl implements InvoiceStorage {
 
   @Validate
   @Override
-  public void postInvoiceStorageInvoicesDocumentsById(String id, String lang, InvoiceDocument entity, Map<String, String> okapiHeaders,
-      Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
+  public void postInvoiceStorageInvoicesDocumentsById(String id, String lang, InvoiceDocument entity,
+    Map<String, String> okapiHeaders, Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
     vertxContext.runOnContext((Void v) -> {
       if (!StringUtils.equals(entity.getDocumentMetadata().getInvoiceId(), id)) {
         asyncResultHandler.handle(Future.succeededFuture(PostInvoiceStorageInvoicesDocumentsByIdResponse.respond400WithTextPlain(INVOICE_ID_MISMATCH_ERROR_MESSAGE)));
         return;
       }
+      try {
+        String tenantId = TenantTool.calculateTenantId(okapiHeaders.get(RestVerticle.OKAPI_HEADER_TENANT));
+        String fullTableName = PostgresClient.convertToPsqlStandard(tenantId) + "." + DOCUMENT_TABLE;
 
-      pgClient.getClient().getConnection(sqlConnection -> {
-        try {
+        entity.getDocumentMetadata().setMetadata(entity.getMetadata());
 
-          String tenantId = TenantTool.calculateTenantId(okapiHeaders.get(RestVerticle.OKAPI_HEADER_TENANT));
-          String fullTableName = PostgresClient.convertToPsqlStandard(tenantId) + "." + DOCUMENT_TABLE;
+        boolean base64Exists = entity.getContents() != null && StringUtils.isNotEmpty(entity.getContents().getData());
+        String sql = "INSERT INTO " + fullTableName + " (id, " + (base64Exists ? "document_data," : "") + " jsonb) VALUES (?," + (base64Exists ? "?," : "") + " ?::JSON) RETURNING id";
+        JsonArray jsonArray = prepareDocumentQueryParams(entity);
 
-          entity.getDocumentMetadata().setMetadata(entity.getMetadata());
-
-          boolean base64Exists = entity.getContents() != null && StringUtils.isNotEmpty(entity.getContents().getData());
-          String sql = "INSERT INTO " + fullTableName + " (id, " + (base64Exists ? "document_data," : "") + " jsonb) VALUES (?," + (base64Exists ? "?," : "") + " ?::JSON) RETURNING id";
-          JsonArray jsonArray = prepareDocumentQueryParams(entity);
-
-          pgClient.execute(sqlConnection, sql, jsonArray, reply -> {
-            if (reply.succeeded()) {
-              asyncResultHandler.handle(Future.succeededFuture(PostInvoiceStorageInvoicesDocumentsByIdResponse
-                .respond201WithApplicationJson(entity, PostInvoiceStorageInvoicesDocumentsByIdResponse.headersFor201()
-                  .withLocation(String.format(DOCUMENT_LOCATION, id, entity.getDocumentMetadata().getId())))));
-            } else {
-              asyncResultHandler.handle(Future.succeededFuture(PostInvoiceStorageInvoicesDocumentsByIdResponse.respond500WithTextPlain(reply.cause().getMessage())));
-            }
-          });
-        } catch (Exception e) {
-          log.error(e.getMessage(), e);
-          asyncResultHandler.handle(Future.succeededFuture(PostInvoiceStorageInvoicesDocumentsByIdResponse.respond500WithTextPlain(e.getCause().getMessage())));
-        }
-      });}
-    );
+        pgClient.execute(sql, jsonArray, reply -> {
+          if (reply.succeeded()) {
+            asyncResultHandler.handle(Future.succeededFuture(PostInvoiceStorageInvoicesDocumentsByIdResponse.respond201WithApplicationJson(entity,
+              PostInvoiceStorageInvoicesDocumentsByIdResponse.headersFor201()
+                .withLocation(String.format(DOCUMENT_LOCATION, id, entity.getDocumentMetadata().getId())))));
+          } else {
+            asyncResultHandler.handle(Future.succeededFuture(PostInvoiceStorageInvoicesDocumentsByIdResponse.respond500WithTextPlain(reply.cause().getMessage())));
+          }
+        });
+      } catch (Exception e) {
+        log.error(e.getMessage(), e);
+        asyncResultHandler.handle(Future.succeededFuture(PostInvoiceStorageInvoicesDocumentsByIdResponse.respond500WithTextPlain(e.getCause().getMessage())));
+      }
+    });
   }
 
   @Validate
