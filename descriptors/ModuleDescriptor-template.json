@@ -4,7 +4,7 @@
   "provides": [
     {
       "id": "invoice-storage.invoices",
-      "version": "1.0",
+      "version": "2.0",
       "handlers": [
         {
           "methods": ["GET"],
@@ -55,7 +55,7 @@
     },
     {
       "id": "invoice-storage.invoice-lines",
-      "version": "1.0",
+      "version": "1.1",
       "handlers": [
         {
           "methods": ["GET"],
@@ -109,7 +109,7 @@
     {
 
       "id": "voucher-storage.vouchers",
-      "version": "1.0",
+      "version": "1.1",
       "handlers": [
         {
           "methods": ["GET"],
@@ -140,7 +140,7 @@
     },
     {
       "id": "voucher-storage.voucher-lines",
-      "version": "1.0",
+      "version": "1.1",
       "handlers": [
         {
           "methods": ["GET"],
