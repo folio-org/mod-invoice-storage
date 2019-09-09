@@ -48,7 +48,7 @@
     },
     {
       "tableName": "documents",
-      "fromModuleVersion": 1.1,
+      "fromModuleVersion": 2.0,
       "withMetadata": true,
       "foreignKeys": [
         {
