@@ -1,4 +1,20 @@
-## 1.1.0 - Unreleased
+## 2.1.0 - Unreleased
+
+## 2.0.0 - Released
+
+The primary focus of this release was to allow cross table index queries and provide the APIs for managing invoice attachments.
+
+[Full Changelog](https://github.com/folio-org/mod-invoice-storage/compare/v1.0.0...v2.0.0)
+
+### Stories
+* [MODINVOICE-77](https://issues.folio.org/browse/MODINVOICE-77) - Invoice and invoiceLine schema updates (breaking changes)
+* [MODINVOSTO-35](https://issues.folio.org/browse/MODINVOSTO-35) - Cleanup acquisition-units-assignments APIs/views/etc. (breaking changes)
+* [MODINVOSTO-34](https://issues.folio.org/browse/MODINVOSTO-34) - Implement API for invoice attachments (links/documents)
+* [MODINVOSTO-31](https://issues.folio.org/browse/MODINVOSTO-31) - Voucher/voucher line cross table index queries
+* [MODINVOSTO-28](https://issues.folio.org/browse/MODINVOSTO-28) - Invoice/invoice line cross table index queries
+
+### Bug Fixes
+* [MODINVOSTO-38](https://issues.folio.org/browse/MODINVOSTO-38) - MOD-INVOICE-STORAGE fails after several runs of API tests
 
 ## 1.0.0 - Released
 

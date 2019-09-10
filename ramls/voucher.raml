@@ -1,7 +1,7 @@
 #%RAML 1.0
 
 title: Vouchers
-version: v1
+version: v1.1
 protocols: [ HTTP, HTTPS ]
 baseUri: http://github.com/folio-org/mod-invoice-storage
 
@@ -77,4 +77,4 @@ resourceTypes:
           schema: voucherLine
           exampleItem: !include acq-models/mod-invoice-storage/examples/voucher_line.sample
       put:
-        is: [validate]      
+        is: [validate]
