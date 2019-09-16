@@ -104,6 +104,9 @@ public class VoucherNumberTest extends TestBase {
     String voucherId1 = createEntity(TestEntities.VOUCHER.getEndpoint(), voucher.withId(randomUUID().toString()).withInvoiceId(invoiceId1));
     String voucherId2 = createEntity(TestEntities.VOUCHER.getEndpoint(), voucher.withId(randomUUID().toString()).withInvoiceId(invoiceId2));
 
+    // Make sure 2 vouchers are created with the same number
+    verifyCollectionQuantity(TestEntities.VOUCHER.getEndpoint() + "?query=voucherNumber==MODINVOSTO40", 2);
+
     deleteDataSuccess(TestEntities.VOUCHER.getEndpointWithId(), voucherId1);
     deleteDataSuccess(TestEntities.VOUCHER.getEndpointWithId(), voucherId2);
     deleteDataSuccess(TestEntities.INVOICE.getEndpointWithId(), invoiceId1);
