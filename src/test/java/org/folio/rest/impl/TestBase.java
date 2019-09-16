@@ -18,8 +18,8 @@ import java.util.concurrent.TimeoutException;
 
 import org.apache.commons.io.IOUtils;
 import org.folio.rest.utils.TestEntities;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 
 import io.restassured.http.ContentType;
 import io.restassured.http.Header;
@@ -46,7 +46,7 @@ public abstract class TestBase {
 
   public static final String ID = "id";
 
-  @BeforeClass
+  @BeforeAll
   public static void testBaseBeforeClass() throws InterruptedException, ExecutionException, TimeoutException, IOException {
     Vertx vertx = StorageTestSuite.getVertx();
     if (vertx == null) {
@@ -90,6 +90,10 @@ public abstract class TestBase {
       .post(storageUrl(endpoint));
   }
 
+  String createEntity(String endpoint, Object input) throws MalformedURLException {
+    return createEntity(endpoint, JsonObject.mapFrom(input).encode());
+  }
+
   String createEntity(String endpoint, String entity) throws MalformedURLException {
     return postData(endpoint, entity)
       .then().log().ifValidationFails()
@@ -98,7 +102,7 @@ public abstract class TestBase {
           .path("id");
   }
 
-  @AfterClass
+  @AfterAll
   public static void testBaseAfterClass()
     throws InterruptedException,
     ExecutionException,
