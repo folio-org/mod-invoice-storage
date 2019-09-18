@@ -1,6 +1,7 @@
 package org.folio.rest.impl;
 
 import static io.restassured.RestAssured.given;
+import static java.util.UUID.randomUUID;
 import static org.folio.rest.impl.StorageTestSuite.storageUrl;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
@@ -13,12 +14,16 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
 import org.folio.HttpStatus;
+import org.folio.rest.jaxrs.model.Invoice;
+import org.folio.rest.jaxrs.model.Voucher;
 import org.folio.rest.persist.PostgresClient;
+import org.folio.rest.utils.TestEntities;
 import org.junit.jupiter.api.Test;
 
 import io.restassured.http.ContentType;
 import io.restassured.response.ValidatableResponse;
 import io.vertx.core.Vertx;
+import io.vertx.core.json.JsonObject;
 import io.vertx.ext.sql.UpdateResult;
 
 public class VoucherNumberTest extends TestBase {
@@ -57,9 +62,9 @@ public class VoucherNumberTest extends TestBase {
     changeStartValueResponse(start)
       .statusCode(HttpStatus.HTTP_NO_CONTENT.toInt());
 
-    // verify current start value equals new reseted start value 
+    // verify current start value equals new reseted start value
     assertThat(getCurrentStartValueVoucherNumber(), equalTo(start));
-    
+
     assertThat(getSequenceNumberValue(), is(start));
 
     // Negative scenario - changing start value with bad request
@@ -78,13 +83,36 @@ public class VoucherNumberTest extends TestBase {
       .statusCode(HttpStatus.HTTP_INTERNAL_SERVER_ERROR.toInt())
       .contentType(ContentType.TEXT);
   }
-  
+
   @Test
   public void testCurrentStartValueVoucherNumberInvalidUrl() throws MalformedURLException {
     getData(VOUCHER_NUMBER_INVALID_START_ENDPOINT).then()
       .statusCode(400);
   }
-  
+
+  @Test
+  public void testVoucherNumberIsNotUnique() throws MalformedURLException {
+    Invoice invoice = new JsonObject(getFile(TestEntities.INVOICE.getSampleFileName())).mapTo(Invoice.class);
+
+    String invoiceId1 = createEntity(TestEntities.INVOICE.getEndpoint(), invoice.withId(randomUUID().toString()));
+    String invoiceId2 = createEntity(TestEntities.INVOICE.getEndpoint(), invoice.withId(randomUUID().toString()));
+
+    Voucher voucher = new JsonObject(getFile(TestEntities.VOUCHER.getSampleFileName())).mapTo(Voucher.class)
+      .withVoucherNumber("MODINVOSTO40");
+
+    // Create vouchers for different invoices but with the same voucher number
+    String voucherId1 = createEntity(TestEntities.VOUCHER.getEndpoint(), voucher.withId(randomUUID().toString()).withInvoiceId(invoiceId1));
+    String voucherId2 = createEntity(TestEntities.VOUCHER.getEndpoint(), voucher.withId(randomUUID().toString()).withInvoiceId(invoiceId2));
+
+    // Make sure 2 vouchers are created with the same number
+    verifyCollectionQuantity(TestEntities.VOUCHER.getEndpoint() + "?query=voucherNumber==MODINVOSTO40", 2);
+
+    deleteDataSuccess(TestEntities.VOUCHER.getEndpointWithId(), voucherId1);
+    deleteDataSuccess(TestEntities.VOUCHER.getEndpointWithId(), voucherId2);
+    deleteDataSuccess(TestEntities.INVOICE.getEndpointWithId(), invoiceId1);
+    deleteDataSuccess(TestEntities.INVOICE.getEndpointWithId(), invoiceId2);
+  }
+
   private long getCurrentStartValueVoucherNumber() throws MalformedURLException {
     return new Long(getData(VOUCHER_STORAGE_VOUCHER_NUMBER_START_ENDPOINT)
       .then()
@@ -93,7 +121,7 @@ public class VoucherNumberTest extends TestBase {
           .response()
             .path(SEQUENCE_NUMBER));
   }
-  
+
   private ValidatableResponse getSequenceNumberResponse() throws MalformedURLException {
     return given()
       .header(TENANT_HEADER)
