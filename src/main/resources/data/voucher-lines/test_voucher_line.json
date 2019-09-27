@@ -5,14 +5,16 @@
   "fundDistributions": [
     {
       "fundId": "1d1574f1-9196-4a57-8d1f-3b2e4309eb81",
-      "percentage": 50,
+      "distributionType": "percentage",
+      "value": 50,
       "code": "USHIST",
       "encumbrance": "1c8fc9f4-d2cc-4bd1-aa9a-cb02291cbe65",
       "invoiceLineId": "e0d08448-343b-118a-8c2f-4fb50248d672"
     },
     {
       "fundId": "63157e96-0693-426d-b0df-948bacdfdb08",
-      "percentage": 50,
+      "distributionType": "percentage",
+      "value": 50,
       "code": "EUHIST",
       "encumbrance": "5f9bfc74-f6ff-4877-be1f-793f8ce90ade",
       "invoiceLineId": "e0d08448-343b-118a-8c2f-4fb50248d672"

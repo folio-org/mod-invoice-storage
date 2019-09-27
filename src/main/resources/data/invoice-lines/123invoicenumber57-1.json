@@ -16,7 +16,8 @@
       "code": "UNIV-SUBN",
       "encumbrance": "eb506834-6c70-4239-8d1a-6414a5b08007",
       "fundId": "4428a37c-8bae-4f0d-865d-970d83d5ad55",
-      "percentage": 100.0
+      "distributionType": "percentage",
+      "value": 100.0
     }
   ],
   "invoiceId": "859c2cd1-420a-4d3b-abbb-dfcb3a3087fd",

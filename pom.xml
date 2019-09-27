@@ -2,7 +2,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.folio</groupId>
     <artifactId>mod-invoice-storage</artifactId>
-    <version>2.1.0-SNAPSHOT</version>
+    <version>3.0.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <licenses>
@@ -13,8 +13,8 @@
     </licenses>
 
   <properties>
-    <raml-module-builder.version>26.3.1</raml-module-builder.version>
-    <vertx.version>3.5.4</vertx.version>
+    <raml-module-builder.version>27.1.1</raml-module-builder.version>
+    <vertx.version>3.8.1</vertx.version>
     <junit-jupiter-version>5.4.2</junit-jupiter-version>
     <rest-assured.version>3.3.0</rest-assured.version>
     <ramlfiles_path>${basedir}/ramls</ramlfiles_path>
@@ -380,7 +380,7 @@
               </transformers>
               <filters>
                 <filter>
-                  <artifact>org.folio:raml-module-builder</artifact>
+                  <artifact>org.folio:domain-models*</artifact>
                   <excludes>
                     <exclude>**/log4j2.properties</exclude>
                   </excludes>
