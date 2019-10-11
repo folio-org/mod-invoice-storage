@@ -14,7 +14,10 @@
       "foreignKeys": [
         {
           "fieldName": "invoiceId",
-          "targetTable": "invoices"
+          "targetTable": "invoices",
+          "tableAlias": "invoiceLines",
+          "targetTableAlias": "invoices",
+          "tOps": "ADD"
         }
       ]
     },
@@ -44,7 +47,10 @@
       "foreignKeys": [
         {
           "fieldName": "voucherId",
-          "targetTable": "vouchers"
+          "targetTable": "vouchers",
+          "tableAlias": "voucherLines",
+          "targetTableAlias": "vouchers",
+          "tOps": "ADD"
         }
       ]
     },
