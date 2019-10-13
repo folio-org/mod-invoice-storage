@@ -8,12 +8,16 @@
     },
     {
       "tableName": "invoice_lines",
-      "fromModuleVersion": 1.0,
+      "customSnippetPath": "data-migration/invoice_lines_table.sql",
+      "fromModuleVersion": "3.0",
       "withMetadata": true,
       "foreignKeys": [
         {
           "fieldName": "invoiceId",
-          "targetTable": "invoices"
+          "targetTable": "invoices",
+          "tableAlias": "invoiceLines",
+          "targetTableAlias": "invoices",
+          "tOps": "ADD"
         }
       ]
     },
@@ -37,12 +41,16 @@
     },
     {
       "tableName": "voucher_lines",
-      "fromModuleVersion": 1.0,
+      "customSnippetPath": "data-migration/voucher_lines_table.sql",
+      "fromModuleVersion": "3.0",
       "withMetadata": true,
       "foreignKeys": [
         {
           "fieldName": "voucherId",
-          "targetTable": "vouchers"
+          "targetTable": "vouchers",
+          "tableAlias": "voucherLines",
+          "targetTableAlias": "vouchers",
+          "tOps": "ADD"
         }
       ]
     },
