@@ -26,41 +26,44 @@ public class InvoiceLineNumberAPI implements InvoiceStorageInvoiceLineNumber {
 
   private static final Logger log = LoggerFactory.getLogger(InvoiceLineNumberAPI.class);
   private final Messages messages = Messages.getInstance();
-  
+
   @Validate
-	@Override
-	public void getInvoiceStorageInvoiceLineNumber(String invoiceId, String lang, Map<String, String> okapiHeaders,
-	    Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
+  @Override
+  public void getInvoiceStorageInvoiceLineNumber(String invoiceId, String lang, Map<String, String> okapiHeaders,
+      Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
     vertxContext.runOnContext((Void v) -> {
-    	try {
+      try {
         String tenantId = TenantTool.calculateTenantId(okapiHeaders.get(RestVerticle.OKAPI_HEADER_TENANT));
-        PostgresClient.getInstance(vertxContext.owner(), tenantId).selectSingle(GET_IL_NUMBER_FROM_SEQUENCE.getQuery(invoiceId),
-        		getILNumberReply -> {
-	        	try {
-	        		if(getILNumberReply.succeeded()) {
-	        			String invoiceLineNumber = getILNumberReply.result().getLong(0).toString();
-	        			log.info("--- InvoiceLineNumberAPI getInvoiceStorageInvoiceLineNumber invoiceLineNumber -- " + invoiceLineNumber);
-	        			asyncResultHandler.handle(Future.succeededFuture(InvoiceStorageInvoiceLineNumber.GetInvoiceStorageInvoiceLineNumberResponse
-	        					.respond200WithApplicationJson(new InvoiceLineNumber().withSequenceNumber(invoiceLineNumber))));
-	        		} else {
-	        			throw new Exception("--- InvoiceLineNumberAPI --- Unable to generate Invoice-line number from a sequence");
-	        		}
-	        	} catch(Exception e) {
-	        		logErrorAndRespond400(asyncResultHandler, getILNumberReply.cause());
-	        	}
-        });
-    	} catch(Exception e) {
-    		logErrorAndRespond500(lang, asyncResultHandler, e);
-    	}
+        PostgresClient.getInstance(vertxContext.owner(), tenantId)
+          .selectSingle(GET_IL_NUMBER_FROM_SEQUENCE.getQuery(invoiceId), getILNumberReply -> {
+            try {
+              if (getILNumberReply.succeeded()) {
+                String invoiceLineNumber = getILNumberReply.result()
+                  .getLong(0)
+                  .toString();
+                log.info("--- InvoiceLineNumberAPI getInvoiceStorageInvoiceLineNumber invoiceLineNumber -- " + invoiceLineNumber);
+                asyncResultHandler
+                  .handle(Future.succeededFuture(InvoiceStorageInvoiceLineNumber.GetInvoiceStorageInvoiceLineNumberResponse
+                    .respond200WithApplicationJson(new InvoiceLineNumber().withSequenceNumber(invoiceLineNumber))));
+              } else {
+                throw new Exception("--- InvoiceLineNumberAPI --- Unable to generate Invoice-line number from a sequence");
+              }
+            } catch (Exception e) {
+              logErrorAndRespond400(asyncResultHandler, getILNumberReply.cause());
+            }
+          });
+      } catch (Exception e) {
+        logErrorAndRespond500(lang, asyncResultHandler, e);
+      }
     });
 	}
-  
+
   private void logErrorAndRespond400(Handler<AsyncResult<Response>> asyncResultHandler, Throwable e) {
     log.error(e.getMessage(), e);
     asyncResultHandler.handle(Future.succeededFuture(GetInvoiceStorageInvoiceLineNumberResponse
       .respond400WithTextPlain(e.getMessage())));
   }
-  
+
   private void logErrorAndRespond500(String lang, Handler<AsyncResult<Response>> asyncResultHandler, Throwable e) {
     log.error(e.getMessage(), e);
     asyncResultHandler.handle(Future.succeededFuture(GetInvoiceStorageInvoiceLineNumberResponse
