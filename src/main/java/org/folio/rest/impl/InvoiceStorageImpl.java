@@ -301,7 +301,7 @@ public class InvoiceStorageImpl implements InvoiceStorage {
    * @return Future of Invoice transaction with Invoice Line number sequence
    */
   private Future<Tx<Invoice>> createSequence(Tx<Invoice> tx) {
-    Future<Tx<Invoice>> future = Future.future();
+    Promise<Tx<Invoice>> promise = Promise.promise();
 
     String invoiceId = tx.getEntity().getId();
     log.info("Creating IL number sequence for invoice with id={}", invoiceId);
@@ -309,16 +309,16 @@ public class InvoiceStorageImpl implements InvoiceStorage {
       pgClient.execute(tx.getConnection(), CREATE_SEQUENCE.getQuery(invoiceId), reply -> {
         if (reply.failed()) {
           log.error("IL number sequence creation for invoice with id={} failed", reply.cause(), invoiceId);
-          handleFailure(future, reply);
+          handleFailure(promise, reply);
         } else {
           log.info("IL number sequence for invoice with id={} successfully created", invoiceId);
-          future.complete(tx);
+          promise.complete(tx);
         }
       });
     } catch (Exception e) {
-      future.fail(new HttpStatusException(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), e.getMessage()));
+      promise.fail(new HttpStatusException(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), e.getMessage()));
     }
-    return future;
+    return promise.future();
   }
 
   /**
@@ -346,7 +346,7 @@ public class InvoiceStorageImpl implements InvoiceStorage {
    * @return Future of Invoice transaction with new Invoice
    */
   private Future<Tx<Invoice>> createInvoice(Tx<Invoice> tx) {
-    Future<Tx<Invoice>> future = Future.future();
+    Promise<Tx<Invoice>> promise = Promise.promise();
 
     Invoice invoice = tx.getEntity();
     if (invoice.getId() == null) {
@@ -357,21 +357,21 @@ public class InvoiceStorageImpl implements InvoiceStorage {
     pgClient.save(tx.getConnection(), INVOICE_TABLE, invoice.getId(), invoice, reply -> {
       if (reply.failed()) {
         log.error("Invoice creation with id={} failed", reply.cause(), invoice.getId());
-        handleFailure(future, reply);
+        handleFailure(promise, reply);
       } else {
         log.info("New invoice with id={} successfully created", invoice.getId());
-        future.complete(tx);
+        promise.complete(tx);
       }
     });
-    return future;
+    return promise.future();
   }
 
-  private void handleFailure(Future future, AsyncResult reply) {
+  private void handleFailure(Promise promise, AsyncResult reply) {
     String badRequestMessage = PgExceptionUtil.badRequestMessage(reply.cause());
     if (badRequestMessage != null) {
-      future.fail(new HttpStatusException(Response.Status.BAD_REQUEST.getStatusCode(), badRequestMessage));
+      promise.fail(new HttpStatusException(Response.Status.BAD_REQUEST.getStatusCode(), badRequestMessage));
     } else {
-      future.fail(new HttpStatusException(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), reply.cause()
+      promise.fail(new HttpStatusException(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), reply.cause()
         .getMessage()));
     }
   }
@@ -383,14 +383,14 @@ public class InvoiceStorageImpl implements InvoiceStorage {
    * @return Future with started transaction
    */
   private <T> Future<Tx<T>> startTx(Tx<T> tx) {
-    Future<Tx<T>> future = Future.future();
+    Promise<Tx<T>> promise = Promise.promise();
     log.info("Start transaction");
 
     pgClient.startTx(sqlConnection -> {
       tx.setConnection(sqlConnection);
-      future.complete(tx);
+      promise.complete(tx);
     });
-    return future;
+    return promise.future();
   }
 
   /**
@@ -402,9 +402,9 @@ public class InvoiceStorageImpl implements InvoiceStorage {
   private <T> Future<Tx<T>> endTx(Tx<T> tx) {
     log.info("End transaction");
 
-    Future<Tx<T>> future = Future.future();
-    pgClient.endTx(tx.getConnection(), v -> future.complete(tx));
-    return future;
+    Promise<Tx<T>> promise = Promise.promise();
+    pgClient.endTx(tx.getConnection(), v -> promise.complete(tx));
+    return promise.future();
   }
   public class Tx<T> {
 
@@ -431,63 +431,63 @@ public class InvoiceStorageImpl implements InvoiceStorage {
   private Future<Tx<String>> deleteInvoiceById(Tx<String> tx) {
     log.info("Delete invoice with id={}", tx.getEntity());
 
-    Future<Tx<String>> future = Future.future();
+     Promise<Tx<String>> promise = Promise.promise();
 
     pgClient.delete(tx.getConnection(), INVOICE_TABLE, tx.getEntity(), reply -> {
       if (reply.failed()) {
-        handleFailure(future, reply);
+        handleFailure(promise, reply);
       } else {
         if (reply.result().getUpdated() == 0) {
-          future.fail(new HttpStatusException(Response.Status.NOT_FOUND.getStatusCode(), "Invoice not found"));
+          promise.fail(new HttpStatusException(Response.Status.NOT_FOUND.getStatusCode(), "Invoice not found"));
         } else {
-          future.complete(tx);
+          promise.complete(tx);
         }
       }
     });
-    return future;
+    return promise.future();
   }
 
   private Future<Void> rollbackTransaction(Tx<?> tx) {
-    Future<Void> future = Future.future();
+    Promise<Void> promise = Promise.promise();
     if (tx.getConnection().failed()) {
-      future.fail(tx.getConnection().cause());
+      promise.fail(tx.getConnection().cause());
     } else {
-      pgClient.rollbackTx(tx.getConnection(), future);
+      pgClient.rollbackTx(tx.getConnection(), promise);
     }
-    return future;
+    return promise.future();
   }
 
   private Future<Tx<String>> deleteSequence(Tx<String> txWithId) {
-    Future<Tx<String>> future = Future.future();
+    Promise<Tx<String>> promise = Promise.promise();
 
     String sqlQuery = DROP_SEQUENCE.getQuery(txWithId.getEntity());
     log.info("InvoiceStorageImpl deleteSequence Drop sequence query -- ", sqlQuery);
     pgClient.execute(txWithId.getConnection(), sqlQuery, reply -> {
       if (reply.failed()) {
         log.error("IL number sequence for invoice with id={} failed to be dropped", reply.cause(), txWithId.getEntity());
-        handleFailure(future, reply);
+        handleFailure(promise, reply);
       } else {
-        future.complete(txWithId);
+        promise.complete(txWithId);
       }
     });
-    return future;
+    return promise.future();
   }
 
   private Future<Tx<String>> deleteInvoiceLinesByInvoiceId(Tx<String> tx) {
-    Future<Tx<String>> future = Future.future();
+    Promise<Tx<String>> promise = Promise.promise();
     Criterion criterion = getCriterionByFieldNameAndValue(INVOICE_ID_FIELD_NAME, tx.getEntity());
     log.info("Delete invoice lines by invoice id={}", tx.getEntity());
 
     pgClient.delete(tx.getConnection(), INVOICE_LINE_TABLE, criterion, reply -> {
       if (reply.failed()) {
         log.error("The invoice {} cannot be deleted", reply.cause(), tx.getEntity());
-        handleFailure(future, reply);
+        handleFailure(promise, reply);
       } else {
         log.info("{} invoice lines of invoice with id={} successfully deleted", reply.result().getUpdated(), tx.getEntity());
-        future.complete(tx);
+        promise.complete(tx);
       }
     });
-    return future;
+    return promise.future();
   }
 
   private Criterion getCriterionByFieldNameAndValue(String fieldName, String fieldValue) {
