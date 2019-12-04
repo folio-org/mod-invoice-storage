@@ -1,4 +1,16 @@
-## 2.1.0 - Unreleased
+## 3.1.0 - Unreleased
+
+## 3.0.0 - Released
+
+The focus of this release was to improve invoices and vouchers processing
+
+[Full Changelog](https://github.com/folio-org/mod-invoice-storage/compare/v2.0.0...v3.0.0)
+
+### Stories
+* [MODINVOSTO-45](https://issues.folio.org/browse/MODINVOSTO-45) - Update RMB to 29.0.1
+* [MODINVOSTO-44](https://issues.folio.org/browse/MODINVOSTO-44) - Use JVM features to manage container memory
+* [MODINVOSTO-41](https://issues.folio.org/browse/MODINVOSTO-41) - Allow fund distributions to be specified as amount or percentage (breaking changes)
+* [MODINVOSTO-40](https://issues.folio.org/browse/MODINVOSTO-40) - Remove unique index on voucherNumber
 
 ## 2.0.0 - Released
 
