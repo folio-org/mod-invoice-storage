@@ -8,6 +8,7 @@ The focus of this release was to improve invoices and vouchers processing
 
 ### Stories
 * [MODINVOSTO-45](https://issues.folio.org/browse/MODINVOSTO-45) - Update RMB to 28.1.1
+* [MODINVOSTO-44](https://issues.folio.org/browse/MODINVOSTO-44) - Use JVM features to manage container memory
 * [MODINVOSTO-41](https://issues.folio.org/browse/MODINVOSTO-41) - Allow fund distributions to be specified as amount or percentage (breaking changes)
 * [MODINVOSTO-40](https://issues.folio.org/browse/MODINVOSTO-40) - Remove unique index on voucherNumber
 
