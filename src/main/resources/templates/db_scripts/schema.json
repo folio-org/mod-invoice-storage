@@ -2,9 +2,9 @@
   "tables": [
     {
       "tableName": "invoices",
-      "fromModuleVersion": "mod-invoice-storage-1.0.0",
+      "fromModuleVersion": "mod-invoice-storage-4.0.0",
       "withMetadata": true,
-      "customSnippetPath": "invoice_number_sequence.sql"
+      "customSnippetPath": "data-migration/invoices_table.sql"
     },
     {
       "tableName": "invoice_lines",
@@ -23,9 +23,9 @@
     },
     {
       "tableName": "vouchers",
-      "fromModuleVersion": "mod-invoice-storage-1.0.0",
+      "fromModuleVersion": "mod-invoice-storage-4.0.0",
       "withMetadata": true,
-      "customSnippetPath": "voucher_number_sequence.sql",
+      "customSnippetPath": "data-migration/vouchers_table.sql",
       "uniqueIndex": [
         {
           "fieldName": "voucherNumber",
