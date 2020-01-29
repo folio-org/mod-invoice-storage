@@ -10,8 +10,9 @@ public enum TestEntities {
   INVOICE("/invoice-storage/invoices", Invoice.class, "invoices/123invoicenumber45_approved_for_2_orders.json", "note", "Updated note for invoice", 8),
   INVOICE_LINES("/invoice-storage/invoice-lines", InvoiceLine.class, "invoice-lines/123invoicenumber45-1.json", "quantity", 5, 9),
   VOUCHER("/voucher-storage/vouchers", Voucher.class, "vouchers/test_voucher.json", "batchNumber", "202", 1),
-  VOUCHER_LINES("/voucher-storage/voucher-lines", VoucherLine.class, "voucher-lines/test_voucher_line.json", "externalAccountNumber", "Comment from unit test", 1);
-
+  VOUCHER_LINES("/voucher-storage/voucher-lines", VoucherLine.class, "voucher-lines/test_voucher_line.json", "externalAccountNumber", "Comment from unit test", 1),
+  BATCH_GROUPS("/batch-group-storage/batch-groups", BatchGroup.class, "system/batch-groups/FOLIO.json", "name", "DEFAULT", 1);
+  
   private static final String SAMPLES_PATH = "data/";
   TestEntities(String endpoint, Class<?> clazz, String sampleFileName, String updatedFieldName, Object updatedFieldValue, int initialQuantity) {
     this.endpoint = endpoint;

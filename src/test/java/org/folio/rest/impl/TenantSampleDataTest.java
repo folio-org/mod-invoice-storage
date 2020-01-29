@@ -162,6 +162,9 @@ public class TenantSampleDataTest extends TestBase{
     postToTenant(ANOTHER_TENANT_HEADER, jsonBody)
       .assertThat()
       .statusCode(200);
+    
+    // Check that system data loaded
+    verifyCollectionQuantity(TestEntities.BATCH_GROUPS.getEndpoint(), entity.getInitialQuantity(), ANOTHER_TENANT_HEADER); 
   }
 
 

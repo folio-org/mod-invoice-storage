@@ -24,7 +24,7 @@ public class TenantReferenceAPI extends TenantAPI {
   private static final Logger log = LoggerFactory.getLogger(TenantReferenceAPI.class);
 
   private static final String PARAMETER_LOAD_SAMPLE = "loadSample";
-
+  private static final String PARAMETER_LOAD_SYSTEM = "loadSystem";
 
   @Override
   public void postTenant(TenantAttributes tenantAttributes, Map<String, String> headers, Handler<AsyncResult<Response>> hndlr, Context cntxt) {
@@ -36,6 +36,9 @@ public class TenantReferenceAPI extends TenantAPI {
         return;
       }
 
+      //Always load this system data
+      tenantAttributes.setAdditionalProperty(PARAMETER_LOAD_SYSETEM, true);
+      
       TenantLoading tl = new TenantLoading();
       boolean loadData = buildDataLoadingParameters(tenantAttributes, tl);
 
@@ -58,7 +61,9 @@ public class TenantReferenceAPI extends TenantAPI {
   }
 
   private boolean buildDataLoadingParameters(TenantAttributes tenantAttributes, TenantLoading tl) {
-    boolean loadData = false;
+    tl.withKey(PARAMETER_LOAD_SYSTEM)
+      .withLead("data/system")
+      .add("batch-groups", "batch-group-storage/batch-groups");
     if (isLoadSample(tenantAttributes)) {
       tl.withKey(PARAMETER_LOAD_SAMPLE)
         .withLead("data")
@@ -66,9 +71,8 @@ public class TenantReferenceAPI extends TenantAPI {
         .add("invoice-lines", "invoice-storage/invoice-lines")
         .add("vouchers", "voucher-storage/vouchers")
         .add("voucher-lines", "voucher-storage/voucher-lines");
-      loadData = true;
     }
-    return loadData;
+    return true;
   }
 
   private boolean isLoadSample(TenantAttributes tenantAttributes) {
