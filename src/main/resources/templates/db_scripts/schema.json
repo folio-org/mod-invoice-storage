@@ -23,7 +23,7 @@
     },
     {
       "tableName": "vouchers",
-      "fromModuleVersion": "mod-invoice-storage-1.0.0",
+      "fromModuleVersion": "mod-invoice-storage-3.0.0",
       "withMetadata": true,
       "customSnippetPath": "voucher_number_sequence.sql",
       "uniqueIndex": [
