@@ -1,5 +1,14 @@
 ## 3.1.0 - Unreleased
 
+## 3.0.1 - Released
+
+Bugfix release to fix issues with migration script
+
+[Full Changelog](https://github.com/folio-org/mod-invoice-storage/compare/v3.0.0...v3.0.1)
+
+### Stories
+* [MODINVOSTO-55](https://issues.folio.org/browse/MODINVOSTO-55) - Unique Index not being dropped
+
 ## 3.0.0 - Released
 
 The focus of this release was to improve invoices and vouchers processing
