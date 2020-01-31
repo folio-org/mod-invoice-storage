@@ -2,12 +2,12 @@
   "scripts": [
     {
       "run": "after",
-      "snippetPath": "data-migration/invoice_table.sql",
+      "snippetPath": "data-migration/invoices_table.sql",
       "fromModuleVersion": "mod-invoice-storage-4.0.0"
     },
     {
       "run": "after",
-      "snippetPath": "data-migration/voucher_table.sql",
+      "snippetPath": "data-migration/vouchers_table.sql",
       "fromModuleVersion": "mod-invoice-storage-4.0.0"
     }
   ],
