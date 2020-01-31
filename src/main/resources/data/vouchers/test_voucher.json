@@ -2,7 +2,6 @@
   "id": "a9b99f8a-7100-47f2-9903-6293d44a9905",
   "accountingCode": "1234",
   "amount": 23.45,
-  "batchNumber": "101",
   "disbursementNumber": "EFT546789",
   "disbursementDate": "2019-05-05T00:00:00.000+0000",
   "disbursementAmount": 5,
