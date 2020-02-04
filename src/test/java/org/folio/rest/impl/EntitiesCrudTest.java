@@ -27,7 +27,8 @@ class EntitiesCrudTest extends TestBase {
       TestEntities.VOUCHER_LINES,
       TestEntities.VOUCHER,
       TestEntities.INVOICE_LINES,
-      TestEntities.INVOICE);
+      TestEntities.INVOICE,
+      TestEntities.BATCH_GROUP);
   }
 
   static Stream<TestEntities> deleteFailOrder() {

@@ -200,6 +200,37 @@
           "pathPattern": "/_/tenant"
         }
       ]
+    },
+    {
+      "id": "batch-group-storage.batch-groups",
+      "version": "1.0",
+      "handlers": [
+        {
+          "methods": ["GET"],
+          "pathPattern": "/batch-group-storage/batch-groups",
+          "permissionsRequired": ["batch-group-storage.batch-groups.collection.get"]
+        },
+        {
+          "methods": ["POST"],
+          "pathPattern": "/batch-group-storage/batch-groups",
+          "permissionsRequired": ["batch-group-storage.batch-groups.item.post"]
+        },
+        {
+          "methods": ["GET"],
+          "pathPattern": "/batch-group-storage/batch-groups/{id}",
+          "permissionsRequired": ["batch-group-storage.batch-groups.item.get"]
+        },
+        {
+          "methods": ["PUT"],
+          "pathPattern": "/batch-group-storage/batch-groups/{id}",
+          "permissionsRequired": ["batch-group-storage.batch-groups.item.put"]
+        },
+        {
+          "methods": ["DELETE"],
+          "pathPattern": "/batch-group-storage/batch-groups/{id}",
+          "permissionsRequired": ["batch-group-storage.batch-groups.item.delete"]
+        }
+      ]
     }
   ],
   "permissionSets": [
@@ -349,6 +380,31 @@
       "description": "Delete voucher line"
     },
     {
+      "permissionName": "batch-group-storage.batch-groups.collection.get",
+      "displayName": "Batch group storage - get batch group collection",
+      "description": "Get batch group collection"
+    },
+    {
+      "permissionName": "batch-group-storage.batch-groups.item.get",
+      "displayName": "Batch group storage - get individual batch group",
+      "description": "Get individual batch group"
+    },
+    {
+      "permissionName": "batch-group-storage.batch-groups.item.post",
+      "displayName": "Batch group storage - create batch group",
+      "description": "Create batch group"
+    },
+    {
+      "permissionName": "batch-group-storage.batch-groups.item.put",
+      "displayName": "Batch group storage - modify batch group",
+      "description": "Modify batch group"
+    },
+    {
+      "permissionName": "batch-group-storage.batch-groups.item.delete",
+      "displayName": "Batch group storage - delete batch group",
+      "description": "Delete batch group"
+    },
+    {
       "permissionName": "voucher-storage.module.all",
       "displayName": "Voucher storage - all permissions",
       "description": "Entire set of permissions needed to use vouchers",
@@ -366,6 +422,19 @@
         "voucher-storage.voucher-lines.item.post",
         "voucher-storage.voucher-lines.item.put",
         "voucher-storage.voucher-lines.item.delete"
+      ],
+      "visible": false
+    },
+    {
+      "permissionName": "batch-group-storage.module.all",
+      "displayName": "Batch group storage - all permissions",
+      "description": "Entire set of permissions needed to use batch groups",
+      "subPermissions": [
+        "batch-group-storage.batch-groups.collection.get",
+        "batch-group-storage.batch-groups.item.get",
+        "batch-group-storage.batch-groups.item.post",
+        "batch-group-storage.batch-groups.item.put",
+        "batch-group-storage.batch-groups.item.delete"
       ],
       "visible": false
     },

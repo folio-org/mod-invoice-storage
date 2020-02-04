@@ -1,16 +1,14 @@
 package org.folio.rest.utils;
 
 
-import org.folio.rest.jaxrs.model.Invoice;
-import org.folio.rest.jaxrs.model.InvoiceLine;
-import org.folio.rest.jaxrs.model.Voucher;
-import org.folio.rest.jaxrs.model.VoucherLine;
+import org.folio.rest.jaxrs.model.*;
 
 public enum TestEntities {
   INVOICE("/invoice-storage/invoices", Invoice.class, "invoices/123invoicenumber45_approved_for_2_orders.json", "note", "Updated note for invoice", 8),
   INVOICE_LINES("/invoice-storage/invoice-lines", InvoiceLine.class, "invoice-lines/123invoicenumber45-1.json", "quantity", 5, 9),
   VOUCHER("/voucher-storage/vouchers", Voucher.class, "vouchers/test_voucher.json", "exportToAccounting", true, 1),
-  VOUCHER_LINES("/voucher-storage/voucher-lines", VoucherLine.class, "voucher-lines/test_voucher_line.json", "externalAccountNumber", "Comment from unit test", 1);
+  VOUCHER_LINES("/voucher-storage/voucher-lines", VoucherLine.class, "voucher-lines/test_voucher_line.json", "externalAccountNumber", "Comment from unit test", 1),
+  BATCH_GROUP("/batch-group-storage/batch-groups", BatchGroup.class, "batch-groups/test-batch-group.json", "name", "folio",1);
 
   private static final String SAMPLES_PATH = "data/";
   TestEntities(String endpoint, Class<?> clazz, String sampleFileName, String updatedFieldName, Object updatedFieldValue, int initialQuantity) {
