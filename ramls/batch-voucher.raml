@@ -1,0 +1,83 @@
+#%RAML 1.0
+title: "Invoice Storage"
+baseUri: http://github.com/folio-org/mod-invoice-storage
+version: v1
+
+documentation:
+  - title: Batch Voucher
+    content: <b>API used to manage batch vouchers.</b>
+
+types:
+    batchVoucher: !include acq-models/mod-invoice-storage/schemas/batch_voucher.json
+    errors: !include raml-util/schemas/errors.schema
+traits:
+    language: !include raml-util/traits/language.raml
+    validate: !include raml-util/traits/validation.raml
+
+/batch-voucher-storage:
+  /batch-vouchers:
+    is: [language,validate]
+    post:
+      description: Create a batch voucher
+      body:
+        application/json:
+          type: batchVoucher
+          example:
+            strict: false
+            value: !include acq-models/mod-invoice-storage/examples/batch_voucher.sample
+      responses:
+        201:
+          description: "Returns processing result of the <<resourcePathName>>"
+          body:
+            application/json:
+              type: batchVoucher
+              example:
+                strict: false
+                value: !include acq-models/mod-invoice-storage/examples/batch_voucher.sample
+        400:
+          description: "Bad request, e.g. malformed request body or query parameter. Details of the error (e.g. name of the parameter or line/character number with malformed data) provided in the response."
+          body:
+            application/json:
+              example:
+                strict: false
+                value: !include raml-util/examples/errors.sample
+        500:
+          description: "Internal server error, e.g. due to misconfiguration"
+          body:
+            application/json:
+              example:
+                strict: false
+                value: !include raml-util/examples/errors.sample
+    /{id}:
+      is: [language,validate]
+      get:
+       description: Get a batch voucher by id
+       responses:
+         200:
+           body:
+             application/json:
+               type: batchVoucher
+               example:
+                 strict: false
+                 value: !include acq-models/mod-invoice-storage/examples/batch_voucher.sample
+         400:
+           description: "Bad request, e.g. malformed request body or query parameter. Details of the error (e.g. name of the parameter or line/character number with malformed data) provided in the response."
+           body:
+            application/json:
+              example:
+                strict: false
+                value: !include raml-util/examples/errors.sample
+         404:
+           description: "Item with a given ID not found"
+           body:
+            application/json:
+              example:
+                strict: false
+                value: !include raml-util/examples/errors.sample
+         500:
+           description: "Internal server error, e.g. due to misconfiguration"
+           body:
+            application/json:
+              example:
+                strict: false
+                value: !include raml-util/examples/errors.sample

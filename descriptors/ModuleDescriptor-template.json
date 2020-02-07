@@ -191,6 +191,27 @@
       ]
     },
     {
+      "id": "voucher-storage.batch-vouchers",
+      "version": "2.0",
+      "handlers": [
+        {
+          "methods": ["POST"],
+          "pathPattern": "/batch-voucher-storage/batch-vouchers",
+          "permissionsRequired": ["voucher-storage.batch-vouchers.item.post"]
+        },
+        {
+          "methods": ["GET"],
+          "pathPattern": "/batch-voucher-storage/batch-vouchers/{id}",
+          "permissionsRequired": ["voucher-storage.batch-vouchers.item.get"]
+        },
+        {
+          "methods": ["DELETE"],
+          "pathPattern": "/batch-voucher-storage/batch-vouchers/{id}",
+          "permissionsRequired": ["voucher-storage.batch-vouchers.item.delete"]
+        }
+      ]
+    },
+    {
       "id": "_tenant",
       "version": "1.2",
       "interfaceType": "system",
@@ -349,6 +370,21 @@
       "description": "Delete voucher line"
     },
     {
+      "permissionName": "voucher-storage.batch-vouchers.item.get",
+      "displayName": "Voucher storage - get a batch voucher",
+      "description": "Get a batch voucher by id"
+    },
+    {
+      "permissionName": "voucher-storage.batch-vouchers.item.post",
+      "displayName": "Voucher storage - create a batch voucher",
+      "description": "Create a batch voucher"
+    },
+    {
+      "permissionName": "voucher-storage.batch-vouchers.item.delete",
+      "displayName": "Voucher storage - delete a batch voucher",
+      "description": "Delete a batch voucher by id"
+    },
+    {
       "permissionName": "voucher-storage.module.all",
       "displayName": "Voucher storage - all permissions",
       "description": "Entire set of permissions needed to use vouchers",
@@ -365,7 +401,10 @@
         "voucher-storage.voucher-lines.item.get",
         "voucher-storage.voucher-lines.item.post",
         "voucher-storage.voucher-lines.item.put",
-        "voucher-storage.voucher-lines.item.delete"
+        "voucher-storage.voucher-lines.item.delete",
+        "voucher-storage.batch-vouchers.item.get",
+        "voucher-storage.batch-vouchers.item.post",
+        "voucher-storage.batch-vouchers.item.delete"
       ],
       "visible": false
     },
