@@ -1,7 +1,10 @@
 package org.folio.rest.utils;
 
-
-import org.folio.rest.jaxrs.model.*;
+import org.folio.rest.jaxrs.model.BatchGroup;
+import org.folio.rest.jaxrs.model.Invoice;
+import org.folio.rest.jaxrs.model.InvoiceLine;
+import org.folio.rest.jaxrs.model.Voucher;
+import org.folio.rest.jaxrs.model.VoucherLine;
 
 public enum TestEntities {
   INVOICE("/invoice-storage/invoices", Invoice.class, "invoices/123invoicenumber45_approved_for_2_orders.json", "note", "Updated note for invoice", 8),
