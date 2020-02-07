@@ -459,7 +459,8 @@
         "invoice-storage.invoice-lines.item.delete",
         "invoice-storage.invoice-number.get",
         "invoice-storage.invoice-line-number.get",
-        "voucher-storage.module.all"
+        "voucher-storage.module.all",
+        "batch-group-storage.module.all"
       ],
       "visible": false
     }
