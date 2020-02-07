@@ -5,6 +5,7 @@ import static org.folio.rest.persist.HelperUtils.getEntitiesCollection;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Context;
 import io.vertx.core.Handler;
+import org.folio.rest.annotations.Validate;
 import org.folio.rest.jaxrs.model.BatchGroup;
 import org.folio.rest.jaxrs.model.BatchGroupCollection;
 import org.folio.rest.jaxrs.resource.BatchGroupStorage;
@@ -19,16 +20,15 @@ public class BatchGroupImpl implements BatchGroupStorage {
 
   public static final String BATCH_GROUP_TABLE = "batch_groups";
 
+  @Validate
   @Override
   public void getBatchGroupStorageBatchGroups(int offset, int limit, String query, String lang, Map<String, String> okapiHeaders,
       Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
-    EntitiesMetadataHolder<BatchGroup, BatchGroupCollection> entitiesMetadataHolder =
-      new EntitiesMetadataHolder<>(BatchGroup.class, BatchGroupCollection.class,
-        BatchGroupStorage.GetBatchGroupStorageBatchGroupsResponse.class);
-    QueryHolder cql = new QueryHolder(BATCH_GROUP_TABLE, query, offset, limit, lang);
-    getEntitiesCollection(entitiesMetadataHolder, cql, asyncResultHandler, vertxContext, okapiHeaders);
+    PgUtil.get(BATCH_GROUP_TABLE,BatchGroup.class,BatchGroupCollection.class,query,offset,limit,okapiHeaders,vertxContext,
+      BatchGroupStorage.GetBatchGroupStorageBatchGroupsResponse.class,asyncResultHandler);
   }
 
+  @Validate
   @Override
   public void postBatchGroupStorageBatchGroups(String lang, BatchGroup entity, Map<String, String> okapiHeaders,
       Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
@@ -36,6 +36,7 @@ public class BatchGroupImpl implements BatchGroupStorage {
       BatchGroupStorage.PostBatchGroupStorageBatchGroupsResponse.class, asyncResultHandler);
   }
 
+  @Validate
   @Override
   public void getBatchGroupStorageBatchGroupsById(String id, String lang, Map<String, String> okapiHeaders,
       Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
@@ -43,6 +44,7 @@ public class BatchGroupImpl implements BatchGroupStorage {
       BatchGroupStorage.GetBatchGroupStorageBatchGroupsByIdResponse.class, asyncResultHandler);
   }
 
+  @Validate
   @Override
   public void deleteBatchGroupStorageBatchGroupsById(String id, String lang, Map<String, String> okapiHeaders,
       Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
@@ -50,6 +52,7 @@ public class BatchGroupImpl implements BatchGroupStorage {
       BatchGroupStorage.DeleteBatchGroupStorageBatchGroupsByIdResponse.class, asyncResultHandler);
   }
 
+  @Validate
   @Override
   public void putBatchGroupStorageBatchGroupsById(String id, String lang, BatchGroup entity, Map<String, String> okapiHeaders,
       Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {

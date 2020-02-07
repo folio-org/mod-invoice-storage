@@ -80,7 +80,7 @@
     },
     {
       "tableName": "batch_groups",
-      "fromModuleVersion": "mod-invoice-storage-1.0.0",
+      "fromModuleVersion": "mod-invoice-storage-3.1.0",
       "withMetadata": true
     }
   ]
