@@ -9,9 +9,7 @@ import org.folio.rest.annotations.Validate;
 import org.folio.rest.jaxrs.model.BatchGroup;
 import org.folio.rest.jaxrs.model.BatchGroupCollection;
 import org.folio.rest.jaxrs.resource.BatchGroupStorage;
-import org.folio.rest.persist.EntitiesMetadataHolder;
 import org.folio.rest.persist.PgUtil;
-import org.folio.rest.persist.QueryHolder;
 
 import javax.ws.rs.core.Response;
 import java.util.Map;
