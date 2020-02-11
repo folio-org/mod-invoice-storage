@@ -13,9 +13,20 @@
   ],
   "tables": [
     {
+      "tableName": "batch_groups",
+      "fromModuleVersion": "mod-invoice-storage-3.1.0",
+      "withMetadata": true
+    },
+    {
       "tableName": "invoices",
       "fromModuleVersion": "mod-invoice-storage-1.0.0",
       "withMetadata": true,
+      "foreignKeys": [
+        {
+          "fieldName": "batchGroupId",
+          "targetTable": "batch_groups"
+        }
+      ],
       "customSnippetPath": "invoice_number_sequence.sql"
     },
     {
@@ -48,6 +59,10 @@
         {
           "fieldName": "invoiceId",
           "targetTable": "invoices"
+        },
+        {
+          "fieldName": "batchGroupId",
+          "targetTable": "batch_groups"
         }
       ]
     },
@@ -77,11 +92,6 @@
         }
       ],
       "customSnippetPath" : "document_table.sql"
-    },
-    {
-      "tableName": "batch_groups",
-      "fromModuleVersion": "mod-invoice-storage-3.1.0",
-      "withMetadata": true
     }
   ]
 }
