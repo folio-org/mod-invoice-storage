@@ -1,6 +1,6 @@
 #%RAML 1.0
 
-title: Vouchers
+title: Batch groups
 version: v1.0
 protocols: [ HTTP, HTTPS ]
 baseUri: http://github.com/folio-org/mod-invoice-storage
@@ -33,13 +33,13 @@ resourceTypes:
       collection:
         schemaCollection: batchGroupCollection
         schemaItem: batchGroup
-        exampleCollection: !include acq-models/mod-invoice-storage/examples/batch_group.sample
+        exampleCollection: !include acq-models/mod-invoice-storage/examples/batch_group_collection.sample
         exampleItem: !include acq-models/mod-invoice-storage/examples/batch_group.sample
     get:
       description: Get list of batch groups
       is: [
         pageable,
-        searchable: {description: "with valid searchable fields: for example voucherStatus", example: "voucherStatus==\"Paid\""}
+        searchable: {description: "with valid searchable fields: for example name", example: "name==\"FOLIO\""}
       ]
     /{id}:
       uriParameters:
