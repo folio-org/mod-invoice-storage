@@ -162,7 +162,7 @@ public class TenantSampleDataTest extends TestBase{
     postToTenant(ANOTHER_TENANT_HEADER, jsonBody);
 
     for(TestEntities te: TestEntities.values()){
-      verifyCollectionQuantity(te.getEndpoint(), te.getSystemDataQuantity());
+      verifyCollectionQuantity(te.getEndpoint(), te.getEstimatedSystemDataRecordsQuantity());
     }
   }
 

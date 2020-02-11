@@ -69,7 +69,8 @@ public enum TestEntities {
     this.sampleId = id;
   }
 
-  public int getSystemDataQuantity() {
-    return systemDataQuantity;
+  public int getEstimatedSystemDataRecordsQuantity() {
+    if (BATCH_GROUP.equals(this)) return 1;
+    return 0;
   }
 }

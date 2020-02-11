@@ -16,6 +16,6 @@ public class SystemDataLoadingTest extends TestBase {
   @EnumSource(TestEntities.class)
   public void systemDataWasLoaded(TestEntities testEntity) throws MalformedURLException {
     logger.info(String.format("--- mod-invoice-storage %s test: Verifying system data was loaded ... ", testEntity.name()));
-    verifyCollectionQuantity(testEntity.getEndpoint(), testEntity.getSystemDataQuantity());
+    verifyCollectionQuantity(testEntity.getEndpoint(), testEntity.getEstimatedSystemDataRecordsQuantity());
   }
 }
