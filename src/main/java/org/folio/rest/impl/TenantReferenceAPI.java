@@ -65,7 +65,9 @@ public class TenantReferenceAPI extends TenantAPI {
         .add("invoices", "invoice-storage/invoices")
         .add("invoice-lines", "invoice-storage/invoice-lines")
         .add("vouchers", "voucher-storage/vouchers")
-        .add("voucher-lines", "voucher-storage/voucher-lines");
+        .add("voucher-lines", "voucher-storage/voucher-lines")
+        .withPostOnly()
+        .add("batch-vouchers", "batch-voucher-storage/batch-vouchers");
       loadData = true;
     }
     return loadData;

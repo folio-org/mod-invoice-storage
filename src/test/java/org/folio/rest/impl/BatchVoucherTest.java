@@ -1,122 +1,157 @@
 package org.folio.rest.impl;
 
 import io.restassured.http.ContentType;
+import io.restassured.response.Response;
 import io.vertx.core.json.JsonObject;
 import org.jetbrains.annotations.NotNull;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+
 
 import java.net.MalformedURLException;
 
 import static io.restassured.RestAssured.given;
 import static org.folio.rest.impl.StorageTestSuite.storageUrl;
-import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.notNullValue;
-
+import static org.hamcrest.Matchers.equalTo;
 
 public class BatchVoucherTest extends TestBase {
-  private static final String ID = "id";
-  private static final String BATCH_VOUCHER_ENDPOINT = "/batch-voucher-storage/batch-vouchers";
-  public static final String PATH_VOUCHER_WITHOUT_ID = "data/vouchers/correctBatchVoucherWithoutId.json";
-  public static final String PATH_VOUCHER_WITH_ID = "data/vouchers/correctBatchVoucher.json";
+  public static final String BATCH_VOUCHER_ENDPOINT = "/batch-voucher-storage/batch-vouchers";
+  public static final String BATCH_VOUCHER_ENDPOINT_WITH_ID = "/batch-voucher-storage/batch-vouchers/{id}";
+  public static final String PATH_TEST_BATCH_VOUCHER = "data/batch-vouchers/test-batch-voucher.json";
+  private static final String NONEXISTENT_VOUCHER_ID = "12345678-83b9-1234-9c39-b58dcd02ee10";
+  private static JsonObject BATCH_VOUCHER_WITH_ID;
+  private static JsonObject BATCH_VOUCHER_WITHOUT_ID;
+  private static String BAD_REQUEST = "";
 
-  @Test
-  public void testPost201_Should_CreateBatchVoucher_IfRequestBodyIsCorrect_And_IdProvided() throws MalformedURLException {
-    JsonObject batchVoucher = createBatchVoucherJSON(PATH_VOUCHER_WITH_ID);
-
-    postData(BATCH_VOUCHER_ENDPOINT, batchVoucher.toString())
-      .then().log().ifValidationFails()
-      .assertThat()
-        .statusCode(201)
-        .body(ID, equalTo(batchVoucher.getString(ID)));
+  @BeforeAll
+  public static void beforeAll()  {
+    BATCH_VOUCHER_WITH_ID = createBatchVoucherJSON(PATH_TEST_BATCH_VOUCHER, false);
+    BATCH_VOUCHER_WITHOUT_ID = createBatchVoucherJSON(PATH_TEST_BATCH_VOUCHER, true);
   }
 
   @Test
-  public void testPost201_Should_CreateBatchVoucher_IfRequestBodyIsCorrect_And_IdIsNotProvided() throws MalformedURLException {
-    JsonObject batchVoucher = createBatchVoucherJSON(PATH_VOUCHER_WITHOUT_ID);
-    postData(BATCH_VOUCHER_ENDPOINT, batchVoucher.toString())
-      .then().log().ifValidationFails().assertThat()
-        .statusCode(201)
-        .body(ID, notNullValue());
+  public void testPost201ShouldCreateBatchVoucherIfRequestBodyIsCorrectAndIdProvided() throws MalformedURLException {
+    Response createdBatchVoucher = given().
+                                        spec(commonRequestSpec()).
+                                        body(BATCH_VOUCHER_WITH_ID.toString()).
+                                   when().
+                                        post(storageUrl(BATCH_VOUCHER_ENDPOINT)).
+                                   then().
+                                        assertThat().
+                                        statusCode(201).
+                                        contentType(ContentType.JSON).
+                                        body(ID, equalTo(BATCH_VOUCHER_WITH_ID.getString(ID))).
+                                        extract().
+                                        response();
+    assertAllFieldsExistAndEqual(BATCH_VOUCHER_WITH_ID, createdBatchVoucher);
   }
 
   @Test
-  public void testGet200_Should_ReturnBatchVoucher_ById() throws MalformedURLException {
-    JsonObject batchVoucher = createBatchVoucherJSON(PATH_VOUCHER_WITHOUT_ID);
-    String expBatchVoucherId = postData(BATCH_VOUCHER_ENDPOINT, batchVoucher.toString()).path(ID);
+  public void testPost201ShouldCreateBatchVoucherIfRequestBodyIsCorrectAndIdIsNotProvided() throws MalformedURLException {
+    Response createdBatchVoucher = given().
+                                        spec(commonRequestSpec()).
+                                        body(BATCH_VOUCHER_WITHOUT_ID.toString()).
+                                   when().
+                                        post(storageUrl(BATCH_VOUCHER_ENDPOINT)).
+                                   then().
+                                        assertThat().
+                                        statusCode(201).
+                                        contentType(ContentType.JSON).
+                                        body(ID, notNullValue()).
+                                        extract().
+                                        response();
+    assertAllFieldsExistAndEqual(BATCH_VOUCHER_WITHOUT_ID, createdBatchVoucher);
+  }
 
-    given()
-      .header(TENANT_HEADER)
-      .contentType(ContentType.JSON)
-      .pathParam("batchVoucherId", expBatchVoucherId).
+  @Test
+  public void testPost400ShouldReturnJSONErrorIfRequestIsIncorrect() throws MalformedURLException {
+    given().
+        spec(commonRequestSpec()).
+        body(BAD_REQUEST).
     when().
-        get(storageUrl(BATCH_VOUCHER_ENDPOINT+"/{batchVoucherId}")).
-    then().assertThat().
-      statusCode(200);
+        post(storageUrl(BATCH_VOUCHER_ENDPOINT)).
+    then().
+        assertThat().
+        statusCode(400);
   }
 
   @Test
-  public void testGet404_Should_Return_IfVoucherWithProvidedIdIsAbsent() throws MalformedURLException {
-    JsonObject batchVoucher = createBatchVoucherJSON(PATH_VOUCHER_WITHOUT_ID);
-    postData(BATCH_VOUCHER_ENDPOINT, batchVoucher.toString());
+  public void testGet200ShouldReturnBatchVoucherById() throws MalformedURLException {
+    String expBatchVoucherId = postData(BATCH_VOUCHER_ENDPOINT, BATCH_VOUCHER_WITHOUT_ID.toString()).path(ID);
 
-    given()
-      .header(TENANT_HEADER)
-      .contentType(ContentType.JSON)
-      .pathParam("batchVoucherId", "12345678-83b9-1234-9c39-b58dcd02ee10").
-    when().
-      get(storageUrl(BATCH_VOUCHER_ENDPOINT+"/{batchVoucherId}")).
-    then().assertThat().
-      statusCode(404);
+    Response returnedBatchVoucher = given().
+                                        spec(commonRequestSpec()).
+                                        pathParam(ID, expBatchVoucherId).
+                                    when().
+                                        get(storageUrl(BATCH_VOUCHER_ENDPOINT_WITH_ID)).
+                                    then().assertThat().
+                                        statusCode(200).
+                                        extract().
+                                        response();
+    assertAllFieldsExistAndEqual(BATCH_VOUCHER_WITHOUT_ID, returnedBatchVoucher);
   }
 
   @Test
-  public void testGet422_Should_Return_IfProvidedIdHasIncorrectFormat() throws MalformedURLException {
-    JsonObject batchVoucher = createBatchVoucherJSON(PATH_VOUCHER_WITHOUT_ID);
-    postData(BATCH_VOUCHER_ENDPOINT, batchVoucher.toString());
+  public void testGet404ShouldReturnIfVoucherWithProvidedIdIsAbsent() throws MalformedURLException {
+    postData(BATCH_VOUCHER_ENDPOINT, BATCH_VOUCHER_WITHOUT_ID.toString()).path(ID);
 
-    given()
-      .header(TENANT_HEADER)
-      .contentType(ContentType.JSON)
-      .pathParam("batchVoucherId", "test-83b9-1234-9c39-b58dcd02ee10").
+    given().
+        spec(commonRequestSpec()).
+        pathParam(ID, NONEXISTENT_VOUCHER_ID).
     when().
-      get(storageUrl(BATCH_VOUCHER_ENDPOINT+"/{batchVoucherId}")).
-    then().assertThat().
-      statusCode(422);
+        get(storageUrl(BATCH_VOUCHER_ENDPOINT_WITH_ID)).
+    then().
+        assertThat().
+        statusCode(404);
   }
 
   @Test
-  public void testDelete204_Should_DeleteVoucher_ByProvidedId() throws MalformedURLException {
-    JsonObject batchVoucher = createBatchVoucherJSON(PATH_VOUCHER_WITHOUT_ID);
-    String expBatchVoucherId =  postData(BATCH_VOUCHER_ENDPOINT, batchVoucher.toString()).path(ID);
+  public void testGet422ShouldReturnIfProvidedIdHasIncorrectFormat() throws MalformedURLException {
+    postData(BATCH_VOUCHER_ENDPOINT, BATCH_VOUCHER_WITHOUT_ID.toString()).path(ID);
 
-    given()
-      .header(TENANT_HEADER)
-      .contentType(ContentType.JSON)
-      .pathParam("batchVoucherId", expBatchVoucherId).
+    given().
+        spec(commonRequestSpec()).
+        pathParam(ID, "test-83b9-1234-9c39-b58dcd02ee10").
     when().
-      delete(storageUrl(BATCH_VOUCHER_ENDPOINT+"/{batchVoucherId}")).
+        get(storageUrl(BATCH_VOUCHER_ENDPOINT_WITH_ID)).
     then().assertThat().
-      statusCode(204);
+        statusCode(422);
   }
 
   @Test
-  public void testDelete404_Should_Return_IfVoucherWithProvidedIdIsAbsent() throws MalformedURLException {
-    JsonObject batchVoucher = createBatchVoucherJSON(PATH_VOUCHER_WITHOUT_ID);
-    postData(BATCH_VOUCHER_ENDPOINT, batchVoucher.toString());
+  public void testDelete204ShouldDeleteVoucherByProvidedId() throws MalformedURLException {
+    String expBatchVoucherId =  postData(BATCH_VOUCHER_ENDPOINT, BATCH_VOUCHER_WITHOUT_ID.toString()).path(ID);
 
-    given()
-      .header(TENANT_HEADER)
-      .contentType(ContentType.JSON)
-      .pathParam("batchVoucherId", "12345678-83b9-1234-9c39-b58dcd02ee10").
+    given().
+        spec(commonRequestSpec()).
+        pathParam(ID, expBatchVoucherId).
     when().
-      delete(storageUrl(BATCH_VOUCHER_ENDPOINT+"/{batchVoucherId}")).
+        delete(storageUrl(BATCH_VOUCHER_ENDPOINT_WITH_ID)).
     then().assertThat().
-      statusCode(404);
+        statusCode(204);
+  }
+
+  @Test
+  public void testDelete404ShouldReturnIfVoucherWithProvidedIdIsAbsent() throws MalformedURLException {
+    postData(BATCH_VOUCHER_ENDPOINT, BATCH_VOUCHER_WITHOUT_ID.toString()).path(ID);
+
+    given().
+        spec(commonRequestSpec()).
+        pathParam(ID, NONEXISTENT_VOUCHER_ID).
+    when().
+        delete(storageUrl(BATCH_VOUCHER_ENDPOINT_WITH_ID)).
+    then().assertThat().
+        statusCode(404);
   }
 
   @NotNull
-  private JsonObject createBatchVoucherJSON(String path) {
+  private static JsonObject createBatchVoucherJSON(String path, boolean deleteId) {
     String invoiceSample = getFile(path);
-    return new JsonObject(invoiceSample);
+    JsonObject batchVoucher = new JsonObject(invoiceSample);
+    if (deleteId){
+      batchVoucher.remove(ID);
+    }
+    return batchVoucher;
   }
 }

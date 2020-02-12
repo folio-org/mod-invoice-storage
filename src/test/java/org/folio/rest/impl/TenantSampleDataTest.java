@@ -96,6 +96,12 @@ public class TenantSampleDataTest extends TestBase{
           .statusCode(204);
       }
 
+      String batchVoucherId = new JsonObject(getFile(BatchVoucherTest.PATH_TEST_BATCH_VOUCHER)).getString(ID);
+      deleteData(BatchVoucherTest.BATCH_VOUCHER_ENDPOINT_WITH_ID, batchVoucherId, PARTIAL_TENANT_HEADER).then()
+        .log()
+        .ifValidationFails()
+        .statusCode(204);
+
       jsonBody = TenantApiTestUtil.prepareTenantBody(true, true);
       postToTenant(PARTIAL_TENANT_HEADER, jsonBody)
         .assertThat()
