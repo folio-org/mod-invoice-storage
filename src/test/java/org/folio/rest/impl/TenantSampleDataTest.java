@@ -165,9 +165,11 @@ public class TenantSampleDataTest extends TestBase{
     logger.info("upgrading Module without sample data");
 
     JsonObject jsonBody = TenantApiTestUtil.prepareTenantBody(false, false);
-    postToTenant(ANOTHER_TENANT_HEADER, jsonBody)
-      .assertThat()
-      .statusCode(200);
+    postToTenant(ANOTHER_TENANT_HEADER, jsonBody);
+
+    for(TestEntities te: TestEntities.values()){
+      verifyCollectionQuantity(te.getEndpoint(), te.getEstimatedSystemDataRecordsQuantity());
+    }
   }
 
 
@@ -185,7 +187,7 @@ public class TenantSampleDataTest extends TestBase{
       // Check that no sample data loaded
       for (TestEntities entity : TestEntities.values()) {
         logger.info("Test expected quantity for " , 0, entity.name());
-        verifyCollectionQuantity(entity.getEndpoint(), 0, NONEXISTENT_TENANT_HEADER);
+        verifyCollectionQuantity(entity.getEndpoint(), TestEntities.BATCH_GROUP.equals(entity)? 1 : 0, NONEXISTENT_TENANT_HEADER);
       }
     }
     finally {

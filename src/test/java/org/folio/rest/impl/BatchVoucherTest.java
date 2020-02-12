@@ -12,6 +12,7 @@ import java.net.MalformedURLException;
 
 import static io.restassured.RestAssured.given;
 import static org.folio.rest.impl.StorageTestSuite.storageUrl;
+import static org.hamcrest.CoreMatchers.any;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.equalTo;
 
@@ -31,7 +32,7 @@ public class BatchVoucherTest extends TestBase {
   }
 
   @Test
-  public void testPost201ShouldCreateBatchVoucherIfRequestBodyIsCorrectAndIdProvided() throws MalformedURLException {
+  public void testPostShouldCreateBatchVoucherIfRequestBodyIsCorrectAndIdProvided() throws MalformedURLException {
     Response createdBatchVoucher = given().
                                         spec(commonRequestSpec()).
                                         body(BATCH_VOUCHER_WITH_ID.toString()).
@@ -48,7 +49,7 @@ public class BatchVoucherTest extends TestBase {
   }
 
   @Test
-  public void testPost201ShouldCreateBatchVoucherIfRequestBodyIsCorrectAndIdIsNotProvided() throws MalformedURLException {
+  public void testPostShouldCreateBatchVoucherIfRequestBodyIsCorrectAndIdIsNotProvided() throws MalformedURLException {
     Response createdBatchVoucher = given().
                                         spec(commonRequestSpec()).
                                         body(BATCH_VOUCHER_WITHOUT_ID.toString()).
@@ -65,7 +66,7 @@ public class BatchVoucherTest extends TestBase {
   }
 
   @Test
-  public void testPost400ShouldReturnJSONErrorIfRequestIsIncorrect() throws MalformedURLException {
+  public void testPostShouldReturn400JSONErrorIfRequestIsIncorrect() throws MalformedURLException {
     given().
         spec(commonRequestSpec()).
         body(BAD_REQUEST).
@@ -77,7 +78,7 @@ public class BatchVoucherTest extends TestBase {
   }
 
   @Test
-  public void testGet200ShouldReturnBatchVoucherById() throws MalformedURLException {
+  public void testGetShouldReturnBatchVoucherById() throws MalformedURLException {
     String expBatchVoucherId = postData(BATCH_VOUCHER_ENDPOINT, BATCH_VOUCHER_WITHOUT_ID.toString()).path(ID);
 
     Response returnedBatchVoucher = given().
@@ -93,7 +94,7 @@ public class BatchVoucherTest extends TestBase {
   }
 
   @Test
-  public void testGet404ShouldReturnIfVoucherWithProvidedIdIsAbsent() throws MalformedURLException {
+  public void testGetShouldReturn404IfVoucherWithProvidedIdIsAbsent() throws MalformedURLException {
     postData(BATCH_VOUCHER_ENDPOINT, BATCH_VOUCHER_WITHOUT_ID.toString()).path(ID);
 
     given().
@@ -107,7 +108,7 @@ public class BatchVoucherTest extends TestBase {
   }
 
   @Test
-  public void testGet422ShouldReturnIfProvidedIdHasIncorrectFormat() throws MalformedURLException {
+  public void testGetShouldReturn422IfProvidedIdHasIncorrectFormat() throws MalformedURLException {
     postData(BATCH_VOUCHER_ENDPOINT, BATCH_VOUCHER_WITHOUT_ID.toString()).path(ID);
 
     given().
@@ -120,7 +121,7 @@ public class BatchVoucherTest extends TestBase {
   }
 
   @Test
-  public void testDelete204ShouldDeleteVoucherByProvidedId() throws MalformedURLException {
+  public void testDeleteShouldDeleteVoucherByProvidedId() throws MalformedURLException {
     String expBatchVoucherId =  postData(BATCH_VOUCHER_ENDPOINT, BATCH_VOUCHER_WITHOUT_ID.toString()).path(ID);
 
     given().
@@ -133,7 +134,7 @@ public class BatchVoucherTest extends TestBase {
   }
 
   @Test
-  public void testDelete404ShouldReturnIfVoucherWithProvidedIdIsAbsent() throws MalformedURLException {
+  public void testDeleteShouldReturn404IfVoucherWithProvidedIdIsAbsent() throws MalformedURLException {
     postData(BATCH_VOUCHER_ENDPOINT, BATCH_VOUCHER_WITHOUT_ID.toString()).path(ID);
 
     given().
@@ -145,7 +146,6 @@ public class BatchVoucherTest extends TestBase {
         statusCode(404);
   }
 
-  @NotNull
   private static JsonObject createBatchVoucherJSON(String path, boolean deleteId) {
     String invoiceSample = getFile(path);
     JsonObject batchVoucher = new JsonObject(invoiceSample);

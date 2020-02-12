@@ -121,6 +121,8 @@ public class StorageTestSuite {
   @Nested
   class EntitiesCrudTestNested extends EntitiesCrudTest {}
   @Nested
+  class SystemDataLoadingTestNested extends SystemDataLoadingTest {}
+  @Nested
   class VoucherNumberTestNested extends VoucherNumberTest {}
   @Nested
   class DocumentTestNested extends DocumentTest {}

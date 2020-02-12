@@ -27,7 +27,8 @@ class EntitiesCrudTest extends TestBase {
       TestEntities.VOUCHER_LINES,
       TestEntities.VOUCHER,
       TestEntities.INVOICE_LINES,
-      TestEntities.INVOICE);
+      TestEntities.INVOICE,
+      TestEntities.BATCH_GROUP);
   }
 
   static Stream<TestEntities> deleteFailOrder() {
@@ -48,7 +49,7 @@ class EntitiesCrudTest extends TestBase {
   @EnumSource(TestEntities.class)
   void testVerifyCollection(TestEntities testEntity) throws MalformedURLException {
     logger.info(String.format("--- mod-invoice-storage %s test: Verifying database's initial state ... ", testEntity.name()));
-    verifyCollectionQuantity(testEntity.getEndpoint(), 0);
+    verifyCollectionQuantity(testEntity.getEndpoint(), TestEntities.BATCH_GROUP.equals(testEntity)? 1 : 0);
   }
 
   @ParameterizedTest
@@ -75,7 +76,7 @@ class EntitiesCrudTest extends TestBase {
   @EnumSource(TestEntities.class)
   void testVerifyCollectionQuantity(TestEntities testEntity) throws MalformedURLException {
     logger.info(String.format("--- mod-invoice-storage %s test: Verifying only 1 adjustment was created ... ", testEntity.name()));
-    verifyCollectionQuantity(testEntity.getEndpoint(), 1);
+    verifyCollectionQuantity(testEntity.getEndpoint(), TestEntities.BATCH_GROUP.equals(testEntity)? 2 : 1);
 
   }
 
