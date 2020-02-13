@@ -13,7 +13,7 @@ public enum TestEntities {
   VOUCHER("/voucher-storage/vouchers", Voucher.class, "vouchers/test_voucher.json", "exportToAccounting", true, 1,0),
   VOUCHER_LINES("/voucher-storage/voucher-lines", VoucherLine.class, "voucher-lines/test_voucher_line.json", "externalAccountNumber", "Comment from unit test", 1,0),
   BATCH_GROUP("/batch-group-storage/batch-groups", BatchGroup.class, "batch-groups/test-batch-group.json", "name", "folio",2,1),
-  BATCH_VOUCHER_EXPORT_CONFIGS("/batch-voucher-storage/export-configurations", ExportConfig.class, "batch-voucher-export-configs/test_config.json", "enableScheduledExport", false, 1, 0);
+  BATCH_VOUCHER_EXPORT_CONFIGS("/batch-voucher-storage/export-configurations", ExportConfig.class, "batch-voucher-export-configs/test_config.json", "enableScheduledExport", false, 0, 0);
   
   private static final String SAMPLES_PATH = "data/";
   TestEntities(String endpoint, Class<?> clazz, String sampleFileName, String updatedFieldName, Object updatedFieldValue, int initialQuantity, int systemDataQuantity) {
@@ -72,7 +72,8 @@ public enum TestEntities {
   }
 
   public int getEstimatedSystemDataRecordsQuantity() {
-    if (BATCH_GROUP.equals(this)) return 1;
-    return 0;
+//    if (BATCH_GROUP.equals(this)) return 1;
+//    return 0;
+    return systemDataQuantity;
   }
 }
