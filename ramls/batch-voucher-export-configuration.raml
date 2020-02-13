@@ -36,10 +36,10 @@ resourceTypes:
         exampleCollection: !include acq-models/mod-invoice-storage/examples/export_configuration_collection.sample
         exampleItem: !include acq-models/mod-invoice-storage/examples/export_configuration.sample
     get:
-      description: Get list of batch voucher export configurations 
+      description: Get list of batch voucher export configurations
       is: [
         pageable,
-        searchable: {description: "with valid searchable fields: for example name", example: "name==\"FOLIO\""}
+        searchable: {description: "with valid searchable fields: for example format", example: "format==\"Application/xml\""}
       ]
     /{id}:
       uriParameters:
