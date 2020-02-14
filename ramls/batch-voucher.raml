@@ -1,5 +1,5 @@
 #%RAML 1.0
-title: "Invoice Storage"
+title: "Batch Vouchers"
 baseUri: http://github.com/folio-org/mod-invoice-storage
 version: v1
 
@@ -8,96 +8,35 @@ documentation:
     content: <b>API used to manage batch vouchers.</b>
 
 types:
-    batchVoucher: !include acq-models/mod-invoice-storage/schemas/batch_voucher.json
-    errors: !include raml-util/schemas/errors.schema
+  batchVoucher: !include acq-models/mod-invoice-storage/schemas/batch_voucher.json
+  errors: !include raml-util/schemas/errors.schema
+
 traits:
-    language: !include raml-util/traits/language.raml
-    validate: !include raml-util/traits/validation.raml
+  validate: !include raml-util/traits/validation.raml
+  language: !include raml-util/traits/language.raml
+
+resourceTypes:
+  get-delete: !include raml-util/rtypes/get-delete.raml
+  post-with-201: !include rtypes/post-json-201.raml
 
 /batch-voucher-storage:
   /batch-vouchers:
-    is: [language,validate]
+    description: Create a batch voucher
+    type:
+      post-with-201:
+        requestSchema: batchVoucher
+        responseSchema: batchVoucher
+        requestExample: !include acq-models/mod-invoice-storage/examples/batch_voucher.sample
+        responseExample: !include acq-models/mod-invoice-storage/examples/batch_voucher.sample
     post:
-      description: Create a batch voucher
-      body:
-        application/json:
-          type: batchVoucher
-          example:
-            strict: false
-            value: !include acq-models/mod-invoice-storage/examples/batch_voucher.sample
-      responses:
-        201:
-          description: "Returns processing result of the <<resourcePathName>>"
-          headers:
-            Location:
-              description: URI to the created <<resourcePathName|!singularize>> item
-          body:
-            application/json:
-              type: batchVoucher
-              example:
-                strict: false
-                value: !include acq-models/mod-invoice-storage/examples/batch_voucher.sample
-        400:
-          description: "Bad request"
-          body:
-            text/plain:
-              example: |
-                "unable to process <<resourcePathName|!singularize>> -- constraint violation"
-        500:
-          description: "Internal server error, e.g. due to misconfiguration"
-          body:
-            text/plain:
-              example: "Internal server error, contact administrator"
+      is: [validate]
     /{id}:
-      is: [language,validate]
+      description: Get and Delete a specific batch voucher. Update operation is not allowed
+      type:
+        get-delete:
+          schema: batchVoucher
+          exampleItem: !include acq-models/mod-invoice-storage/examples/batch_voucher.sample
       get:
-       description: Get a batch voucher by id
-       responses:
-         200:
-           body:
-             application/json:
-               type: batchVoucher
-               example:
-                 strict: false
-                 value: !include acq-models/mod-invoice-storage/examples/batch_voucher.sample
-         400:
-           description: "Bad request"
-           body:
-             text/plain:
-               example: |
-                 "unable to process <<resourcePathName|!singularize>> -- constraint violation"
-         404:
-           description: "Item with a given ID not found"
-           body:
-             text/plain:
-               example: |
-                 "<<resourcePathName|!singularize>> not found"
-         500:
-           description: "Internal server error, e.g. due to misconfiguration"
-           body:
-             text/plain:
-               example: "Internal server error, contact administrator"
+        is: [validate]
       delete:
-        is: [language,validate]
-        description: |
-          Delete <<resourcePathName|!singularize>> item with given {<<resourcePathName|!singularize>>Id}
-        responses:
-          204:
-            description: "Item deleted successfully"
-          400:
-            description: "Bad request"
-            body:
-              text/plain:
-                example: |
-                  "unable to process <<resourcePathName|!singularize>> -- constraint violation"
-          404:
-            description: "Item with a given ID not found"
-            body:
-              text/plain:
-                example: |
-                  "<<resourcePathName|!singularize>> not found"
-          500:
-            description: "Internal server error, e.g. due to misconfiguration"
-            body:
-              text/plain:
-                example: "Internal server error, contact administrator"
+        is: [validate]

@@ -16,27 +16,26 @@ import io.vertx.core.Handler;
 public class BatchVoucherAPI implements BatchVoucherStorage {
   private static final String BATCH_VOUCHERS_TABLE = "batch_vouchers";
 
-  @Override
   @Validate
-  public void postBatchVoucherStorageBatchVouchers(String lang, BatchVoucher entity, Map<String, String> okapiHeaders,
-      Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
-    PgUtil.post(BATCH_VOUCHERS_TABLE, entity, okapiHeaders, vertxContext, PostBatchVoucherStorageBatchVouchersResponse.class,
-        asyncResultHandler);
+  @Override
+  public void postBatchVoucherStorageBatchVouchers(String lang, BatchVoucher entity, Map<String, String> okapiHeaders, Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
+    PgUtil.post(BATCH_VOUCHERS_TABLE, entity, okapiHeaders, vertxContext,
+      BatchVoucherStorage.PostBatchVoucherStorageBatchVouchersResponse.class, asyncResultHandler);
   }
 
-  @Override
   @Validate
+  @Override
   public void getBatchVoucherStorageBatchVouchersById(String id, String lang, Map<String, String> okapiHeaders,
       Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
     PgUtil.getById(BATCH_VOUCHERS_TABLE, BatchVoucher.class, id, okapiHeaders, vertxContext,
-        GetBatchVoucherStorageBatchVouchersByIdResponse.class, asyncResultHandler);
+        BatchVoucherStorage.GetBatchVoucherStorageBatchVouchersByIdResponse.class, asyncResultHandler);
   }
 
-  @Override
   @Validate
+  @Override
   public void deleteBatchVoucherStorageBatchVouchersById(String id, String lang, Map<String, String> okapiHeaders,
       Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
     PgUtil.deleteById(BATCH_VOUCHERS_TABLE, id, okapiHeaders, vertxContext,
-        DeleteBatchVoucherStorageBatchVouchersByIdResponse.class, asyncResultHandler);
+        BatchVoucherStorage.DeleteBatchVoucherStorageBatchVouchersByIdResponse.class, asyncResultHandler);
   }
 }

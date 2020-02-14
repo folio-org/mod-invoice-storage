@@ -238,7 +238,6 @@ public abstract class TestBase {
       addHeader(TENANT_HEADER.getName(), TENANT_HEADER.getValue()).
       addHeader(USER_ID_HEADER.getName(), USER_ID_HEADER.getValue()).
       addHeader(X_OKAPI_TOKEN.getName(), X_OKAPI_TOKEN.getValue()).
-      setAccept(ContentType.JSON).
       setContentType(ContentType.JSON).
       build();
   }
