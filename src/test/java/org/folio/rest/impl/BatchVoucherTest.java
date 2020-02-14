@@ -116,12 +116,12 @@ public class BatchVoucherTest extends TestBase {
 
     given()
         .spec(commonRequestSpec())
-        .pathParam(ID, "test-83b9-1234-9c39-b58dcd02ee10")
+        .pathParam(ID, "38a8c92-9f45-4a86-98c3-76a20f1615ee")
     .when()
         .get(storageUrl(BATCH_VOUCHER_ENDPOINT_WITH_ID))
     .then()
         .assertThat()
-        .statusCode(422);
+        .statusCode(400);
   }
 
   @Test

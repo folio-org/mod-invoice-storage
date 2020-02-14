@@ -10,6 +10,9 @@ documentation:
 types:
   batchVoucher: !include acq-models/mod-invoice-storage/schemas/batch_voucher.json
   errors: !include raml-util/schemas/errors.schema
+  UUID:
+    type: string
+    pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$
 
 traits:
   validate: !include raml-util/traits/validation.raml
@@ -32,6 +35,10 @@ resourceTypes:
       is: [validate]
     /{id}:
       description: Get and Delete a specific batch voucher. Update operation is not allowed
+      uriParameters:
+        id:
+          description: The UUID of a batch voucher
+          type: UUID
       type:
         get-delete:
           schema: batchVoucher
