@@ -99,7 +99,7 @@
     },
     {
       "tableName": "batch_vouchers",
-      "fromModuleVersion": "mod-invoice-storage-3.1.0",
+      "fromModuleVersion": "mod-invoice-storage-4.0.0",
       "withMetadata": false
     }
   ]
