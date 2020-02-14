@@ -42,6 +42,7 @@ public class BatchVoucherExportConfig implements BatchVoucherStorage {
         BatchVoucherStorage.GetBatchVoucherStorageExportConfigurationsByIdResponse.class, asyncResultHandler);
   }
 
+  @Validate
   @Override
   public void deleteBatchVoucherStorageExportConfigurationsById(String id, String lang, Map<String, String> okapiHeaders,
       Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
