@@ -191,6 +191,37 @@
       ]
     },
     {
+      "id": "batch-voucher-storage.export-configurations",
+      "version": "1.0",
+      "handlers": [
+        {
+          "methods": ["GET"],
+          "pathPattern": "/batch-voucher-storage/export-configurations",
+          "permissionsRequired": ["batch-voucher-storage.export-configurations.collection.get"]
+        },
+        {
+          "methods": ["POST"],
+          "pathPattern": "/batch-voucher-storage/export-configurations",
+          "permissionsRequired": ["batch-voucher-storage.export-configurations.item.post"]
+        },
+        {
+          "methods": ["GET"],
+          "pathPattern": "/batch-voucher-storage/export-configurations/{id}",
+          "permissionsRequired": ["batch-voucher-storage.export-configurations.item.get"]
+        },
+        {
+          "methods": ["PUT"],
+          "pathPattern": "/batch-voucher-storage/export-configurations/{id}",
+          "permissionsRequired": ["batch-voucher-storage.export-configurations.item.put"]
+        },
+        {
+          "methods": ["DELETE"],
+          "pathPattern": "/batch-voucher-storage/export-configurations/{id}",
+          "permissionsRequired": ["batch-voucher-storage.export-configurations.item.delete"]
+        }
+      ]
+    },
+    {
       "id": "_tenant",
       "version": "1.2",
       "interfaceType": "system",
@@ -380,6 +411,31 @@
       "description": "Delete voucher line"
     },
     {
+      "permissionName": "batch-voucher-storage.export-configurations.collection.get",
+      "displayName": "Batch voucher storage - get batch voucher export configuration collection",
+      "description": "Get batch voucher export configuration collection"
+    },
+    {
+      "permissionName": "batch-voucher-storage.export-configurations.item.get",
+      "displayName": "Batch voucher storage - get individual batch voucher export configuration",
+      "description": "Get individual batch voucher"
+    },
+    {
+      "permissionName": "batch-voucher-storage.export-configurations.item.post",
+      "displayName": "Batch voucher storage - create batch voucher export configuration",
+      "description": "Create batch voucher export configuration"
+    },
+    {
+      "permissionName": "batch-voucher-storage.export-configurations.item.put",
+      "displayName": "Batch voucher storage - modify batch voucher export configuration",
+      "description": "Modify batch voucher export configuration"
+    },
+    {
+      "permissionName": "batch-voucher-storage.export-configurations.item.delete",
+      "displayName": "Batch voucher storage - delete batch voucher export configuration",
+      "description": "Delete batch voucher export configuration"
+    },
+    {
       "permissionName": "batch-group-storage.batch-groups.collection.get",
       "displayName": "Batch group storage - get batch group collection",
       "description": "Get batch group collection"
@@ -426,6 +482,19 @@
       "visible": false
     },
     {
+      "permissionName": "batch-voucher-storage.module.all",
+      "displayName": "Batch voucher storage - all permissions",
+      "description": "Entire set of permissions needed to use batch vouchers",
+      "subPermissions": [
+        "batch-voucher-storage.export-configurations.collection.get",
+        "batch-voucher-storage.export-configurations.item.get",
+        "batch-voucher-storage.export-configurations.item.post",
+        "batch-voucher-storage.export-configurations.item.put",
+        "batch-voucher-storage.export-configurations.item.delete"
+      ],
+      "visible": false
+    },
+    {
       "permissionName": "batch-group-storage.module.all",
       "displayName": "Batch group storage - all permissions",
       "description": "Entire set of permissions needed to use batch groups",
@@ -460,6 +529,7 @@
         "invoice-storage.invoice-number.get",
         "invoice-storage.invoice-line-number.get",
         "voucher-storage.module.all",
+        "batch-voucher-storage.module.all",
         "batch-group-storage.module.all"
       ],
       "visible": false
