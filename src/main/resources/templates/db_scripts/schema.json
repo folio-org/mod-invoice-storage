@@ -18,6 +18,11 @@
       "withMetadata": true
     },
     {
+      "tableName": "batch_voucher_export_configs",
+      "fromModuleVersion": "mod-invoice-storage-4.0.0",
+      "withMetadata": true
+    },
+    {
       "tableName": "invoices",
       "fromModuleVersion": "mod-invoice-storage-4.0.0",
       "withMetadata": true,
