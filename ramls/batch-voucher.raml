@@ -1,7 +1,9 @@
 #%RAML 1.0
-title: "Batch Vouchers"
+
+title: Batch Vouchers CRUD API
+version: v1.0
+protocols: [ HTTP, HTTPS ]
 baseUri: http://github.com/folio-org/mod-invoice-storage
-version: v1
 
 documentation:
   - title: Batch Vouchers CRUD API
@@ -22,8 +24,7 @@ resourceTypes:
   get-delete: !include raml-util/rtypes/get-delete.raml
   post-with-201: !include rtypes/post-json-201.raml
 
-/batch-voucher-storage:
-  /batch-vouchers:
+/batch-voucher-storage/batch-vouchers:
     description: Create a batch voucher
     type:
       post-with-201:
