@@ -12,6 +12,7 @@ documentation:
 types:
   exportConfig: !include acq-models/mod-invoice-storage/schemas/export_configuration.json
   exportConfigCollection: !include acq-models/mod-invoice-storage/schemas/export_configuration_collection.json
+  credentials: !include acq-models/mod-invoice-storage/schemas/credentials.json
   errors: !include raml-util/schemas/errors.schema
   UUID:
     type: string
@@ -50,3 +51,42 @@ resourceTypes:
         collection-item:
           schema: exportConfig
           exampleItem: !include acq-models/mod-invoice-storage/examples/export_configuration.sample
+      /credentials:
+        displayName: Batch Voucher Export Configuration Credentials
+        description: Manage Batch Voucher Export Configuration Credentials
+        type:
+          collection-item:
+            schema: credentials
+            exampleItem: !include acq-models/mod-invoice-storage/examples/credentials.sample
+        post:
+          description: Create credentials for a batch voucher configuration
+          body:
+            application/json:
+              type: credentials
+              example:
+                strict: false
+                value: !include acq-models/mod-invoice-storage/examples/credentials.sample
+          responses:
+            201:
+              description: "Returns the newly created credentials, with server-controlled fields like 'id' populated"
+              headers:
+                Location:
+                  description: URI to the created credentials
+              body:
+                application/json:
+                  example: !include acq-models/mod-invoice-storage/examples/credentials.sample
+            400:
+              description: "Bad request, e.g. malformed request body or query parameter. Details of the error (e.g. name of the parameter or line/character number with malformed data) provided in the response."
+              body:
+                text/plain:
+                  example: "unable to add credentials -- malformed JSON at 13:3"
+            401:
+              description: "Not authorized to perform requested action"
+              body:
+                text/plain:
+                  example: "unable to create credentials -- unauthorized"
+            500:
+              description: "Internal server error, e.g. due to misconfiguration"
+              body:
+                text/plain:
+                  example: "Internal server error, contact administrator"

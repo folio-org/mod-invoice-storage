@@ -23,6 +23,17 @@
       "withMetadata": true
     },
     {
+      "tableName": "export_config_credentials",
+      "fromModuleVersion": "mod-invoice-storage-4.0.0",
+      "withMetadata": true,
+      "foreignKeys": [
+        {
+          "fieldName": "exportConfigId",
+          "targetTable": "batch_voucher_export_configs"
+        }
+      ]
+    },
+    {
       "tableName": "invoices",
       "fromModuleVersion": "mod-invoice-storage-4.0.0",
       "withMetadata": true,
