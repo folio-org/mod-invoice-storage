@@ -20,7 +20,15 @@
     {
       "tableName": "batch_voucher_export_configs",
       "fromModuleVersion": "mod-invoice-storage-4.0.0",
-      "withMetadata": true
+      "withMetadata": true,
+      "foreignKeys": [
+        {
+          "fieldName": "id",
+          "targetTable": "batch_groups",
+          "targetTableAlias": "batchGroups",
+          "tableAlias": "batchVoucherExportConfigs"
+        }
+      ]
     },
     {
       "tableName": "export_config_credentials",
@@ -41,8 +49,8 @@
         {
           "fieldName": "batchGroupId",
           "targetTable": "batch_groups",
-          "tableAlias": "batchGroups",
-          "targetTableAlias": "invoices"
+          "targetTableAlias": "batchGroups",
+          "tableAlias": "invoices"
         }
       ],
       "customSnippetPath": "invoice_number_sequence.sql"
@@ -81,8 +89,8 @@
         {
           "fieldName": "batchGroupId",
           "targetTable": "batch_groups",
-          "tableAlias": "batchGroups",
-          "targetTableAlias": "vouchers"
+          "targetTableAlias": "batchGroups",
+          "tableAlias": "vouchers"
         }
       ]
     },
@@ -112,6 +120,11 @@
         }
       ],
       "customSnippetPath" : "document_table.sql"
+    },
+    {
+      "tableName": "batch_vouchers",
+      "fromModuleVersion": "mod-invoice-storage-4.0.0",
+      "withMetadata": false
     }
   ]
 }

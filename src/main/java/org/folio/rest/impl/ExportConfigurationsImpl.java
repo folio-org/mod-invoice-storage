@@ -10,7 +10,7 @@ import org.folio.rest.annotations.Validate;
 import org.folio.rest.jaxrs.model.Credentials;
 import org.folio.rest.jaxrs.model.ExportConfig;
 import org.folio.rest.jaxrs.model.ExportConfigCollection;
-import org.folio.rest.jaxrs.resource.BatchVoucherStorage;
+import org.folio.rest.jaxrs.resource.BatchVoucherStorageExportConfigurations;
 import org.folio.rest.persist.PgUtil;
 import org.folio.rest.persist.PostgresClient;
 import org.folio.rest.persist.Criteria.Criteria;
@@ -25,9 +25,9 @@ import io.vertx.core.Handler;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 
-public class BatchVoucherStorageImpl implements BatchVoucherStorage {
+public class ExportConfigurationsImpl implements BatchVoucherStorageExportConfigurations {
 
-  public static final Logger logger = LoggerFactory.getLogger(BatchVoucherStorageImpl.class);
+  public static final Logger logger = LoggerFactory.getLogger(ExportConfigurationsImpl.class);
 
   public static final String BATCH_VOUCHER_EXPORT_CONFIGS_TABLE = "batch_voucher_export_configs";
   public static final String EXPORT_CONFIG_CREDENTIALS_TABLE = "export_config_credentials";
@@ -38,7 +38,7 @@ public class BatchVoucherStorageImpl implements BatchVoucherStorage {
   public void getBatchVoucherStorageExportConfigurations(int offset, int limit, String query, String lang,
       Map<String, String> okapiHeaders, Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
     PgUtil.get(BATCH_VOUCHER_EXPORT_CONFIGS_TABLE, ExportConfig.class, ExportConfigCollection.class, query, offset, limit,
-        okapiHeaders, vertxContext, BatchVoucherStorage.GetBatchVoucherStorageExportConfigurationsResponse.class,
+        okapiHeaders, vertxContext, BatchVoucherStorageExportConfigurations.GetBatchVoucherStorageExportConfigurationsResponse.class,
         asyncResultHandler);
   }
 
@@ -47,7 +47,7 @@ public class BatchVoucherStorageImpl implements BatchVoucherStorage {
   public void postBatchVoucherStorageExportConfigurations(String lang, ExportConfig entity, Map<String, String> okapiHeaders,
       Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
     PgUtil.post(BATCH_VOUCHER_EXPORT_CONFIGS_TABLE, entity, okapiHeaders, vertxContext,
-        BatchVoucherStorage.PostBatchVoucherStorageExportConfigurationsResponse.class, asyncResultHandler);
+        BatchVoucherStorageExportConfigurations.PostBatchVoucherStorageExportConfigurationsResponse.class, asyncResultHandler);
   }
 
   @Validate
@@ -55,7 +55,7 @@ public class BatchVoucherStorageImpl implements BatchVoucherStorage {
   public void getBatchVoucherStorageExportConfigurationsById(String id, String lang, Map<String, String> okapiHeaders,
       Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
     PgUtil.getById(BATCH_VOUCHER_EXPORT_CONFIGS_TABLE, ExportConfig.class, id, okapiHeaders, vertxContext,
-        BatchVoucherStorage.GetBatchVoucherStorageExportConfigurationsByIdResponse.class, asyncResultHandler);
+        BatchVoucherStorageExportConfigurations.GetBatchVoucherStorageExportConfigurationsByIdResponse.class, asyncResultHandler);
   }
 
   @Validate
@@ -63,7 +63,7 @@ public class BatchVoucherStorageImpl implements BatchVoucherStorage {
   public void deleteBatchVoucherStorageExportConfigurationsById(String id, String lang, Map<String, String> okapiHeaders,
       Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
     PgUtil.deleteById(BATCH_VOUCHER_EXPORT_CONFIGS_TABLE, id, okapiHeaders, vertxContext,
-        BatchVoucherStorage.DeleteBatchVoucherStorageExportConfigurationsByIdResponse.class, asyncResultHandler);
+        BatchVoucherStorageExportConfigurations.DeleteBatchVoucherStorageExportConfigurationsByIdResponse.class, asyncResultHandler);
   }
 
   @Validate
@@ -71,7 +71,7 @@ public class BatchVoucherStorageImpl implements BatchVoucherStorage {
   public void putBatchVoucherStorageExportConfigurationsById(String id, String lang, ExportConfig entity,
       Map<String, String> okapiHeaders, Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
     PgUtil.put(BATCH_VOUCHER_EXPORT_CONFIGS_TABLE, entity, id, okapiHeaders, vertxContext,
-        BatchVoucherStorage.PutBatchVoucherStorageExportConfigurationsByIdResponse.class, asyncResultHandler);
+        BatchVoucherStorageExportConfigurations.PutBatchVoucherStorageExportConfigurationsByIdResponse.class, asyncResultHandler);
 
   }
 
@@ -179,7 +179,7 @@ public class BatchVoucherStorageImpl implements BatchVoucherStorage {
       Map<String, String> okapiHeaders, Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
     if (StringUtils.equals(entity.getExportConfigId(), id)) {
       PgUtil.put(EXPORT_CONFIG_CREDENTIALS_TABLE, entity, entity.getId(), okapiHeaders, vertxContext,
-          BatchVoucherStorage.PutBatchVoucherStorageExportConfigurationsCredentialsByIdResponse.class, asyncResultHandler);
+          BatchVoucherStorageExportConfigurations.PutBatchVoucherStorageExportConfigurationsCredentialsByIdResponse.class, asyncResultHandler);
     } else {
       asyncResultHandler.handle(io.vertx.core.Future
         .succeededFuture(PutBatchVoucherStorageExportConfigurationsCredentialsByIdResponse.respond400WithTextPlain(MISMATCH_ERROR_MESSAGE)));

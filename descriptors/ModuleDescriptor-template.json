@@ -243,6 +243,27 @@
       ]
     },
     {
+      "id": "batch-voucher-storage.batch-vouchers",
+      "version": "1.0",
+      "handlers": [
+        {
+          "methods": ["POST"],
+          "pathPattern": "/batch-voucher-storage/batch-vouchers",
+          "permissionsRequired": ["batch-voucher-storage.batch-vouchers.item.post"]
+        },
+        {
+          "methods": ["GET"],
+          "pathPattern": "/batch-voucher-storage/batch-vouchers/{id}",
+          "permissionsRequired": ["batch-voucher-storage.batch-vouchers.item.get"]
+        },
+        {
+          "methods": ["DELETE"],
+          "pathPattern": "/batch-voucher-storage/batch-vouchers/{id}",
+          "permissionsRequired": ["batch-voucher-storage.batch-vouchers.item.delete"]
+        }
+      ]
+    },
+    {
       "id": "_tenant",
       "version": "1.2",
       "interfaceType": "system",
@@ -477,6 +498,21 @@
       "description": "Delete batch voucher export configuration credentials"
     },
     {
+      "permissionName": "batch-voucher-storage.batch-vouchers.item.get",
+      "displayName": "Batch voucher storage - get a batch voucher",
+      "description": "Get a batch voucher by id"
+    },
+    {
+      "permissionName": "batch-voucher-storage.batch-vouchers.item.post",
+      "displayName": "Batch voucher storage - create a batch voucher",
+      "description": "Create a batch voucher"
+    },
+    {
+      "permissionName": "batch-voucher-storage.batch-vouchers.item.delete",
+      "displayName": "Batch voucher storage - delete a batch voucher",
+      "description": "Delete a batch voucher by id"
+    },
+    {
       "permissionName": "batch-group-storage.batch-groups.collection.get",
       "displayName": "Batch group storage - get batch group collection",
       "description": "Get batch group collection"
@@ -527,6 +563,9 @@
       "displayName": "Batch voucher storage - all permissions",
       "description": "Entire set of permissions needed to use batch vouchers",
       "subPermissions": [
+        "batch-voucher-storage.batch-vouchers.item.get",
+        "batch-voucher-storage.batch-vouchers.item.post",
+        "batch-voucher-storage.batch-vouchers.item.delete",
         "batch-voucher-storage.export-configurations.collection.get",
         "batch-voucher-storage.export-configurations.item.get",
         "batch-voucher-storage.export-configurations.item.post",
@@ -574,8 +613,8 @@
         "invoice-storage.invoice-number.get",
         "invoice-storage.invoice-line-number.get",
         "voucher-storage.module.all",
-        "batch-voucher-storage.module.all",
-        "batch-group-storage.module.all"
+        "batch-group-storage.module.all",
+        "batch-voucher-storage.module.all"
       ],
       "visible": false
     }

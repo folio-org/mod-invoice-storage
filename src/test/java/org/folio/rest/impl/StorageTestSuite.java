@@ -123,11 +123,13 @@ public class StorageTestSuite {
   @Nested
   class SystemDataLoadingTestNested extends SystemDataLoadingTest {}
   @Nested
-  class VoucherNumberTestNested extends VoucherNumberTest {}
-  @Nested
   class DocumentTestNested extends DocumentTest {}
   @Nested
   class HelperUtilsTestNested extends HelperUtilsTest{}
   @Nested
   class ExportConfigCredentialsTestNested extends ExportConfigCredentialsTest {}
+  @Nested
+  class BatchVoucherTestNested extends BatchVoucherTest{}
+  @Nested
+  class VoucherNumberTestNested extends VoucherNumberTest {}
 }
