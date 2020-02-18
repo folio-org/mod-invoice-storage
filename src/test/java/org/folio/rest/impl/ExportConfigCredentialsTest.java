@@ -20,8 +20,11 @@ public class ExportConfigCredentialsTest extends TestBase {
   private static final String PASSWORD_FIELD = "password";
   private static final String MY_NEW_PASSWORD = "my_new_password";
 
-  private static final String BATCH_VOUCHER_EXPORT_CONFIG_ID = "cd592659-77aa-4eb3-ac34-c9a4657bb20f";
-  private static final String ANOTHER_BATCH_VOUCHER_EXPORT_CONFIG_ID = "20780f40-f2e5-4178-9918-107bc461a516";
+  private static final String BATCH_GROUP_ID = "cd592659-77aa-4eb3-ac34-c9a4657bb20f";
+  private static final String ANOTHER_BATCH_GROUP_ID = "20780f40-f2e5-4178-9918-107bc461a516";
+  
+  private static final String BATCH_VOUCHER_EXPORT_CONFIG_ID = "26a4d92b-18ca-4be3-854e-4fb7db03c7a7";
+  private static final String ANOTHER_BATCH_VOUCHER_EXPORT_CONFIG_ID = "6544eb9d-a1e4-4d81-a500-b299c8b76068";
 
   private static final String BATCH_GROUPS_ENDPOINT = TestEntities.BATCH_GROUP.getEndpoint();
   private static final String BATCH_GROUPS_ENDPOINT_WITH_ID = TestEntities.BATCH_GROUP.getEndpointWithId();
@@ -103,8 +106,8 @@ public class ExportConfigCredentialsTest extends TestBase {
       deleteDataSuccess(BATCH_VOUCHER_EXPORT_CONFIGS_ENDPOINT_WITH_ID, BATCH_VOUCHER_EXPORT_CONFIG_ID);
       testVerifyEntityDeletion(BATCH_VOUCHER_EXPORT_CONFIGS_ENDPOINT_WITH_ID, BATCH_VOUCHER_EXPORT_CONFIG_ID);
       
-      deleteDataSuccess(BATCH_GROUPS_ENDPOINT_WITH_ID, BATCH_VOUCHER_EXPORT_CONFIG_ID);
-      testVerifyEntityDeletion(BATCH_GROUPS_ENDPOINT_WITH_ID, BATCH_VOUCHER_EXPORT_CONFIG_ID);
+      deleteDataSuccess(BATCH_GROUPS_ENDPOINT_WITH_ID, BATCH_GROUP_ID);
+      testVerifyEntityDeletion(BATCH_GROUPS_ENDPOINT_WITH_ID, BATCH_GROUP_ID);
     }
   }
 
@@ -177,7 +180,7 @@ public class ExportConfigCredentialsTest extends TestBase {
     deleteDataSuccess(BATCH_VOUCHER_EXPORT_CONFIGS_ENDPOINT_WITH_ID, ANOTHER_BATCH_VOUCHER_EXPORT_CONFIG_ID);
     
     // batch group cleanup
-    deleteDataSuccess(BATCH_GROUPS_ENDPOINT_WITH_ID, BATCH_VOUCHER_EXPORT_CONFIG_ID);
-    deleteDataSuccess(BATCH_GROUPS_ENDPOINT_WITH_ID, ANOTHER_BATCH_VOUCHER_EXPORT_CONFIG_ID);
+    deleteDataSuccess(BATCH_GROUPS_ENDPOINT_WITH_ID, BATCH_GROUP_ID);
+    deleteDataSuccess(BATCH_GROUPS_ENDPOINT_WITH_ID, ANOTHER_BATCH_GROUP_ID);
   }
 }

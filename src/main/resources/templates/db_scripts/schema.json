@@ -23,7 +23,7 @@
       "withMetadata": true,
       "foreignKeys": [
         {
-          "fieldName": "id",
+          "fieldName": "batchGroupId",
           "targetTable": "batch_groups",
           "targetTableAlias": "batchGroups",
           "tableAlias": "batchVoucherExportConfigs"
