@@ -1,0 +1,50 @@
+#%RAML 1.0
+
+title: Batch Vouchers CRUD API
+version: v1.0
+protocols: [ HTTP, HTTPS ]
+baseUri: http://github.com/folio-org/mod-invoice-storage
+
+documentation:
+  - title: Batch Vouchers CRUD API
+    content: <b>API used to manage batch vouchers.</b>
+
+types:
+  batchVoucher: !include acq-models/mod-invoice-storage/schemas/batch_voucher.json
+  errors: !include raml-util/schemas/errors.schema
+  UUID:
+    type: string
+    pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$
+
+traits:
+  validate: !include raml-util/traits/validation.raml
+  language: !include raml-util/traits/language.raml
+
+resourceTypes:
+  get-delete: !include raml-util/rtypes/get-delete.raml
+  post-with-201: !include rtypes/post-json-201.raml
+
+/batch-voucher-storage/batch-vouchers:
+    description: Create a batch voucher
+    type:
+      post-with-201:
+        requestSchema: batchVoucher
+        responseSchema: batchVoucher
+        requestExample: !include acq-models/mod-invoice-storage/examples/batch_voucher.sample
+        responseExample: !include acq-models/mod-invoice-storage/examples/batch_voucher.sample
+    post:
+      is: [validate]
+    /{id}:
+      description: Get and Delete a specific batch voucher. Update operation is not allowed
+      uriParameters:
+        id:
+          description: The UUID of a batch voucher
+          type: UUID
+      type:
+        get-delete:
+          schema: batchVoucher
+          exampleItem: !include acq-models/mod-invoice-storage/examples/batch_voucher.sample
+      get:
+        is: [validate]
+      delete:
+        is: [validate]

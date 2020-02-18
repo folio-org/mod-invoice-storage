@@ -1,0 +1,41 @@
+#%RAML 1.0 ResourceType
+#traits:
+# - language: !include traits/language.raml
+is: [language]
+post:
+  description: Process <<resourcePathName>>.
+  body:
+    application/json:
+      type: <<requestSchema>>
+      example:
+        strict: false
+        value: <<requestExample>>
+  responses:
+    201:
+      description: "Returns processing result of the <<resourcePathName>>"
+      headers:
+        Location:
+          description: URI to the created <<resourcePathName|!singularize>> item
+      body:
+        application/json:
+          type: <<responseSchema>>
+          example:
+            strict: false
+            value: <<responseExample>>
+    400:
+      description: "Bad request"
+      body:
+        text/plain:
+          example: |
+                 "unable to process <<resourcePathName|!singularize>> -- constraint violation"
+    404:
+      description: "Item with a given ID not found"
+      body:
+        text/plain:
+          example: |
+                "<<resourcePathName|!singularize>> not found"
+    500:
+      description: "Internal server error, e.g. due to misconfiguration"
+      body:
+        text/plain:
+          example: "internal server error, contact administrator"

@@ -16,7 +16,10 @@ import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
+import io.restassured.builder.RequestSpecBuilder;
+import io.restassured.specification.RequestSpecification;
 import org.apache.commons.io.IOUtils;
+import org.folio.rest.jaxrs.model.BatchVoucher;
 import org.folio.rest.utils.TestEntities;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -218,7 +221,6 @@ public abstract class TestBase {
     }
   }
 
-
   static String getFile(String filename) {
     String value = "";
     try (InputStream inputStream = TestBase.class.getClassLoader().getResourceAsStream(filename)) {
@@ -231,4 +233,18 @@ public abstract class TestBase {
     return value;
   }
 
+  RequestSpecification commonRequestSpec(){
+    return new RequestSpecBuilder().
+      addHeader(TENANT_HEADER.getName(), TENANT_HEADER.getValue()).
+      addHeader(USER_ID_HEADER.getName(), USER_ID_HEADER.getValue()).
+      addHeader(X_OKAPI_TOKEN.getName(), X_OKAPI_TOKEN.getValue()).
+      setContentType(ContentType.JSON).
+      build();
+  }
+
+  void assertAllFieldsExistAndEqual(JsonObject sample, Response response) {
+     JsonObject sampleJson = JsonObject.mapFrom(sample.mapTo(BatchVoucher.class));
+     JsonObject responseJson = JsonObject.mapFrom(response.then().extract().as(BatchVoucher.class));
+     testAllFieldsExists(responseJson, sampleJson);
+  }
 }

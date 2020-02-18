@@ -128,4 +128,6 @@ public class StorageTestSuite {
   class DocumentTestNested extends DocumentTest {}
   @Nested
   class HelperUtilsTestNested extends HelperUtilsTest{}
+  @Nested
+  class BatchVoucherTestNested extends BatchVoucherTest{}
 }
