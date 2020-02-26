@@ -178,12 +178,59 @@ public class ExportConfigurationsImpl implements BatchVoucherStorageExportConfig
   public void putBatchVoucherStorageExportConfigurationsCredentialsById(String id, String lang, Credentials entity,
       Map<String, String> okapiHeaders, Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
     if (StringUtils.equals(entity.getExportConfigId(), id)) {
-      PgUtil.put(EXPORT_CONFIG_CREDENTIALS_TABLE, entity, entity.getId(), okapiHeaders, vertxContext,
-          BatchVoucherStorageExportConfigurations.PutBatchVoucherStorageExportConfigurationsCredentialsByIdResponse.class, asyncResultHandler);
+      if (!StringUtils.isEmpty(entity.getId())) {
+        PgUtil.put(EXPORT_CONFIG_CREDENTIALS_TABLE, entity, entity.getId(), okapiHeaders, vertxContext,
+            BatchVoucherStorageExportConfigurations.PutBatchVoucherStorageExportConfigurationsCredentialsByIdResponse.class, asyncResultHandler);
+      } else {
+        getAndPutCredentials(id, entity, okapiHeaders, asyncResultHandler, vertxContext);
+      }
     } else {
       asyncResultHandler.handle(io.vertx.core.Future
         .succeededFuture(PutBatchVoucherStorageExportConfigurationsCredentialsByIdResponse.respond400WithTextPlain(MISMATCH_ERROR_MESSAGE)));
     }
+  }
+
+  private void getAndPutCredentials(String id, Credentials entity,
+      Map<String, String> okapiHeaders, Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
+    vertxContext.runOnContext((Void v) -> {
+      try {
+        String tenantId = TenantTool.calculateTenantId(okapiHeaders.get(RestVerticle.OKAPI_HEADER_TENANT));
+        PostgresClient pgClient = PostgresClient.getInstance(vertxContext.owner(), tenantId);
+        CQLWrapper cqlWrapper = getCqlWrapperByExportConfigId(id);
+
+        pgClient.get(EXPORT_CONFIG_CREDENTIALS_TABLE, Credentials.class, cqlWrapper, false, reply -> {
+          try {
+            if (reply.succeeded()) {
+              if (reply.result()
+                .getResults()
+                .isEmpty()) {
+                asyncResultHandler.handle(Future.succeededFuture(PutBatchVoucherStorageExportConfigurationsCredentialsByIdResponse
+                  .respond404WithTextPlain(Response.Status.NOT_FOUND.getReasonPhrase())));
+              } else {
+                Credentials response = reply.result()
+                  .getResults()
+                  .get(0);
+                entity.setId(response.getId());
+                PgUtil.put(EXPORT_CONFIG_CREDENTIALS_TABLE, entity, entity.getId(), okapiHeaders, vertxContext,
+                    BatchVoucherStorageExportConfigurations.PutBatchVoucherStorageExportConfigurationsCredentialsByIdResponse.class, asyncResultHandler);
+              }
+            } else {
+              asyncResultHandler.handle(Future.succeededFuture(
+                  PutBatchVoucherStorageExportConfigurationsCredentialsByIdResponse.respond500WithTextPlain(reply.cause()
+                    .getMessage())));
+            }
+          } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+            asyncResultHandler.handle(Future.succeededFuture(PutBatchVoucherStorageExportConfigurationsCredentialsByIdResponse
+              .respond500WithTextPlain(Response.Status.INTERNAL_SERVER_ERROR.getReasonPhrase())));
+          }
+        });
+      } catch (Exception e) {
+        logger.error(e.getMessage(), e);
+        asyncResultHandler.handle(Future.succeededFuture(PutBatchVoucherStorageExportConfigurationsCredentialsByIdResponse
+          .respond500WithTextPlain(Response.Status.INTERNAL_SERVER_ERROR.getReasonPhrase())));
+      }
+    });
   }
 
   private CQLWrapper getCqlWrapperByExportConfigId(String exportConfigId) {

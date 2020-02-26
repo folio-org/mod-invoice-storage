@@ -132,6 +132,54 @@ public class ExportConfigCredentialsTest extends TestBase {
   }
 
   @Test
+  public void testEditEntityWithoutId() throws MalformedURLException {
+    try {
+      logger.info(String.format("--- mod-invoice-storage %s put by id test: no id", simpleClassName, simpleClassName));
+      String sampleData = getFile(SAMPLE_CREDENTIALS_FILE_1);
+      Credentials credentials = (new JsonObject(sampleData).mapTo(Credentials.class));
+      sampleData = JsonObject.mapFrom(credentials).encode();
+
+      // prepare batch groups
+      String batchGroupSample1 = getFile(SAMPLE_BATCH_GROUPS_FILE_1);
+      postData(BATCH_GROUPS_ENDPOINT, batchGroupSample1).then().statusCode(201);
+
+      // prepare batch voucher export configs
+      String exportConfigSample1 = getFile(SAMPLE_BATCH_VOUCHER_EXPORT_CONFIGS_FILE_1);
+      postData(BATCH_VOUCHER_EXPORT_CONFIGS_ENDPOINT, exportConfigSample1).then().statusCode(201);
+
+      String sample = getFile(SAMPLE_CREDENTIALS_FILE_1);
+      postData(BATCH_VOUCHER_EXPORT_CONFIG_CREDENTIALS_ENDPOINT, sample);
+
+      credentials.setId(null);
+      credentials.setExportConfigId(BATCH_VOUCHER_EXPORT_CONFIG_ID);
+      sampleData = JsonObject.mapFrom(credentials).encode();
+      putData(BATCH_VOUCHER_EXPORT_CONFIG_CREDENTIALS_ENDPOINT_WITH_ID, BATCH_VOUCHER_EXPORT_CONFIG_ID, sampleData).then()
+        .log()
+        .ifValidationFails()
+        .statusCode(204);
+
+      credentials.setExportConfigId(NON_EXISTED_ID);
+      sampleData = JsonObject.mapFrom(credentials).encode();
+      putData(BATCH_VOUCHER_EXPORT_CONFIG_CREDENTIALS_ENDPOINT_WITH_ID, NON_EXISTED_ID, sampleData).then()
+        .log()
+        .ifValidationFails()
+        .statusCode(404);
+    } finally {
+      logger.info(String.format("--- mod-invoice-storages %s test: Deleting %s with ID: %s", simpleClassName, simpleClassName, BATCH_VOUCHER_EXPORT_CONFIG_ID));
+      deleteDataSuccess(BATCH_VOUCHER_EXPORT_CONFIG_CREDENTIALS_ENDPOINT_WITH_ID, BATCH_VOUCHER_EXPORT_CONFIG_ID);
+
+      logger.info(String.format("--- mod-invoice-storages %s test: Verify %s is deleted with ID: %s", simpleClassName, simpleClassName, BATCH_VOUCHER_EXPORT_CONFIG_ID));
+      testVerifyEntityDeletion(BATCH_VOUCHER_EXPORT_CONFIG_CREDENTIALS_ENDPOINT_WITH_ID, BATCH_VOUCHER_EXPORT_CONFIG_ID);
+
+      deleteDataSuccess(BATCH_VOUCHER_EXPORT_CONFIGS_ENDPOINT_WITH_ID, BATCH_VOUCHER_EXPORT_CONFIG_ID);
+      testVerifyEntityDeletion(BATCH_VOUCHER_EXPORT_CONFIGS_ENDPOINT_WITH_ID, BATCH_VOUCHER_EXPORT_CONFIG_ID);
+
+      deleteDataSuccess(BATCH_GROUPS_ENDPOINT_WITH_ID, BATCH_GROUP_ID);
+      testVerifyEntityDeletion(BATCH_GROUPS_ENDPOINT_WITH_ID, BATCH_GROUP_ID);
+    }
+  }
+
+  @Test
   public void testDeleteEntityWithNonExistedId() throws MalformedURLException {
     logger.info(String.format("--- mod-invoice-storage %s delete by id test: Invalid %s: %s", simpleClassName, simpleClassName, NON_EXISTED_ID));
     deleteData(BATCH_VOUCHER_EXPORT_CONFIG_CREDENTIALS_ENDPOINT_WITH_ID, NON_EXISTED_ID)
