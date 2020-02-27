@@ -182,9 +182,11 @@ public class ExportConfigurationsImpl implements BatchVoucherStorageExportConfig
         PgUtil.put(EXPORT_CONFIG_CREDENTIALS_TABLE, entity, entity.getId(), okapiHeaders, vertxContext,
             BatchVoucherStorageExportConfigurations.PutBatchVoucherStorageExportConfigurationsCredentialsByIdResponse.class, asyncResultHandler);
       } else {
+        logger.info(String.format("PUT payload is missing 'id'.  Looking up record from storage by exportConfigId: %s", id));
         getAndPutCredentials(id, entity, okapiHeaders, asyncResultHandler, vertxContext);
       }
     } else {
+      logger.info(String.format("PUT with mismatch path/'exportConfigId' field: %s, %s", entity.getExportConfigId(), id));
       asyncResultHandler.handle(io.vertx.core.Future
         .succeededFuture(PutBatchVoucherStorageExportConfigurationsCredentialsByIdResponse.respond400WithTextPlain(MISMATCH_ERROR_MESSAGE)));
     }
