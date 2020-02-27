@@ -14,7 +14,7 @@ import io.vertx.core.AsyncResult;
 import io.vertx.core.Context;
 import io.vertx.core.Handler;
 
-public class BatchVoucherAPI implements BatchVoucherStorageBatchVouchers {
+public class BatchVouchersImpl implements BatchVoucherStorageBatchVouchers {
   private static final String BATCH_VOUCHERS_TABLE = "batch_vouchers";
 
   @Validate

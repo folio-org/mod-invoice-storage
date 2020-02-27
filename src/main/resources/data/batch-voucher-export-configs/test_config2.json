@@ -1,0 +1,9 @@
+{
+  "id": "6544eb9d-a1e4-4d81-a500-b299c8b76068",
+  "batchGroupId": "20780f40-f2e5-4178-9918-107bc461a516",
+  "startTime": "00:00",
+  "weekdays": [ "Tuesday" ],
+  "enableScheduledExport": true,
+  "format": "Application/xml",
+  "uploadURI": "ftp://ftp.amherst-lib.edu/invoices/"
+}

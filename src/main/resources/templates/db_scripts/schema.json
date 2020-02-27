@@ -23,10 +23,21 @@
       "withMetadata": true,
       "foreignKeys": [
         {
-          "fieldName": "id",
+          "fieldName": "batchGroupId",
           "targetTable": "batch_groups",
           "targetTableAlias": "batchGroups",
           "tableAlias": "batchVoucherExportConfigs"
+        }
+      ]
+    },
+    {
+      "tableName": "export_config_credentials",
+      "fromModuleVersion": "mod-invoice-storage-4.0.0",
+      "withMetadata": true,
+      "foreignKeys": [
+        {
+          "fieldName": "exportConfigId",
+          "targetTable": "batch_voucher_export_configs"
         }
       ]
     },
