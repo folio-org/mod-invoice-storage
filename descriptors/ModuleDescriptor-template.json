@@ -264,6 +264,37 @@
       ]
     },
     {
+      "id": "batch-voucher-storage.batch-voucher-exports",
+      "version": "1.0",
+      "handlers": [
+        {
+          "methods": ["POST"],
+          "pathPattern": "/batch-voucher-storage/batch-voucher-exports",
+          "permissionsRequired": ["batch-voucher-storage.batch-voucher-exports.item.post"]
+        },
+        {
+          "methods": ["GET"],
+          "pathPattern": "/batch-voucher-storage/batch-voucher-exports",
+          "permissionsRequired": ["batch-voucher-storage.batch-voucher-exports.collection.get"]
+        },
+        {
+          "methods": ["GET"],
+          "pathPattern": "/batch-voucher-storage/batch-voucher-exports/{id}",
+          "permissionsRequired": ["batch-voucher-storage.batch-voucher-exports.item.get"]
+        },
+        {
+          "methods": ["PUT"],
+          "pathPattern": "/batch-voucher-storage/batch-voucher-exports/{id}",
+          "permissionsRequired": ["batch-voucher-storage.batch-voucher-exports.item.put"]
+        },
+        {
+          "methods": ["DELETE"],
+          "pathPattern": "/batch-voucher-storage/batch-voucher-exports/{id}",
+          "permissionsRequired": ["batch-voucher-storage.batch-voucher-exports.item.delete"]
+        }
+      ]
+    },
+    {
       "id": "_tenant",
       "version": "1.2",
       "interfaceType": "system",
@@ -513,6 +544,31 @@
       "description": "Delete a batch voucher by id"
     },
     {
+      "permissionName": "batch-voucher-storage.batch-voucher-exports.collection.get",
+      "displayName": "Batch voucher storage - get a batch voucher exports collection",
+      "description": "Get a batch voucher exports collection by id"
+    },
+    {
+      "permissionName": "batch-voucher-storage.batch-voucher-exports.item.get",
+      "displayName": "Batch voucher storage - get a batch voucher exports",
+      "description": "Get a batch voucher exports by id"
+    },
+    {
+      "permissionName": "batch-voucher-storage.batch-voucher-exports.item.post",
+      "displayName": "Batch voucher storage - create a batch voucher exports",
+      "description": "Create a batch voucher exports"
+    },
+    {
+      "permissionName": "batch-voucher-storage.batch-voucher-exports.item.put",
+      "displayName": "Batch voucher storage - modify a batch voucher exports",
+      "description": "Modify a batch voucher exports"
+    },
+    {
+      "permissionName": "batch-voucher-storage.batch-voucher-exports.item.delete",
+      "displayName": "Batch voucher storage - delete a batch voucher exports",
+      "description": "Delete a batch voucher exports by id"
+    },
+    {
       "permissionName": "batch-group-storage.batch-groups.collection.get",
       "displayName": "Batch group storage - get batch group collection",
       "description": "Get batch group collection"
@@ -566,6 +622,11 @@
         "batch-voucher-storage.batch-vouchers.item.get",
         "batch-voucher-storage.batch-vouchers.item.post",
         "batch-voucher-storage.batch-vouchers.item.delete",
+        "batch-voucher-storage.batch-voucher-exports.collection.get",
+        "batch-voucher-storage.batch-voucher-exports.item.get",
+        "batch-voucher-storage.batch-voucher-exports.item.post",
+        "batch-voucher-storage.batch-voucher-exports.item.put",
+        "batch-voucher-storage.batch-voucher-exports.item.delete",
         "batch-voucher-storage.export-configurations.collection.get",
         "batch-voucher-storage.export-configurations.item.get",
         "batch-voucher-storage.export-configurations.item.post",

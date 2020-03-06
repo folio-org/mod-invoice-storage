@@ -125,6 +125,25 @@
       "tableName": "batch_vouchers",
       "fromModuleVersion": "mod-invoice-storage-4.0.0",
       "withMetadata": false
+    },
+    {
+      "tableName": "batch_voucher_exports",
+      "fromModuleVersion": "mod-invoice-storage-4.0.0",
+      "withMetadata": true,
+      "foreignKeys": [
+        {
+          "fieldName": "batchGroupId",
+          "targetTable": "batch_groups",
+          "targetTableAlias": "batchGroups",
+          "tableAlias": "batchVoucherExports"
+        },
+        {
+          "fieldName": "batchVoucherId",
+          "targetTable": "batch_vouchers",
+          "targetTableAlias": "batchVouchers",
+          "tableAlias": "batchVoucherExports"
+        }
+      ]
     }
   ]
 }

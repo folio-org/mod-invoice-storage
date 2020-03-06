@@ -29,6 +29,8 @@ class EntitiesCrudTest extends TestBase {
       TestEntities.INVOICE_LINES,
       TestEntities.INVOICE,
       TestEntities.BATCH_VOUCHER_EXPORT_CONFIGS,
+      TestEntities.BATCH_VOUCHER_EXPORTS,
+      TestEntities.BATCH_VOUCHER,
       TestEntities.BATCH_GROUP);
   }
 
@@ -47,7 +49,9 @@ class EntitiesCrudTest extends TestBase {
 
   @ParameterizedTest
   @Order(1)
-  @EnumSource(TestEntities.class)
+  @EnumSource(value = TestEntities.class,
+    names = {"BATCH_VOUCHER"},
+    mode = EnumSource.Mode.EXCLUDE)
   void testVerifyCollection(TestEntities testEntity) throws MalformedURLException {
     logger.info(String.format("--- mod-invoice-storage %s test: Verifying database's initial state ... ", testEntity.name()));
     verifyCollectionQuantity(testEntity.getEndpoint(), TestEntities.BATCH_GROUP.equals(testEntity)? 1 : 0);
@@ -74,7 +78,9 @@ class EntitiesCrudTest extends TestBase {
 
   @ParameterizedTest
   @Order(3)
-  @EnumSource(TestEntities.class)
+  @EnumSource(value = TestEntities.class,
+    names = {"BATCH_VOUCHER"},
+    mode = EnumSource.Mode.EXCLUDE)
   void testVerifyCollectionQuantity(TestEntities testEntity) throws MalformedURLException {
     logger.info(String.format("--- mod-invoice-storage %s test: Verifying only 1 adjustment was created ... ", testEntity.name()));
     verifyCollectionQuantity(testEntity.getEndpoint(), TestEntities.BATCH_GROUP.equals(testEntity)? 2 : 1);
@@ -92,7 +98,9 @@ class EntitiesCrudTest extends TestBase {
 
   @ParameterizedTest
   @Order(5)
-  @EnumSource(TestEntities.class)
+  @EnumSource(value = TestEntities.class,
+    names = {"BATCH_VOUCHER"},
+    mode = EnumSource.Mode.EXCLUDE)
   void testPutById(TestEntities testEntity) throws MalformedURLException {
     logger.info(String.format("--- mod-invoice-storage %s test: Editing %s with ID: %s", testEntity.name(), testEntity.name(),
         testEntity.getId()));
@@ -105,7 +113,9 @@ class EntitiesCrudTest extends TestBase {
 
   @ParameterizedTest
   @Order(6)
-  @EnumSource(TestEntities.class)
+  @EnumSource(value = TestEntities.class,
+    names = {"BATCH_VOUCHER"},
+    mode = EnumSource.Mode.EXCLUDE)
   void testVerifyPut(TestEntities testEntity) throws MalformedURLException {
     logger.info(String.format("--- mod-invoice-storage %s test: Fetching updated %s with ID: %s", testEntity.name(),
         testEntity.name(), testEntity.getId()));
@@ -168,7 +178,11 @@ class EntitiesCrudTest extends TestBase {
   }
 
   @ParameterizedTest
-  @EnumSource(TestEntities.class)
+  @EnumSource(
+    value = TestEntities.class,
+    names = {"BATCH_VOUCHER"},
+    mode = EnumSource.Mode.EXCLUDE
+  )
   void testEditEntityWithNonExistedId(TestEntities testEntity) throws MalformedURLException {
     logger.info(String.format("--- mod-invoice-storage %s put by id test: Invalid %s: %s", testEntity.name(), testEntity.name(),
         NON_EXISTED_ID));
