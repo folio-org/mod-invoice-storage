@@ -34,9 +34,12 @@ resourceTypes:
       schemaItem: batchVoucherExport
       exampleCollection: !include acq-models/mod-invoice-storage/examples/batch_voucher_export_collection.sample
       exampleItem: !include acq-models/mod-invoice-storage/examples/batch_voucher_export.sample
+  post:
+    is: [validate]
   get:
     description: Get list of batch voucher exports
     is: [
+      validate,
       pageable,
       searchable: {description: "with valid searchable fields: for example format", example: "format==\"Application/xml\""}
     ]
@@ -49,4 +52,9 @@ resourceTypes:
       collection-item:
         schema: batchVoucherExport
         exampleItem: !include acq-models/mod-invoice-storage/examples/batch_voucher_export.sample
-
+    get:
+      is: [validate]
+    put:
+      is: [validate]
+    delete:
+      is: [validate]
