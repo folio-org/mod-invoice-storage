@@ -3,6 +3,7 @@ package org.folio.rest.impl;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Context;
 import io.vertx.core.Handler;
+import org.folio.rest.annotations.Validate;
 import org.folio.rest.jaxrs.model.BatchVoucherExport;
 import org.folio.rest.jaxrs.model.BatchVoucherExportCollection;
 import org.folio.rest.jaxrs.resource.BatchVoucherStorageBatchVoucherExports;
@@ -16,6 +17,7 @@ public class BatchVoucherExportsImpl implements BatchVoucherStorageBatchVoucherE
 
   public static final String BATCH_VOUCHER_EXPORTS_TABLE = "batch_voucher_exports";
 
+  @Validate
   @Override
   public void getBatchVoucherStorageBatchVoucherExports(int offset, int limit, String query, String lang,
     Map<String, String> okapiHeaders, Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
@@ -24,6 +26,7 @@ public class BatchVoucherExportsImpl implements BatchVoucherStorageBatchVoucherE
       asyncResultHandler);
   }
 
+  @Validate
   @Override
   public void postBatchVoucherStorageBatchVoucherExports(String lang, BatchVoucherExport entity, Map<String, String> okapiHeaders,
     Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
@@ -31,6 +34,7 @@ public class BatchVoucherExportsImpl implements BatchVoucherStorageBatchVoucherE
       BatchVoucherStorageBatchVoucherExports.PostBatchVoucherStorageBatchVoucherExportsResponse.class, asyncResultHandler);
   }
 
+  @Validate
   @Override
   public void getBatchVoucherStorageBatchVoucherExportsById(String id, String lang, Map<String, String> okapiHeaders,
     Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
@@ -38,6 +42,7 @@ public class BatchVoucherExportsImpl implements BatchVoucherStorageBatchVoucherE
       BatchVoucherStorageBatchVoucherExports.GetBatchVoucherStorageBatchVoucherExportsByIdResponse.class, asyncResultHandler);
   }
 
+  @Validate
   @Override
   public void deleteBatchVoucherStorageBatchVoucherExportsById(String id, String lang, Map<String, String> okapiHeaders,
     Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
@@ -45,6 +50,7 @@ public class BatchVoucherExportsImpl implements BatchVoucherStorageBatchVoucherE
       BatchVoucherStorageBatchVoucherExports.DeleteBatchVoucherStorageBatchVoucherExportsByIdResponse.class, asyncResultHandler);
   }
 
+  @Validate
   @Override
   public void putBatchVoucherStorageBatchVoucherExportsById(String id, String lang, BatchVoucherExport entity,
     Map<String, String> okapiHeaders, Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
