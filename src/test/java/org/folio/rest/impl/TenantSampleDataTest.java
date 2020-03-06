@@ -12,8 +12,13 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
 
+import io.restassured.http.ContentType;
+import io.restassured.http.Header;
+import io.restassured.response.ValidatableResponse;
+import io.vertx.core.json.JsonObject;
+import io.vertx.core.logging.Logger;
+import io.vertx.core.logging.LoggerFactory;
 import java.net.MalformedURLException;
-
 import org.folio.rest.jaxrs.model.InvoiceCollection;
 import org.folio.rest.jaxrs.model.InvoiceLine;
 import org.folio.rest.jaxrs.model.InvoiceLineCollection;
@@ -22,15 +27,8 @@ import org.folio.rest.utils.TenantApiTestUtil;
 import org.folio.rest.utils.TestEntities;
 import org.junit.jupiter.api.Test;
 
-import io.restassured.http.ContentType;
-import io.restassured.http.Header;
-import io.restassured.response.ValidatableResponse;
-import io.vertx.core.json.JsonObject;
-import io.vertx.core.logging.Logger;
-import io.vertx.core.logging.LoggerFactory;
 
-
-public class TenantSampleDataTest extends TestBase{
+public class TenantSampleDataTest extends TestBase {
 
   private final Logger logger = LoggerFactory.getLogger(TenantSampleDataTest.class);
 
@@ -107,7 +105,7 @@ public class TenantSampleDataTest extends TestBase{
         .assertThat()
         .statusCode(201);
 
-      for (TestEntities entity : TestEntities.values()) {
+      for (TestEntities entity : TestEntities.getCollectableEntities()) {
         logger.info("Test expected quantity for " + entity.name());
         verifyCollectionQuantity(entity.getEndpoint(), entity.getInitialQuantity(), PARTIAL_TENANT_HEADER);
       }
@@ -126,7 +124,7 @@ public class TenantSampleDataTest extends TestBase{
     postToTenant(ANOTHER_TENANT_HEADER, jsonBody)
       .assertThat()
       .statusCode(201);
-    for (TestEntities entity : TestEntities.values()) {
+    for (TestEntities entity : TestEntities.getCollectableEntities()) {
       logger.info("Test expected quantity for " + entity.name());
       ValidatableResponse response = verifyCollectionQuantity(entity.getEndpoint(), entity.getInitialQuantity(),
           ANOTHER_TENANT_HEADER);
@@ -167,7 +165,7 @@ public class TenantSampleDataTest extends TestBase{
     JsonObject jsonBody = TenantApiTestUtil.prepareTenantBody(false, false);
     postToTenant(ANOTHER_TENANT_HEADER, jsonBody);
 
-    for(TestEntities te: TestEntities.values()){
+    for (TestEntities te : TestEntities.getCollectableEntities()) {
       verifyCollectionQuantity(te.getEndpoint(), te.getEstimatedSystemDataRecordsQuantity());
     }
   }
@@ -185,9 +183,9 @@ public class TenantSampleDataTest extends TestBase{
         .statusCode(201);
 
       // Check that no sample data loaded
-      for (TestEntities entity : TestEntities.values()) {
-        logger.info("Test expected quantity for " , 0, entity.name());
-        verifyCollectionQuantity(entity.getEndpoint(), TestEntities.BATCH_GROUP.equals(entity)? 1 : 0, NONEXISTENT_TENANT_HEADER);
+      for (TestEntities entity : TestEntities.getCollectableEntities()) {
+        logger.info("Test expected quantity for ", 0, entity.name());
+        verifyCollectionQuantity(entity.getEndpoint(), TestEntities.BATCH_GROUP.equals(entity) ? 1 : 0, NONEXISTENT_TENANT_HEADER);
       }
     }
     finally {
