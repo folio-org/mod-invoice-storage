@@ -4,7 +4,7 @@
   "provides": [
     {
       "id": "invoice-storage.invoices",
-      "version": "3.1",
+      "version": "3.2",
       "handlers": [
         {
           "methods": ["GET"],
@@ -109,7 +109,7 @@
     {
 
       "id": "voucher-storage.vouchers",
-      "version": "1.1",
+      "version": "1.2",
       "handlers": [
         {
           "methods": ["GET"],
