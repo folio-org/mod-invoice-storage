@@ -3,23 +3,23 @@
     {
       "run": "after",
       "snippetPath": "data-migration/invoices_table.sql",
-      "fromModuleVersion": "mod-invoice-storage-4.0.0"
+      "fromModuleVersion": "mod-invoice-storage-3.1.0"
     },
     {
       "run": "after",
       "snippetPath": "data-migration/vouchers_table.sql",
-      "fromModuleVersion": "mod-invoice-storage-4.0.0"
+      "fromModuleVersion": "mod-invoice-storage-3.1.0"
     }
   ],
   "tables": [
     {
       "tableName": "batch_groups",
-      "fromModuleVersion": "mod-invoice-storage-4.0.0",
+      "fromModuleVersion": "mod-invoice-storage-3.1.0",
       "withMetadata": true
     },
     {
       "tableName": "batch_voucher_export_configs",
-      "fromModuleVersion": "mod-invoice-storage-4.0.0",
+      "fromModuleVersion": "mod-invoice-storage-3.1.0",
       "withMetadata": true,
       "foreignKeys": [
         {
@@ -32,7 +32,7 @@
     },
     {
       "tableName": "export_config_credentials",
-      "fromModuleVersion": "mod-invoice-storage-4.0.0",
+      "fromModuleVersion": "mod-invoice-storage-3.1.0",
       "withMetadata": true,
       "foreignKeys": [
         {
@@ -43,7 +43,7 @@
     },
     {
       "tableName": "invoices",
-      "fromModuleVersion": "mod-invoice-storage-4.0.0",
+      "fromModuleVersion": "mod-invoice-storage-3.1.0",
       "withMetadata": true,
       "foreignKeys": [
         {
@@ -72,7 +72,7 @@
     },
     {
       "tableName": "vouchers",
-      "fromModuleVersion": "mod-invoice-storage-4.0.0",
+      "fromModuleVersion": "mod-invoice-storage-3.1.0",
       "withMetadata": true,
       "customSnippetPath": "voucher_number_sequence.sql",
       "uniqueIndex": [
@@ -123,12 +123,12 @@
     },
     {
       "tableName": "batch_vouchers",
-      "fromModuleVersion": "mod-invoice-storage-4.0.0",
+      "fromModuleVersion": "mod-invoice-storage-3.1.0",
       "withMetadata": false
     },
     {
       "tableName": "batch_voucher_exports",
-      "fromModuleVersion": "mod-invoice-storage-4.0.0",
+      "fromModuleVersion": "mod-invoice-storage-3.1.0",
       "withMetadata": true,
       "foreignKeys": [
         {

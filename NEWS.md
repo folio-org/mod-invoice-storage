@@ -1,4 +1,18 @@
-## 3.1.0 - Unreleased
+## 3.2.0 - Unreleased
+
+## 3.1.0 - Released
+
+The focus of this release was to introduce Batch Voucher Exports CRUD APIs
+
+[Full Changelog](https://github.com/folio-org/mod-invoice-storage/compare/v3.0.0...v3.1.0)
+
+### Stories
+* [MODINVOSTO-54](https://issues.folio.org/browse/MODINVOSTO-54) - Create batch-voucher-exports CRUD API
+* [MODINVOSTO-53](https://issues.folio.org/browse/MODINVOSTO-53) - Create batch-voucher API
+* [MODINVOSTO-52](https://issues.folio.org/browse/MODINVOSTO-52) - Create batch-voucher-export configuration credentials API
+* [MODINVOSTO-51](https://issues.folio.org/browse/MODINVOSTO-51) - Create batch-voucher-configurations CRUD API
+* [MODINVOSTO-50](https://issues.folio.org/browse/MODINVOSTO-50) - Create batch-group CRUD API
+* [MODINVOSTO-48](https://issues.folio.org/browse/MODINVOSTO-48) - Batch voucher export schema changes
 
 ## 3.0.0 - Released
 
