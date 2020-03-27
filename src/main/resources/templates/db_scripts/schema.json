@@ -15,7 +15,8 @@
     {
       "tableName": "batch_groups",
       "fromModuleVersion": "mod-invoice-storage-3.1.0",
-      "withMetadata": true
+      "withMetadata": true,
+      "customSnippetPath": "batch_groups.sql"
     },
     {
       "tableName": "batch_voucher_export_configs",
