@@ -1,5 +1,14 @@
 ## 3.2.0 - Unreleased
 
+## 3.1.1 - Released
+
+Fix data migration script for batch groups
+
+[Full Changelog](https://github.com/folio-org/mod-invoice-storage/compare/v3.1.0...v3.1.1)
+
+### Bug Fixes
+* [MODINVOSTO-61](https://issues.folio.org/browse/MODINVOSTO-61) - Data migration script fails due to FK constraint
+
 ## 3.1.0 - Released
 
 The focus of this release was to introduce Batch Voucher Exports CRUD APIs
