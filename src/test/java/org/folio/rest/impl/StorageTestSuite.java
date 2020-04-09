@@ -131,5 +131,7 @@ public class StorageTestSuite {
   @Nested
   class BatchVoucherTestNested extends BatchVoucherTest{}
   @Nested
+  class BatchVoucherExportsTestNested extends BatchVoucherExportsImplTest{}
+  @Nested
   class VoucherNumberTestNested extends VoucherNumberTest {}
 }

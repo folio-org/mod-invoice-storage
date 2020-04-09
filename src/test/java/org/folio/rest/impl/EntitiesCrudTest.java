@@ -30,7 +30,6 @@ class EntitiesCrudTest extends TestBase {
       TestEntities.INVOICE,
       TestEntities.BATCH_VOUCHER_EXPORT_CONFIGS,
       TestEntities.BATCH_VOUCHER_EXPORTS,
-      TestEntities.BATCH_VOUCHER,
       TestEntities.BATCH_GROUP);
   }
 
@@ -148,7 +147,9 @@ class EntitiesCrudTest extends TestBase {
 
   @ParameterizedTest
   @Order(9)
-  @EnumSource(TestEntities.class)
+  @EnumSource(value = TestEntities.class,
+    names = {"BATCH_VOUCHER"},
+    mode = EnumSource.Mode.EXCLUDE)
   void testVerifyDelete(TestEntities testEntity) throws MalformedURLException {
     logger.info(String.format("--- mod-invoice-storages %s test: Verify %s is deleted with ID: %s", testEntity.name(),
         testEntity.name(), testEntity.getId()));
