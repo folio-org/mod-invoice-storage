@@ -7,16 +7,14 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public enum TestEntities {
-  INVOICE("/invoice-storage/invoices", Invoice.class, "invoices/123invoicenumber45_approved_for_2_orders.json", "note", "Updated note for invoice", 8, 0, true),
-  INVOICE_LINES("/invoice-storage/invoice-lines", InvoiceLine.class, "invoice-lines/123invoicenumber45-1.json", "quantity", 5, 9, 0, true),
-  VOUCHER("/voucher-storage/vouchers", Voucher.class, "vouchers/test_voucher.json", "exportToAccounting", true, 1, 0, true),
-  VOUCHER_LINES("/voucher-storage/voucher-lines", VoucherLine.class, "voucher-lines/test_voucher_line.json", "externalAccountNumber", "Comment from unit test", 1, 0, true),
-  BATCH_GROUP("/batch-group-storage/batch-groups", BatchGroup.class, "batch-groups/test-batch-group.json", "name", "folio", 2, 1, true),
-  BATCH_VOUCHER_EXPORT_CONFIGS("/batch-voucher-storage/export-configurations", ExportConfig.class, "batch-voucher-export-configs/test_config.json", "enableScheduledExport", false, 0, 0, true),
-  BATCH_VOUCHER("/batch-voucher-storage/batch-vouchers", BatchVoucher.class, "batch-voucher-exports/batch-vouchers/test-batch-voucher.json", "batchGroup", null, 0, 0, false),
-  BATCH_VOUCHER_EXPORTS("/batch-voucher-storage/batch-voucher-exports", BatchVoucherExport.class, "batch-voucher-exports/test-batch-voucher-export.json", "message", "test", 0, 0, true);
-
-  private static final String SAMPLES_PATH = "data/";
+  INVOICE("/invoice-storage/invoices", Invoice.class, TestData.Invoice.DEFAULT, "note", "Updated note for invoice", 8, 0, true),
+  INVOICE_LINES("/invoice-storage/invoice-lines", InvoiceLine.class, TestData.InvoiceLines.DEFAULT, "quantity", 5, 9, 0, true),
+  VOUCHER("/voucher-storage/vouchers", Voucher.class, TestData.Voucher.DEFAULT, "exportToAccounting", true, 1, 0, true),
+  VOUCHER_LINES("/voucher-storage/voucher-lines", VoucherLine.class, TestData.VoucherLines.DEFAULT, "externalAccountNumber", "Comment from unit test", 1, 0, true),
+  BATCH_GROUP("/batch-group-storage/batch-groups", BatchGroup.class, TestData.BatchGroup.DEFAULT, "name", "folio", 2, 1, true),
+  BATCH_VOUCHER_EXPORT_CONFIGS("/batch-voucher-storage/export-configurations", ExportConfig.class, TestData.BatchVoucherExportConfigs.DEFAULT, "enableScheduledExport", false, 0, 0, true),
+  BATCH_VOUCHER("/batch-voucher-storage/batch-vouchers", BatchVoucher.class, TestData.BatchVoucher.DEFAULT, "batchGroup", null, 0, 0, false),
+  BATCH_VOUCHER_EXPORTS("/batch-voucher-storage/batch-voucher-exports", BatchVoucherExport.class, TestData.BatchVoucherExports.DEFAULT, "message", "test", 0, 0, true);
 
   TestEntities(String endpoint, Class<?> clazz, String sampleFileName, String updatedFieldName, Object updatedFieldValue, int initialQuantity, int systemDataQuantity, boolean collection) {
     this.endpoint = endpoint;
@@ -48,7 +46,7 @@ public enum TestEntities {
   }
 
   public String getSampleFileName() {
-    return SAMPLES_PATH + sampleFileName;
+    return sampleFileName;
   }
 
   public String getUpdatedFieldName() {

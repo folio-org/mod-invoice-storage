@@ -3,19 +3,27 @@ package org.folio.rest.impl;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Context;
 import io.vertx.core.Handler;
+import io.vertx.core.Vertx;
+import java.util.Map;
+import javax.ws.rs.core.Response;
 import org.folio.rest.annotations.Validate;
 import org.folio.rest.jaxrs.model.BatchVoucherExport;
 import org.folio.rest.jaxrs.model.BatchVoucherExportCollection;
 import org.folio.rest.jaxrs.resource.BatchVoucherStorageBatchVoucherExports;
 import org.folio.rest.persist.PgUtil;
-
-import javax.ws.rs.core.Response;
-import java.util.Map;
+import org.folio.rest.persist.PostgresClient;
+import org.folio.service.BatchVoucherExportsService;
 
 
 public class BatchVoucherExportsImpl implements BatchVoucherStorageBatchVoucherExports {
 
   public static final String BATCH_VOUCHER_EXPORTS_TABLE = "batch_voucher_exports";
+
+  private BatchVoucherExportsService batchVoucherExportsService;
+
+  public BatchVoucherExportsImpl(Vertx vertx, String tenantId) {
+    this.batchVoucherExportsService = new BatchVoucherExportsService(PostgresClient.getInstance(vertx, tenantId));
+  }
 
   @Validate
   @Override
@@ -46,8 +54,7 @@ public class BatchVoucherExportsImpl implements BatchVoucherStorageBatchVoucherE
   @Override
   public void deleteBatchVoucherStorageBatchVoucherExportsById(String id, String lang, Map<String, String> okapiHeaders,
     Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
-    PgUtil.deleteById(BATCH_VOUCHER_EXPORTS_TABLE, id, okapiHeaders, vertxContext,
-      BatchVoucherStorageBatchVoucherExports.DeleteBatchVoucherStorageBatchVoucherExportsByIdResponse.class, asyncResultHandler);
+    batchVoucherExportsService.deleteBatchVoucherExportsById(id, vertxContext, asyncResultHandler);
   }
 
   @Validate
