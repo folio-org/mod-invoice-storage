@@ -129,7 +129,7 @@ public class BatchVoucherTest extends TestBase {
         .get(storageUrl(BATCH_VOUCHER_ENDPOINT_WITH_ID))
     .then()
         .assertThat()
-        .statusCode(422);
+        .statusCode(400);
   }
 
   @Test
