@@ -3,6 +3,7 @@
   "adjustments": [
     {
       "description": "Sales Tax",
+      "exportToAccounting": false,
       "type": "Percentage",
       "value": 5,
       "prorate":"Not prorated",

@@ -4,6 +4,7 @@
   "adjustments": [
     {
       "description": "Sales Tax",
+      "exportToAccounting": false,
       "fundDistributions": [
         {
           "code": "USHIST",
@@ -23,6 +24,7 @@
   "approvalDate": "2019-05-20T00:00:00Z",
   "batchGroupId": "2a2cb998-1437-41d1-88ad-01930aaeadd5",
   "currency": "USD",
+  "enclosureNeeded" : false,
   "exportToAccounting": false,
   "folioInvoiceNo": "12345",
   "invoiceDate": "2019-05-18T00:00:00Z",

@@ -3,6 +3,7 @@
   "adjustments": [
     {
       "description": "Discount",
+      "exportToAccounting": false,
       "type": "Amount",
       "value": -200.00,
       "prorate":"Not prorated",

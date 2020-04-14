@@ -4,6 +4,7 @@
     {
       "description": "Service Fee",
       "type": "Amount",
+      "exportToAccounting": false,
       "value": 5.00,
       "prorate":"Not prorated",
       "relationToTotal":"In addition to"
@@ -11,6 +12,7 @@
     {
       "description": "Sales Tax",
       "type": "Percentage",
+      "exportToAccounting": false,
       "value": 5,
       "prorate":"Not prorated",
       "relationToTotal":"In addition to"
