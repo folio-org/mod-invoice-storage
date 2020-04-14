@@ -5,6 +5,8 @@
   ],
   "adjustmentsTotal": 45.00,
   "currency": "USD",
+  "enclosureNeeded" : false,
+  "exchangeRate" : 1,
   "exportToAccounting": false,
   "folioInvoiceNo": "123invoicenumber45",
   "invoiceDate": "2018-07-25T00:00:00.000+0000",

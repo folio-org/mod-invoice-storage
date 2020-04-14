@@ -3,6 +3,7 @@
   "adjustments": [
     {
       "description":"Shipping",
+      "exportToAccounting": false,
       "type":"Amount",
       "value":10.00,
       "prorate":"Not prorated",

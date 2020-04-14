@@ -6,6 +6,7 @@
   "adjustmentsTotal": 0.00,
   "batchGroupId": "2a2cb998-1437-41d1-88ad-01930aaeadd5",
   "currency": "USD",
+  "enclosureNeeded" : false,
   "exportToAccounting": false,
   "folioInvoiceNo": "45723",
   "invoiceDate": "2018-07-20T00:00:00Z",

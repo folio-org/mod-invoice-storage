@@ -3,6 +3,7 @@
   "adjustments": [
     {
       "description": "Service Fee",
+      "exportToAccounting": false,
       "type": "Amount",
       "value": 5.00,
       "prorate":"Not prorated",
