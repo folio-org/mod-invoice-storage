@@ -36,7 +36,7 @@ public class InvoiceNumberImpl implements InvoiceStorageInvoiceNumber {
       PostgresClient.getInstance(vertxContext.owner(), tenantId).selectSingle(INVOICE_NUMBER_QUERY, reply -> {
         try {
           if(reply.succeeded()) {
-            String invoiceNumber = reply.result().getList().get(0).toString();
+            String invoiceNumber = reply.result().getLong(0).toString();
             log.debug("Retrieved invoice number: {}", invoiceNumber);
             asyncResultHandler.handle(succeededFuture(respond200WithApplicationJson(new SequenceNumber().withSequenceNumber(invoiceNumber))));
           } else {

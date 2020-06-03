@@ -5,14 +5,14 @@ import static org.folio.rest.persist.HelperUtils.combineCqlExpressions;
 import static org.folio.rest.persist.HelperUtils.getEntitiesCollection;
 import static org.folio.rest.persist.HelperUtils.SequenceQuery.CREATE_SEQUENCE;
 import static org.folio.rest.persist.HelperUtils.SequenceQuery.DROP_SEQUENCE;
-import static org.folio.rest.persist.PostgresClient.pojo2json;
+import static org.folio.rest.tools.ClientHelpers.pojo2json;
 
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 import javax.ws.rs.core.Response;
 
+import io.vertx.sqlclient.Tuple;
 import org.apache.commons.lang3.StringUtils;
 import org.folio.rest.RestVerticle;
 import org.folio.rest.annotations.Validate;
@@ -24,11 +24,9 @@ import org.folio.rest.persist.Criteria.Criterion;
 import org.folio.rest.tools.utils.TenantTool;
 
 import io.vertx.core.*;
-import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
-import io.vertx.ext.sql.SQLConnection;
 import io.vertx.ext.web.handler.impl.HttpStatusException;
 
 public class InvoiceStorageImpl implements InvoiceStorage {
@@ -188,9 +186,7 @@ public class InvoiceStorageImpl implements InvoiceStorage {
 
         boolean base64Exists = entity.getContents() != null && StringUtils.isNotEmpty(entity.getContents().getData());
         String sql = "INSERT INTO " + fullTableName + " (id, " + (base64Exists ? "document_data," : "") + " jsonb) VALUES (?," + (base64Exists ? "?," : "") + " ?::JSON) RETURNING id";
-        JsonArray jsonArray = prepareDocumentQueryParams(entity);
-
-        pgClient.execute(sql, jsonArray, reply -> {
+        pgClient.execute(sql, prepareDocumentQueryParams(entity), reply -> {
           if (reply.succeeded()) {
             asyncResultHandler.handle(Future.succeededFuture(PostInvoiceStorageInvoicesDocumentsByIdResponse.respond201WithApplicationJson(entity,
               PostInvoiceStorageInvoicesDocumentsByIdResponse.headersFor201()
@@ -219,19 +215,21 @@ public class InvoiceStorageImpl implements InvoiceStorage {
         pgClient.select(query, reply -> {
           try {
             if (reply.succeeded()) {
-              if (reply.result().getResults().isEmpty()){
+              if (reply.result().rowCount() == 0){
                 asyncResultHandler.handle(Future.succeededFuture(GetInvoiceStorageInvoicesDocumentsByIdAndDocumentIdResponse.respond404WithTextPlain(Response.Status.NOT_FOUND.getReasonPhrase())));
                 return;
               }
               InvoiceDocument invoiceDocument = new InvoiceDocument();
 
-              List queryResults = reply.result().getResults().get(0).getList();
+//              List queryResults = reply.result().getResults().get(0).getList();
+              JsonObject resultJson = new JsonObject(reply.result().iterator().next().getString(0));
 
-              DocumentMetadata documentMetadata = (new JsonObject((String) queryResults.get(0))).mapTo(DocumentMetadata.class);
+              DocumentMetadata documentMetadata = (resultJson).mapTo(DocumentMetadata.class);
               invoiceDocument.setDocumentMetadata(documentMetadata);
               invoiceDocument.setMetadata(documentMetadata.getMetadata());
 
-              String base64Content = (String) queryResults.get(1);
+//              String base64Content = (String) queryResults.get(1);
+              String base64Content = reply.result().iterator().next().getString(0);
               if (StringUtils.isNotEmpty(base64Content)){
                 invoiceDocument.setContents(new Contents().withData(base64Content));
               }
@@ -437,7 +435,7 @@ public class InvoiceStorageImpl implements InvoiceStorage {
       if (reply.failed()) {
         handleFailure(promise, reply);
       } else {
-        if (reply.result().getUpdated() == 0) {
+        if (reply.result().rowCount() == 0) {
           promise.fail(new HttpStatusException(Response.Status.NOT_FOUND.getStatusCode(), "Invoice not found"));
         } else {
           promise.complete(tx);
@@ -483,7 +481,7 @@ public class InvoiceStorageImpl implements InvoiceStorage {
         log.error("The invoice {} cannot be deleted", reply.cause(), tx.getEntity());
         handleFailure(promise, reply);
       } else {
-        log.info("{} invoice lines of invoice with id={} successfully deleted", reply.result().getUpdated(), tx.getEntity());
+        log.info("{} invoice lines of invoice with id={} successfully deleted", reply.result().rowCount(), tx.getEntity());
         promise.complete(tx);
       }
     });
@@ -498,20 +496,16 @@ public class InvoiceStorageImpl implements InvoiceStorage {
     return new Criterion(a);
   }
 
-  private JsonArray prepareDocumentQueryParams(InvoiceDocument entity) throws Exception {
-    JsonArray queryParams = new JsonArray();
+  private Tuple prepareDocumentQueryParams(InvoiceDocument entity) throws Exception {
 
     if (entity.getDocumentMetadata().getId() == null) {
       entity.getDocumentMetadata().setId(UUID.randomUUID().toString());
     }
-    queryParams.add(entity.getDocumentMetadata().getId());
 
     if (entity.getContents() != null && StringUtils.isNotEmpty(entity.getContents().getData())){
-      queryParams.add(entity.getContents().getData());
+      return Tuple.of(entity.getDocumentMetadata().getId(), entity.getContents().getData(), pojo2json(entity.getDocumentMetadata()));
     }
 
-    queryParams.add(pojo2json(entity.getDocumentMetadata()));
-
-    return queryParams;
+    return Tuple.of(entity.getDocumentMetadata().getId(), pojo2json(entity.getDocumentMetadata()));
   }
 }

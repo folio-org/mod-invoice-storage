@@ -54,7 +54,7 @@ public class BatchVoucherExportsService {
 
     pgClient.delete(tx.getConnection(), BATCH_VOUCHER_EXPORTS_TABLE, tx.getEntity().get(BATCH_VOUCHER_EXPORT_ID), (rs) -> {
       logger.info("deletion of batch voucher exports completed ");
-      if (rs.result().getUpdated() == 0) {
+      if (rs.result().rowCount() == 0) {
         promise.fail(new HttpStatusException(NOT_FOUND.getStatusCode(), NOT_FOUND.getReasonPhrase()));
       } else {
         promise.complete(tx);
