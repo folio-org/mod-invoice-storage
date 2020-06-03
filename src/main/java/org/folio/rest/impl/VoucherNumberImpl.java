@@ -6,7 +6,6 @@ import java.util.Map;
 
 import javax.ws.rs.core.Response;
 
-import io.vertx.core.json.JsonArray;
 import org.apache.commons.lang.math.NumberUtils;
 import org.folio.rest.RestVerticle;
 import org.folio.rest.jaxrs.resource.VoucherStorageVoucherNumber;
@@ -39,7 +38,7 @@ public class VoucherNumberImpl implements VoucherStorageVoucherNumber {
       String tenantId = TenantTool.calculateTenantId(okapiHeaders.get(RestVerticle.OKAPI_HEADER_TENANT));
       PostgresClient.getInstance(vertxContext.owner(), tenantId)
         .selectSingle(VOUCHER_NUMBER_QUERY,
-            reply -> getVoucherNumberStartHelper.retrieveVoucherNumber(reply.map(row -> new JsonArray(row.getString(0))), asyncResultHandler, messages, lang));
+            reply -> getVoucherNumberStartHelper.retrieveVoucherNumber(reply, asyncResultHandler, messages, lang));
     });
   }
 
@@ -80,7 +79,7 @@ public class VoucherNumberImpl implements VoucherStorageVoucherNumber {
       String tenantId = TenantTool.calculateTenantId(okapiHeaders.get(RestVerticle.OKAPI_HEADER_TENANT));
       PostgresClient.getInstance(vertxContext.owner(), tenantId)
         .selectSingle(CURRENT_VOUCHER_NUMBER_QUERY,
-            reply -> getVoucherNumberStartHelper.retrieveVoucherNumber(reply.map(row -> new JsonArray(row.getString(0))), asyncResultHandler, messages, lang));
+            reply -> getVoucherNumberStartHelper.retrieveVoucherNumber(reply, asyncResultHandler, messages, lang));
     });
   }
 }

@@ -5,7 +5,6 @@ import static org.folio.rest.persist.HelperUtils.combineCqlExpressions;
 import static org.folio.rest.persist.HelperUtils.getEntitiesCollection;
 import static org.folio.rest.persist.HelperUtils.SequenceQuery.CREATE_SEQUENCE;
 import static org.folio.rest.persist.HelperUtils.SequenceQuery.DROP_SEQUENCE;
-import static org.folio.rest.tools.ClientHelpers.pojo2json;
 
 import java.util.Map;
 import java.util.UUID;
@@ -185,7 +184,7 @@ public class InvoiceStorageImpl implements InvoiceStorage {
         entity.getDocumentMetadata().setMetadata(entity.getMetadata());
 
         boolean base64Exists = entity.getContents() != null && StringUtils.isNotEmpty(entity.getContents().getData());
-        String sql = "INSERT INTO " + fullTableName + " (id, " + (base64Exists ? "document_data," : "") + " jsonb) VALUES (?," + (base64Exists ? "?," : "") + " ?::JSON) RETURNING id";
+        String sql = "INSERT INTO " + fullTableName + " (id, " + (base64Exists ? "document_data," : "") + " jsonb) VALUES ($1," + (base64Exists ? "$2,$3" : "$2") + ") RETURNING id";
         pgClient.execute(sql, prepareDocumentQueryParams(entity), reply -> {
           if (reply.succeeded()) {
             asyncResultHandler.handle(Future.succeededFuture(PostInvoiceStorageInvoicesDocumentsByIdResponse.respond201WithApplicationJson(entity,
@@ -503,9 +502,11 @@ public class InvoiceStorageImpl implements InvoiceStorage {
     }
 
     if (entity.getContents() != null && StringUtils.isNotEmpty(entity.getContents().getData())){
-      return Tuple.of(entity.getDocumentMetadata().getId(), entity.getContents().getData(), pojo2json(entity.getDocumentMetadata()));
+      return Tuple.of(UUID.fromString(entity.getDocumentMetadata().getId()), entity.getContents().getData(),
+        JsonObject.mapFrom(entity.getDocumentMetadata()));
     }
 
-    return Tuple.of(entity.getDocumentMetadata().getId(), pojo2json(entity.getDocumentMetadata()));
+    return Tuple.of(UUID.fromString(entity.getDocumentMetadata().getId()),
+      JsonObject.mapFrom(entity.getDocumentMetadata()));
   }
 }
