@@ -493,7 +493,7 @@ public class InvoiceStorageImpl implements InvoiceStorage {
     return new Criterion(a);
   }
 
-  private Tuple prepareDocumentQueryParams(InvoiceDocument entity) throws Exception {
+  private Tuple prepareDocumentQueryParams(InvoiceDocument entity) {
 
     if (entity.getDocumentMetadata().getId() == null) {
       entity.getDocumentMetadata().setId(UUID.randomUUID().toString());
