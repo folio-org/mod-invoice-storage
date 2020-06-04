@@ -146,7 +146,7 @@ public class ExportConfigurationsImpl implements BatchVoucherStorageExportConfig
           try {
             if (reply.succeeded()) {
               if (reply.result()
-                .getUpdated() == 0) {
+                .rowCount() == 0) {
                 asyncResultHandler
                   .handle(Future.succeededFuture(DeleteBatchVoucherStorageExportConfigurationsCredentialsByIdResponse
                     .respond404WithTextPlain(Response.Status.NOT_FOUND.getReasonPhrase())));

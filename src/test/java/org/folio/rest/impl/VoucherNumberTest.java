@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
+import io.vertx.sqlclient.RowSet;
 import org.folio.HttpStatus;
 import org.folio.rest.jaxrs.model.Invoice;
 import org.folio.rest.jaxrs.model.Voucher;
@@ -24,7 +25,6 @@ import io.restassured.http.ContentType;
 import io.restassured.response.ValidatableResponse;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
-import io.vertx.ext.sql.UpdateResult;
 
 public class VoucherNumberTest extends TestBase {
 
@@ -149,7 +149,7 @@ public class VoucherNumberTest extends TestBase {
   }
 
   private void dropSequenceInDb() throws Exception {
-    CompletableFuture<UpdateResult> future = new CompletableFuture<>();
+    CompletableFuture<RowSet> future = new CompletableFuture<>();
       PostgresClient.getInstance(Vertx.vertx()).execute(DROP_SEQUENCE_QUERY, result -> {
         if(result.failed()) {
           future.completeExceptionally(result.cause());

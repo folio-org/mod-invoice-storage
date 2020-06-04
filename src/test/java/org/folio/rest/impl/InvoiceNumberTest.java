@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
+import io.vertx.sqlclient.RowSet;
 import org.folio.HttpStatus;
 import org.folio.rest.persist.PostgresClient;
 import org.junit.jupiter.api.AfterAll;
@@ -20,7 +21,6 @@ import org.junit.jupiter.api.RepeatedTest;
 
 import io.restassured.http.ContentType;
 import io.vertx.core.Vertx;
-import io.vertx.ext.sql.UpdateResult;
 
 public class InvoiceNumberTest extends TestBase {
 
@@ -75,7 +75,7 @@ public class InvoiceNumberTest extends TestBase {
   }
 
   private static void dropSequenceInDb() throws Exception {
-    CompletableFuture<UpdateResult> future = new CompletableFuture<>();
+    CompletableFuture<RowSet> future = new CompletableFuture<>();
       PostgresClient.getInstance(Vertx.vertx()).execute(DROP_SEQUENCE_QUERY, result -> {
         if(result.failed()) {
           future.completeExceptionally(result.cause());

@@ -7,6 +7,7 @@ import java.util.Map;
 
 import javax.ws.rs.core.Response;
 
+import io.vertx.sqlclient.Row;
 import org.folio.rest.jaxrs.model.SequenceNumber;
 import org.folio.rest.jaxrs.resource.VoucherStorageVoucherNumber;
 import org.folio.rest.tools.client.HttpClientFactory;
@@ -17,7 +18,6 @@ import org.folio.rest.tools.utils.TenantTool;
 
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
-import io.vertx.core.json.JsonArray;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 
@@ -37,15 +37,12 @@ public class VoucherNumberHelper {
   VoucherNumberHelper(Map<String, String> okapiHeaders) {
     getHttpClient(okapiHeaders);
   }
-  
-  public void retrieveVoucherNumber(AsyncResult<JsonArray> reply, Handler<AsyncResult<Response>> asyncResultHandler,
-      Messages messages, String lang) {
+
+  public void retrieveVoucherNumber(AsyncResult<Row> reply, Handler<AsyncResult<Response>> asyncResultHandler,
+    Messages messages, String lang) {
     try {
       if (reply.succeeded()) {
-        String voucherNumber = reply.result()
-          .getList()
-          .get(0)
-          .toString();
+        String voucherNumber = reply.result().getLong(0).toString();
         log.debug("Retrieved voucher number: {}", voucherNumber);
         SequenceNumber sequenceNumber = new SequenceNumber().withSequenceNumber(voucherNumber);
         asyncResultHandler.handle(succeededFuture(
