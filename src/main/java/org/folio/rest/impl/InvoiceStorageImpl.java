@@ -68,10 +68,10 @@ public class InvoiceStorageImpl implements InvoiceStorage {
           .compose(this::createInvoice)
           .compose(this::createSequence)
           .compose(this::endTx)
-          .setHandler(reply -> {
+          .onComplete(reply -> {
             if (reply.failed()) {
               // The result of rollback operation is not so important, main failure cause is used to build the response
-              rollbackTransaction(tx).setHandler(res -> {
+              rollbackTransaction(tx).onComplete(res -> {
                 HttpStatusException cause = (HttpStatusException) reply.cause();
                 if (cause.getStatusCode() == Response.Status.BAD_REQUEST.getStatusCode()) {
                   asyncResultHandler
@@ -118,13 +118,13 @@ public class InvoiceStorageImpl implements InvoiceStorage {
           .compose(this::deleteSequence)
           .compose(this::deleteInvoiceById)
           .compose(this::endTx)
-          .setHandler(result -> {
+          .onComplete(result -> {
             if (result.failed()) {
               HttpStatusException cause = (HttpStatusException) result.cause();
               log.error("Invoice {} and associated lines if any were failed to be deleted", cause, tx.getEntity());
 
               // The result of rollback operation is not so important, main failure cause is used to build the response
-              rollbackTransaction(tx).setHandler(res -> {
+              rollbackTransaction(tx).onComplete(res -> {
                 if (cause.getStatusCode() == Response.Status.NOT_FOUND.getStatusCode()) {
                   asyncResultHandler.handle(succeededFuture(
                     DeleteInvoiceStorageInvoicesByIdResponse.respond404WithTextPlain(Response.Status.NOT_FOUND.getReasonPhrase())));
@@ -220,15 +220,13 @@ public class InvoiceStorageImpl implements InvoiceStorage {
               }
               InvoiceDocument invoiceDocument = new InvoiceDocument();
 
-//              List queryResults = reply.result().getResults().get(0).getList();
-              JsonObject resultJson = new JsonObject(reply.result().iterator().next().getString(0));
+              JsonObject resultJson = JsonObject.mapFrom(reply.result().iterator().next().getValue(0));
 
               DocumentMetadata documentMetadata = (resultJson).mapTo(DocumentMetadata.class);
               invoiceDocument.setDocumentMetadata(documentMetadata);
               invoiceDocument.setMetadata(documentMetadata.getMetadata());
 
-//              String base64Content = (String) queryResults.get(1);
-              String base64Content = reply.result().iterator().next().getString(0);
+              String base64Content = reply.result().iterator().next().getString(1);
               if (StringUtils.isNotEmpty(base64Content)){
                 invoiceDocument.setContents(new Contents().withData(base64Content));
               }

@@ -45,7 +45,7 @@ public class BatchVoucherExportsService {
         .compose(this::deleteBatchVoucherExportById)
         .compose(batchVoucherService::deleteBatchVoucherById)
         .compose(Tx::endTx)
-        .setHandler(handleNoContentResponse(asyncResultHandler, tx, "Batch voucher exports {} {} deleted"));
+        .onComplete(handleNoContentResponse(asyncResultHandler, tx, "Batch voucher exports {} {} deleted"));
     });
   }
 
