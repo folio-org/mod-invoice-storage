@@ -9,6 +9,11 @@
       "run": "after",
       "snippetPath": "data-migration/vouchers_table.sql",
       "fromModuleVersion": "mod-invoice-storage-3.1.0"
+    },
+    {
+      "run": "after",
+      "snippetPath": "data-migration/exportToAccounting_enclosureNeeded_default_false.sql",
+      "fromModuleVersion": "mod-invoice-storage-4.0.0"
     }
   ],
   "tables": [
