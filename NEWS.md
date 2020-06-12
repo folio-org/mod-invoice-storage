@@ -10,7 +10,6 @@ The focus of this release was implementing cascade deletion and create view for 
 * [MODINVOSTO-66](https://issues.folio.org/browse/MODINVOSTO-66) - mod-invoice-storage: Update to RMB v30.0.1
 * [MODINVOSTO-58](https://issues.folio.org/browse/MODINVOSTO-58) - Invoicing schema changes
 * [MODINVOSTO-57](https://issues.folio.org/browse/MODINVOSTO-57) - Implementing cascade deletion for batch-voucher and batch-voucher-exports APIs
-* [MODINVOSTO-17](https://issues.folio.org/browse/MODINVOSTO-17) - Create view for search and filtering
 
 ### Bug Fixes
 * [MODINVOSTO-68](https://issues.folio.org/browse/MODINVOSTO-68) - Migration scripts for breaking-changes in invoice app schemas are missed
