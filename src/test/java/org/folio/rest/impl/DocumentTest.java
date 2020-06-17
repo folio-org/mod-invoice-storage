@@ -7,11 +7,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import java.net.MalformedURLException;
 
-import io.restassured.RestAssured;
-import io.restassured.specification.RequestSpecification;
-import io.restassured.specification.ResponseSpecification;
 import org.folio.rest.jaxrs.model.DocumentCollection;
-import org.folio.rest.jaxrs.model.Invoice;
 import org.folio.rest.jaxrs.model.InvoiceDocument;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
