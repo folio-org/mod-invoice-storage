@@ -19,14 +19,17 @@
       "run": "after",
       "snippetPath": "data-migration/voucher_line_fund_code.ftl",
       "fromModuleVersion": "mod-invoice-storage-4.0.1"
+    },
+    {
+      "run": "after",
+      "snippetPath": "batch_groups.sql"
     }
   ],
   "tables": [
     {
       "tableName": "batch_groups",
       "fromModuleVersion": "mod-invoice-storage-3.1.1",
-      "withMetadata": true,
-      "customSnippetPath": "batch_groups.sql"
+      "withMetadata": true
     },
     {
       "tableName": "batch_voucher_export_configs",

@@ -63,9 +63,6 @@ public class TenantReferenceAPI extends TenantAPI {
   }
 
   private boolean buildDataLoadingParameters(TenantAttributes tenantAttributes, TenantLoading tl) {
-    tl.withKey(PARAMETER_LOAD_SYSTEM)
-      .withLead("data/system")
-      .add("batch-groups", "batch-group-storage/batch-groups");
     if (isLoadSample(tenantAttributes)) {
       tl.withKey(PARAMETER_LOAD_SAMPLE)
         .withLead("data")
