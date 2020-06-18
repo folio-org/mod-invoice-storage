@@ -14,6 +14,11 @@
       "run": "after",
       "snippetPath": "data-migration/exportToAccounting_enclosureNeeded_default_false.sql",
       "fromModuleVersion": "mod-invoice-storage-4.0.0"
+    },
+    {
+      "run": "after",
+      "snippetPath": "data-migration/voucher_line_fund_code.ftl",
+      "fromModuleVersion": "mod-invoice-storage-4.0.1"
     }
   ],
   "tables": [
