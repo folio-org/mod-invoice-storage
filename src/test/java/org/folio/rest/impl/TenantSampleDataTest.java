@@ -2,6 +2,7 @@ package org.folio.rest.impl;
 
 import static io.restassured.RestAssured.given;
 import static org.folio.rest.RestVerticle.OKAPI_HEADER_TENANT;
+import static org.folio.rest.impl.StorageTestSuite.getVertx;
 import static org.folio.rest.impl.StorageTestSuite.storageUrl;
 import static org.folio.rest.utils.TenantApiTestUtil.TENANT_ENDPOINT;
 import static org.folio.rest.utils.TenantApiTestUtil.deleteTenant;
@@ -12,20 +13,32 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
 
-import io.restassured.http.ContentType;
-import io.restassured.http.Header;
-import io.restassured.response.ValidatableResponse;
-import io.vertx.core.json.JsonObject;
-import io.vertx.core.logging.Logger;
-import io.vertx.core.logging.LoggerFactory;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
+import java.nio.charset.StandardCharsets;
+import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+
+import org.apache.commons.io.IOUtils;
 import org.folio.rest.jaxrs.model.InvoiceCollection;
 import org.folio.rest.jaxrs.model.InvoiceLine;
 import org.folio.rest.jaxrs.model.InvoiceLineCollection;
 import org.folio.rest.persist.PostgresClient;
 import org.folio.rest.utils.TenantApiTestUtil;
 import org.folio.rest.utils.TestEntities;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+
+import io.restassured.http.ContentType;
+import io.restassured.http.Header;
+import io.restassured.response.ValidatableResponse;
+import io.vertx.core.json.JsonObject;
+import io.vertx.core.logging.Logger;
+import io.vertx.core.logging.LoggerFactory;
 
 
 public class TenantSampleDataTest extends TestBase {
@@ -34,8 +47,18 @@ public class TenantSampleDataTest extends TestBase {
 
   private static final Header NONEXISTENT_TENANT_HEADER = new Header(OKAPI_HEADER_TENANT, "no_tenant");
   private static final Header ANOTHER_TENANT_HEADER = new Header(OKAPI_HEADER_TENANT, "new_tenant");
-  private static final Header PARTIAL_TENANT_HEADER = new Header(OKAPI_HEADER_TENANT, "partial_tenant");
 
+  @BeforeAll
+  static void createFundTable() throws IOException, InterruptedException, ExecutionException, TimeoutException {
+    InputStream tableInput = TenantSampleDataTest.class.getClassLoader().getResourceAsStream("finance_schema.sql");
+    String sqlFile = IOUtils.toString(Objects.requireNonNull(tableInput), StandardCharsets.UTF_8);
+    CompletableFuture<Void> schemaCreated = new CompletableFuture<>();
+    PostgresClient.getInstance(getVertx()).runSQLFile(sqlFile, false)
+      .onComplete(listAsyncResult -> {
+        schemaCreated.complete(null);
+      });
+    schemaCreated.get(60, TimeUnit.SECONDS);
+  }
 
   @Test
   public void isTenantCreated() throws MalformedURLException {
@@ -78,35 +101,35 @@ public class TenantSampleDataTest extends TestBase {
     logger.info("load sample data");
     try{
       JsonObject jsonBody = TenantApiTestUtil.prepareTenantBody(true, false);
-      postToTenant(PARTIAL_TENANT_HEADER, jsonBody)
+      postToTenant(ANOTHER_TENANT_HEADER, jsonBody)
         .assertThat()
         .statusCode(201);
-      InvoiceLineCollection invoiceLineCollection = getData(INVOICE_LINES.getEndpoint(), PARTIAL_TENANT_HEADER)
+      InvoiceLineCollection invoiceLineCollection = getData(INVOICE_LINES.getEndpoint(), ANOTHER_TENANT_HEADER)
         .then()
         .extract()
         .response()
         .as(InvoiceLineCollection.class);
 
       for (InvoiceLine invoiceLine : invoiceLineCollection.getInvoiceLines()) {
-        deleteData(INVOICE_LINES.getEndpointWithId(), invoiceLine.getId(), PARTIAL_TENANT_HEADER).then()
+        deleteData(INVOICE_LINES.getEndpointWithId(), invoiceLine.getId(), ANOTHER_TENANT_HEADER).then()
           .log()
           .ifValidationFails()
           .statusCode(204);
       }
 
       jsonBody = TenantApiTestUtil.prepareTenantBody(true, true);
-      postToTenant(PARTIAL_TENANT_HEADER, jsonBody)
+      postToTenant(ANOTHER_TENANT_HEADER, jsonBody)
         .assertThat()
         .statusCode(201);
 
       for (TestEntities entity : TestEntities.getCollectableEntities()) {
         logger.info("Test expected quantity for " + entity.name());
-        verifyCollectionQuantity(entity.getEndpoint(), entity.getInitialQuantity(), PARTIAL_TENANT_HEADER);
+        verifyCollectionQuantity(entity.getEndpoint(), entity.getInitialQuantity(), ANOTHER_TENANT_HEADER);
       }
     } finally {
-      PostgresClient oldClient = PostgresClient.getInstance(StorageTestSuite.getVertx(), PARTIAL_TENANT_HEADER.getValue());
-      deleteTenant(PARTIAL_TENANT_HEADER);
-      PostgresClient newClient = PostgresClient.getInstance(StorageTestSuite.getVertx(), PARTIAL_TENANT_HEADER.getValue());
+      PostgresClient oldClient = PostgresClient.getInstance(StorageTestSuite.getVertx(), ANOTHER_TENANT_HEADER.getValue());
+      deleteTenant(ANOTHER_TENANT_HEADER);
+      PostgresClient newClient = PostgresClient.getInstance(StorageTestSuite.getVertx(), ANOTHER_TENANT_HEADER.getValue());
       assertThat(oldClient, not(newClient));
     }
   }

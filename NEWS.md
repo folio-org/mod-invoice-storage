@@ -1,4 +1,4 @@
-## 4.0.1 - Unreleased
+## 4.1.0 - Unreleased
 ## 4.0.0 - Released
 
 The focus of this release was implementing cascade deletion and create view for search and filtering
