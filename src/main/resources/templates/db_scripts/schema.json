@@ -2,6 +2,11 @@
   "scripts": [
     {
       "run": "after",
+      "snippetPath": "data-migration/invoice_lines_table.sql",
+      "fromModuleVersion": "mod-invoice-storage-3.0.0"
+    },
+    {
+      "run": "after",
       "snippetPath": "data-migration/invoices_table.sql",
       "fromModuleVersion": "mod-invoice-storage-3.1.0"
     },
@@ -71,8 +76,7 @@
     },
     {
       "tableName": "invoice_lines",
-      "customSnippetPath": "data-migration/invoice_lines_table.sql",
-      "fromModuleVersion": "mod-invoice-storage-3.0.0",
+      "fromModuleVersion": "mod-invoice-storage-5.0.1",
       "withMetadata": true,
       "foreignKeys": [
         {
@@ -81,6 +85,14 @@
           "tableAlias": "invoiceLines",
           "targetTableAlias": "invoices",
           "tOps": "ADD"
+        }
+      ],
+      "fullTextIndex": [
+        {
+          "fieldName": "description",
+          "tOps": "ADD",
+          "caseSensitive": false,
+          "removeAccents": true
         }
       ]
     },
