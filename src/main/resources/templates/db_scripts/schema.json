@@ -76,7 +76,7 @@
     },
     {
       "tableName": "invoice_lines",
-      "fromModuleVersion": "mod-invoice-storage-5.0.1",
+      "fromModuleVersion": "mod-invoice-storage-4.0.1",
       "withMetadata": true,
       "foreignKeys": [
         {
