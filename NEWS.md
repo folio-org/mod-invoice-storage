@@ -1,4 +1,15 @@
 ## 4.1.0 - Unreleased
+## 4.0.1 - Released
+
+This is a bugfix release and contains fixes for full text index creation.
+Also module was migrated on RMB 30.1.0
+
+[Full Changelog](https://github.com/folio-org/mod-invoice-storage/compare/v4.0.0...v4.0.1)
+
+### Bug Fixes
+* [MODINVOSTO-72](https://issues.folio.org/browse/MODINVOSTO-72) - Add invoice_line.description fullTextIndex
+* [MODINVOSTO-69](https://issues.folio.org/browse/MODINVOSTO-69) - Migration script populate "fundDistribution.code" into old voucher lines
+
 ## 4.0.0 - Released
 
 The focus of this release was implementing cascade deletion and create view for search and filtering
