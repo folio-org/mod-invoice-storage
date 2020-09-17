@@ -14,7 +14,6 @@ import io.vertx.sqlclient.Row;
 import io.vertx.sqlclient.RowSet;
 import org.folio.rest.persist.PostgresClient;
 import org.hamcrest.Matchers;
-import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
 
 import io.restassured.response.Response;
@@ -88,7 +87,7 @@ public class InvoiceLineNumberTest extends TestBase {
   }
 
   private void testInvoiceEdit(String invoiceSample, String sampleId) throws MalformedURLException {
-    JSONObject catJSON = new JSONObject(invoiceSample);
+    JsonObject catJSON = new JsonObject(invoiceSample);
     catJSON.put("id", sampleId);
     catJSON.put("folioInvoiceNo", "666666");
     catJSON.put("status", "Cancelled");
@@ -148,7 +147,7 @@ public class InvoiceLineNumberTest extends TestBase {
         .path("sequenceNumber"));
   }
 
-  private static RowSet execute(String query) {
+  private static RowSet<Row> execute(String query) {
     PostgresClient client = PostgresClient.getInstance(Vertx.vertx());
     CompletableFuture<RowSet<Row>> future = new CompletableFuture<>();
     RowSet<Row> rowSet = null;

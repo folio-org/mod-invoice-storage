@@ -10,8 +10,8 @@ import io.vertx.core.Vertx;
 import io.vertx.core.json.jackson.DatabindCodec;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
+import org.folio.dbschema.ObjectMapperTool;
 import org.folio.rest.resource.interfaces.InitAPI;
-import org.folio.rest.tools.utils.ObjectMapperTool;
 
 public class InitAPIs implements InitAPI {
   private final Logger logger = LoggerFactory.getLogger(InitAPIs.class);
