@@ -1,9 +1,8 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.folio</groupId>
   <artifactId>mod-invoice-storage</artifactId>
-  <version>4.1.0-SNAPSHOT</version>
+  <version>4.1.0</version>
   <packaging>jar</packaging>
 
   <licenses>
@@ -22,7 +21,7 @@
     <ramlfiles_path>${basedir}/ramls</ramlfiles_path>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <jmockit.version>1.49</jmockit.version>
-    <argLine/>
+    <argLine />
   </properties>
 
   <dependencyManagement>
@@ -348,7 +347,7 @@
             <configuration>
               <target>
                 <replaceregexp match="baseUri:.+$" replace="baseUri: http://localhost:{http.port}" byline="true">
-                  <fileset dir="${basedir}/target/classes/apidocs/raml" includes="**/*.raml"/>
+                  <fileset dir="${basedir}/target/classes/apidocs/raml" includes="**/*.raml" />
                 </replaceregexp>
               </target>
             </configuration>
@@ -389,7 +388,7 @@
                   </excludes>
                 </filter>
               </filters>
-              <artifactSet/>
+              <artifactSet />
               <outputFile>${project.build.directory}/${project.artifactId}-fat.jar</outputFile>
             </configuration>
           </execution>
@@ -440,7 +439,7 @@
     <url>https://github.com/folio-org/mod-invoice-storage</url>
     <connection>scm:git:git://github.com/folio-org/mod-invoice-storage.git</connection>
     <developerConnection>scm:git:git@github.com:folio-org/mod-invoice-storage.git</developerConnection>
-    <tag>HEAD</tag>
+    <tag>v4.1.0</tag>
   </scm>
 
 </project>
