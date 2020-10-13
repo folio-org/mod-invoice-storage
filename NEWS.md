@@ -1,4 +1,16 @@
-## 4.1.0 - Unreleased
+## 4.2.0 - Unreleased
+
+## 4.1.0 - Released
+
+The primary focus of this release was to migrate to JDK 11 with new RMB, update fund distribution schema
+
+[Full Changelog](https://github.com/folio-org/mod-invoice-storage/compare/v4.0.1...v4.1.0)
+
+### Stories
+* [MODINVOSTO-80](https://issues.folio.org/browse/MODINVOSTO-80) - mod-invoice-storage: Update RMB
+* [MODINVOSTO-76](https://issues.folio.org/browse/MODINVOSTO-76) - Migrate mod-invoice-storage to JDK 11
+* [MODINVOSTO-71](https://issues.folio.org/browse/MODINVOSTO-71) - Update fundDistribution schema
+
 ## 4.0.1 - Released
 
 This is a bugfix release and contains fixes for full text index creation.
