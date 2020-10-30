@@ -380,13 +380,13 @@
                   <artifact>org.folio:domain-models*</artifact>
                   <excludes>
                     <exclude>**/log4j2.properties</exclude>
-                    <exclude>**/Log4j2Plugins.dat</exclude>
                   </excludes>
                 </filter>
                 <filter>
                   <artifact>*:*</artifact>
                   <excludes>
                     <exclude>**/log4j.properties</exclude>
+                    <exclude>**/Log4j2Plugins.dat</exclude>
                   </excludes>
                 </filter>
               </filters>
