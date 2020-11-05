@@ -14,10 +14,10 @@
 
   <properties>
     <aspectj.version>1.9.6</aspectj.version>
-    <raml-module-builder.version>31.1.4</raml-module-builder.version>
-    <vertx.version>3.9.3</vertx.version>
+    <raml-module-builder.version>31.1.5</raml-module-builder.version>
+    <vertx.version>3.9.4</vertx.version>
     <junit-jupiter-version>5.6.1</junit-jupiter-version>
-    <rest-assured.version>4.3.0</rest-assured.version>
+    <rest-assured.version>4.3.1</rest-assured.version>
     <ramlfiles_path>${basedir}/ramls</ramlfiles_path>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <jmockit.version>1.49</jmockit.version>
@@ -34,6 +34,16 @@
         <scope>import</scope>
       </dependency>
       <dependency>
+        <groupId>io.vertx</groupId>
+        <artifactId>vertx-sql-client</artifactId>
+        <version>${vertx.version}-FOLIO</version>
+      </dependency>
+      <dependency>
+        <groupId>io.vertx</groupId>
+        <artifactId>vertx-pg-client</artifactId>
+        <version>${vertx.version}-FOLIO</version>
+      </dependency>
+      <dependency>
         <groupId>com.fasterxml.jackson</groupId>
         <artifactId>jackson-bom</artifactId>
         <version>2.11.1</version>
@@ -43,7 +53,7 @@
       <dependency>
         <groupId>org.junit</groupId>
         <artifactId>junit-bom</artifactId>
-        <version>5.6.1</version>
+        <version>5.6.2</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
