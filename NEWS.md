@@ -6,7 +6,7 @@ The primary focus of this release was to fix RMB and logging issues
 
 [Full Changelog](https://github.com/folio-org/mod-invoice-storage/compare/v4.1.0...v4.1.1)
 
-### Stories
+### Bug Fixes
 * [MODINVOSTO-93](https://issues.folio.org/browse/MODINVOSTO-93) - Update RMB up to v31.1.5
 * [MODINVOSTO-90](https://issues.folio.org/browse/MODINVOSTO-90) - No logging in honeysuckle version
 
