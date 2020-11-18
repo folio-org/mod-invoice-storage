@@ -1,5 +1,14 @@
 ## 4.2.0 - Unreleased
 
+## 4.1.2 - Released
+
+The primary focus of this release was to fix Adding certain prefix and suffixes prevents user from being able to save
+
+[Full Changelog](https://github.com/folio-org/mod-invoice-storage/compare/v4.1.1...v4.1.2)
+
+### Bug Fixes
+* [MODORDSTOR-197](https://issues.folio.org/browse/MODORDSTOR-197) - Adding certain prefix and suffixes prevents user from being able to save
+
 ## 4.1.1 - Released
 
 The primary focus of this release was to fix RMB and logging issues
