@@ -15,8 +15,6 @@
   "paymentMethod": "EFT",
   "status": "Approved",
   "source": "User",
-  "subTotal": 0.0,
-  "total": 0.0,
   "vendorInvoiceNo": "YK75851",
   "voucherNumber": "478",
   "poNumbers": [
