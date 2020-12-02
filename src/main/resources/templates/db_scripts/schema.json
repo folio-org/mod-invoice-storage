@@ -28,6 +28,11 @@
     {
       "run": "after",
       "snippetPath": "batch_groups.sql"
+    },
+    {
+      "run": "after",
+      "snippetPath": "data-migration/invoice_lock_total_from_boolean_to_number.sql",
+      "fromModuleVersion": "mod-invoice-storage-5.0.0"
     }
   ],
   "tables": [
