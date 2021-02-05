@@ -49,6 +49,12 @@
   "subscriptionEnd": "2019-01-01T00:00:00.000+0000",
   "subTotal": 1000.00,
   "total": 1055.00,
-  "vendorRefNo": "1"
+  "referenceNumbers": [
+    {
+      "refNumber": "refNumExample",
+      "refNumberType": "Vendor title number",
+      "vendorDetailsSource": "InvoiceLine"
+    }
+  ]
 }
 
