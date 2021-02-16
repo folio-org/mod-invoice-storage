@@ -1,6 +1,8 @@
 package org.folio.rest.util;
 
 import static javax.ws.rs.core.HttpHeaders.CONTENT_TYPE;
+import static javax.ws.rs.core.HttpHeaders.LOCATION;
+import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
 import static javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
 
@@ -14,6 +16,9 @@ import io.vertx.ext.web.handler.impl.HttpStatusException;
 import javax.ws.rs.core.Response;
 import org.folio.rest.persist.PgExceptionUtil;
 import org.folio.rest.persist.Tx;
+
+import java.net.URI;
+import java.net.URISyntaxException;
 
 public class ResponseUtils {
 
@@ -48,8 +53,31 @@ public class ResponseUtils {
     }
   }
 
+  public static Future<Response> buildResponseWithLocation(String okapi, String endpoint, Object body) {
+    try {
+      return Future.succeededFuture(
+        Response.created(new URI(okapi + endpoint))
+        .header(CONTENT_TYPE, APPLICATION_JSON)
+        .entity(body)
+        .build()
+      );
+    } catch (URISyntaxException e) {
+      return Future.succeededFuture(
+        Response.created(URI.create(endpoint))
+        .header(CONTENT_TYPE, APPLICATION_JSON)
+        .header(LOCATION, endpoint)
+        .entity(body)
+        .build()
+      );
+    }
+  }
+
   public static Future<Response> buildNoContentResponse() {
     return Future.succeededFuture(Response.noContent().build());
+  }
+
+  public static Future<Response> buildContentResponse(Object body) {
+    return Future.succeededFuture(Response.ok(body, APPLICATION_JSON).build());
   }
 
   public static Future<Response> buildErrorResponse(Throwable throwable) {

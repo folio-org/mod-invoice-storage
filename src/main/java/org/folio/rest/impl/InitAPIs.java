@@ -10,16 +10,21 @@ import io.vertx.core.Vertx;
 import io.vertx.core.json.jackson.DatabindCodec;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
+import org.folio.config.ApplicationConfig;
 import org.folio.dbschema.ObjectMapperTool;
 import org.folio.rest.resource.interfaces.InitAPI;
+import org.folio.spring.SpringContextUtil;
 
+/**
+ * The class initializes vertx context adding spring context
+ */
 public class InitAPIs implements InitAPI {
   private final Logger logger = LoggerFactory.getLogger(InitAPIs.class);
 
   @Override
   public void init(Vertx vertx, Context context, Handler<AsyncResult<Boolean>> resultHandler) {
     vertx.executeBlocking(
-      handler -> {
+      promise -> {
         SerializationConfig serializationConfig = ObjectMapperTool.getMapper().getSerializationConfig();
         DeserializationConfig deserializationConfig = ObjectMapperTool.getMapper().getDeserializationConfig();
 
@@ -28,7 +33,8 @@ public class InitAPIs implements InitAPI {
         DatabindCodec.mapper().setConfig(deserializationConfig);
         DatabindCodec.prettyMapper().setConfig(deserializationConfig);
 
-        handler.complete();
+        SpringContextUtil.init(vertx, context, ApplicationConfig.class);
+        promise.complete();
       },
       result -> {
         if (result.succeeded()) {

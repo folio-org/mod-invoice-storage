@@ -1,0 +1,240 @@
+package org.folio.dao.invoice;
+
+import static org.folio.rest.impl.InvoiceStorageImpl.DOCUMENT_TABLE;
+import static org.folio.rest.impl.InvoiceStorageImpl.INVOICE_ID_FIELD_NAME;
+import static org.folio.rest.impl.InvoiceStorageImpl.INVOICE_LINE_TABLE;
+import static org.folio.rest.impl.InvoiceStorageImpl.INVOICE_TABLE;
+import static org.folio.rest.persist.HelperUtils.SequenceQuery.CREATE_SEQUENCE;
+import static org.folio.rest.persist.HelperUtils.SequenceQuery.DROP_SEQUENCE;
+import static org.folio.rest.util.ResponseUtils.handleFailure;
+
+import java.util.UUID;
+import javax.ws.rs.core.Response;
+
+import org.apache.commons.lang3.StringUtils;
+
+import org.folio.rest.jaxrs.model.Contents;
+import org.folio.rest.jaxrs.model.DocumentMetadata;
+import org.folio.rest.jaxrs.model.Invoice;
+import org.folio.rest.jaxrs.model.InvoiceDocument;
+import org.folio.rest.persist.Criteria.Criteria;
+import org.folio.rest.persist.Criteria.Criterion;
+import org.folio.rest.persist.DBClient;
+import org.folio.rest.persist.PostgresClient;
+
+import io.vertx.core.*;
+import io.vertx.core.json.JsonObject;
+import io.vertx.core.logging.Logger;
+import io.vertx.core.logging.LoggerFactory;
+import io.vertx.ext.web.handler.impl.HttpStatusException;
+import io.vertx.sqlclient.Tuple;
+
+public class InvoicePostgresDAO implements InvoiceDAO {
+
+  private final Logger log = LoggerFactory.getLogger(this.getClass());
+
+  /**
+   * Creates a new sequence within a scope of transaction
+   *
+   * @return Future of Invoice transaction with Invoice Line number sequence
+   */
+  public Future<DBClient> createSequence(String invoiceId, DBClient client) {
+    log.info("Creating IL number sequence for invoice with id={}", invoiceId);
+    Promise<DBClient> promise = Promise.promise();
+    try {
+      client.getPgClient().execute(client.getConnection(), CREATE_SEQUENCE.getQuery(invoiceId), reply -> {
+        if (reply.failed()) {
+          log.error("IL number sequence creation for invoice with id={} failed", reply.cause(), invoiceId);
+          handleFailure(promise, reply);
+        } else {
+          log.info("IL number sequence for invoice with id={} successfully created", invoiceId);
+          promise.complete(client);
+        }
+      });
+    } catch (Exception e) {
+      promise.fail(new HttpStatusException(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), e.getMessage()));
+    }
+    return promise.future();
+  }
+
+  /**
+   * Deletes a sequence associated with the invoice if it has been cancelled or paid.
+   * Does not return an error if it fails.
+   *
+   * @param invoice Invoice with the sequence number to be deleted
+   */
+  public void deleteSequence(Invoice invoice, DBClient client) {
+    final String id = invoice.getId();
+    if (invoice.getStatus() == Invoice.Status.CANCELLED || invoice.getStatus() == Invoice.Status.PAID) {
+      log.info("Delete sequence with invoice id={}", invoice.getId());
+      String sqlQuery = DROP_SEQUENCE.getQuery(id);
+      // Try to drop sequence for the IL number but ignore failures
+      log.info("deleteSequence drop sequence query -- ", sqlQuery);
+      client.getPgClient().execute(sqlQuery, reply -> {
+        if (reply.failed()) {
+          log.error("IL number sequence for invoice with id={} failed to be dropped", reply.cause(), id);
+        }
+      });
+    }
+  }
+
+  public Future<DBClient> createInvoice(Invoice invoice, DBClient client) {
+    log.info("Creating new invoice with id={}", invoice.getId());
+    Promise<DBClient> promise = Promise.promise();
+    if (invoice.getId() == null) {
+      invoice.setId(UUID.randomUUID().toString());
+    }
+    client.getPgClient().save(client.getConnection(), INVOICE_TABLE, invoice.getId(), invoice, reply -> {
+      if (reply.failed()) {
+        log.error("Invoice creation with id={} failed", reply.cause(), invoice.getId());
+        handleFailure(promise, reply);
+      } else {
+        log.info("New invoice with id={} successfully created", invoice.getId());
+        promise.complete(client);
+      }
+    });
+    return promise.future();
+  }
+
+  public Future<DBClient> deleteInvoice(String id, DBClient client) {
+    log.info("Delete invoice with id={}", id);
+    Promise<DBClient> promise = Promise.promise();
+    client.getPgClient().delete(client.getConnection(), INVOICE_TABLE, id, reply -> {
+      if (reply.failed()) {
+        handleFailure(promise, reply);
+      } else {
+        if (reply.result().rowCount() == 0) {
+          promise.fail(new HttpStatusException(Response.Status.NOT_FOUND.getStatusCode(), "Invoice not found"));
+        } else {
+          promise.complete(client);
+        }
+      }
+    });
+    return promise.future();
+  }
+
+  public Future<DBClient> deleteSequenceByInvoiceId(String id, DBClient client) {
+    String sqlQuery = DROP_SEQUENCE.getQuery(id);
+    log.info("InvoiceStorageImpl deleteSequence Drop sequence query -- ", sqlQuery);
+    Promise<DBClient> promise = Promise.promise();
+    client.getPgClient().execute(client.getConnection(), sqlQuery, reply -> {
+      if (reply.failed()) {
+        log.error("IL number sequence for invoice with id={} failed to be dropped", reply.cause(), id);
+        handleFailure(promise, reply);
+      } else {
+        promise.complete(client);
+      }
+    });
+    return promise.future();
+  }
+
+  public Future<DBClient> deleteInvoiceLinesByInvoiceId(String id, DBClient client) {
+    log.info("Delete invoice lines by invoice id={}", id);
+    Promise<DBClient> promise = Promise.promise();
+    Criterion criterion = getCriterionByFieldNameAndValue(INVOICE_ID_FIELD_NAME, id);
+    client.getPgClient().delete(client.getConnection(), INVOICE_LINE_TABLE, criterion, reply -> {
+      if (reply.failed()) {
+        log.error("The invoice {} cannot be deleted", reply.cause(), id);
+        handleFailure(promise, reply);
+      } else {
+        log.info("{} invoice lines of invoice with id={} successfully deleted", reply.result().rowCount(), id);
+        promise.complete(client);
+      }
+    });
+    return promise.future();
+  }
+
+  public Future<DBClient> createInvoiceDocument(InvoiceDocument invoiceDoc, DBClient client) {
+    log.info("create invoice document with id={}", invoiceDoc.getDocumentMetadata().getId());
+    Promise<DBClient> promise = Promise.promise();
+    try {
+      String fullTableName = PostgresClient.convertToPsqlStandard(client.getTenantId()) + "." + DOCUMENT_TABLE;
+      invoiceDoc.getDocumentMetadata().setMetadata(invoiceDoc.getMetadata());
+      boolean base64Exists = invoiceDoc.getContents() != null && StringUtils.isNotEmpty(invoiceDoc.getContents().getData());
+      String sql = "INSERT INTO " + fullTableName + " (id, " + (base64Exists ? "document_data," : "") +
+        " jsonb) VALUES ($1," + (base64Exists ? "$2,$3" : "$2") + ") RETURNING id";
+      client.getPgClient().execute(sql, prepareDocumentQueryParams(invoiceDoc), reply -> {
+        if (reply.succeeded()) {
+          promise.complete(client);
+        } else {
+          handleFailure(promise, reply);
+        }
+      });
+    } catch (Exception e) {
+      log.error(e.getMessage(), e);
+      promise.fail(new HttpStatusException(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), e.getMessage()));
+    }
+    return promise.future();
+  }
+
+  public Future<InvoiceDocument> getInvoiceDocument(String invoiceId, String documentId, DBClient client) {
+    log.info("get invoice document with invoiceId={} and documentId={}", invoiceId, documentId);
+    Promise<InvoiceDocument> promise = Promise.promise();
+    try {
+      String fullTableName = PostgresClient.convertToPsqlStandard(client.getTenantId()) + "." + DOCUMENT_TABLE;
+      String query = "SELECT jsonb, document_data FROM " + fullTableName + " WHERE id ='" + documentId +
+        "' AND invoiceId='" + invoiceId + "'";
+      client.getPgClient().select(query, reply -> {
+        try {
+          if (reply.succeeded()) {
+            if (reply.result().rowCount() == 0) {
+              promise.fail(new HttpStatusException(Response.Status.NOT_FOUND.getStatusCode(),
+                Response.Status.NOT_FOUND.getReasonPhrase()));
+              return;
+            }
+            InvoiceDocument invoiceDocument = new InvoiceDocument();
+
+            JsonObject resultJson = JsonObject.mapFrom(reply.result().iterator().next().getValue(0));
+
+            DocumentMetadata documentMetadata = (resultJson).mapTo(DocumentMetadata.class);
+            invoiceDocument.setDocumentMetadata(documentMetadata);
+            invoiceDocument.setMetadata(documentMetadata.getMetadata());
+
+            String base64Content = reply.result().iterator().next().getString(1);
+            if (StringUtils.isNotEmpty(base64Content)){
+              invoiceDocument.setContents(new Contents().withData(base64Content));
+            }
+
+            promise.complete(invoiceDocument);
+          } else {
+            log.error(reply.cause().getMessage(), reply.cause());
+            handleFailure(promise, reply);
+          }
+        } catch (Exception e) {
+          log.error(e.getMessage(), e);
+          promise.fail(new HttpStatusException(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(),
+            Response.Status.INTERNAL_SERVER_ERROR.getReasonPhrase()));
+        }
+      });
+    } catch (Exception e) {
+      log.error(e.getMessage(), e);
+      promise.fail(new HttpStatusException(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(),
+        Response.Status.INTERNAL_SERVER_ERROR.getReasonPhrase()));
+    }
+    return promise.future();
+  }
+
+  private Criterion getCriterionByFieldNameAndValue(String fieldName, String fieldValue) {
+    Criteria a = new Criteria();
+    a.addField("'" + fieldName + "'");
+    a.setOperation("=");
+    a.setVal(fieldValue);
+    return new Criterion(a);
+  }
+
+  private Tuple prepareDocumentQueryParams(InvoiceDocument entity) {
+
+    if (entity.getDocumentMetadata().getId() == null) {
+      entity.getDocumentMetadata().setId(UUID.randomUUID().toString());
+    }
+
+    if (entity.getContents() != null && StringUtils.isNotEmpty(entity.getContents().getData())) {
+      return Tuple.of(UUID.fromString(entity.getDocumentMetadata().getId()), entity.getContents().getData(),
+        JsonObject.mapFrom(entity.getDocumentMetadata()));
+    }
+
+    return Tuple.of(UUID.fromString(entity.getDocumentMetadata().getId()),
+      JsonObject.mapFrom(entity.getDocumentMetadata()));
+  }
+
+}
