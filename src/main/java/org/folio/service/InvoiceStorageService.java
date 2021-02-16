@@ -97,16 +97,17 @@ public class InvoiceStorageService {
         client.startTx()
           .compose(t -> invoiceDAO.deleteInvoiceLinesByInvoiceId(id, client))
           .compose(t -> invoiceDAO.deleteSequenceByInvoiceId(id, client))
+          .compose(t -> invoiceDAO.deleteInvoiceDocumentsByInvoiceId(id, client))
           .compose(t -> invoiceDAO.deleteInvoice(id, client))
           .compose(t -> client.endTx())
           .onComplete(result -> {
             if (result.failed()) {
               HttpStatusException cause = (HttpStatusException) result.cause();
-              log.error("Invoice {} and associated lines if any were failed to be deleted", cause, id);
+              log.error("Invoice {} and associated lines and documents if any failed to be deleted", cause, id);
               // The result of rollback operation is not so important, main failure cause is used to build the response
               client.rollbackTransaction().onComplete(res -> asyncResultHandler.handle(buildErrorResponse(cause)));
             } else {
-              log.info("Invoice {} and associated lines were successfully deleted", id);
+              log.info("Invoice {} and associated lines and documents if any were successfully deleted", id);
               asyncResultHandler.handle(buildNoContentResponse());
             }
           });

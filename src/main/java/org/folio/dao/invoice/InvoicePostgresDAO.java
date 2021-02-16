@@ -144,6 +144,23 @@ public class InvoicePostgresDAO implements InvoiceDAO {
     return promise.future();
   }
 
+  public Future<DBClient> deleteInvoiceDocumentsByInvoiceId(String id, DBClient client) {
+    log.info("Delete invoice documents by invoice id={}", id);
+    Promise<DBClient> promise = Promise.promise();
+    Criterion criterion = getCriterionByFieldNameAndValue(INVOICE_ID_FIELD_NAME, id);
+    client.getPgClient().delete(client.getConnection(), DOCUMENT_TABLE, criterion, reply -> {
+      if (reply.failed()) {
+        log.error("The documents linked to invoice {} could not be deleted", reply.cause(), id);
+        handleFailure(promise, reply);
+      } else {
+        log.info("{} documents of invoice with id={} were successfully deleted", reply.result().rowCount(), id);
+        promise.complete(client);
+      }
+    });
+    return promise.future();
+
+  }
+
   public Future<DBClient> createInvoiceDocument(InvoiceDocument invoiceDoc, DBClient client) {
     log.info("create invoice document with id={}", invoiceDoc.getDocumentMetadata().getId());
     Promise<DBClient> promise = Promise.promise();

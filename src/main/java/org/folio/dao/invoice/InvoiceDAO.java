@@ -13,6 +13,7 @@ public interface InvoiceDAO {
   Future<DBClient> deleteInvoice(String id, DBClient client);
   Future<DBClient> deleteSequenceByInvoiceId(String id, DBClient client);
   Future<DBClient> deleteInvoiceLinesByInvoiceId(String id, DBClient client);
+  Future<DBClient> deleteInvoiceDocumentsByInvoiceId(String id, DBClient client);
   Future<DBClient> createInvoiceDocument(InvoiceDocument invoiceDoc, DBClient client);
   Future<InvoiceDocument> getInvoiceDocument(String invoiceId, String documentId, DBClient client);
 
