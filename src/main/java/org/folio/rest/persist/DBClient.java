@@ -1,7 +1,6 @@
 package org.folio.rest.persist;
 
 import io.vertx.core.*;
-import org.folio.rest.core.model.RequestContext;
 import org.folio.rest.tools.utils.TenantTool;
 
 import java.util.Map;
@@ -24,10 +23,6 @@ public class DBClient {
     this.pgClient = PostgresClient.getInstance(vertx, tenantId);
     this.vertx = vertx;
     this.tenantId = tenantId;
-  }
-
-  public DBClient(RequestContext requestContext) {
-    this(requestContext.getContext(), requestContext.getHeaders());
   }
 
 
