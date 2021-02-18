@@ -21,7 +21,7 @@ import io.restassured.http.Header;
 public class TenantApiTestUtil {
 
   public static final String LOAD_SYNC_PARAMETER = "loadSync";
-  private static final int TENANT_OP_WAITINGTIME = 60000;
+  private static final int TENANT_OP_WAITING_TIME = 60000;
 
   private TenantApiTestUtil() {
 
@@ -58,7 +58,7 @@ public class TenantApiTestUtil {
           future.completeExceptionally(event.cause());
         } else {
           TenantJob tenantJob = event.result().bodyAsJson(TenantJob.class);
-          tClient.getTenantByOperationId(tenantJob.getId(), TENANT_OP_WAITINGTIME, result -> {
+          tClient.getTenantByOperationId(tenantJob.getId(), TENANT_OP_WAITING_TIME, result -> {
             if(result.failed()) {
               future.completeExceptionally(result.cause());
             } else {

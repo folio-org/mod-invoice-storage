@@ -63,7 +63,7 @@ public class VoucherNumberTest extends TestBase {
     changeStartValueResponse(start)
       .statusCode(HttpStatus.HTTP_NO_CONTENT.toInt());
 
-    // verify current start value equals new reseted start value
+    // verify current start value equals new start value
     assertThat(getCurrentStartValueVoucherNumber(), equalTo(start));
 
     assertThat(getSequenceNumberValue(), is(start));
