@@ -15,10 +15,10 @@ import org.folio.rest.utils.TestData.BatchVoucher;
 import org.folio.rest.utils.TestData.BatchVoucherExports;
 import org.junit.jupiter.api.Test;
 
-@IsolatedTenant
 class BatchVoucherExportsImplTest extends TestBase {
 
   @Test
+  @IsolatedTenant
   public void testDeleteShouldDeleteExportsByProvidedIdAndRelatedBatchVoucher() throws MalformedURLException {
     givenTestData(Pair.of(BATCH_GROUP, BatchGroup.DEFAULT),
       Pair.of(BATCH_VOUCHER, BatchVoucher.DEFAULT),
