@@ -7,13 +7,12 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import java.net.MalformedURLException;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.folio.rest.jaxrs.model.DocumentCollection;
 import org.folio.rest.jaxrs.model.InvoiceDocument;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-
-import io.vertx.core.logging.Logger;
-import io.vertx.core.logging.LoggerFactory;
 
 class DocumentTest extends TestBase {
   private static final String SAMPLE_INVOICE_FILE = "data/invoices/12345_paid.json";
@@ -35,7 +34,7 @@ class DocumentTest extends TestBase {
   private static final String DOCUMENT_ID = "433f8140-001e-4605-b5a8-f02793f3d2ec";
   private static final String ANOTHER_DOCUMENT_ID = "1f6c1af3-6475-43a2-8626-e2496616601c";
 
-  private final Logger logger = LoggerFactory.getLogger(DocumentTest.class);
+  private final Logger logger = LogManager.getLogger(DocumentTest.class);
 
   @Test
   void testDocumentsCrud() throws MalformedURLException {
@@ -70,7 +69,7 @@ class DocumentTest extends TestBase {
       assertEquals(INVOICE_ID, createdDocument.getDocumentMetadata().getInvoiceId());
       assertNotNull(createdDocument.getContents().getData());
 
-      logger.info(String.format("--- mod-invoice-storage  test: Get list of documents", INVOICE_ID));
+      logger.info(String.format("--- mod-invoice-storage  test: Get list of documents for invoice %s", INVOICE_ID));
       DocumentCollection documents = getData(DOCUMENT_ENDPOINT).then()
         .log().ifValidationFails()
         .statusCode(200)
@@ -81,7 +80,7 @@ class DocumentTest extends TestBase {
       // check only one document was found
       Assertions.assertEquals(1, documents.getTotalRecords());
 
-      logger.info(String.format("--- mod-invoice-storage  test: Get list of documents by query", INVOICE_ID));
+      logger.info(String.format("--- mod-invoice-storage  test: Get list of documents by query for invoice %s", INVOICE_ID));
       DocumentCollection documentsByQuery = getData(DOCUMENT_ENDPOINT + "?query=name==sample.pdf OR name<>sample.pdf sortBy name").then()
         .log().ifValidationFails()
         .statusCode(200)

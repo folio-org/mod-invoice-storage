@@ -2,7 +2,6 @@ package org.folio.rest.impl;
 
 import static io.restassured.RestAssured.given;
 import static org.folio.rest.impl.StorageTestSuite.storageUrl;
-import static org.folio.rest.utils.TestEntities.BATCH_GROUP;
 import static org.folio.rest.utils.TestEntities.BATCH_VOUCHER;
 import static org.folio.rest.utils.TestEntities.BATCH_VOUCHER_EXPORTS;
 import static org.hamcrest.CoreMatchers.notNullValue;
@@ -12,7 +11,6 @@ import java.net.MalformedURLException;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.folio.rest.utils.IsolatedTenant;
-import org.folio.rest.utils.TestData;
 import org.folio.rest.utils.TestData.BatchVoucher;
 import org.folio.rest.utils.TestData.BatchVoucherExports;
 import org.junit.jupiter.api.BeforeAll;
@@ -29,7 +27,7 @@ public class BatchVoucherTest extends TestBase {
   private static final String NONEXISTENT_VOUCHER_ID = "12345678-83b9-1234-9c39-b58dcd02ee10";
   private static JsonObject BATCH_VOUCHER_WITH_ID;
   private static JsonObject BATCH_VOUCHER_WITHOUT_ID;
-  private static String BAD_REQUEST = "";
+  private static final String BAD_REQUEST = "";
 
   @BeforeAll
   public static void beforeAll() {
@@ -150,8 +148,7 @@ public class BatchVoucherTest extends TestBase {
   @Test
   @IsolatedTenant
   public void testDeleteShouldDeleteVoucherAndRelatedExportsByProvidedId() throws MalformedURLException {
-    givenTestData(Pair.of(BATCH_GROUP, TestData.BatchGroup.DEFAULT),
-                  Pair.of(BATCH_VOUCHER, BatchVoucher.DEFAULT),
+    givenTestData(Pair.of(BATCH_VOUCHER, BatchVoucher.DEFAULT),
                   Pair.of(BATCH_VOUCHER_EXPORTS, BatchVoucherExports.DEFAULT));
 
     // Check that BatchVoucher has been created

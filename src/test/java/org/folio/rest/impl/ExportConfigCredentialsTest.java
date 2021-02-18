@@ -1,34 +1,32 @@
 package org.folio.rest.impl;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-
 import java.net.MalformedURLException;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.folio.rest.jaxrs.model.Credentials;
 import org.folio.rest.utils.TestEntities;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import io.restassured.response.Response;
 import io.vertx.core.json.JsonObject;
-import io.vertx.core.logging.Logger;
-import io.vertx.core.logging.LoggerFactory;
 
 public class ExportConfigCredentialsTest extends TestBase {
-  private final Logger logger = LoggerFactory.getLogger(ExportConfigCredentialsTest.class);
+  private final Logger logger = LogManager.getLogger(ExportConfigCredentialsTest.class);
 
   private static final String PASSWORD_FIELD = "password";
   private static final String MY_NEW_PASSWORD = "my_new_password";
 
   private static final String BATCH_GROUP_ID = "cd592659-77aa-4eb3-ac34-c9a4657bb20f";
   private static final String ANOTHER_BATCH_GROUP_ID = "20780f40-f2e5-4178-9918-107bc461a516";
-  
+
   private static final String BATCH_VOUCHER_EXPORT_CONFIG_ID = "26a4d92b-18ca-4be3-854e-4fb7db03c7a7";
   private static final String ANOTHER_BATCH_VOUCHER_EXPORT_CONFIG_ID = "6544eb9d-a1e4-4d81-a500-b299c8b76068";
 
   private static final String BATCH_GROUPS_ENDPOINT = TestEntities.BATCH_GROUP.getEndpoint();
   private static final String BATCH_GROUPS_ENDPOINT_WITH_ID = TestEntities.BATCH_GROUP.getEndpointWithId();
-  
+
   private static final String BATCH_VOUCHER_EXPORT_CONFIGS_ENDPOINT = TestEntities.BATCH_VOUCHER_EXPORT_CONFIGS.getEndpoint();
   private static final String BATCH_VOUCHER_EXPORT_CONFIGS_ENDPOINT_WITH_ID = TestEntities.BATCH_VOUCHER_EXPORT_CONFIGS.getEndpointWithId();
   private static final String BATCH_VOUCHER_EXPORT_CONFIG_CREDENTIALS_ENDPOINT_WITH_PARAM = "/batch-voucher-storage/export-configurations/%s/credentials";
@@ -54,7 +52,7 @@ public class ExportConfigCredentialsTest extends TestBase {
       // prepare batch groups
       String batchGroupSample1 = getFile(SAMPLE_BATCH_GROUPS_FILE_1);
       postData(BATCH_GROUPS_ENDPOINT, batchGroupSample1).then().statusCode(201);
-      
+
       // prepare batch voucher export configs
       String exportConfigSample1 = getFile(SAMPLE_BATCH_VOUCHER_EXPORT_CONFIGS_FILE_1);
       postData(BATCH_VOUCHER_EXPORT_CONFIGS_ENDPOINT, exportConfigSample1).then().statusCode(201);
@@ -75,7 +73,7 @@ public class ExportConfigCredentialsTest extends TestBase {
         .extract()
         .body().as(Credentials.class);
 
-      assertEquals(BATCH_VOUCHER_EXPORT_CONFIG_ID, credentials.getExportConfigId());
+      Assertions.assertEquals(BATCH_VOUCHER_EXPORT_CONFIG_ID, credentials.getExportConfigId());
 
       logger.info(String.format("--- mod-invoice-storage %s test: Editing %s with ID: %s", simpleClassName, simpleClassName, BATCH_VOUCHER_EXPORT_CONFIG_ID));
       credentials.setPassword(MY_NEW_PASSWORD);
@@ -91,11 +89,11 @@ public class ExportConfigCredentialsTest extends TestBase {
             .body()
               .jsonPath()
               .get(PASSWORD_FIELD).toString();
-      assertEquals(MY_NEW_PASSWORD, existedValue);
+      Assertions.assertEquals(MY_NEW_PASSWORD, existedValue);
 
     } catch (Exception e) {
       logger.error(String.format("--- mod-invoice-storage-test: %s API ERROR: %s", simpleClassName, e.getMessage()));
-      fail(e.getMessage());
+      Assertions.fail(e.getMessage());
     } finally {
       logger.info(String.format("--- mod-invoice-storages %s test: Deleting %s with ID: %s", simpleClassName, simpleClassName, BATCH_VOUCHER_EXPORT_CONFIG_ID));
       deleteDataSuccess(BATCH_VOUCHER_EXPORT_CONFIG_CREDENTIALS_ENDPOINT_WITH_ID, BATCH_VOUCHER_EXPORT_CONFIG_ID);
@@ -105,7 +103,7 @@ public class ExportConfigCredentialsTest extends TestBase {
 
       deleteDataSuccess(BATCH_VOUCHER_EXPORT_CONFIGS_ENDPOINT_WITH_ID, BATCH_VOUCHER_EXPORT_CONFIG_ID);
       testVerifyEntityDeletion(BATCH_VOUCHER_EXPORT_CONFIGS_ENDPOINT_WITH_ID, BATCH_VOUCHER_EXPORT_CONFIG_ID);
-      
+
       deleteDataSuccess(BATCH_GROUPS_ENDPOINT_WITH_ID, BATCH_GROUP_ID);
       testVerifyEntityDeletion(BATCH_GROUPS_ENDPOINT_WITH_ID, BATCH_GROUP_ID);
     }
@@ -134,10 +132,9 @@ public class ExportConfigCredentialsTest extends TestBase {
   @Test
   public void testEditEntityWithoutId() throws MalformedURLException {
     try {
-      logger.info(String.format("--- mod-invoice-storage %s put by id test: no id", simpleClassName, simpleClassName));
+      logger.info(String.format("--- mod-invoice-storage %s put by id test: no id", simpleClassName));
       String sampleData = getFile(SAMPLE_CREDENTIALS_FILE_1);
       Credentials credentials = (new JsonObject(sampleData).mapTo(Credentials.class));
-      sampleData = JsonObject.mapFrom(credentials).encode();
 
       // prepare batch groups
       String batchGroupSample1 = getFile(SAMPLE_BATCH_GROUPS_FILE_1);
@@ -196,7 +193,7 @@ public class ExportConfigCredentialsTest extends TestBase {
     postData(BATCH_GROUPS_ENDPOINT, batchGroupSample1).then().statusCode(201);
     String batchGroupSample2 = getFile(SAMPLE_BATCH_GROUPS_FILE_2);
     postData(BATCH_GROUPS_ENDPOINT, batchGroupSample2).then().statusCode(201);
-    
+
     // prepare batch voucher export config data
     String exportConfigSample1 = getFile(SAMPLE_BATCH_VOUCHER_EXPORT_CONFIGS_FILE_1);
     postData(BATCH_VOUCHER_EXPORT_CONFIGS_ENDPOINT, exportConfigSample1).then().statusCode(201);
@@ -226,7 +223,7 @@ public class ExportConfigCredentialsTest extends TestBase {
     // batch voucher export config cleanup
     deleteDataSuccess(BATCH_VOUCHER_EXPORT_CONFIGS_ENDPOINT_WITH_ID, BATCH_VOUCHER_EXPORT_CONFIG_ID);
     deleteDataSuccess(BATCH_VOUCHER_EXPORT_CONFIGS_ENDPOINT_WITH_ID, ANOTHER_BATCH_VOUCHER_EXPORT_CONFIG_ID);
-    
+
     // batch group cleanup
     deleteDataSuccess(BATCH_GROUPS_ENDPOINT_WITH_ID, BATCH_GROUP_ID);
     deleteDataSuccess(BATCH_GROUPS_ENDPOINT_WITH_ID, ANOTHER_BATCH_GROUP_ID);

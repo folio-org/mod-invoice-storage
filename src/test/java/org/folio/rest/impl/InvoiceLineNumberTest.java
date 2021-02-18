@@ -2,7 +2,6 @@ package org.folio.rest.impl;
 
 import static org.folio.rest.impl.InvoiceStorageImpl.INVOICE_TABLE;
 import static org.folio.rest.utils.TestEntities.INVOICE;
-import static org.junit.Assert.assertEquals;
 
 import java.net.MalformedURLException;
 import java.util.HashMap;
@@ -10,22 +9,23 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
-import io.vertx.sqlclient.Row;
-import io.vertx.sqlclient.RowSet;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.folio.rest.persist.PostgresClient;
 import org.hamcrest.Matchers;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import io.restassured.response.Response;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
-import io.vertx.core.logging.Logger;
-import io.vertx.core.logging.LoggerFactory;
+import io.vertx.sqlclient.Row;
+import io.vertx.sqlclient.RowSet;
 
 
 public class InvoiceLineNumberTest extends TestBase {
 
-  private final Logger logger = LoggerFactory.getLogger(InvoiceLineNumberTest.class);
+  private final Logger logger = LogManager.getLogger(InvoiceLineNumberTest.class);
 
   private static final String INVOICE_LINE_NUMBER_ENDPOINT = "/invoice-storage/invoice-line-number";
   private static final String SEQUENCE_ID = "\"ilNumber_8ad4b87b-9b47-4199-b0c3-5480745c6b41\"";
@@ -102,7 +102,7 @@ public class InvoiceLineNumberTest extends TestBase {
     RowSet<Row> rs = execute(NEXTVAL);
     execute(DROP_SEQUENCE);
     long result = rs.iterator().next().getLong(0);//rs.toJson().getJsonArray("results").getList().get(0).toString();
-    assertEquals(14, result);
+    Assertions.assertEquals(14, result);
     try {
       execute(NEXTVAL);
     } catch (Exception e) {
@@ -119,7 +119,7 @@ public class InvoiceLineNumberTest extends TestBase {
     	logger.info("--- mod-invoice-storage test Generate new sequence number: " + retrieveInvoiceLineNumber(invoiceId));
     }
     int invoiceLineNumberLast = retrieveInvoiceLineNumber(invoiceId);
-    assertEquals(i, invoiceLineNumberLast - invoiceLineNumberInitial);
+    Assertions.assertEquals(i, invoiceLineNumberLast - invoiceLineNumberInitial);
   }
 
   @Test

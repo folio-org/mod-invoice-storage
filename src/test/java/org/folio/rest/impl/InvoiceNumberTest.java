@@ -3,8 +3,8 @@ package org.folio.rest.impl;
 import static io.restassured.RestAssured.given;
 import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
 import static org.folio.rest.impl.StorageTestSuite.storageUrl;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.assertThat;
 
 import java.net.MalformedURLException;
 import java.util.ArrayList;
@@ -12,15 +12,17 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
-import io.vertx.sqlclient.RowSet;
 import org.folio.HttpStatus;
 import org.folio.rest.persist.PostgresClient;
 import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.RepeatedTest;
 
 import io.restassured.http.ContentType;
 import io.vertx.core.Vertx;
+import io.vertx.sqlclient.Row;
+import io.vertx.sqlclient.RowSet;
 
 public class InvoiceNumberTest extends TestBase {
 
@@ -37,7 +39,7 @@ public class InvoiceNumberTest extends TestBase {
 
   @RepeatedTest(3)
   public void testGetInvoiceNumber() throws MalformedURLException {
-    invoiceNumberList.add(getNumberAsLong());
+    Assertions.assertTrue(invoiceNumberList.add(getNumberAsLong()));
   }
 
   @AfterAll
@@ -54,7 +56,7 @@ public class InvoiceNumberTest extends TestBase {
   }
 
   private long getNumberAsLong() throws MalformedURLException {
-    return new Long(getData(INVOICE_NUMBER_ENDPOINT)
+    return Long.parseLong(getData(INVOICE_NUMBER_ENDPOINT)
       .then()
         .statusCode(HttpStatus.HTTP_OK.toInt())
         .extract()
@@ -75,7 +77,7 @@ public class InvoiceNumberTest extends TestBase {
   }
 
   private static void dropSequenceInDb() throws Exception {
-    CompletableFuture<RowSet> future = new CompletableFuture<>();
+    CompletableFuture<RowSet<Row>> future = new CompletableFuture<>();
       PostgresClient.getInstance(Vertx.vertx()).execute(DROP_SEQUENCE_QUERY, result -> {
         if(result.failed()) {
           future.completeExceptionally(result.cause());

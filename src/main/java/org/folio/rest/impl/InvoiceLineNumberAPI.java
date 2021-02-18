@@ -6,6 +6,8 @@ import java.util.Map;
 
 import javax.ws.rs.core.Response;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.folio.rest.RestVerticle;
 import org.folio.rest.annotations.Validate;
 import org.folio.rest.jaxrs.model.InvoiceLineNumber;
@@ -19,12 +21,10 @@ import io.vertx.core.AsyncResult;
 import io.vertx.core.Context;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
-import io.vertx.core.logging.Logger;
-import io.vertx.core.logging.LoggerFactory;
 
 public class InvoiceLineNumberAPI implements InvoiceStorageInvoiceLineNumber {
 
-  private static final Logger log = LoggerFactory.getLogger(InvoiceLineNumberAPI.class);
+  private static final Logger log = LogManager.getLogger(InvoiceLineNumberAPI.class);
   private final Messages messages = Messages.getInstance();
 
   @Validate
@@ -41,7 +41,7 @@ public class InvoiceLineNumberAPI implements InvoiceStorageInvoiceLineNumber {
                 String invoiceLineNumber = getILNumberReply.result()
                   .getLong(0)
                   .toString();
-                log.info("--- InvoiceLineNumberAPI getInvoiceStorageInvoiceLineNumber invoiceLineNumber -- " + invoiceLineNumber);
+                log.info("--- InvoiceLineNumberAPI getInvoiceStorageInvoiceLineNumber invoiceLineNumber -- {}", invoiceLineNumber);
                 asyncResultHandler
                   .handle(Future.succeededFuture(InvoiceStorageInvoiceLineNumber.GetInvoiceStorageInvoiceLineNumberResponse
                     .respond200WithApplicationJson(new InvoiceLineNumber().withSequenceNumber(invoiceLineNumber))));

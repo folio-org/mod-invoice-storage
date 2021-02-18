@@ -9,29 +9,30 @@ import static org.folio.rest.persist.HelperUtils.SequenceQuery.DROP_SEQUENCE;
 import static org.folio.rest.util.ResponseUtils.handleFailure;
 
 import java.util.UUID;
+
 import javax.ws.rs.core.Response;
 
 import org.apache.commons.lang3.StringUtils;
-
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.folio.rest.jaxrs.model.Contents;
 import org.folio.rest.jaxrs.model.DocumentMetadata;
 import org.folio.rest.jaxrs.model.Invoice;
 import org.folio.rest.jaxrs.model.InvoiceDocument;
-import org.folio.rest.persist.Criteria.Criteria;
-import org.folio.rest.persist.Criteria.Criterion;
 import org.folio.rest.persist.DBClient;
 import org.folio.rest.persist.PostgresClient;
+import org.folio.rest.persist.Criteria.Criteria;
+import org.folio.rest.persist.Criteria.Criterion;
 
-import io.vertx.core.*;
+import io.vertx.core.Future;
+import io.vertx.core.Promise;
 import io.vertx.core.json.JsonObject;
-import io.vertx.core.logging.Logger;
-import io.vertx.core.logging.LoggerFactory;
 import io.vertx.ext.web.handler.impl.HttpStatusException;
 import io.vertx.sqlclient.Tuple;
 
 public class InvoicePostgresDAO implements InvoiceDAO {
 
-  private final Logger log = LoggerFactory.getLogger(this.getClass());
+  private final Logger log = LogManager.getLogger(this.getClass());
 
   /**
    * Creates a new sequence within a scope of transaction
@@ -44,7 +45,8 @@ public class InvoicePostgresDAO implements InvoiceDAO {
     try {
       client.getPgClient().execute(client.getConnection(), CREATE_SEQUENCE.getQuery(invoiceId), reply -> {
         if (reply.failed()) {
-          log.error("IL number sequence creation for invoice with id={} failed", reply.cause(), invoiceId);
+          String errorMessage = String.format("Invoice Line number sequence creation for invoice with id=%s failed", invoiceId);
+          log.error(errorMessage, reply.cause());
           handleFailure(promise, reply);
         } else {
           log.info("IL number sequence for invoice with id={} successfully created", invoiceId);
@@ -69,10 +71,11 @@ public class InvoicePostgresDAO implements InvoiceDAO {
       log.info("Delete sequence with invoice id={}", invoice.getId());
       String sqlQuery = DROP_SEQUENCE.getQuery(id);
       // Try to drop sequence for the IL number but ignore failures
-      log.info("deleteSequence drop sequence query -- ", sqlQuery);
+      log.info("deleteSequence drop sequence query -- {}", sqlQuery);
       client.getPgClient().execute(sqlQuery, reply -> {
         if (reply.failed()) {
-          log.error("IL number sequence for invoice with id={} failed to be dropped", reply.cause(), id);
+          String errorMessage = String.format("Invoice Line number sequence for invoice with id=%s failed to be dropped", id);
+          log.error(errorMessage, reply.cause());
         }
       });
     }
@@ -86,7 +89,8 @@ public class InvoicePostgresDAO implements InvoiceDAO {
     }
     client.getPgClient().save(client.getConnection(), INVOICE_TABLE, invoice.getId(), invoice, reply -> {
       if (reply.failed()) {
-        log.error("Invoice creation with id={} failed", reply.cause(), invoice.getId());
+        String errorMessage = String.format("Invoice creation with id=%s failed", invoice.getId());
+        log.error(errorMessage, reply.cause());
         handleFailure(promise, reply);
       } else {
         log.info("New invoice with id={} successfully created", invoice.getId());
@@ -115,11 +119,12 @@ public class InvoicePostgresDAO implements InvoiceDAO {
 
   public Future<DBClient> deleteSequenceByInvoiceId(String id, DBClient client) {
     String sqlQuery = DROP_SEQUENCE.getQuery(id);
-    log.info("InvoiceStorageImpl deleteSequence Drop sequence query -- ", sqlQuery);
+    log.info("InvoiceStorageImpl deleteSequence Drop sequence query -- {}", sqlQuery);
     Promise<DBClient> promise = Promise.promise();
     client.getPgClient().execute(client.getConnection(), sqlQuery, reply -> {
       if (reply.failed()) {
-        log.error("IL number sequence for invoice with id={} failed to be dropped", reply.cause(), id);
+        String errorMessage = String.format("Invoice Line number sequence for invoice with id=%s failed to be dropped", id);
+        log.error(errorMessage, reply.cause(), id);
         handleFailure(promise, reply);
       } else {
         promise.complete(client);
@@ -134,7 +139,8 @@ public class InvoicePostgresDAO implements InvoiceDAO {
     Criterion criterion = getCriterionByFieldNameAndValue(INVOICE_ID_FIELD_NAME, id);
     client.getPgClient().delete(client.getConnection(), INVOICE_LINE_TABLE, criterion, reply -> {
       if (reply.failed()) {
-        log.error("The invoice {} cannot be deleted", reply.cause(), id);
+        String errorMessage = String.format("The invoice %s cannot be deleted", id);
+        log.error(errorMessage, reply.cause());
         handleFailure(promise, reply);
       } else {
         log.info("{} invoice lines of invoice with id={} successfully deleted", reply.result().rowCount(), id);
@@ -150,7 +156,8 @@ public class InvoicePostgresDAO implements InvoiceDAO {
     Criterion criterion = getCriterionByFieldNameAndValue(INVOICE_ID_FIELD_NAME, id);
     client.getPgClient().delete(client.getConnection(), DOCUMENT_TABLE, criterion, reply -> {
       if (reply.failed()) {
-        log.error("The documents linked to invoice {} could not be deleted", reply.cause(), id);
+        String errorMessage = String.format("The documents linked to invoice %s could not be deleted", id);
+        log.error(errorMessage, reply.cause());
         handleFailure(promise, reply);
       } else {
         log.info("{} documents of invoice with id={} were successfully deleted", reply.result().rowCount(), id);

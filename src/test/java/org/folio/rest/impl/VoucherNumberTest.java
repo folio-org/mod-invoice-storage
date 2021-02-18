@@ -3,9 +3,9 @@ package org.folio.rest.impl;
 import static io.restassured.RestAssured.given;
 import static java.util.UUID.randomUUID;
 import static org.folio.rest.impl.StorageTestSuite.storageUrl;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
 
 import java.net.MalformedURLException;
 import java.util.ArrayList;
@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
-import io.vertx.sqlclient.RowSet;
 import org.folio.HttpStatus;
 import org.folio.rest.jaxrs.model.Invoice;
 import org.folio.rest.jaxrs.model.Voucher;
@@ -25,11 +24,13 @@ import io.restassured.http.ContentType;
 import io.restassured.response.ValidatableResponse;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
+import io.vertx.sqlclient.Row;
+import io.vertx.sqlclient.RowSet;
 
 public class VoucherNumberTest extends TestBase {
 
   private static final String VALUE = "value";
-  private static List<Long> voucherNumberList = new ArrayList<>();
+  private static final List<Long> voucherNumberList = new ArrayList<>();
 
   private static final String SEQUENCE_NUMBER = "sequenceNumber";
   private static final String VOUCHER_NUMBER_ENDPOINT = "/voucher-storage/voucher-number";
@@ -114,7 +115,7 @@ public class VoucherNumberTest extends TestBase {
   }
 
   private long getCurrentStartValueVoucherNumber() throws MalformedURLException {
-    return new Long(getData(VOUCHER_STORAGE_VOUCHER_NUMBER_START_ENDPOINT)
+    return Long.parseLong(getData(VOUCHER_STORAGE_VOUCHER_NUMBER_START_ENDPOINT)
       .then()
         .statusCode(HttpStatus.HTTP_OK.toInt())
         .extract()
@@ -149,7 +150,7 @@ public class VoucherNumberTest extends TestBase {
   }
 
   private void dropSequenceInDb() throws Exception {
-    CompletableFuture<RowSet> future = new CompletableFuture<>();
+    CompletableFuture<RowSet<Row>> future = new CompletableFuture<>();
       PostgresClient.getInstance(Vertx.vertx()).execute(DROP_SEQUENCE_QUERY, result -> {
         if(result.failed()) {
           future.completeExceptionally(result.cause());

@@ -6,23 +6,25 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
 import static javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+
+import javax.ws.rs.core.Response;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.folio.rest.persist.PgExceptionUtil;
+import org.folio.rest.persist.Tx;
+
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.Promise;
-import io.vertx.core.logging.Logger;
-import io.vertx.core.logging.LoggerFactory;
 import io.vertx.ext.web.handler.impl.HttpStatusException;
-import javax.ws.rs.core.Response;
-import org.folio.rest.persist.PgExceptionUtil;
-import org.folio.rest.persist.Tx;
-
-import java.net.URI;
-import java.net.URISyntaxException;
 
 public class ResponseUtils {
 
-  private static final Logger logger = LoggerFactory.getLogger(ResponseUtils.class);
+  private static final Logger logger = LogManager.getLogger(ResponseUtils.class);
 
   private ResponseUtils() {
   }
@@ -43,7 +45,7 @@ public class ResponseUtils {
     };
   }
 
-  public static void handleFailure(Promise promise, AsyncResult reply) {
+  public static void handleFailure(Promise<?> promise, AsyncResult<?> reply) {
     Throwable cause = reply.cause();
     String badRequestMessage = PgExceptionUtil.badRequestMessage(cause);
     if (badRequestMessage != null) {

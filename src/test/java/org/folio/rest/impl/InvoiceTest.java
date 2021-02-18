@@ -5,15 +5,15 @@ import static org.folio.rest.utils.TestEntities.INVOICE;
 import java.net.MalformedURLException;
 import java.util.UUID;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.folio.rest.utils.TestEntities;
 import org.junit.jupiter.api.Test;
 
 import io.vertx.core.json.JsonObject;
-import io.vertx.core.logging.Logger;
-import io.vertx.core.logging.LoggerFactory;
 
 public class InvoiceTest extends TestBase {
-  private final Logger logger = LoggerFactory.getLogger(InvoiceTest.class);
+  private final Logger logger = LogManager.getLogger(InvoiceTest.class);
 
   @Test
   public void testDeleteInvoiceAndAssociatedLines() throws MalformedURLException {

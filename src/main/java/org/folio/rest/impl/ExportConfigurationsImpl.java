@@ -5,6 +5,8 @@ import java.util.Map;
 import javax.ws.rs.core.Response;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.folio.rest.RestVerticle;
 import org.folio.rest.annotations.Validate;
 import org.folio.rest.jaxrs.model.Credentials;
@@ -22,12 +24,10 @@ import io.vertx.core.AsyncResult;
 import io.vertx.core.Context;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
-import io.vertx.core.logging.Logger;
-import io.vertx.core.logging.LoggerFactory;
 
 public class ExportConfigurationsImpl implements BatchVoucherStorageExportConfigurations {
 
-  public static final Logger logger = LoggerFactory.getLogger(ExportConfigurationsImpl.class);
+  public static final Logger logger = LogManager.getLogger(ExportConfigurationsImpl.class);
 
   public static final String BATCH_VOUCHER_EXPORT_CONFIGS_TABLE = "batch_voucher_export_configs";
   public static final String EXPORT_CONFIG_CREDENTIALS_TABLE = "export_config_credentials";
@@ -182,11 +182,11 @@ public class ExportConfigurationsImpl implements BatchVoucherStorageExportConfig
         PgUtil.put(EXPORT_CONFIG_CREDENTIALS_TABLE, entity, entity.getId(), okapiHeaders, vertxContext,
             BatchVoucherStorageExportConfigurations.PutBatchVoucherStorageExportConfigurationsCredentialsByIdResponse.class, asyncResultHandler);
       } else {
-        logger.info(String.format("PUT payload is missing 'id'.  Looking up record from storage by exportConfigId: %s", id));
+        logger.info("PUT payload is missing 'id'.  Looking up record from storage by exportConfigId: {}", id);
         getAndPutCredentials(id, entity, okapiHeaders, asyncResultHandler, vertxContext);
       }
     } else {
-      logger.info(String.format("PUT with mismatch path/'exportConfigId' field: %s, %s", entity.getExportConfigId(), id));
+      logger.info("PUT with mismatch path/'exportConfigId' field: {}, {}", entity.getExportConfigId(), id);
       asyncResultHandler.handle(io.vertx.core.Future
         .succeededFuture(PutBatchVoucherStorageExportConfigurationsCredentialsByIdResponse.respond400WithTextPlain(MISMATCH_ERROR_MESSAGE)));
     }

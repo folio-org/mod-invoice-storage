@@ -5,29 +5,33 @@ import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static org.folio.rest.impl.BatchVoucherExportsImpl.BATCH_VOUCHER_EXPORTS_TABLE;
 import static org.folio.rest.util.ResponseUtils.handleNoContentResponse;
 
+import java.util.Map;
+
+import javax.ws.rs.core.Response;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.folio.rest.jaxrs.model.BatchVoucherExport;
+import org.folio.rest.persist.CriterionBuilder;
+import org.folio.rest.persist.PostgresClient;
+import org.folio.rest.persist.Tx;
+import org.folio.rest.persist.Criteria.Criterion;
+
 import com.google.common.collect.Maps;
+
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Context;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.Promise;
-import io.vertx.core.logging.Logger;
-import io.vertx.core.logging.LoggerFactory;
 import io.vertx.ext.web.handler.impl.HttpStatusException;
-import java.util.Map;
-import javax.ws.rs.core.Response;
-import org.folio.rest.jaxrs.model.BatchVoucherExport;
-import org.folio.rest.persist.Criteria.Criterion;
-import org.folio.rest.persist.CriterionBuilder;
-import org.folio.rest.persist.PostgresClient;
-import org.folio.rest.persist.Tx;
 
 public class BatchVoucherExportsService {
 
   private static final String BATCH_VOUCHER_EXPORT_ID = "batchVoucherExportId";
   private static final String BATCH_VOUCHER_ID = "batchVoucherId";
-  private final Logger logger = LoggerFactory.getLogger(this.getClass());
-  private PostgresClient pgClient;
+  private final Logger logger = LogManager.getLogger(this.getClass());
+  private final PostgresClient pgClient;
 
   public BatchVoucherExportsService(PostgresClient pgClient) {
     this.pgClient = pgClient;

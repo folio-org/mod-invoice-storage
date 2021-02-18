@@ -1,16 +1,21 @@
 package org.folio.rest.persist;
 
-import io.vertx.core.*;
+import java.util.Map;
+
 import org.folio.rest.tools.utils.TenantTool;
 
-import java.util.Map;
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Context;
+import io.vertx.core.Future;
+import io.vertx.core.Promise;
+import io.vertx.core.Vertx;
 
 public class DBClient {
 
-  private PostgresClient pgClient;
+  private final PostgresClient pgClient;
   private AsyncResult<SQLConnection> sqlConnection;
-  private String tenantId;
-  private Vertx vertx;
+  private final String tenantId;
+  private final Vertx vertx;
 
 
   public DBClient(Context context, Map<String, String> headers) {

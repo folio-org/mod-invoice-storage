@@ -7,6 +7,8 @@ import java.util.Map;
 import javax.ws.rs.core.Response;
 
 import org.apache.commons.lang.math.NumberUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.folio.rest.RestVerticle;
 import org.folio.rest.jaxrs.resource.VoucherStorageVoucherNumber;
 import org.folio.rest.persist.PostgresClient;
@@ -17,15 +19,13 @@ import org.folio.rest.tools.utils.TenantTool;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Context;
 import io.vertx.core.Handler;
-import io.vertx.core.logging.Logger;
-import io.vertx.core.logging.LoggerFactory;
 
 
 public class VoucherNumberImpl implements VoucherStorageVoucherNumber {
 
   private final Messages messages = Messages.getInstance();
 
-  private static final Logger log = LoggerFactory.getLogger(VoucherNumberImpl.class);
+  private static final Logger log = LogManager.getLogger(VoucherNumberImpl.class);
   private static final String VOUCHER_NUMBER_QUERY = "SELECT nextval('voucher_number')";
   private static final String SET_START_SEQUENCE_VALUE_QUERY = "ALTER SEQUENCE voucher_number START WITH %s RESTART;";
   public static final String CURRENT_VOUCHER_NUMBER_QUERY = "SELECT pg_sequences.start_value FROM pg_sequences WHERE sequencename = 'voucher_number'";
@@ -33,13 +33,7 @@ public class VoucherNumberImpl implements VoucherStorageVoucherNumber {
   @Override
   public void getVoucherStorageVoucherNumber(String lang, Map<String, String> okapiHeaders,
       Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
-    vertxContext.runOnContext((Void v) -> {
-      VoucherNumberHelper getVoucherNumberStartHelper = new VoucherNumberHelper(okapiHeaders);
-      String tenantId = TenantTool.calculateTenantId(okapiHeaders.get(RestVerticle.OKAPI_HEADER_TENANT));
-      PostgresClient.getInstance(vertxContext.owner(), tenantId)
-        .selectSingle(VOUCHER_NUMBER_QUERY,
-            reply -> getVoucherNumberStartHelper.retrieveVoucherNumber(reply, asyncResultHandler, messages, lang));
-    });
+    getVoucherNumber(lang, okapiHeaders, asyncResultHandler, vertxContext, VOUCHER_NUMBER_QUERY);
   }
 
   @Override
@@ -74,11 +68,16 @@ public class VoucherNumberImpl implements VoucherStorageVoucherNumber {
   public void getVoucherStorageVoucherNumberStart(String lang, Map<String, String> okapiHeaders,
       Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
     log.debug(" === Retrieving current start value for a voucher number sequence === ");
+    getVoucherNumber(lang, okapiHeaders, asyncResultHandler, vertxContext, CURRENT_VOUCHER_NUMBER_QUERY);
+  }
+
+  private void getVoucherNumber(String lang, Map<String, String> okapiHeaders, Handler<AsyncResult<Response>> asyncResultHandler,
+      Context vertxContext, String voucherNumberQuery) {
     vertxContext.runOnContext((Void v) -> {
-      VoucherNumberHelper getVoucherNumberStartHelper = new VoucherNumberHelper(okapiHeaders);
+      VoucherNumberHelper getVoucherNumberStartHelper = new VoucherNumberHelper();
       String tenantId = TenantTool.calculateTenantId(okapiHeaders.get(RestVerticle.OKAPI_HEADER_TENANT));
       PostgresClient.getInstance(vertxContext.owner(), tenantId)
-        .selectSingle(CURRENT_VOUCHER_NUMBER_QUERY,
+        .selectSingle(voucherNumberQuery,
             reply -> getVoucherNumberStartHelper.retrieveVoucherNumber(reply, asyncResultHandler, messages, lang));
     });
   }

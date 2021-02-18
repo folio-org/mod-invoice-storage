@@ -3,6 +3,8 @@ package org.folio.rest.impl;
 import java.net.MalformedURLException;
 import java.util.stream.Stream;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.folio.rest.utils.TestEntities;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
@@ -13,13 +15,11 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import io.restassured.response.Response;
 import io.vertx.core.json.JsonObject;
-import io.vertx.core.logging.Logger;
-import io.vertx.core.logging.LoggerFactory;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class EntitiesCrudTest extends TestBase {
 
-  private final Logger logger = LoggerFactory.getLogger(EntitiesCrudTest.class);
+  private final Logger logger = LogManager.getLogger(EntitiesCrudTest.class);
   private String sample = null;
 
   static Stream<TestEntities> deleteOrder() {

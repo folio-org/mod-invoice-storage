@@ -1,10 +1,17 @@
 package org.folio.rest.utils;
 
-import org.folio.rest.jaxrs.model.*;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import org.folio.rest.jaxrs.model.BatchGroup;
+import org.folio.rest.jaxrs.model.BatchVoucher;
+import org.folio.rest.jaxrs.model.BatchVoucherExport;
+import org.folio.rest.jaxrs.model.ExportConfig;
+import org.folio.rest.jaxrs.model.Invoice;
+import org.folio.rest.jaxrs.model.InvoiceLine;
+import org.folio.rest.jaxrs.model.Voucher;
+import org.folio.rest.jaxrs.model.VoucherLine;
 
 public enum TestEntities {
   INVOICE("/invoice-storage/invoices", Invoice.class, TestData.Invoice.DEFAULT, "note", "Updated note for invoice", 0, 0, true),
@@ -27,15 +34,15 @@ public enum TestEntities {
     this.collection = collection;
   }
 
-  private int initialQuantity;
-  private int systemDataQuantity;
-  private String endpoint;
+  private final int initialQuantity;
+  private final int systemDataQuantity;
+  private final String endpoint;
   private String sampleId;
-  private String sampleFileName;
-  private String updatedFieldName;
-  private Object updatedFieldValue;
-  private Class<?> clazz;
-  private boolean collection;
+  private final String sampleFileName;
+  private final String updatedFieldName;
+  private final Object updatedFieldValue;
+  private final Class<?> clazz;
+  private final boolean collection;
 
   public String getEndpoint() {
     return endpoint;

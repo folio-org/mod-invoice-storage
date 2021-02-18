@@ -5,35 +5,39 @@ import static org.folio.rest.utils.TenantApiTestUtil.deleteTenant;
 import static org.folio.rest.utils.TenantApiTestUtil.prepareTenant;
 import static org.junit.platform.commons.support.AnnotationSupport.isAnnotated;
 
-import io.restassured.http.Header;
-import io.vertx.core.logging.Logger;
-import io.vertx.core.logging.LoggerFactory;
 import java.lang.reflect.Method;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.folio.rest.jaxrs.model.TenantJob;
 import org.junit.jupiter.api.extension.AfterTestExecutionCallback;
 import org.junit.jupiter.api.extension.BeforeTestExecutionCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
 
+import io.restassured.http.Header;
+
 public class IsolatedTenantExtension implements BeforeTestExecutionCallback, AfterTestExecutionCallback {
 
-  private final Logger logger = LoggerFactory.getLogger(IsolatedTenantExtension.class);
+  private final Logger logger = LogManager.getLogger(IsolatedTenantExtension.class);
   private static final String ISOLATED_TENANT = "isolated";
+  private TenantJob tenantJob;
 
   @Override
-  public void beforeTestExecution(ExtensionContext context) throws Exception {
+  public void beforeTestExecution(ExtensionContext context) {
     if (hasTenantAnnotationClassOrMethod(context)) {
-      final Header TENANT_HEADER = new Header(OKAPI_HEADER_TENANT, ISOLATED_TENANT);
+      final Header tenantHeader = new Header(OKAPI_HEADER_TENANT, ISOLATED_TENANT);
 
-      prepareTenant(TENANT_HEADER, false);
+      tenantJob = prepareTenant(tenantHeader, false, false);
       logger.info("Isolated tenant has been prepared");
     }
   }
 
   @Override
-  public void afterTestExecution(ExtensionContext context) throws Exception {
+  public void afterTestExecution(ExtensionContext context) {
     if (hasTenantAnnotationClassOrMethod(context)) {
-      final Header TENANT_HEADER = new Header(OKAPI_HEADER_TENANT, ISOLATED_TENANT);
+      final Header tenantHeader = new Header(OKAPI_HEADER_TENANT, ISOLATED_TENANT);
 
-      deleteTenant(TENANT_HEADER);
+      deleteTenant(tenantJob, tenantHeader);
       logger.info("Isolated tenant has been deleted");
 
     }
