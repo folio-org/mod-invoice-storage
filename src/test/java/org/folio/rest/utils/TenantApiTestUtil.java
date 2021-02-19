@@ -10,6 +10,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.folio.rest.client.TenantClient;
 import org.folio.rest.jaxrs.model.Parameter;
 import org.folio.rest.jaxrs.model.TenantAttributes;
@@ -19,6 +21,8 @@ import org.folio.rest.tools.PomReader;
 import io.restassured.http.Header;
 
 public class TenantApiTestUtil {
+
+  private static final Logger LOGGER = LogManager.getLogger(TenantApiTestUtil.class);
 
   public static final String LOAD_SYNC_PARAMETER = "loadSync";
   private static final int TENANT_OP_WAITING_TIME = 60000;
@@ -62,6 +66,7 @@ public class TenantApiTestUtil {
             if(result.failed()) {
               future.completeExceptionally(result.cause());
             } else {
+              LOGGER.info("tenant successfully deleted");
               future.complete(tenantJob);
             }
           });
@@ -79,10 +84,12 @@ public class TenantApiTestUtil {
 
     if (tenantJob != null) {
       CompletableFuture<Void> completableFuture = new CompletableFuture<>();
-      tenantClient.deleteTenantByOperationId(tenantJob.getId(), event -> {
-        if (event.failed()) {
-          completableFuture.completeExceptionally(event.cause());
+      tenantClient.deleteTenantByOperationId(tenantJob.getId(), responseHandler -> {
+        if (responseHandler.failed()) {
+          LOGGER.info("Failed to delete tenant");
+          completableFuture.completeExceptionally(responseHandler.cause());
         } else {
+          LOGGER.info("tenant has been deleted");
           completableFuture.complete(null);
         }
       });

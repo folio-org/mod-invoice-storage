@@ -30,7 +30,7 @@ public class BatchVoucherExportsService {
 
   private static final String BATCH_VOUCHER_EXPORT_ID = "batchVoucherExportId";
   private static final String BATCH_VOUCHER_ID = "batchVoucherId";
-  private final Logger logger = LogManager.getLogger(this.getClass());
+  private static final Logger LOGGER = LogManager.getLogger(BatchVoucherExportsService.class);
   private final PostgresClient pgClient;
 
   public BatchVoucherExportsService(PostgresClient pgClient) {
@@ -41,7 +41,7 @@ public class BatchVoucherExportsService {
 
     BatchVoucherService batchVoucherService = new BatchVoucherService(pgClient);
 
-    vertxContext.runOnContext((v) -> {
+    vertxContext.runOnContext(v -> {
       Tx<Map<String, String>> tx = new Tx<>(Maps.newHashMap(of(BATCH_VOUCHER_EXPORT_ID, id)), pgClient);
 
       tx.startTx()
@@ -56,8 +56,8 @@ public class BatchVoucherExportsService {
   public Future<Tx<Map<String, String>>> deleteBatchVoucherExportById(Tx<Map<String, String>> tx) {
     Promise<Tx<Map<String, String>>> promise = Promise.promise();
 
-    pgClient.delete(tx.getConnection(), BATCH_VOUCHER_EXPORTS_TABLE, tx.getEntity().get(BATCH_VOUCHER_EXPORT_ID), (rs) -> {
-      logger.info("deletion of batch voucher exports completed ");
+    pgClient.delete(tx.getConnection(), BATCH_VOUCHER_EXPORTS_TABLE, tx.getEntity().get(BATCH_VOUCHER_EXPORT_ID), rs -> {
+      LOGGER.info("deletion of batch voucher exports completed ");
       if (rs.result().rowCount() == 0) {
         promise.fail(new HttpStatusException(NOT_FOUND.getStatusCode(), NOT_FOUND.getReasonPhrase()));
       } else {
@@ -73,8 +73,8 @@ public class BatchVoucherExportsService {
     Criterion criterion = new CriterionBuilder()
       .with(BATCH_VOUCHER_ID, tx.getEntity().get(BATCH_VOUCHER_ID)).build();
 
-    pgClient.delete(tx.getConnection(), BATCH_VOUCHER_EXPORTS_TABLE, criterion, (rs) -> {
-      logger.info("deletion of batch voucher exports completed ");
+    pgClient.delete(tx.getConnection(), BATCH_VOUCHER_EXPORTS_TABLE, criterion, rs -> {
+      LOGGER.info("deletion of batch voucher exports completed ");
       if (rs.failed()) {
         promise.fail(new HttpStatusException(NOT_FOUND.getStatusCode(), NOT_FOUND.getReasonPhrase()));
       } else {
@@ -87,7 +87,7 @@ public class BatchVoucherExportsService {
   public Future<Tx<Map<String, String>>> getAssociatedBatchVoucherId(Tx<Map<String, String>> tx) {
     Promise<Tx<Map<String, String>>> promise = Promise.promise();
 
-    pgClient.getById(BATCH_VOUCHER_EXPORTS_TABLE, tx.getEntity().get(BATCH_VOUCHER_EXPORT_ID), BatchVoucherExport.class, (rs) -> {
+    pgClient.getById(BATCH_VOUCHER_EXPORTS_TABLE, tx.getEntity().get(BATCH_VOUCHER_EXPORT_ID), BatchVoucherExport.class, rs -> {
       if (rs.failed() || rs.result() == null) {
         promise.fail(new HttpStatusException(NOT_FOUND.getStatusCode(), NOT_FOUND.getReasonPhrase()));
       } else {

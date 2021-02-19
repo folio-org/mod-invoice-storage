@@ -33,7 +33,7 @@ import io.vertx.core.json.JsonObject;
 
 @RunWith(JUnitPlatform.class)
 public class StorageTestSuite {
-  private static final Logger logger = LogManager.getLogger(StorageTestSuite.class);
+  private static final Logger LOGGER = LogManager.getLogger(StorageTestSuite.class);
 
   private static Vertx vertx;
   private static final int port = NetworkUtils.nextFreePort();
@@ -57,7 +57,7 @@ public class StorageTestSuite {
 
     vertx = Vertx.vertx();
 
-    logger.info("Start embedded database");
+    LOGGER.info("Start embedded database");
     PostgresClient.setIsEmbedded(true);
     PostgresClient.getInstance(vertx).startEmbeddedPostgres();
 
@@ -73,7 +73,7 @@ public class StorageTestSuite {
 
   @AfterAll
   public static void after() throws InterruptedException, ExecutionException, TimeoutException {
-    logger.info("Delete tenant");
+    LOGGER.info("Delete tenant");
     deleteTenant(tenantJob, TENANT_HEADER);
 
     CompletableFuture<String> undeploymentComplete = new CompletableFuture<>();
@@ -88,14 +88,14 @@ public class StorageTestSuite {
     });
 
     undeploymentComplete.get(20, TimeUnit.SECONDS);
-    logger.info("Stop database");
+    LOGGER.info("Stop database");
     PostgresClient.stopEmbeddedPostgres();
   }
 
   private static void startVerticle(DeploymentOptions options)
     throws InterruptedException, ExecutionException, TimeoutException {
 
-    logger.info("Start verticle");
+    LOGGER.info("Start verticle");
 
     CompletableFuture<String> deploymentComplete = new CompletableFuture<>();
 

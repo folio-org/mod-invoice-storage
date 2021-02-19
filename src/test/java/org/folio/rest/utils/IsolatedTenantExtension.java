@@ -3,6 +3,7 @@ package org.folio.rest.utils;
 import static org.folio.rest.RestVerticle.OKAPI_HEADER_TENANT;
 import static org.folio.rest.utils.TenantApiTestUtil.deleteTenant;
 import static org.folio.rest.utils.TenantApiTestUtil.prepareTenant;
+import static org.folio.rest.utils.TenantApiTestUtil.purge;
 import static org.junit.platform.commons.support.AnnotationSupport.isAnnotated;
 
 import java.lang.reflect.Method;
@@ -18,7 +19,7 @@ import io.restassured.http.Header;
 
 public class IsolatedTenantExtension implements BeforeTestExecutionCallback, AfterTestExecutionCallback {
 
-  private final Logger logger = LogManager.getLogger(IsolatedTenantExtension.class);
+  private static final Logger LOGGER = LogManager.getLogger(IsolatedTenantExtension.class);
   private static final String ISOLATED_TENANT = "isolated";
   private TenantJob tenantJob;
 
@@ -28,7 +29,7 @@ public class IsolatedTenantExtension implements BeforeTestExecutionCallback, Aft
       final Header tenantHeader = new Header(OKAPI_HEADER_TENANT, ISOLATED_TENANT);
 
       tenantJob = prepareTenant(tenantHeader, false, false);
-      logger.info("Isolated tenant has been prepared");
+      LOGGER.info("Isolated tenant has been prepared");
     }
   }
 
@@ -38,7 +39,8 @@ public class IsolatedTenantExtension implements BeforeTestExecutionCallback, Aft
       final Header tenantHeader = new Header(OKAPI_HEADER_TENANT, ISOLATED_TENANT);
 
       deleteTenant(tenantJob, tenantHeader);
-      logger.info("Isolated tenant has been deleted");
+      purge(tenantHeader);
+      LOGGER.info("Isolated tenant has been deleted");
 
     }
   }

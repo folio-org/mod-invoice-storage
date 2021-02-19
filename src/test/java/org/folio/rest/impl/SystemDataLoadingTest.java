@@ -9,12 +9,12 @@ import org.junit.jupiter.api.Test;
 
 public class SystemDataLoadingTest extends TestBase {
 
-  private final Logger logger = LogManager.getLogger(SystemDataLoadingTest.class);
+  private static final Logger LOGGER = LogManager.getLogger(SystemDataLoadingTest.class);
 
   @Test
   public void systemDataWasLoaded() throws MalformedURLException {
     for(TestEntities entity: TestEntities.getCollectableEntities()) {
-      logger.info(String.format("--- mod-invoice-storage %s test: Verifying system data was loaded ... ", entity.name()));
+      LOGGER.info(String.format("--- mod-invoice-storage %s test: Verifying system data was loaded ... ", entity.name()));
       verifyCollectionQuantity(entity.getEndpoint(), entity.getEstimatedSystemDataRecordsQuantity());
     }
   }

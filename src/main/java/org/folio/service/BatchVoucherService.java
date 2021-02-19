@@ -25,7 +25,7 @@ public class BatchVoucherService {
 
   private static final String BATCH_VOUCHER_ID = "batchVoucherId";
   private static final String BATCH_VOUCHERS_TABLE = "batch_vouchers";
-  private final Logger logger = LogManager.getLogger(this.getClass());
+  private static final Logger LOGGER = LogManager.getLogger(BatchVoucherService.class);
   private final PostgresClient pgClient;
 
   public BatchVoucherService(PostgresClient pgClient) {
@@ -50,8 +50,8 @@ public class BatchVoucherService {
   public Future<Tx<Map<String, String>>> deleteBatchVoucherById(Tx<Map<String, String>> tx) {
     Promise<Tx<Map<String, String>>> promise = Promise.promise();
 
-    pgClient.delete(tx.getConnection(), BATCH_VOUCHERS_TABLE, tx.getEntity().get(BATCH_VOUCHER_ID), (rs) -> {
-      logger.info("deletion of batch voucher completed");
+    pgClient.delete(tx.getConnection(), BATCH_VOUCHERS_TABLE, tx.getEntity().get(BATCH_VOUCHER_ID), rs -> {
+      LOGGER.info("deletion of batch voucher completed");
       if (rs.result().rowCount() == 0) {
         promise.fail(new HttpStatusException(NOT_FOUND.getStatusCode(), NOT_FOUND.getReasonPhrase()));
       } else {

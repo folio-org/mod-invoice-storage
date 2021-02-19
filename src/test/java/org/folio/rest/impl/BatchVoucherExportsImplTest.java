@@ -10,9 +10,7 @@ import java.net.MalformedURLException;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.folio.rest.utils.IsolatedTenant;
-import org.folio.rest.utils.TestData.BatchGroup;
-import org.folio.rest.utils.TestData.BatchVoucher;
-import org.folio.rest.utils.TestData.BatchVoucherExports;
+import org.folio.rest.utils.TestData;
 import org.junit.jupiter.api.Test;
 
 class BatchVoucherExportsImplTest extends TestBase {
@@ -20,9 +18,9 @@ class BatchVoucherExportsImplTest extends TestBase {
   @Test
   @IsolatedTenant
   public void testDeleteShouldDeleteExportsByProvidedIdAndRelatedBatchVoucher() throws MalformedURLException {
-    givenTestData(Pair.of(BATCH_GROUP, BatchGroup.DEFAULT),
-      Pair.of(BATCH_VOUCHER, BatchVoucher.DEFAULT),
-      Pair.of(BATCH_VOUCHER_EXPORTS, BatchVoucherExports.DEFAULT));
+    givenTestData(Pair.of(BATCH_GROUP, TestData.BatchGroup.DEFAULT),
+      Pair.of(BATCH_VOUCHER, TestData.BatchVoucher.DEFAULT),
+      Pair.of(BATCH_VOUCHER_EXPORTS, TestData.BatchVoucherExports.DEFAULT));
 
     // Check that Batch Voucher Exports has been created
     given()
@@ -55,7 +53,7 @@ class BatchVoucherExportsImplTest extends TestBase {
       .statusCode(404);
 
     // Check that BatchVoucher has been deleted
-    given()
+    given().log().all()
       .spec(isolatedRequestSpec())
       .pathParam(ID, BATCH_VOUCHER.getId())
       .when()

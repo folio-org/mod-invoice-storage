@@ -25,7 +25,7 @@ import io.vertx.sqlclient.RowSet;
 
 public class InvoiceLineNumberTest extends TestBase {
 
-  private final Logger logger = LogManager.getLogger(InvoiceLineNumberTest.class);
+  private static final Logger LOGGER = LogManager.getLogger(InvoiceLineNumberTest.class);
 
   private static final String INVOICE_LINE_NUMBER_ENDPOINT = "/invoice-storage/invoice-line-number";
   private static final String SEQUENCE_ID = "\"ilNumber_8ad4b87b-9b47-4199-b0c3-5480745c6b41\"";
@@ -41,10 +41,10 @@ public class InvoiceLineNumberTest extends TestBase {
     String sampleId = null;
     try {
 
-      logger.info(String.format("--- mod-invoice-storage %s test: Testing of environment on Sequence support", INVOICE.name()));
+      LOGGER.info(String.format("--- mod-invoice-storage %s test: Testing of environment on Sequence support", INVOICE.name()));
       testSequenceSupport();
 
-      logger.info(String.format("--- mod-invoice-storage %s test: Creating an invoice and a sequence ... ", INVOICE.name()));
+      LOGGER.info(String.format("--- mod-invoice-storage %s test: Creating an invoice and a sequence ... ", INVOICE.name()));
       JsonObject jsonSample = new JsonObject(getFile(INVOICE.getSampleFileName()));
       jsonSample.remove("id");
       String invoiceSample = jsonSample.encodePrettily();
@@ -52,29 +52,29 @@ public class InvoiceLineNumberTest extends TestBase {
 
       sampleId = response.then().extract().path("id");
       jsonSample.put("id", sampleId);
-      logger.info(String.format("--- mod-invoice-storage %s test: Verify creating duplicate invoice fails", INVOICE.name()));
+      LOGGER.info(String.format("--- mod-invoice-storage %s test: Verify creating duplicate invoice fails", INVOICE.name()));
       testCreateDuplicateInvoice(jsonSample.encodePrettily());
 
-      logger.info(String.format("--- mod-invoice-storage %s test: Test retrieving invoice-line number for existing invoice and sequence ... ", INVOICE.name()));
+      LOGGER.info(String.format("--- mod-invoice-storage %s test: Test retrieving invoice-line number for existing invoice and sequence ... ", INVOICE.name()));
 
       testGetInvoiceLineNumberForExistedIL(sampleId);
 
-      logger.info(String.format("--- mod-invoice-storage %s test: Testing invoice-line numbers retrieving for non-existed invoice ID: %s", INVOICE.name(), NON_EXISTING_INVOICE_ID));
+      LOGGER.info(String.format("--- mod-invoice-storage %s test: Testing invoice-line numbers retrieving for non-existed invoice ID: %s", INVOICE.name(), NON_EXISTING_INVOICE_ID));
       testGetInvoiceLineNumberForNonExistedIL(NON_EXISTING_INVOICE_ID);
 
-      logger.info(String.format("--- mod-invoice-storage %s test: Update invoice with ID %s which will drop existing sequence", INVOICE.name(), sampleId));
+      LOGGER.info(String.format("--- mod-invoice-storage %s test: Update invoice with ID %s which will drop existing sequence", INVOICE.name(), sampleId));
       testInvoiceEdit(invoiceSample, sampleId);
 
-      logger.info(String.format("--- mod-invoice-storage %s test: Verification/confirming of sequence deletion for invoice ID: %s",  INVOICE.name(), sampleId));
+      LOGGER.info(String.format("--- mod-invoice-storage %s test: Verification/confirming of sequence deletion for invoice ID: %s",  INVOICE.name(), sampleId));
       testGetInvoiceLineNumberForNonExistedIL(sampleId);
 
-      logger.info(String.format("--- mod-invoice-storage %s test: Test updating invoice with already deleted invoice-line number sequence", INVOICE.name()));
+      LOGGER.info(String.format("--- mod-invoice-storage %s test: Test updating invoice with already deleted invoice-line number sequence", INVOICE.name()));
       testInvoiceEdit(invoiceSample, sampleId);
 
     } catch (Exception e) {
-        logger.error(String.format("--- mod-invoice-storage test: %s API ERROR: %s", INVOICE.name(), e.getMessage()));
+      LOGGER.error(String.format("--- mod-invoice-storage test: %s API ERROR: %s", INVOICE.name(), e.getMessage()));
     } finally {
-        logger.info(String.format("--- mod-invoice-storage %s test: Deleting %s with ID: %s", INVOICE.name(), INVOICE.name(), sampleId));
+        LOGGER.info(String.format("--- mod-invoice-storage %s test: Deleting %s with ID: %s", INVOICE.name(), INVOICE.name(), sampleId));
         deleteDataSuccess(INVOICE.getEndpointWithId(), sampleId);
     }
   }
@@ -113,10 +113,10 @@ public class InvoiceLineNumberTest extends TestBase {
 
   private void testGetInvoiceLineNumberForExistedIL(String invoiceId) throws MalformedURLException {
     int invoiceLineNumberInitial = retrieveInvoiceLineNumber(invoiceId);
-    logger.info("--- mod-invoice-storage test invoiceLineNumberInitial: " + invoiceLineNumberInitial);
+    LOGGER.info("--- mod-invoice-storage test invoiceLineNumberInitial: " + invoiceLineNumberInitial);
     int i = 0; int numOfCalls = 2;
     while (i++ < numOfCalls) {
-    	logger.info("--- mod-invoice-storage test Generate new sequence number: " + retrieveInvoiceLineNumber(invoiceId));
+      LOGGER.info("--- mod-invoice-storage test Generate new sequence number: " + retrieveInvoiceLineNumber(invoiceId));
     }
     int invoiceLineNumberLast = retrieveInvoiceLineNumber(invoiceId);
     Assertions.assertEquals(i, invoiceLineNumberLast - invoiceLineNumberInitial);
@@ -124,7 +124,7 @@ public class InvoiceLineNumberTest extends TestBase {
 
   @Test
   public void testGetInvoiceLineNumberWithInvalidCQLQuery() throws MalformedURLException {
-    logger.info(String.format("--- mod-invoice-storage %s test: Invalid CQL query", "invoice-line-number"));
+    LOGGER.info(String.format("--- mod-invoice-storage %s test: Invalid CQL query", "invoice-line-number"));
     testInvalidCQLQuery(INVOICE_LINE_NUMBER_ENDPOINT + "?query=invalid-query");
   }
 
