@@ -3,26 +3,30 @@ package org.folio.service;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static org.folio.rest.util.ResponseUtils.handleNoContentResponse;
 
+import java.util.Map;
+
+import javax.ws.rs.core.Response;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.folio.rest.persist.PostgresClient;
+import org.folio.rest.persist.Tx;
+
 import com.google.common.collect.ImmutableMap;
+
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Context;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.Promise;
-import io.vertx.core.logging.Logger;
-import io.vertx.core.logging.LoggerFactory;
 import io.vertx.ext.web.handler.impl.HttpStatusException;
-import java.util.Map;
-import javax.ws.rs.core.Response;
-import org.folio.rest.persist.PostgresClient;
-import org.folio.rest.persist.Tx;
 
 public class BatchVoucherService {
 
   private static final String BATCH_VOUCHER_ID = "batchVoucherId";
   private static final String BATCH_VOUCHERS_TABLE = "batch_vouchers";
-  private final Logger logger = LoggerFactory.getLogger(this.getClass());
-  private PostgresClient pgClient;
+  private static final Logger LOGGER = LogManager.getLogger(BatchVoucherService.class);
+  private final PostgresClient pgClient;
 
   public BatchVoucherService(PostgresClient pgClient) {
     this.pgClient = pgClient;
@@ -32,7 +36,7 @@ public class BatchVoucherService {
 
     BatchVoucherExportsService batchVoucherExportsService = new BatchVoucherExportsService(pgClient);
 
-    vertxContext.runOnContext((v) -> {
+    vertxContext.runOnContext(v -> {
       Tx<Map<String, String>> tx = new Tx<>(ImmutableMap.of(BATCH_VOUCHER_ID, id), pgClient);
 
       tx.startTx()
@@ -46,8 +50,8 @@ public class BatchVoucherService {
   public Future<Tx<Map<String, String>>> deleteBatchVoucherById(Tx<Map<String, String>> tx) {
     Promise<Tx<Map<String, String>>> promise = Promise.promise();
 
-    pgClient.delete(tx.getConnection(), BATCH_VOUCHERS_TABLE, tx.getEntity().get(BATCH_VOUCHER_ID), (rs) -> {
-      logger.info("deletion of batch voucher completed");
+    pgClient.delete(tx.getConnection(), BATCH_VOUCHERS_TABLE, tx.getEntity().get(BATCH_VOUCHER_ID), rs -> {
+      LOGGER.info("deletion of batch voucher completed");
       if (rs.result().rowCount() == 0) {
         promise.fail(new HttpStatusException(NOT_FOUND.getStatusCode(), NOT_FOUND.getReasonPhrase()));
       } else {

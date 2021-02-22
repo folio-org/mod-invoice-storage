@@ -8,6 +8,8 @@ import java.util.Map;
 
 import javax.ws.rs.core.Response;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.folio.rest.RestVerticle;
 import org.folio.rest.jaxrs.model.SequenceNumber;
 import org.folio.rest.jaxrs.resource.InvoiceStorageInvoiceNumber;
@@ -19,14 +21,12 @@ import org.folio.rest.tools.utils.TenantTool;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Context;
 import io.vertx.core.Handler;
-import io.vertx.core.logging.Logger;
-import io.vertx.core.logging.LoggerFactory;
 
 public class InvoiceNumberImpl implements InvoiceStorageInvoiceNumber {
 
   private final Messages messages = Messages.getInstance();
 
-  private static final Logger log = LoggerFactory.getLogger(InvoiceNumberImpl.class);
+  private static final Logger log = LogManager.getLogger(InvoiceNumberImpl.class);
   private static final String INVOICE_NUMBER_QUERY = "SELECT nextval('invoice_number')";
 
   @Override

@@ -13,7 +13,10 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.folio.rest.RestVerticle;
+import org.folio.rest.jaxrs.model.TenantJob;
 import org.folio.rest.persist.PostgresClient;
 import org.folio.rest.tools.client.test.HttpClientMock2;
 import org.folio.rest.tools.utils.NetworkUtils;
@@ -27,16 +30,15 @@ import io.restassured.http.Header;
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
-import io.vertx.core.logging.Logger;
-import io.vertx.core.logging.LoggerFactory;
 
 @RunWith(JUnitPlatform.class)
 public class StorageTestSuite {
-  private static final Logger logger = LoggerFactory.getLogger(StorageTestSuite.class);
+  private static final Logger LOGGER = LogManager.getLogger(StorageTestSuite.class);
 
   private static Vertx vertx;
-  private static int port = NetworkUtils.nextFreePort();
+  private static final int port = NetworkUtils.nextFreePort();
   public static final Header URL_TO_HEADER = new Header("X-Okapi-Url-to", "http://localhost:" + port);
+  private static TenantJob tenantJob;
 
   private StorageTestSuite() {}
 
@@ -55,7 +57,7 @@ public class StorageTestSuite {
 
     vertx = Vertx.vertx();
 
-    logger.info("Start embedded database");
+    LOGGER.info("Start embedded database");
     PostgresClient.setIsEmbedded(true);
     PostgresClient.getInstance(vertx).startEmbeddedPostgres();
 
@@ -66,13 +68,13 @@ public class StorageTestSuite {
 
     startVerticle(options);
 
-    prepareTenant(TENANT_HEADER, false);
+    tenantJob = prepareTenant(TENANT_HEADER, false, false);
   }
 
   @AfterAll
-  public static void after() throws InterruptedException, ExecutionException, TimeoutException, MalformedURLException {
-    logger.info("Delete tenant");
-    deleteTenant(TENANT_HEADER);
+  public static void after() throws InterruptedException, ExecutionException, TimeoutException {
+    LOGGER.info("Delete tenant");
+    deleteTenant(tenantJob, TENANT_HEADER);
 
     CompletableFuture<String> undeploymentComplete = new CompletableFuture<>();
 
@@ -86,14 +88,14 @@ public class StorageTestSuite {
     });
 
     undeploymentComplete.get(20, TimeUnit.SECONDS);
-    logger.info("Stop database");
+    LOGGER.info("Stop database");
     PostgresClient.stopEmbeddedPostgres();
   }
 
   private static void startVerticle(DeploymentOptions options)
     throws InterruptedException, ExecutionException, TimeoutException {
 
-    logger.info("Start verticle");
+    LOGGER.info("Start verticle");
 
     CompletableFuture<String> deploymentComplete = new CompletableFuture<>();
 

@@ -6,8 +6,8 @@ import io.vertx.core.Promise;
 
 public class Tx<T> {
 
-  private T entity;
-  private PostgresClient pgClient;
+  private final T entity;
+  private final PostgresClient pgClient;
   private AsyncResult<SQLConnection> sqlConnection;
 
   public Tx(T entity, PostgresClient pgClient) {

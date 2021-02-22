@@ -1,9 +1,10 @@
 package org.folio.dao.invoice;
 
-import io.vertx.core.Future;
 import org.folio.rest.jaxrs.model.Invoice;
 import org.folio.rest.jaxrs.model.InvoiceDocument;
 import org.folio.rest.persist.DBClient;
+
+import io.vertx.core.Future;
 
 public interface InvoiceDAO {
 

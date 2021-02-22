@@ -6,18 +6,17 @@ import static org.folio.rest.RestVerticle.OKAPI_HEADER_TOKEN;
 import static org.folio.rest.impl.StorageTestSuite.storageUrl;
 import static org.folio.rest.utils.TestEntities.INVOICE;
 import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
-import io.restassured.builder.RequestSpecBuilder;
-import io.restassured.specification.RequestSpecification;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.folio.rest.jaxrs.model.BatchVoucher;
@@ -25,10 +24,12 @@ import org.folio.rest.utils.TestEntities;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 
+import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.http.ContentType;
 import io.restassured.http.Header;
 import io.restassured.response.Response;
 import io.restassured.response.ValidatableResponse;
+import io.restassured.specification.RequestSpecification;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 
@@ -58,6 +59,13 @@ public abstract class TestBase {
     if (vertx == null) {
       invokeStorageTestSuiteAfter = true;
       StorageTestSuite.before();
+    }
+  }
+
+  @AfterAll
+  public static void testBaseAfterClass() throws InterruptedException, ExecutionException, TimeoutException {
+    if (invokeStorageTestSuiteAfter) {
+      StorageTestSuite.after();
     }
   }
 
@@ -122,17 +130,6 @@ public abstract class TestBase {
           .path("id");
   }
 
-  @AfterAll
-  public static void testBaseAfterClass()
-    throws InterruptedException,
-    ExecutionException,
-    TimeoutException,
-    MalformedURLException {
-
-    if (invokeStorageTestSuiteAfter) {
-      StorageTestSuite.after();
-    }
-  }
 
   void testEntitySuccessfullyFetched(String endpoint, String id) throws MalformedURLException {
     getDataById(endpoint, id)
@@ -242,7 +239,7 @@ public abstract class TestBase {
     String value = "";
     try (InputStream inputStream = TestBase.class.getClassLoader().getResourceAsStream(filename)) {
       if (inputStream != null) {
-        value = IOUtils.toString(inputStream, "UTF-8");
+        value = IOUtils.toString(inputStream, StandardCharsets.UTF_8);
       }
     } catch (Exception e) {
       value = "";

@@ -5,7 +5,7 @@ import org.folio.rest.persist.Criteria.Criterion;
 
 public class CriterionBuilder {
 
-  private Criteria criteria;
+  private final Criteria criteria;
 
   public CriterionBuilder() {
     criteria = new Criteria();

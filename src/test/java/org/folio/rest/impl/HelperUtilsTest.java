@@ -9,7 +9,6 @@ import java.net.URL;
 import org.folio.HttpStatus;
 import org.folio.rest.jaxrs.model.Document;
 import org.folio.rest.persist.PostgresClient;
-import org.folio.rest.persist.Criteria.Criterion;
 import org.folio.rest.persist.interfaces.Results;
 import org.junit.jupiter.api.Test;
 
@@ -26,7 +25,7 @@ class HelperUtilsTest extends TestBase {
   private static final String DOCUMENTS_ENDPOINT = "/invoice-storage/invoices/6b8bc989-834d-4a14-945b-4c5442ae09af/documents";
   private static final String DOCUMENT_ID = "433f8140-001e-4605-b5a8-f02793f3d2ec";
 
-  private static RequestSpecification rs = given().header(TENANT_HEADER)
+  private static final RequestSpecification rs = given().header(TENANT_HEADER)
     .header(USER_ID_HEADER)
     .header(X_OKAPI_TOKEN);
 

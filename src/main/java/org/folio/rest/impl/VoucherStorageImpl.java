@@ -1,7 +1,5 @@
 package org.folio.rest.impl;
 
-import static org.folio.rest.persist.HelperUtils.getEntitiesCollection;
-
 import java.util.Map;
 
 import javax.ws.rs.core.Response;
@@ -12,9 +10,7 @@ import org.folio.rest.jaxrs.model.VoucherCollection;
 import org.folio.rest.jaxrs.model.VoucherLine;
 import org.folio.rest.jaxrs.model.VoucherLineCollection;
 import org.folio.rest.jaxrs.resource.VoucherStorage;
-import org.folio.rest.persist.EntitiesMetadataHolder;
 import org.folio.rest.persist.PgUtil;
-import org.folio.rest.persist.QueryHolder;
 
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Context;
@@ -29,10 +25,8 @@ public class VoucherStorageImpl implements VoucherStorage {
   @Override
   public void getVoucherStorageVouchers(int offset, int limit, String query, String lang, Map<String, String> okapiHeaders,
       Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
-    EntitiesMetadataHolder<Voucher, VoucherCollection> entitiesMetadataHolder = new EntitiesMetadataHolder<>(Voucher.class,
-        VoucherCollection.class, GetVoucherStorageVouchersResponse.class);
-    QueryHolder cql = new QueryHolder(VOUCHER_TABLE, query, offset, limit, lang);
-    getEntitiesCollection(entitiesMetadataHolder, cql, asyncResultHandler, vertxContext, okapiHeaders);
+    PgUtil.get(VOUCHER_TABLE, Voucher.class, VoucherCollection.class, query, offset, limit, okapiHeaders, vertxContext,
+        GetVoucherStorageVouchersResponse.class, asyncResultHandler);
   }
 
   @Validate
@@ -70,12 +64,8 @@ public class VoucherStorageImpl implements VoucherStorage {
   @Override
   public void getVoucherStorageVoucherLines(int offset, int limit, String query, String lang, Map<String, String> okapiHeaders,
       Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
-    vertxContext.runOnContext((Void v) -> {
-      EntitiesMetadataHolder<VoucherLine, VoucherLineCollection> entitiesMetadataHolder = new EntitiesMetadataHolder<>(
-          VoucherLine.class, VoucherLineCollection.class, GetVoucherStorageVoucherLinesResponse.class);
-      QueryHolder cql = new QueryHolder(VOUCHER_LINE_TABLE, query, offset, limit, lang);
-      getEntitiesCollection(entitiesMetadataHolder, cql, asyncResultHandler, vertxContext, okapiHeaders);
-    });
+    PgUtil.get(VOUCHER_LINE_TABLE, VoucherLine.class, VoucherLineCollection.class, query, offset, limit, okapiHeaders, vertxContext,
+        GetVoucherStorageVoucherLinesResponse.class, asyncResultHandler);
   }
 
   @Override

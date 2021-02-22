@@ -1,11 +1,9 @@
 package org.folio.rest.impl;
 
-import io.vertx.core.AsyncResult;
-import io.vertx.core.Context;
-import io.vertx.core.Handler;
-import io.vertx.core.Vertx;
 import java.util.Map;
+
 import javax.ws.rs.core.Response;
+
 import org.folio.rest.annotations.Validate;
 import org.folio.rest.jaxrs.model.BatchVoucherExport;
 import org.folio.rest.jaxrs.model.BatchVoucherExportCollection;
@@ -14,12 +12,17 @@ import org.folio.rest.persist.PgUtil;
 import org.folio.rest.persist.PostgresClient;
 import org.folio.service.BatchVoucherExportsService;
 
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Context;
+import io.vertx.core.Handler;
+import io.vertx.core.Vertx;
+
 
 public class BatchVoucherExportsImpl implements BatchVoucherStorageBatchVoucherExports {
 
   public static final String BATCH_VOUCHER_EXPORTS_TABLE = "batch_voucher_exports";
 
-  private BatchVoucherExportsService batchVoucherExportsService;
+  private final BatchVoucherExportsService batchVoucherExportsService;
 
   public BatchVoucherExportsImpl(Vertx vertx, String tenantId) {
     this.batchVoucherExportsService = new BatchVoucherExportsService(PostgresClient.getInstance(vertx, tenantId));
