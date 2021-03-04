@@ -38,6 +38,11 @@
       "run": "after",
       "snippetPath": "data-migration/reference_number_migration.sql",
       "fromModuleVersion": "mod-invoice-storage-5.0.0"
+    },
+    {
+      "run": "after",
+      "snippetPath": "data-migration/copy_enclosureNeeded_and_accountNo_from_invoice.sql",
+      "fromModuleVersion": "mod-invoice-storage-5.0.0"
     }
   ],
   "tables": [
