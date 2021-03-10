@@ -1,4 +1,21 @@
-## 4.2.0 - Unreleased
+## 5.1.0 - Unreleased
+## 5.0.0 - Released
+
+The primary focus of this release was to add some additional fields in voucher schema, upgrade invoice totals, upgrade RMB and adding
+support pair of "refNumber" and "refNumberType" in Invoice line should be an array
+
+[Full Changelog](https://github.com/folio-org/mod-invoice-storage/compare/v4.1.2...v5.0.0)
+
+### Stories
+* [MODINVOSTO-106](https://issues.folio.org/browse/MODINVOSTO-106) - Add fields "enclosureNeeded" and "accountNo" into voucher schema
+* [MODINVOSTO-105](https://issues.folio.org/browse/MODINVOSTO-105) - Delete document while deleting invoice
+* [MODINVOSTO-100](https://issues.folio.org/browse/MODINVOSTO-100) - mod-invoice-storage: Update RMB
+* [MODINVOSTO-97](https://issues.folio.org/browse/MODINVOSTO-97) - Write migration script for lock total value
+* [MODINVOSTO-96](https://issues.folio.org/browse/MODINVOSTO-96) - Update invoice totals fields
+* [MODINVOSTO-92](https://issues.folio.org/browse/MODINVOSTO-92) - Add field "accountNo" for supporting vendors that have more than one account
+* [MODINVOSTO-89](https://issues.folio.org/browse/MODINVOSTO-89) - Capture date paid in invoice schema
+* [MODINVOSTO-81](https://issues.folio.org/browse/MODINVOSTO-81) - Support pair of "refNumber" and "refNumberType" in Invoice line should be an array
+* [MODINVOSTO-75](https://issues.folio.org/browse/MODINVOSTO-75) - Migration script for removing invoice number from the invoice line number
 
 ## 4.1.2 - Released
 
