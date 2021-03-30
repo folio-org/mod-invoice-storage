@@ -48,6 +48,11 @@
       "run": "after",
       "snippetPath": "data-migration/copy_enclosureNeeded_and_accountNo_from_invoice.sql",
       "fromModuleVersion": "mod-invoice-storage-5.0.0"
+    },
+    {
+      "run": "after",
+      "snippetPath": "data-migration/populate_vendor_id_to_voucher.sql",
+      "fromModuleVersion": "mod-invoice-storage-5.1.0"
     }
   ],
   "tables": [
