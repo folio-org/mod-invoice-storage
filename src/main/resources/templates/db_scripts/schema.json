@@ -52,7 +52,7 @@
     {
       "run": "after",
       "snippetPath": "data-migration/populate_vendor_id_to_voucher.sql",
-      "fromModuleVersion": "mod-invoice-storage-5.1.0"
+      "fromModuleVersion": "mod-invoice-storage-5.0.1"
     }
   ],
   "tables": [
