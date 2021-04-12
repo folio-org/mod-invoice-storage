@@ -1,4 +1,18 @@
 ## 5.1.0 - Unreleased
+
+## 5.0.1 - Released
+
+The primary focus of this release was to fix issues and add vendor address into batch voucher.
+
+[Full Changelog](https://github.com/folio-org/mod-invoice-storage/compare/v5.0.0...v5.0.1)
+
+### Stories
+* [MODINVOSTO-113](https://issues.folio.org/browse/MODINVOSTO-113) - Add filled in "VendorAddress" into batch voucher schemas
+* [MODINVOSTO-114](https://issues.folio.org/browse/MODINVOSTO-114) - Add vendor data to voucher schema
+
+### Bug Fixes
+* [MODINVOSTO-115](https://issues.folio.org/browse/MODINVOSTO-115) - Example API JSON, "invoice_line_collection.sample", has invalid field
+
 ## 5.0.0 - Released
 
 The primary focus of this release was to add some additional fields in voucher schema, upgrade invoice totals, upgrade RMB and adding
