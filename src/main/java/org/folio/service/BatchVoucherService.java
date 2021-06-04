@@ -19,13 +19,13 @@ import io.vertx.core.Context;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.Promise;
-import io.vertx.ext.web.handler.impl.HttpStatusException;
+import io.vertx.ext.web.handler.HttpException;
 
 public class BatchVoucherService {
 
   private static final String BATCH_VOUCHER_ID = "batchVoucherId";
   private static final String BATCH_VOUCHERS_TABLE = "batch_vouchers";
-  private static final Logger LOGGER = LogManager.getLogger(BatchVoucherService.class);
+  private static final Logger logger = LogManager.getLogger(BatchVoucherService.class);
   private final PostgresClient pgClient;
 
   public BatchVoucherService(PostgresClient pgClient) {
@@ -51,9 +51,9 @@ public class BatchVoucherService {
     Promise<Tx<Map<String, String>>> promise = Promise.promise();
 
     pgClient.delete(tx.getConnection(), BATCH_VOUCHERS_TABLE, tx.getEntity().get(BATCH_VOUCHER_ID), rs -> {
-      LOGGER.info("deletion of batch voucher completed");
+      logger.info("deletion of batch voucher completed");
       if (rs.result().rowCount() == 0) {
-        promise.fail(new HttpStatusException(NOT_FOUND.getStatusCode(), NOT_FOUND.getReasonPhrase()));
+        promise.fail(new HttpException(NOT_FOUND.getStatusCode(), NOT_FOUND.getReasonPhrase()));
       } else {
         promise.complete(tx);
       }

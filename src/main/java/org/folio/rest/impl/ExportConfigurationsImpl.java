@@ -27,7 +27,7 @@ import io.vertx.core.Handler;
 
 public class ExportConfigurationsImpl implements BatchVoucherStorageExportConfigurations {
 
-  private static final Logger LOGGER = LogManager.getLogger(ExportConfigurationsImpl.class);
+  private static final Logger logger = LogManager.getLogger(ExportConfigurationsImpl.class);
 
   public static final String BATCH_VOUCHER_EXPORT_CONFIGS_TABLE = "batch_voucher_export_configs";
   public static final String EXPORT_CONFIG_CREDENTIALS_TABLE = "export_config_credentials";
@@ -119,13 +119,13 @@ public class ExportConfigurationsImpl implements BatchVoucherStorageExportConfig
                     .getMessage())));
             }
           } catch (Exception e) {
-            LOGGER.error(e.getMessage(), e);
+            logger.error(e.getMessage(), e);
             asyncResultHandler.handle(Future.succeededFuture(GetBatchVoucherStorageExportConfigurationsCredentialsByIdResponse
               .respond500WithTextPlain(Response.Status.INTERNAL_SERVER_ERROR.getReasonPhrase())));
           }
         });
       } catch (Exception e) {
-        LOGGER.error(e.getMessage(), e);
+        logger.error(e.getMessage(), e);
         asyncResultHandler.handle(Future.succeededFuture(GetBatchVoucherStorageExportConfigurationsCredentialsByIdResponse
           .respond500WithTextPlain(Response.Status.INTERNAL_SERVER_ERROR.getReasonPhrase())));
       }
@@ -160,13 +160,13 @@ public class ExportConfigurationsImpl implements BatchVoucherStorageExportConfig
                     .getMessage())));
             }
           } catch (Exception e) {
-            LOGGER.error(e.getMessage(), e);
+            logger.error(e.getMessage(), e);
             asyncResultHandler.handle(Future.succeededFuture(DeleteBatchVoucherStorageExportConfigurationsCredentialsByIdResponse
               .respond500WithTextPlain(Response.Status.INTERNAL_SERVER_ERROR.getReasonPhrase())));
           }
         });
       } catch (Exception e) {
-        LOGGER.error(e.getMessage(), e);
+        logger.error(e.getMessage(), e);
         asyncResultHandler.handle(Future.succeededFuture(DeleteBatchVoucherStorageExportConfigurationsCredentialsByIdResponse
           .respond500WithTextPlain(Response.Status.INTERNAL_SERVER_ERROR.getReasonPhrase())));
       }
@@ -182,11 +182,11 @@ public class ExportConfigurationsImpl implements BatchVoucherStorageExportConfig
         PgUtil.put(EXPORT_CONFIG_CREDENTIALS_TABLE, entity, entity.getId(), okapiHeaders, vertxContext,
             BatchVoucherStorageExportConfigurations.PutBatchVoucherStorageExportConfigurationsCredentialsByIdResponse.class, asyncResultHandler);
       } else {
-        LOGGER.info("PUT payload is missing 'id'.  Looking up record from storage by exportConfigId: {}", id);
+        logger.info("PUT payload is missing 'id'.  Looking up record from storage by exportConfigId: {}", id);
         getAndPutCredentials(id, entity, okapiHeaders, asyncResultHandler, vertxContext);
       }
     } else {
-      LOGGER.info("PUT with mismatch path/'exportConfigId' field: {}, {}", entity.getExportConfigId(), id);
+      logger.info("PUT with mismatch path/'exportConfigId' field: {}, {}", entity.getExportConfigId(), id);
       asyncResultHandler.handle(io.vertx.core.Future
         .succeededFuture(PutBatchVoucherStorageExportConfigurationsCredentialsByIdResponse.respond400WithTextPlain(MISMATCH_ERROR_MESSAGE)));
     }
@@ -222,13 +222,13 @@ public class ExportConfigurationsImpl implements BatchVoucherStorageExportConfig
                     .getMessage())));
             }
           } catch (Exception e) {
-            LOGGER.error(e.getMessage(), e);
+            logger.error(e.getMessage(), e);
             asyncResultHandler.handle(Future.succeededFuture(PutBatchVoucherStorageExportConfigurationsCredentialsByIdResponse
               .respond500WithTextPlain(Response.Status.INTERNAL_SERVER_ERROR.getReasonPhrase())));
           }
         });
       } catch (Exception e) {
-        LOGGER.error(e.getMessage(), e);
+        logger.error(e.getMessage(), e);
         asyncResultHandler.handle(Future.succeededFuture(PutBatchVoucherStorageExportConfigurationsCredentialsByIdResponse
           .respond500WithTextPlain(Response.Status.INTERNAL_SERVER_ERROR.getReasonPhrase())));
       }

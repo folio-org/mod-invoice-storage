@@ -41,7 +41,7 @@ import io.restassured.response.ValidatableResponse;
 
 public class TenantSampleDataTest extends TestBase {
 
-  private static final Logger LOGGER = LogManager.getLogger(TenantSampleDataTest.class);
+  private static final Logger logger = LogManager.getLogger(TenantSampleDataTest.class);
 
   private static final Header NONEXISTENT_TENANT_HEADER = new Header(OKAPI_HEADER_TENANT, "no_tenant");
   private static final Header ANOTHER_TENANT_HEADER = new Header(OKAPI_HEADER_TENANT, "new_tenant");
@@ -61,11 +61,11 @@ public class TenantSampleDataTest extends TestBase {
   @Test
   public void sampleDataTests() throws MalformedURLException {
     try {
-      LOGGER.info("-- create a tenant with no sample data --");
+      logger.info("-- create a tenant with no sample data --");
       prepareTenant(ANOTHER_TENANT_HEADER, false,false);
-      LOGGER.info("-- upgrade the tenant with sample data, so that it will be inserted now --");
+      logger.info("-- upgrade the tenant with sample data, so that it will be inserted now --");
       upgradeTenantWithSampleDataLoad();
-      LOGGER.info("-- upgrade the tenant again with no sample data, so the previously inserted data stays in tact --");
+      logger.info("-- upgrade the tenant again with no sample data, so the previously inserted data stays in tact --");
       upgradeTenantWithNoSampleDataLoad();
     }
     finally {
@@ -76,7 +76,7 @@ public class TenantSampleDataTest extends TestBase {
 
   @Test
   public void testPartialSampleDataLoading() throws MalformedURLException {
-    LOGGER.info("load sample data");
+    logger.info("load sample data");
     try {
       TenantAttributes tenantAttributes = TenantApiTestUtil.prepareTenantBody(true, false);
       tenantJob = postTenant(PARTIAL_TENANT_HEADER, tenantAttributes);
@@ -97,7 +97,7 @@ public class TenantSampleDataTest extends TestBase {
       tenantJob = postTenant(PARTIAL_TENANT_HEADER, tenantAttributes);
 
       for (TestEntities entity : TestEntities.getCollectableEntities()) {
-        LOGGER.info("Test expected quantity for " + entity.name());
+        logger.info("Test expected quantity for " + entity.name());
         verifyCollectionQuantity(entity.getEndpoint(), entity.getInitialQuantity(), PARTIAL_TENANT_HEADER);
       }
     } finally {
@@ -110,12 +110,12 @@ public class TenantSampleDataTest extends TestBase {
 
   private void upgradeTenantWithSampleDataLoad() throws MalformedURLException {
 
-    LOGGER.info("upgrading Module with sample");
+    logger.info("upgrading Module with sample");
     TenantAttributes tenantAttributes = TenantApiTestUtil.prepareTenantBody(true, false);
     tenantJob = postTenant(ANOTHER_TENANT_HEADER, tenantAttributes);
 
     for (TestEntities entity : TestEntities.getCollectableEntities()) {
-      LOGGER.info("Test expected quantity for " + entity.name());
+      logger.info("Test expected quantity for " + entity.name());
       ValidatableResponse response = verifyCollectionQuantity(entity.getEndpoint(), entity.getInitialQuantity(), ANOTHER_TENANT_HEADER);
 
       switch (entity) {
@@ -149,7 +149,7 @@ public class TenantSampleDataTest extends TestBase {
 
   private void upgradeTenantWithNoSampleDataLoad() throws MalformedURLException {
 
-    LOGGER.info("upgrading Module without sample data");
+    logger.info("upgrading Module without sample data");
 
     TenantAttributes tenantAttributes = TenantApiTestUtil.prepareTenantBody(false, false);
     tenantJob = postTenant(PARTIAL_TENANT_HEADER, tenantAttributes);
@@ -162,7 +162,7 @@ public class TenantSampleDataTest extends TestBase {
 
   @Test
   public void upgradeTenantWithNonExistentDb() throws MalformedURLException {
-    LOGGER.info("upgrading Module for non existed tenant");
+    logger.info("upgrading Module for non existed tenant");
     TenantAttributes tenantAttributes = TenantApiTestUtil.prepareTenantBody(false, false);
     try {
       // RMB-331 the case if older version has no db schema
@@ -170,7 +170,7 @@ public class TenantSampleDataTest extends TestBase {
 
       // Check that no sample data loaded
       for (TestEntities entity : TestEntities.getCollectableEntities()) {
-        LOGGER.info("Test expected zero quantity for {}", entity.name());
+        logger.info("Test expected zero quantity for {}", entity.name());
         verifyCollectionQuantity(entity.getEndpoint(), TestEntities.BATCH_GROUP.equals(entity) ? 1 : 0, NONEXISTENT_TENANT_HEADER);
       }
     } finally {

@@ -32,7 +32,7 @@ import org.folio.rest.persist.PgUtil;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Context;
 import io.vertx.core.Handler;
-import io.vertx.ext.web.handler.impl.HttpStatusException;
+import io.vertx.ext.web.handler.HttpException;
 
 public class InvoiceStorageService {
 
@@ -72,7 +72,7 @@ public class InvoiceStorageService {
     } catch (Exception e) {
       log.error(e.getMessage(), e);
       asyncResultHandler.handle(buildErrorResponse(
-        new HttpStatusException(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(),
+        new HttpException(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(),
           Response.Status.INTERNAL_SERVER_ERROR.getReasonPhrase())
       ));
     }
@@ -93,7 +93,7 @@ public class InvoiceStorageService {
           .compose(t -> client.endTx())
           .onComplete(result -> {
             if (result.failed()) {
-              HttpStatusException cause = (HttpStatusException) result.cause();
+              HttpException cause = (HttpException) result.cause();
               String errorMessage = String.format("Invoice %s and associated lines and documents if any failed to be deleted", id);
               log.error(errorMessage, cause);
               // The result of rollback operation is not so important, main failure cause is used to build the response
@@ -106,7 +106,7 @@ public class InvoiceStorageService {
       });
     } catch (Exception e) {
       log.error(e.getMessage(), e);
-      asyncResultHandler.handle(buildErrorResponse(new HttpStatusException(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(),
+      asyncResultHandler.handle(buildErrorResponse(new HttpException(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(),
           Response.Status.INTERNAL_SERVER_ERROR.getReasonPhrase())));
     }
   }
@@ -134,7 +134,7 @@ public class InvoiceStorageService {
       Map<String, String> okapiHeaders, Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
     vertxContext.runOnContext((Void v) -> {
       if (!StringUtils.equals(invoiceDoc.getDocumentMetadata().getInvoiceId(), invoiceId)) {
-        asyncResultHandler.handle(buildErrorResponse(new HttpStatusException(
+        asyncResultHandler.handle(buildErrorResponse(new HttpException(
           Response.Status.BAD_REQUEST.getStatusCode(), INVOICE_ID_MISMATCH_ERROR_MESSAGE
         )));
         return;

@@ -85,11 +85,6 @@ public class VoucherNumberTest extends TestBase {
       .contentType(ContentType.TEXT);
   }
 
-  @Test
-  public void testCurrentStartValueVoucherNumberInvalidUrl() throws MalformedURLException {
-    getData(VOUCHER_NUMBER_INVALID_START_ENDPOINT).then()
-      .statusCode(400);
-  }
 
   @Test
   public void testVoucherNumberIsNotUnique() throws MalformedURLException {

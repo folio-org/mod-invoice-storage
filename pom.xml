@@ -14,15 +14,25 @@
 
   <properties>
     <aspectj.version>1.9.6</aspectj.version>
-    <raml-module-builder.version>32.1.0</raml-module-builder.version>
-    <vertx.version>4.0.2</vertx.version>
+    <raml-module-builder.version>33.0.0</raml-module-builder.version>
+    <vertx.version>4.1.0.CR1</vertx.version>
     <junit-jupiter-version>5.7.0</junit-jupiter-version>
     <rest-assured.version>4.3.1</rest-assured.version>
     <ramlfiles_path>${basedir}/ramls</ramlfiles_path>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <jmockit.version>1.49</jmockit.version>
+    <testcontainers.version>1.15.3</testcontainers.version>
+    <postgres.image>postgres:12-alpine</postgres.image>
     <argLine />
   </properties>
+
+  <pluginRepositories>
+    <pluginRepository>
+      <id>folio-nexus</id>
+      <name>FOLIO Maven repository</name>
+      <url>https://repository.folio.org/repository/maven-folio</url>
+    </pluginRepository>
+  </pluginRepositories>
 
   <dependencyManagement>
     <dependencies>
@@ -95,12 +105,6 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.junit.platform</groupId>
-      <artifactId>junit-platform-runner</artifactId>
-      <version>1.5.2</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>org.jmockit</groupId>
       <artifactId>jmockit</artifactId>
       <version>${jmockit.version}</version>
@@ -110,6 +114,23 @@
       <groupId>one.util</groupId>
       <artifactId>streamex</artifactId>
       <version>0.7.3</version>
+    </dependency>
+    <dependency>
+      <groupId>org.testcontainers</groupId>
+      <artifactId>postgresql</artifactId>
+      <version>${testcontainers.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.testcontainers</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <version>${testcontainers.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.vertx</groupId>
+      <artifactId>vertx-unit</artifactId>
+      <scope>test</scope>
     </dependency>
   </dependencies>
 
@@ -173,36 +194,38 @@
               </sources>
             </configuration>
           </execution>
+          <execution>
+            <id>reserve-db-port</id>
+            <phase>initialize</phase>
+            <goals>
+              <goal>reserve-network-port</goal>
+            </goals>
+            <configuration>
+              <portNames>
+                <portName>db.port</portName>
+              </portNames>
+            </configuration>
+          </execution>
         </executions>
       </plugin>
-
+      <plugin>
+        <groupId>org.folio</groupId>
+        <artifactId>domain-models-maven-plugin</artifactId>
+        <version>${raml-module-builder.version}</version>
+        <executions>
+          <execution>
+            <id>generate_interfaces</id>
+            <goals>
+              <goal>java</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>exec-maven-plugin</artifactId>
         <version>3.0.0</version>
         <executions>
-          <execution>
-            <id>generate_interfaces</id>
-            <phase>generate-sources</phase>
-            <goals>
-              <goal>java</goal>
-            </goals>
-            <configuration>
-              <mainClass>org.folio.rest.tools.GenerateRunner</mainClass>
-              <!-- <executable>java</executable> -->
-              <cleanupDaemonThreads>false</cleanupDaemonThreads>
-              <systemProperties>
-                <systemProperty>
-                  <key>project.basedir</key>
-                  <value>${basedir}</value>
-                </systemProperty>
-                <systemProperty>
-                  <key>raml_files</key>
-                  <value>${ramlfiles_path}</value>
-                </systemProperty>
-              </systemProperties>
-            </configuration>
-          </execution>
           <execution>
             <id>git submodule update</id>
             <phase>initialize</phase>
@@ -221,7 +244,53 @@
           </execution>
         </executions>
       </plugin>
-
+      <plugin>
+        <groupId>io.fabric8</groupId>
+        <artifactId>docker-maven-plugin</artifactId>
+        <version>0.34.1</version>
+        <configuration>
+          <images>
+            <image>
+              <alias>db</alias>
+              <name>${postgres.image}</name>
+              <run>
+                <privileged>true</privileged>
+                <containerNamePattern>%n-%t</containerNamePattern>
+                <env>
+                  <POSTGRES_DB>postgres</POSTGRES_DB>
+                  <POSTGRES_USER>postgres</POSTGRES_USER>
+                  <POSTGRES_PASSWORD>postgres</POSTGRES_PASSWORD>
+                </env>
+                <ports>
+                  <port>${db.port}:5432</port>
+                  <port>+docker.host.address:${db.port}:5432</port>
+                </ports>
+                <wait>
+                  <log>(?s)ready to accept connections.*ready to accept connections</log>
+                  <time>90000</time>
+                </wait>
+              </run>
+            </image>
+          </images>
+        </configuration>
+        <executions>
+          <execution>
+            <id>start-pgsql</id>
+            <phase>initialize</phase>
+            <goals>
+              <goal>start</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>stop-pgsql</id>
+            <phase>compile</phase>
+            <goals>
+              <goal>stop</goal>
+              <goal>remove</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
       <plugin>
         <groupId>com.nickwongdev</groupId>
         <artifactId>aspectj-maven-plugin</artifactId>

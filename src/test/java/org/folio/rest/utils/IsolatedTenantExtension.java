@@ -19,7 +19,7 @@ import io.restassured.http.Header;
 
 public class IsolatedTenantExtension implements BeforeTestExecutionCallback, AfterTestExecutionCallback {
 
-  private static final Logger LOGGER = LogManager.getLogger(IsolatedTenantExtension.class);
+  private static final Logger logger = LogManager.getLogger(IsolatedTenantExtension.class);
   private static final String ISOLATED_TENANT = "isolated";
   private TenantJob tenantJob;
 
@@ -29,7 +29,7 @@ public class IsolatedTenantExtension implements BeforeTestExecutionCallback, Aft
       final Header tenantHeader = new Header(OKAPI_HEADER_TENANT, ISOLATED_TENANT);
 
       tenantJob = prepareTenant(tenantHeader, false, false);
-      LOGGER.info("Isolated tenant has been prepared");
+      logger.info("Isolated tenant has been prepared");
     }
   }
 
@@ -40,7 +40,7 @@ public class IsolatedTenantExtension implements BeforeTestExecutionCallback, Aft
 
       deleteTenant(tenantJob, tenantHeader);
       purge(tenantHeader);
-      LOGGER.info("Isolated tenant has been deleted");
+      logger.info("Isolated tenant has been deleted");
 
     }
   }
