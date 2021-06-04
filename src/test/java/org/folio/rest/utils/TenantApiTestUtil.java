@@ -16,13 +16,13 @@ import org.folio.rest.client.TenantClient;
 import org.folio.rest.jaxrs.model.Parameter;
 import org.folio.rest.jaxrs.model.TenantAttributes;
 import org.folio.rest.jaxrs.model.TenantJob;
-import org.folio.rest.tools.PomReader;
 
 import io.restassured.http.Header;
+import org.folio.rest.tools.utils.ModuleName;
 
 public class TenantApiTestUtil {
 
-  private static final Logger LOGGER = LogManager.getLogger(TenantApiTestUtil.class);
+  private static final Logger logger = LogManager.getLogger(TenantApiTestUtil.class);
 
   public static final String LOAD_SYNC_PARAMETER = "loadSync";
   private static final int TENANT_OP_WAITING_TIME = 60000;
@@ -34,14 +34,12 @@ public class TenantApiTestUtil {
   public static TenantAttributes prepareTenantBody(Boolean isLoadSampleData, Boolean isLoadReferenceData) {
     TenantAttributes tenantAttributes = new TenantAttributes();
 
-    String moduleId = String.format("%s-%s", PomReader.INSTANCE.getModuleName(), PomReader.INSTANCE.getVersion());
     List<Parameter> parameters = new ArrayList<>();
     parameters.add(new Parameter().withKey("loadReference").withValue(isLoadReferenceData.toString()));
     parameters.add(new Parameter().withKey("loadSample").withValue(isLoadSampleData.toString()));
     parameters.add(new Parameter().withKey(LOAD_SYNC_PARAMETER).withValue("true"));
 
-    tenantAttributes.withModuleTo(moduleId)
-      .withParameters(parameters);
+    tenantAttributes.withModuleTo(ModuleName.getModuleName()).withParameters(parameters);
 
     return tenantAttributes;
   }
@@ -66,7 +64,7 @@ public class TenantApiTestUtil {
             if(result.failed()) {
               future.completeExceptionally(result.cause());
             } else {
-              LOGGER.info("tenant successfully deleted");
+              logger.info("tenant successfully deleted");
               future.complete(tenantJob);
             }
           });
@@ -86,10 +84,10 @@ public class TenantApiTestUtil {
       CompletableFuture<Void> completableFuture = new CompletableFuture<>();
       tenantClient.deleteTenantByOperationId(tenantJob.getId(), responseHandler -> {
         if (responseHandler.failed()) {
-          LOGGER.info("Failed to delete tenant");
+          logger.info("Failed to delete tenant");
           completableFuture.completeExceptionally(responseHandler.cause());
         } else {
-          LOGGER.info("tenant has been deleted");
+          logger.info("tenant has been deleted");
           completableFuture.complete(null);
         }
       });

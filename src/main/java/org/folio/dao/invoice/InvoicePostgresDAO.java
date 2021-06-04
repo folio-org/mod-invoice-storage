@@ -27,7 +27,7 @@ import org.folio.rest.persist.Criteria.Criterion;
 import io.vertx.core.Future;
 import io.vertx.core.Promise;
 import io.vertx.core.json.JsonObject;
-import io.vertx.ext.web.handler.impl.HttpStatusException;
+import io.vertx.ext.web.handler.HttpException;
 import io.vertx.sqlclient.Tuple;
 
 public class InvoicePostgresDAO implements InvoiceDAO {
@@ -54,7 +54,7 @@ public class InvoicePostgresDAO implements InvoiceDAO {
         }
       });
     } catch (Exception e) {
-      promise.fail(new HttpStatusException(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), e.getMessage()));
+      promise.fail(new HttpException(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), e.getMessage()));
     }
     return promise.future();
   }
@@ -108,7 +108,7 @@ public class InvoicePostgresDAO implements InvoiceDAO {
         handleFailure(promise, reply);
       } else {
         if (reply.result().rowCount() == 0) {
-          promise.fail(new HttpStatusException(Response.Status.NOT_FOUND.getStatusCode(), "Invoice not found"));
+          promise.fail(new HttpException(Response.Status.NOT_FOUND.getStatusCode(), "Invoice not found"));
         } else {
           promise.complete(client);
         }
@@ -186,7 +186,7 @@ public class InvoicePostgresDAO implements InvoiceDAO {
       });
     } catch (Exception e) {
       log.error(e.getMessage(), e);
-      promise.fail(new HttpStatusException(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), e.getMessage()));
+      promise.fail(new HttpException(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), e.getMessage()));
     }
     return promise.future();
   }
@@ -202,7 +202,7 @@ public class InvoicePostgresDAO implements InvoiceDAO {
         try {
           if (reply.succeeded()) {
             if (reply.result().rowCount() == 0) {
-              promise.fail(new HttpStatusException(Response.Status.NOT_FOUND.getStatusCode(),
+              promise.fail(new HttpException(Response.Status.NOT_FOUND.getStatusCode(),
                 Response.Status.NOT_FOUND.getReasonPhrase()));
               return;
             }
@@ -226,13 +226,13 @@ public class InvoicePostgresDAO implements InvoiceDAO {
           }
         } catch (Exception e) {
           log.error(e.getMessage(), e);
-          promise.fail(new HttpStatusException(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(),
+          promise.fail(new HttpException(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(),
             Response.Status.INTERNAL_SERVER_ERROR.getReasonPhrase()));
         }
       });
     } catch (Exception e) {
       log.error(e.getMessage(), e);
-      promise.fail(new HttpStatusException(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(),
+      promise.fail(new HttpException(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(),
         Response.Status.INTERNAL_SERVER_ERROR.getReasonPhrase()));
     }
     return promise.future();

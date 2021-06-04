@@ -24,13 +24,13 @@ import io.vertx.core.Context;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.Promise;
-import io.vertx.ext.web.handler.impl.HttpStatusException;
+import io.vertx.ext.web.handler.HttpException;
 
 public class BatchVoucherExportsService {
 
   private static final String BATCH_VOUCHER_EXPORT_ID = "batchVoucherExportId";
   private static final String BATCH_VOUCHER_ID = "batchVoucherId";
-  private static final Logger LOGGER = LogManager.getLogger(BatchVoucherExportsService.class);
+  private static final Logger logger = LogManager.getLogger(BatchVoucherExportsService.class);
   private final PostgresClient pgClient;
 
   public BatchVoucherExportsService(PostgresClient pgClient) {
@@ -57,9 +57,9 @@ public class BatchVoucherExportsService {
     Promise<Tx<Map<String, String>>> promise = Promise.promise();
 
     pgClient.delete(tx.getConnection(), BATCH_VOUCHER_EXPORTS_TABLE, tx.getEntity().get(BATCH_VOUCHER_EXPORT_ID), rs -> {
-      LOGGER.info("deletion of batch voucher exports completed ");
+      logger.info("deletion of batch voucher exports completed ");
       if (rs.result().rowCount() == 0) {
-        promise.fail(new HttpStatusException(NOT_FOUND.getStatusCode(), NOT_FOUND.getReasonPhrase()));
+        promise.fail(new HttpException(NOT_FOUND.getStatusCode(), NOT_FOUND.getReasonPhrase()));
       } else {
         promise.complete(tx);
       }
@@ -74,9 +74,9 @@ public class BatchVoucherExportsService {
       .with(BATCH_VOUCHER_ID, tx.getEntity().get(BATCH_VOUCHER_ID)).build();
 
     pgClient.delete(tx.getConnection(), BATCH_VOUCHER_EXPORTS_TABLE, criterion, rs -> {
-      LOGGER.info("deletion of batch voucher exports completed ");
+      logger.info("deletion of batch voucher exports completed ");
       if (rs.failed()) {
-        promise.fail(new HttpStatusException(NOT_FOUND.getStatusCode(), NOT_FOUND.getReasonPhrase()));
+        promise.fail(new HttpException(NOT_FOUND.getStatusCode(), NOT_FOUND.getReasonPhrase()));
       } else {
         promise.complete(tx);
       }
@@ -89,7 +89,7 @@ public class BatchVoucherExportsService {
 
     pgClient.getById(BATCH_VOUCHER_EXPORTS_TABLE, tx.getEntity().get(BATCH_VOUCHER_EXPORT_ID), BatchVoucherExport.class, rs -> {
       if (rs.failed() || rs.result() == null) {
-        promise.fail(new HttpStatusException(NOT_FOUND.getStatusCode(), NOT_FOUND.getReasonPhrase()));
+        promise.fail(new HttpException(NOT_FOUND.getStatusCode(), NOT_FOUND.getReasonPhrase()));
       } else {
         tx.getEntity().put(BATCH_VOUCHER_ID, rs.result().getBatchVoucherId());
         promise.complete(tx);
