@@ -82,12 +82,6 @@
       <version>${raml-module-builder.version}</version>
     </dependency>
     <dependency>
-      <groupId>io.vertx</groupId>
-      <artifactId>vertx-unit</artifactId>
-      <version>${vertx.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>org.folio</groupId>
       <artifactId>folio-di-support</artifactId>
       <version>1.3.0</version>
