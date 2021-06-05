@@ -15,6 +15,7 @@ import java.util.concurrent.TimeoutException;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.folio.postgres.testing.PostgresTesterContainer;
 import org.folio.rest.RestVerticle;
 import org.folio.rest.jaxrs.model.TenantJob;
 import org.folio.rest.persist.PostgresClient;
@@ -61,18 +62,7 @@ public class StorageTestSuite {
 
     logger.info("Start container database");
 
-    // databaseName = "test", username = "test" password = "test", port = random
-    postgresSQLContainer = new PostgreSQLContainer<>(POSTGRES_DOCKER_IMAGE);
-
-    postgresSQLContainer.start();
-
-    Envs.setEnv(
-      postgresSQLContainer.getHost(),
-      postgresSQLContainer.getFirstMappedPort(),
-      postgresSQLContainer.getUsername(),
-      postgresSQLContainer.getPassword(),
-      postgresSQLContainer.getDatabaseName()
-    );;
+    PostgresClient.setPostgresTester(new PostgresTesterContainer());
 
     DeploymentOptions options = new DeploymentOptions();
 
@@ -103,7 +93,6 @@ public class StorageTestSuite {
     undeploymentComplete.get(20, TimeUnit.SECONDS);
     logger.info("Stop database");
     PostgresClient.stopPostgresTester();
-    postgresSQLContainer.stop();
   }
 
   private static void startVerticle(DeploymentOptions options)

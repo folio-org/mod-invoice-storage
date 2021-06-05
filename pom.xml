@@ -116,20 +116,9 @@
       <version>0.7.3</version>
     </dependency>
     <dependency>
-      <groupId>org.testcontainers</groupId>
-      <artifactId>postgresql</artifactId>
-      <version>${testcontainers.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.testcontainers</groupId>
-      <artifactId>junit-jupiter</artifactId>
-      <version>${testcontainers.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>io.vertx</groupId>
-      <artifactId>vertx-unit</artifactId>
+      <groupId>org.folio</groupId>
+      <artifactId>postgres-testing</artifactId>
+      <version>${raml-module-builder.version}</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
@@ -194,18 +183,6 @@
               </sources>
             </configuration>
           </execution>
-          <execution>
-            <id>reserve-db-port</id>
-            <phase>initialize</phase>
-            <goals>
-              <goal>reserve-network-port</goal>
-            </goals>
-            <configuration>
-              <portNames>
-                <portName>db.port</portName>
-              </portNames>
-            </configuration>
-          </execution>
         </executions>
       </plugin>
       <plugin>
@@ -241,53 +218,6 @@
                 <argument>--recursive</argument>
               </arguments>
             </configuration>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <groupId>io.fabric8</groupId>
-        <artifactId>docker-maven-plugin</artifactId>
-        <version>0.34.1</version>
-        <configuration>
-          <images>
-            <image>
-              <alias>db</alias>
-              <name>${postgres.image}</name>
-              <run>
-                <privileged>true</privileged>
-                <containerNamePattern>%n-%t</containerNamePattern>
-                <env>
-                  <POSTGRES_DB>postgres</POSTGRES_DB>
-                  <POSTGRES_USER>postgres</POSTGRES_USER>
-                  <POSTGRES_PASSWORD>postgres</POSTGRES_PASSWORD>
-                </env>
-                <ports>
-                  <port>${db.port}:5432</port>
-                  <port>+docker.host.address:${db.port}:5432</port>
-                </ports>
-                <wait>
-                  <log>(?s)ready to accept connections.*ready to accept connections</log>
-                  <time>90000</time>
-                </wait>
-              </run>
-            </image>
-          </images>
-        </configuration>
-        <executions>
-          <execution>
-            <id>start-pgsql</id>
-            <phase>initialize</phase>
-            <goals>
-              <goal>start</goal>
-            </goals>
-          </execution>
-          <execution>
-            <id>stop-pgsql</id>
-            <phase>compile</phase>
-            <goals>
-              <goal>stop</goal>
-              <goal>remove</goal>
-            </goals>
           </execution>
         </executions>
       </plugin>
