@@ -30,7 +30,7 @@ traits:
     /start:
       displayName: Voucher Number
       description: Manage Voucher numbers
-      is: [language] 
+      is: [language]
       get:
         description: Get voucher number start
         responses:
@@ -41,22 +41,34 @@ traits:
           500:
             description: "Internal server error, e.g. due to misconfiguration"
             body:
-              text/plain:
-                example: "internal server error, contact administrator"
-      /{value}:  
-        is: [language]              
+                application/json:
+                  example:
+                    strict: false
+                    value: !include raml-util/examples/errors.sample
+                text/plain:
+                  example: "Bad request"
+      /{value}:
+        is: [language]
         post:
-          description: (Re)set the start value of the voucher number sequence 
+          description: (Re)set the start value of the voucher number sequence
           responses:
             204:
               description: "Start value successfully updated"
             400:
               description: "Bad request"
               body:
+                application/json:
+                  example:
+                    strict: false
+                    value: !include raml-util/examples/errors.sample
                 text/plain:
                   example: "Bad request"
             500:
               description: "Internal server error, e.g. due to misconfiguration"
               body:
+                application/json:
+                  example:
+                    strict: false
+                    value: !include raml-util/examples/errors.sample
                 text/plain:
-                  example: "internal server error, contact administrator"
+                  example: "Internal server error"
