@@ -1,5 +1,15 @@
 ## 5.2.0 - Unreleased
 
+## 5.1.1 - Released
+The primary focus of this release was to fix type of error returned when generating the start number of the voucher
+
+[Full Changelog](https://github.com/folio-org/mod-invoice-storage/compare/v5.1.0...v5.1.1)
+
+### Bug Fixes
+
+* [MODINVOSTO-120](https://issues.folio.org/browse/MODINVOSTO-120) - Cannot set voucher "Starting number" or reset sequence
+
+
 ## 5.1.0 - Released
 The primary focus of this release was to update RMB version up to v33.0.0, various schema fields updated as well
 
