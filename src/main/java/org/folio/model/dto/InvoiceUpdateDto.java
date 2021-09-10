@@ -12,76 +12,49 @@ import java.util.List;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
-  "purchaseOrderId",
-  "poNumber",
-  "invoiceIds"
-
+  "invoiceId",
+  "poNumbers"
 })
 
 public class InvoiceUpdateDto {
 
-  @JsonProperty("purchaseOrderId")
-  @JsonPropertyDescription("Purchase order ID")
+  @JsonProperty("invoiceId")
+  @JsonPropertyDescription("Invoice ID")
   @Pattern(regexp = "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$")
-  private String purchaseOrderId;
+  private String invoiceId;
 
-  @JsonProperty("poNumber")
-  @JsonPropertyDescription("Product order number")
-  private String poNumber;
-
-  @JsonProperty("invoiceIds")
-  @JsonPropertyDescription("List of invoices ID")
+  @JsonProperty("poNumbers")
+  @JsonPropertyDescription("List of PO numbers")
   @Valid
-  private List<String> invoiceIds = new ArrayList<>();
+  private List<String> poNumbers = new ArrayList<>();
 
-  @JsonProperty("purchaseOrderId")
+  @JsonProperty("invoiceId")
   public String getInvoiceId() {
-    return purchaseOrderId;
+    return invoiceId;
   }
 
-
-  @JsonProperty("purchaseOrderId")
-  public String getPurchaseOrderId() {
-    return purchaseOrderId;
+  @JsonProperty("poNumbers")
+  public void setInvoiceId(String invoiceId) {
+    this.invoiceId = invoiceId;
   }
 
-  @JsonProperty("purchaseOrderId")
-  public void setPurchaseOrderId(String purchaseOrderId) {
-    this.purchaseOrderId = purchaseOrderId;
-  }
-
-  public InvoiceUpdateDto withId(String purchaseOrderId) {
-    this.purchaseOrderId = purchaseOrderId;
+  public InvoiceUpdateDto withInvoiceId(String invoiceId) {
+    this.invoiceId = invoiceId;
     return this;
   }
 
-  @JsonProperty("poNumber")
-  public String getPoNumber() {
-    return poNumber;
+  @JsonProperty("poNumbers")
+  public List<String> getPoNumbers() {
+    return poNumbers;
   }
 
-  @JsonProperty("poNumber")
-  public void setPoNumber(String poNumber) {
-    this.poNumber = poNumber;
+  @JsonProperty("poNumbers")
+  public void setPoNumbers(List<String> poNumbers) {
+    this.poNumbers = poNumbers;
   }
 
-  public InvoiceUpdateDto withPoNumber(String poNumber) {
-    this.poNumber = poNumber;
-    return this;
-  }
-
-  @JsonProperty("invoiceIds")
-  public List<String> getInvoiceIds() {
-    return invoiceIds;
-  }
-
-  @JsonProperty("invoiceIds")
-  public void setInvoiceIds(List<String> invoiceIds) {
-    this.invoiceIds = invoiceIds;
-  }
-
-  public InvoiceUpdateDto withInvoiceIds(List<String> invoiceIds) {
-    this.invoiceIds = invoiceIds;
+  public InvoiceUpdateDto withPoNumbers(List<String> poNumbers) {
+    this.poNumbers = poNumbers;
     return this;
   }
 

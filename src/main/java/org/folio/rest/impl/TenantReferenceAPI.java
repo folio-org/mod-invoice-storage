@@ -51,7 +51,7 @@ public class TenantReferenceAPI extends TenantAPI {
 
     return Future.succeededFuture()
       .compose(v -> migration(attributes, "mod-invoice-storage-5.2.0",
-        () -> migrationService.addOrderPoNumberToInvoicePoNumber(client)))
+        () -> migrationService.addOrderPoNumberToInvoicePoNumber(headers, vertxContext)))
       .compose(v -> {
 
         Promise<Integer> promise = Promise.promise();

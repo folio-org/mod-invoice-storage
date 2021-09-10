@@ -13,12 +13,8 @@ import org.folio.rest.core.RestClient;
 import org.folio.rest.core.model.RequestContext;
 import org.folio.rest.core.model.RequestEntry;
 
-import org.folio.rest.exception.HttpException;
-
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 import static org.folio.service.util.CommonServiceUtil.convertIdsToCqlQuery;
@@ -28,9 +24,7 @@ public class OrdersStorageService {
 
   private static final Logger logger = LogManager.getLogger(OrdersStorageService.class);
 
-
   public static final int MAX_IDS_FOR_GET_RQ = 15;
-  private static final String PURCHASE_ORDERS_ENDPOINT = "/orders-storage/purchase-orders";
   private static final String PURCHASE_ORDER_BY_ID_ENDPOINT = "/orders-storage/purchase-orders/{id}";
   private static final String ORDER_INVOICE_RELATIONSHIP_ENDPOINT = "/orders-storage/order-invoice-relns";
 
@@ -49,7 +43,7 @@ public class OrdersStorageService {
         .collect(toList()));
   }
 
-  public CompletableFuture<List<PurchaseOrder>> getPurchaseOrderByIds(List<String> ids, RequestContext requestContext) {
+  private CompletableFuture<List<PurchaseOrder>> getPurchaseOrderByIds(List<String> ids, RequestContext requestContext) {
     String query = convertIdsToCqlQuery(ids, "id");
 
     RequestEntry requestEntry = new RequestEntry(PURCHASE_ORDER_BY_ID_ENDPOINT)
@@ -61,41 +55,11 @@ public class OrdersStorageService {
       .thenApply(PurchaseOrderCollection::getPurchaseOrders);
   }
 
-  public CompletableFuture<PurchaseOrderCollection> getPurchaseOrders(String query, int limit, int offset, RequestContext requestContext) {
-    RequestEntry requestEntry = new RequestEntry(PURCHASE_ORDERS_ENDPOINT)
-      .withQuery(query)
-      .withLimit(limit)
-      .withOffset(offset);
-    return restClient.get(requestEntry, requestContext, PurchaseOrderCollection.class);
-  }
-
-  public CompletableFuture<OrderInvoiceRelationshipCollection> getOrderInvoiceRelationshipCollection(String query, int offset, int limit, RequestContext requestContext) {
-    RequestEntry requestEntry = new RequestEntry(ORDER_INVOICE_RELATIONSHIP_ENDPOINT).withQuery(query).withOffset(offset).withLimit(limit);
+  public CompletableFuture<OrderInvoiceRelationshipCollection> getOrderInvoiceRelationshipCollection(RequestContext requestContext) {
+    RequestEntry requestEntry = new RequestEntry(ORDER_INVOICE_RELATIONSHIP_ENDPOINT)
+      .withOffset(0)
+      .withLimit(Integer.MAX_VALUE);
     return restClient.get(requestEntry, requestContext, OrderInvoiceRelationshipCollection.class);
-  }
-
-  //  Utility method(s):
-  public Map<String, String> extractPurchaseOrderAndInvoiceIdIds (OrderInvoiceRelationshipCollection orderInvoiceRelationshipCollection) {
-    Map<String, String> invoiceIdToPurchaseOrderId = new HashMap<>();
-
-    orderInvoiceRelationshipCollection.getOrderInvoiceRelationships().forEach(orderInvoiceRelationship -> {
-      invoiceIdToPurchaseOrderId.put(orderInvoiceRelationship.getPurchaseOrderId(), orderInvoiceRelationship.getInvoiceId());
-    });
-
-    return invoiceIdToPurchaseOrderId;
-  }
-
-  public CompletableFuture<Void> checkOrderInvoiceRelationship(String id, RequestContext requestContext) {
-    String query = "purchaseOrderId==" + id;
-
-    return getOrderInvoiceRelationshipCollection(query, 0,0, requestContext)
-      .thenApply(oirs -> {
-        if (oirs.getTotalRecords() > 0) {
-          logger.error("Order or order line {} is linked to the invoice and can not be deleted", id);
-          throw new HttpException(400, ORDER_RELATES_TO_INVOICE);
-        }
-        return null;
-      });
   }
 
 }
