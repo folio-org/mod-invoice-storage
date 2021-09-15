@@ -105,7 +105,6 @@ public class MigrationService {
 
   public Future<Void> runScriptUpdateInvoicesWithPoNumbers(List<InvoiceUpdateDto> dtoList, DBClient client) {
     Promise<Void> promise = Promise.promise();
-    String g = '[ { "invoiceId": "23180842-9084-48bc-9c5f-3a96afdae002", "poNumbers": [ "10000" ] }, { "invoiceId": "9cebd1a7-8abd-4846-9137-d6402d38a897", "poNumbers": [ "10000", "10001" ] }, { "invoiceId": "10ff1a7d-16a4-408d-9259-a26178a8a528", "poNumbers": [ "10002" ] } ]';
     String schemaName = PostgresClient.convertToPsqlStandard(client.getTenantId());
     String sql = "DO\n" + "$$\n" + "begin\n" + " PERFORM %s.update_invoices_with_po_numbers('%s');\n" + "end;\n"
         + "$$ LANGUAGE plpgsql;";
