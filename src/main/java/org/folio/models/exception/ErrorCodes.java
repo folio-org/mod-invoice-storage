@@ -1,4 +1,4 @@
-package org.folio.rest.exception;
+package org.folio.models.exception;
 
 import org.folio.rest.jaxrs.model.Error;
 

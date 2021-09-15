@@ -1,8 +1,8 @@
 package org.folio.config;
 
 import org.folio.rest.core.RestClient;
-import org.folio.service.OrdersStorageService;
-import org.folio.service.MigrationService;
+import org.folio.service.migration.MigrationService;
+import org.folio.service.order.OrdersStorageService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;

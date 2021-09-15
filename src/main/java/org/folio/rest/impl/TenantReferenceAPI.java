@@ -25,7 +25,7 @@ import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
-import org.folio.service.MigrationService;
+import org.folio.service.migration.MigrationService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public class TenantReferenceAPI extends TenantAPI {
@@ -51,7 +51,7 @@ public class TenantReferenceAPI extends TenantAPI {
 
     return Future.succeededFuture()
       .compose(v -> migration(attributes, "mod-invoice-storage-5.2.0",
-        () -> migrationService.addOrderPoNumberToInvoicePoNumber(headers, vertxContext)))
+        () -> migrationService.syncOrderPoNumbersWithInvoicePoNumbers(headers, vertxContext)))
       .compose(v -> {
 
         Promise<Integer> promise = Promise.promise();

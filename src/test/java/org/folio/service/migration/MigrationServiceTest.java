@@ -23,16 +23,14 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
-import org.folio.model.dto.InvoiceUpdateDto;
+import org.folio.service.migration.models.dto.InvoiceUpdateDto;
 import org.folio.rest.acq.model.orders.OrderInvoiceRelationship;
 import org.folio.rest.acq.model.orders.OrderInvoiceRelationshipCollection;
 import org.folio.rest.acq.model.orders.PurchaseOrder;
 import org.folio.rest.persist.DBClient;
 import org.folio.rest.persist.PostgresClient;
-import org.folio.service.MigrationService;
-import org.folio.service.OrdersStorageService;
+import org.folio.service.order.OrdersStorageService;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -88,16 +86,16 @@ class MigrationServiceTest {
     relations.withOrderInvoiceRelationships(List.of(relation1, relation2, relation3, relation4));
     when(ordersStorageService.getOrderInvoiceRelationshipCollection(any()))
                              .thenReturn(completedFuture(relations));
-    when(ordersStorageService.retrievePurchaseOrdersByIdsInChunks(any(), any()))
+    when(ordersStorageService.getPurchaseOrderByIds(any(), any()))
                              .thenReturn(completedFuture(List.of(order1, order2, order3)));
 
     doReturn(Future.succeededFuture()).when(migrationService).runScriptUpdateInvoicesWithPoNumbers(any(), any());
 
-    testContext.assertComplete(migrationService.addOrderPoNumberToInvoicePoNumber(okapiHeaders, vertx.getOrCreateContext()))
+    testContext.assertComplete(migrationService.syncOrderPoNumbersWithInvoicePoNumbers(okapiHeaders, vertx.getOrCreateContext()))
       .onComplete(event -> {
         testContext.verify(() -> {
           verify(ordersStorageService, times(1)).getOrderInvoiceRelationshipCollection(any());
-          verify(ordersStorageService, times(1)).retrievePurchaseOrdersByIdsInChunks(any(), any());
+          verify(ordersStorageService, times(1)).getPurchaseOrderByIds(any(), any());
         });
         testContext.completeNow();
       });
@@ -109,16 +107,16 @@ class MigrationServiceTest {
 
     when(ordersStorageService.getOrderInvoiceRelationshipCollection(any()))
       .thenReturn(CompletableFuture.failedFuture(new RuntimeException()));
-    when(ordersStorageService.retrievePurchaseOrdersByIdsInChunks(any(), any()))
+    when(ordersStorageService.getPurchaseOrderByIds(any(), any()))
       .thenReturn(completedFuture(Collections.emptyList()));
 
     doReturn(Future.succeededFuture()).when(migrationService).runScriptUpdateInvoicesWithPoNumbers(any(), any());
 
-    testContext.assertFailure(migrationService.addOrderPoNumberToInvoicePoNumber(okapiHeaders, vertx.getOrCreateContext()))
+    testContext.assertFailure(migrationService.syncOrderPoNumbersWithInvoicePoNumbers(okapiHeaders, vertx.getOrCreateContext()))
       .onComplete(event -> {
         testContext.verify(() -> {
           verify(ordersStorageService, times(1)).getOrderInvoiceRelationshipCollection(any());
-          verify(ordersStorageService, never()).retrievePurchaseOrdersByIdsInChunks(any(), any());
+          verify(ordersStorageService, never()).getPurchaseOrderByIds(any(), any());
         });
         testContext.completeNow();
       });

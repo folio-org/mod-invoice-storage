@@ -5,14 +5,20 @@ import static org.folio.rest.utils.TenantApiTestUtil.deleteTenant;
 import static org.folio.rest.utils.TenantApiTestUtil.prepareTenant;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Context;
+import io.vertx.core.Verticle;
+import io.vertx.core.impl.VertxImpl;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.folio.postgres.testing.PostgresTesterContainer;
@@ -20,12 +26,12 @@ import org.folio.rest.RestVerticle;
 import org.folio.rest.jaxrs.model.TenantJob;
 import org.folio.rest.persist.PostgresClient;
 import org.folio.rest.tools.client.test.HttpClientMock2;
-import org.folio.rest.tools.utils.Envs;
 import org.folio.rest.tools.utils.NetworkUtils;
+import org.folio.service.migration.MigrationServiceTest;
+import org.folio.spring.SpringContextUtil;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Nested;
-import org.junit.runner.RunWith;
 
 import io.restassured.http.Header;
 import io.vertx.core.DeploymentOptions;
@@ -51,6 +57,33 @@ public class StorageTestSuite {
 
   public static Vertx getVertx() {
     return vertx;
+  }
+
+  public static void autowireDependencies(Object target) {
+    SpringContextUtil.autowireDependenciesFromFirstContext(target, getVertx());
+  }
+
+  public static void initSpringContext(Class<?> defaultConfiguration) {
+    SpringContextUtil.init(vertx, getFirstContextFromVertx(vertx), defaultConfiguration);
+  }
+
+  private static Context getFirstContextFromVertx(Vertx vertx) {
+    return vertx.deploymentIDs().stream().flatMap((id) -> ((VertxImpl)vertx)
+        .getDeployment(id).getVerticles().stream())
+      .map(StorageTestSuite::getContextWithReflection)
+      .filter(Objects::nonNull)
+      .findFirst()
+      .orElseThrow(() -> new IllegalStateException("Spring context was not created"));
+  }
+
+  private static Context getContextWithReflection(Verticle verticle) {
+    try {
+      Field field = AbstractVerticle.class.getDeclaredField("context");
+      field.setAccessible(true);
+      return ((Context)field.get(verticle));
+    } catch (NoSuchFieldException | IllegalAccessException var2) {
+      return null;
+    }
   }
 
   @BeforeAll
@@ -139,4 +172,9 @@ public class StorageTestSuite {
   class BatchVoucherExportsTestNested extends BatchVoucherExportsImplTest{}
   @Nested
   class VoucherNumberTestNested extends VoucherNumberTest {}
+  @Nested
+  class MigrationServiceTestNested extends MigrationServiceTest {}
+  @Nested
+  class TenantReferenceAPITestNested extends TenantReferenceAPITest{}
+
 }

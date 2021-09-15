@@ -48,7 +48,7 @@ public abstract class TestBase {
   static final Header TENANT_HEADER = new Header(OKAPI_HEADER_TENANT, "diku");
   static final Header TENANT_WITHOUT_DB_HEADER = new Header(OKAPI_HEADER_TENANT, "no_db_tenant");
   static final Header USER_ID_HEADER = new Header("X-Okapi-User-id", "28d0fb04-d137-11e8-a8d5-f2801f1b9fd1");
-  static final Header X_OKAPI_TOKEN = new Header(OKAPI_HEADER_TOKEN, "eyJhbGciOiJIUzI1NiJ9");
+  public static final Header X_OKAPI_TOKEN = new Header(OKAPI_HEADER_TOKEN, "eyJhbGciOiJIUzI1NiJ9");
   static final Header ISOLATED_TENANT_HEADER = new Header(OKAPI_HEADER_TENANT, ISOLATED_TENANT);
 
   public static final String ID = "id";

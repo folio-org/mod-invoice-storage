@@ -1,4 +1,4 @@
-package org.folio.rest.core.model;
+package org.folio.rest.core.models;
 
 import io.vertx.core.Context;
 

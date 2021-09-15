@@ -1,4 +1,4 @@
-package org.folio.service;
+package org.folio.service.migration;
 
 import static org.folio.rest.util.ResponseUtils.handleFailure;
 
@@ -8,14 +8,15 @@ import io.vertx.core.Promise;
 import io.vertx.core.json.JsonArray;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.folio.model.dto.InvoiceUpdateDto;
+import org.folio.service.migration.models.dto.InvoiceUpdateDto;
 import org.folio.rest.acq.model.orders.OrderInvoiceRelationship;
 import org.folio.rest.acq.model.orders.OrderInvoiceRelationshipCollection;
 import org.folio.rest.acq.model.orders.PurchaseOrder;
 import org.folio.rest.core.FolioVertxCompletableFuture;
-import org.folio.rest.core.model.RequestContext;
+import org.folio.rest.core.models.RequestContext;
 import org.folio.rest.persist.DBClient;
 import org.folio.rest.persist.PostgresClient;
+import org.folio.service.order.OrdersStorageService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,7 +36,7 @@ public class MigrationService {
     this.ordersStorageService = ordersStorageService;
   }
 
-  public Future<Void> addOrderPoNumberToInvoicePoNumber(Map<String, String> headers, Context vertxContext) {
+  public Future<Void> syncOrderPoNumbersWithInvoicePoNumbers(Map<String, String> headers, Context vertxContext) {
     Promise<Void> promise = Promise.promise();
     var requestContext = new RequestContext(vertxContext, headers);
     vertxContext.runOnContext(v -> {
@@ -43,7 +44,7 @@ public class MigrationService {
       DBClient client = new DBClient(vertxContext, headers);
       ordersStorageService.getOrderInvoiceRelationshipCollection(requestContext)
         .thenCompose(relationshipCollection -> mapRelationshipsByPoId(relationshipCollection, requestContext).thenCompose(
-            map -> ordersStorageService.retrievePurchaseOrdersByIdsInChunks(new ArrayList<>(map.keySet()), requestContext)
+            map -> ordersStorageService.getPurchaseOrderByIds(new ArrayList<>(map.keySet()), requestContext)
               .thenApply(purchaseOrders -> convertToInvoiceUpdateDtoList(relationshipCollection, purchaseOrders))))
         .thenAccept(dtoList -> runScriptUpdateInvoicesWithPoNumbers(dtoList, client).onSuccess(v1 -> {
           log.debug("Cross Migration for invoice PO number synchronization completed");

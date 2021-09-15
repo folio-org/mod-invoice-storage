@@ -1,4 +1,4 @@
-package org.folio.model.dto;
+package org.folio.service.migration.models.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
