@@ -290,32 +290,7 @@
           "methods": ["DELETE"],
           "pathPattern": "/batch-voucher-storage/batch-voucher-exports/{id}",
           "permissionsRequired": ["batch-voucher-storage.batch-voucher-exports.item.delete"]
-        },
-    {
-      "id": "orders-storage.purchase-orders",
-      "version": "8.0",
-      "handlers": [
-        {
-          "methods": ["GET"],
-          "pathPattern": "/orders-storage/purchase-orders/{id}",
-          "permissionsRequired": ["orders-storage.purchase-orders.item.get"]
-        },
-        {
-          "methods": ["GET"],
-          "pathPattern": "/orders-storage/purchase-orders",
-          "permissionsRequired": ["orders-storage.purchase-orders.collection.get"]
-        }
-      ]
-    },
-    {
-      "id": "orders-storage.order-invoice-relationships",
-      "version": "1.0",
-      "handlers": [
-        {
-          "methods": ["GET"],
-          "pathPattern": "/orders-storage/order-invoice-relns",
-          "permissionsRequired": ["orders-storage.order-invoice-relationships.collection.get"]
-        }
+         }
       ]
     },
     {
@@ -368,6 +343,17 @@
           "permissionsRequired": ["batch-group-storage.batch-groups.item.delete"]
         }
       ]
+    }
+  ],
+  "requires": [
+
+    {
+      "id": "orders-storage.order-invoice-relationships",
+      "version": "1.0"
+    },
+    {
+      "id": "orders-storage.purchase-orders",
+      "version": "8.0"
     }
   ],
   "permissionSets": [
