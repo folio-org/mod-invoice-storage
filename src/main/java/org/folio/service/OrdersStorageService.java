@@ -37,7 +37,7 @@ public class OrdersStorageService {
   public CompletableFuture<List<PurchaseOrder>> retrievePurchaseOrdersByIdsInChunks(List<String> ids, RequestContext requestContext) {
 
     return collectResultsOnSuccess(ofSubLists(ids, MAX_IDS_FOR_GET_RQ)
-      .map(id -> getPurchaseOrderByIds(id, requestContext)).toList())
+      .map(chunkIds -> getPurchaseOrderByIds(chunkIds, requestContext)).toList())
       .thenApply(lists -> lists.stream()
         .flatMap(Collection::stream)
         .collect(toList()));
