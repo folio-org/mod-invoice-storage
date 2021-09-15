@@ -19,9 +19,9 @@ import java.util.concurrent.CompletableFuture;
 import static org.folio.service.util.CommonServiceUtil.convertIdsToCqlQuery;
 import static org.folio.service.util.CommonServiceUtil.collectResultsOnSuccess;
 
-public class OrdersStorageService {
+public class OrderStorageService {
 
-  private static final Logger logger = LogManager.getLogger(OrdersStorageService.class);
+  private static final Logger logger = LogManager.getLogger(OrderStorageService.class);
 
   public static final int MAX_IDS_FOR_GET_RQ = 15;
   private static final String PURCHASE_ORDER_BY_ID_ENDPOINT = "/orders-storage/purchase-orders/{id}";
@@ -29,11 +29,11 @@ public class OrdersStorageService {
 
   private final RestClient restClient;
 
-  public OrdersStorageService(RestClient restClient) {
+  public OrderStorageService(RestClient restClient) {
     this.restClient = restClient;
   }
 
-  public CompletableFuture<List<PurchaseOrder>> getPurchaseOrderByIds(List<String> ids, RequestContext requestContext) {
+  public CompletableFuture<List<PurchaseOrder>> getPurchaseOrdersByIds(List<String> ids, RequestContext requestContext) {
 
     return collectResultsOnSuccess(ofSubLists(ids, MAX_IDS_FOR_GET_RQ)
       .map(chunkIds -> getOrdersChunk(chunkIds, requestContext)).toList())

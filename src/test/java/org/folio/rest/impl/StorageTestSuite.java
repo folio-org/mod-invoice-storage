@@ -27,7 +27,8 @@ import org.folio.rest.jaxrs.model.TenantJob;
 import org.folio.rest.persist.PostgresClient;
 import org.folio.rest.tools.client.test.HttpClientMock2;
 import org.folio.rest.tools.utils.NetworkUtils;
-import org.folio.service.migration.MigrationServiceTest;
+import org.folio.migration.MigrationServiceTest;
+import org.folio.service.order.OrderStorageServiceTest;
 import org.folio.spring.SpringContextUtil;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -176,5 +177,6 @@ public class StorageTestSuite {
   class MigrationServiceTestNested extends MigrationServiceTest {}
   @Nested
   class TenantReferenceAPITestNested extends TenantReferenceAPITest{}
-
+  @Nested
+  class OrderStorageServiceTestNested extends OrderStorageServiceTest {}
 }

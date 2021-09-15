@@ -1,4 +1,4 @@
-package org.folio.service.migration;
+package org.folio.migration;
 
 import static org.folio.rest.util.ResponseUtils.handleFailure;
 
@@ -8,15 +8,15 @@ import io.vertx.core.Promise;
 import io.vertx.core.json.JsonArray;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.folio.service.migration.models.dto.InvoiceUpdateDto;
+import org.folio.migration.models.dto.InvoiceUpdateDto;
 import org.folio.rest.acq.model.orders.OrderInvoiceRelationship;
 import org.folio.rest.acq.model.orders.OrderInvoiceRelationshipCollection;
 import org.folio.rest.acq.model.orders.PurchaseOrder;
-import org.folio.rest.core.FolioVertxCompletableFuture;
+import org.folio.completablefuture.FolioVertxCompletableFuture;
 import org.folio.rest.core.models.RequestContext;
 import org.folio.rest.persist.DBClient;
 import org.folio.rest.persist.PostgresClient;
-import org.folio.service.order.OrdersStorageService;
+import org.folio.service.order.OrderStorageService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,10 +30,10 @@ public class MigrationService {
 
   private static final Logger log = LogManager.getLogger(MigrationService.class);
   public static final String MATCHING_PO_FROM_INVOICE_REL_AND_ORDER_TABLES_ERROR = "Purchase order was found in invoice_order relation table, but not in purchase order table";
-  private final OrdersStorageService ordersStorageService;
+  private final OrderStorageService orderStorageService;
 
-  public MigrationService(OrdersStorageService ordersStorageService) {
-    this.ordersStorageService = ordersStorageService;
+  public MigrationService(OrderStorageService orderStorageService) {
+    this.orderStorageService = orderStorageService;
   }
 
   public Future<Void> syncOrderPoNumbersWithInvoicePoNumbers(Map<String, String> headers, Context vertxContext) {
@@ -42,9 +42,9 @@ public class MigrationService {
     vertxContext.runOnContext(v -> {
       log.debug("Cross Migration for invoice PO number synchronization started");
       DBClient client = new DBClient(vertxContext, headers);
-      ordersStorageService.getOrderInvoiceRelationshipCollection(requestContext)
+      orderStorageService.getOrderInvoiceRelationshipCollection(requestContext)
         .thenCompose(relationshipCollection -> mapRelationshipsByPoId(relationshipCollection, requestContext).thenCompose(
-            map -> ordersStorageService.getPurchaseOrderByIds(new ArrayList<>(map.keySet()), requestContext)
+            map -> orderStorageService.getPurchaseOrdersByIds(new ArrayList<>(map.keySet()), requestContext)
               .thenApply(purchaseOrders -> convertToInvoiceUpdateDtoList(relationshipCollection, purchaseOrders))))
         .thenAccept(dtoList -> runScriptUpdateInvoicesWithPoNumbers(dtoList, client).onSuccess(v1 -> {
           log.debug("Cross Migration for invoice PO number synchronization completed");

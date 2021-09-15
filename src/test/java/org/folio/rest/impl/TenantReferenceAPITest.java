@@ -15,8 +15,8 @@ import org.folio.rest.core.RestClient;
 import org.folio.rest.jaxrs.model.TenantAttributes;
 import org.folio.rest.jaxrs.model.TenantJob;
 import org.folio.rest.utils.TenantApiTestUtil;
-import org.folio.service.migration.MigrationService;
-import org.folio.service.order.OrdersStorageService;
+import org.folio.migration.MigrationService;
+import org.folio.service.order.OrderStorageService;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -73,13 +73,12 @@ class TenantReferenceAPITest extends TestBase {
   public static class ContextConfiguration {
 
     @Bean
-    MigrationService migrationService(OrdersStorageService ordersStorageService) {
+    MigrationService migrationService(OrderStorageService orderStorageService) {
       return mock(MigrationService.class);
     }
 
-    @Bean
-    OrdersStorageService ordersStorageService(RestClient restClient) {
-      return mock(OrdersStorageService.class);
+    @Bean OrderStorageService ordersStorageService(RestClient restClient) {
+      return mock(OrderStorageService.class);
     }
 
     @Bean

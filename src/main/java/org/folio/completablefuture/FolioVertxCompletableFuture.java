@@ -1,4 +1,4 @@
-package org.folio.rest.core;
+package org.folio.completablefuture;
 
 import io.vertx.core.Context;
 import io.vertx.core.Future;

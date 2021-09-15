@@ -1,4 +1,4 @@
-package org.folio.service.migration;
+package org.folio.migration;
 
 import static java.util.concurrent.CompletableFuture.completedFuture;
 import static org.mockito.ArgumentMatchers.any;
@@ -9,13 +9,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import io.vertx.core.AsyncResult;
-import io.vertx.core.Future;
-import io.vertx.core.Handler;
-import io.vertx.core.Vertx;
-import io.vertx.junit5.VertxExtension;
-import io.vertx.junit5.VertxTestContext;
-
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -23,13 +16,13 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
-import org.folio.service.migration.models.dto.InvoiceUpdateDto;
+import org.folio.migration.models.dto.InvoiceUpdateDto;
 import org.folio.rest.acq.model.orders.OrderInvoiceRelationship;
 import org.folio.rest.acq.model.orders.OrderInvoiceRelationshipCollection;
 import org.folio.rest.acq.model.orders.PurchaseOrder;
 import org.folio.rest.persist.DBClient;
 import org.folio.rest.persist.PostgresClient;
-import org.folio.service.order.OrdersStorageService;
+import org.folio.service.order.OrderStorageService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -38,6 +31,13 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.stubbing.Answer;
 
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Future;
+import io.vertx.core.Handler;
+import io.vertx.core.Vertx;
+import io.vertx.junit5.VertxExtension;
+import io.vertx.junit5.VertxTestContext;
+
 @ExtendWith(VertxExtension.class)
 public
 class MigrationServiceTest {
@@ -45,7 +45,7 @@ class MigrationServiceTest {
   public MigrationService migrationService;
 
   @Mock
-  public OrdersStorageService ordersStorageService;
+  public OrderStorageService orderStorageService;
 
   @Mock
   public DBClient dbClient;
@@ -58,7 +58,7 @@ class MigrationServiceTest {
   @BeforeEach
   public void initMocks() {
     MockitoAnnotations.openMocks(this);
-    migrationService = Mockito.spy(new MigrationService(ordersStorageService));
+    migrationService = Mockito.spy(new MigrationService(orderStorageService));
   }
 
   @Test
@@ -84,9 +84,9 @@ class MigrationServiceTest {
                                                     .withInvoiceId(UUID.randomUUID().toString()).withPurchaseOrderId(orderId3);
 
     relations.withOrderInvoiceRelationships(List.of(relation1, relation2, relation3, relation4));
-    when(ordersStorageService.getOrderInvoiceRelationshipCollection(any()))
+    when(orderStorageService.getOrderInvoiceRelationshipCollection(any()))
                              .thenReturn(completedFuture(relations));
-    when(ordersStorageService.getPurchaseOrderByIds(any(), any()))
+    when(orderStorageService.getPurchaseOrdersByIds(any(), any()))
                              .thenReturn(completedFuture(List.of(order1, order2, order3)));
 
     doReturn(Future.succeededFuture()).when(migrationService).runScriptUpdateInvoicesWithPoNumbers(any(), any());
@@ -94,8 +94,8 @@ class MigrationServiceTest {
     testContext.assertComplete(migrationService.syncOrderPoNumbersWithInvoicePoNumbers(okapiHeaders, vertx.getOrCreateContext()))
       .onComplete(event -> {
         testContext.verify(() -> {
-          verify(ordersStorageService, times(1)).getOrderInvoiceRelationshipCollection(any());
-          verify(ordersStorageService, times(1)).getPurchaseOrderByIds(any(), any());
+          verify(orderStorageService, times(1)).getOrderInvoiceRelationshipCollection(any());
+          verify(orderStorageService, times(1)).getPurchaseOrdersByIds(any(), any());
         });
         testContext.completeNow();
       });
@@ -105,9 +105,9 @@ class MigrationServiceTest {
   void testShouldFailedIfGetOrderInvoiceRelationshipCollectionThrowException(VertxTestContext testContext) {
     Vertx vertx = Vertx.vertx();
 
-    when(ordersStorageService.getOrderInvoiceRelationshipCollection(any()))
+    when(orderStorageService.getOrderInvoiceRelationshipCollection(any()))
       .thenReturn(CompletableFuture.failedFuture(new RuntimeException()));
-    when(ordersStorageService.getPurchaseOrderByIds(any(), any()))
+    when(orderStorageService.getPurchaseOrdersByIds(any(), any()))
       .thenReturn(completedFuture(Collections.emptyList()));
 
     doReturn(Future.succeededFuture()).when(migrationService).runScriptUpdateInvoicesWithPoNumbers(any(), any());
@@ -115,8 +115,8 @@ class MigrationServiceTest {
     testContext.assertFailure(migrationService.syncOrderPoNumbersWithInvoicePoNumbers(okapiHeaders, vertx.getOrCreateContext()))
       .onComplete(event -> {
         testContext.verify(() -> {
-          verify(ordersStorageService, times(1)).getOrderInvoiceRelationshipCollection(any());
-          verify(ordersStorageService, never()).getPurchaseOrderByIds(any(), any());
+          verify(orderStorageService, times(1)).getOrderInvoiceRelationshipCollection(any());
+          verify(orderStorageService, never()).getPurchaseOrdersByIds(any(), any());
         });
         testContext.completeNow();
       });
