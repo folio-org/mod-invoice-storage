@@ -18,6 +18,9 @@ import org.folio.rest.persist.DBClient;
 import org.folio.rest.persist.PostgresClient;
 import org.folio.rest.tools.utils.TenantLoading;
 import org.folio.rest.tools.utils.TenantTool;
+import org.folio.service.migration.MigrationService;
+import org.folio.spring.SpringContextUtil;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Context;
@@ -25,8 +28,6 @@ import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
-import org.folio.service.migration.MigrationService;
-import org.springframework.beans.factory.annotation.Autowired;
 
 public class TenantReferenceAPI extends TenantAPI {
   private static final Logger log = LogManager.getLogger(TenantReferenceAPI.class);
@@ -36,6 +37,11 @@ public class TenantReferenceAPI extends TenantAPI {
 
   @Autowired
   private MigrationService migrationService;
+
+  public TenantReferenceAPI() {
+    SpringContextUtil.autowireDependencies(this, Vertx.currentContext());
+    log.debug("Init TenantReferenceAPI");
+  }
 
   @Override
   public Future<Integer> loadData(TenantAttributes attributes, String tenantId, Map<String, String> headers, Context vertxContext) {

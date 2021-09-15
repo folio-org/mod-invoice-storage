@@ -49,8 +49,13 @@ public class TenantSampleDataTest extends TestBase {
   TenantJob tenantJob;
 
   @BeforeAll
-  static void createFundTable() throws IOException, InterruptedException, ExecutionException, TimeoutException {
-    InputStream tableInput = TenantSampleDataTest.class.getClassLoader().getResourceAsStream("finance_schema.sql");
+  static void createRequiredTables() throws IOException, ExecutionException, InterruptedException, TimeoutException {
+    createTable("finance_schema.sql");
+    createTable("order_schema.sql");
+  }
+
+  private static void createTable(String schemaName) throws IOException, InterruptedException, ExecutionException, TimeoutException {
+    InputStream tableInput = TenantSampleDataTest.class.getClassLoader().getResourceAsStream(schemaName);
     String sqlFile = IOUtils.toString(Objects.requireNonNull(tableInput), StandardCharsets.UTF_8);
     CompletableFuture<Void> schemaCreated = new CompletableFuture<>();
     PostgresClient.getInstance(getVertx()).runSQLFile(sqlFile, false)

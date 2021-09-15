@@ -3,6 +3,7 @@ package org.folio.rest.impl;
 import static io.restassured.RestAssured.given;
 import static org.folio.rest.RestVerticle.OKAPI_HEADER_TENANT;
 import static org.folio.rest.RestVerticle.OKAPI_HEADER_TOKEN;
+import static org.folio.rest.impl.StorageTestSuite.initSpringContext;
 import static org.folio.rest.impl.StorageTestSuite.storageUrl;
 import static org.folio.rest.utils.TestEntities.INVOICE;
 import static org.hamcrest.Matchers.equalTo;
@@ -19,6 +20,7 @@ import java.util.concurrent.TimeoutException;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.folio.config.ApplicationConfig;
 import org.folio.rest.jaxrs.model.BatchVoucher;
 import org.folio.rest.utils.TestEntities;
 import org.junit.jupiter.api.AfterAll;
@@ -60,10 +62,11 @@ public abstract class TestBase {
       invokeStorageTestSuiteAfter = true;
       StorageTestSuite.before();
     }
+    initSpringContext(ApplicationConfig.class);
   }
 
   @AfterAll
-  public static void testBaseAfterClass() throws InterruptedException, ExecutionException, TimeoutException {
+  public static void testBaseAfterClass()  throws InterruptedException, ExecutionException, TimeoutException, MalformedURLException {
     if (invokeStorageTestSuiteAfter) {
       StorageTestSuite.after();
     }

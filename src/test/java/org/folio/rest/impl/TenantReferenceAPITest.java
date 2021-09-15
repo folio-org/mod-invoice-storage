@@ -11,10 +11,6 @@ import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-import io.restassured.http.Header;
-import java.io.IOException;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeoutException;
 import org.folio.rest.core.RestClient;
 import org.folio.rest.jaxrs.model.TenantAttributes;
 import org.folio.rest.jaxrs.model.TenantJob;
@@ -29,6 +25,8 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+
+import io.restassured.http.Header;
 
 class TenantReferenceAPITest extends TestBase {
 
@@ -45,7 +43,7 @@ class TenantReferenceAPITest extends TestBase {
   }
 
   @BeforeAll
-  public static void before() throws InterruptedException, ExecutionException, TimeoutException, IOException {
+  public static void before()  {
     initSpringContext(ContextConfiguration.class);
   }
 
@@ -57,6 +55,19 @@ class TenantReferenceAPITest extends TestBase {
   @AfterAll
   public static void after() {
     deleteTenant(tenantJob, MIGRATION_TENANT_HEADER);
+  }
+
+  @ParameterizedTest
+  @CsvSource({
+    "mod-invoice-storage-5.0.0,1",
+    "mod-invoice-storage-5.2.0,0",
+    ",0"
+  })
+  void testToVerifyWhetherMigrationForDifferentVersionShouldRun(String version, Integer times) {
+    TenantAttributes tenantAttributes = TenantApiTestUtil.prepareTenantBody(false, false);
+    tenantAttributes.setModuleFrom(version);
+    tenantJob = postTenant(MIGRATION_TENANT_HEADER, tenantAttributes);
+    verify(migrationService, times(times)).syncOrderPoNumbersWithInvoicePoNumbers(any(), any());
   }
 
   public static class ContextConfiguration {
@@ -75,18 +86,5 @@ class TenantReferenceAPITest extends TestBase {
     RestClient restClient() {
       return mock(RestClient.class);
     }
-  }
-
-  @ParameterizedTest
-  @CsvSource({
-    "mod-invoice-storage-.5.1.0",
-    "mod-invoice-storage-.5.2.0",
-    ",0"
-  })
-  void testToVerifyWhetherMigrationForDifferentVersionShouldRun(String version, Integer times) {
-    TenantAttributes tenantAttributes = TenantApiTestUtil.prepareTenantBody(false, false);
-    tenantAttributes.setModuleFrom(version);
-    tenantJob = postTenant(MIGRATION_TENANT_HEADER, tenantAttributes);
-    verify(migrationService, times(times)).syncOrderPoNumbersWithInvoicePoNumbers(any(), any());
   }
 }

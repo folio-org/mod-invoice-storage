@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
 public class MigrationService {
 
   private static final Logger log = LogManager.getLogger(MigrationService.class);
-  public static final String MATCHING_PO_FROM_INVOICE_REL_AND_ORDER_TABLES_ERROR = "Purchase order was found in invoice_order relashion table, but not in purchase order table";
+  public static final String MATCHING_PO_FROM_INVOICE_REL_AND_ORDER_TABLES_ERROR = "Purchase order was found in invoice_order relation table, but not in purchase order table";
   private final OrdersStorageService ordersStorageService;
 
   public MigrationService(OrdersStorageService ordersStorageService) {

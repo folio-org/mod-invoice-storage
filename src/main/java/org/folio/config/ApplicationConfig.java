@@ -1,14 +1,15 @@
 package org.folio.config;
 
+import org.folio.dao.invoice.InvoiceDAO;
+import org.folio.dao.invoice.InvoicePostgresDAO;
 import org.folio.rest.core.RestClient;
+import org.folio.service.InvoiceStorageService;
 import org.folio.service.migration.MigrationService;
 import org.folio.service.order.OrdersStorageService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
 
 @Configuration
-@Import({DAOConfiguration.class, ServicesConfiguration.class})
 public class ApplicationConfig {
 
   @Bean
@@ -26,4 +27,13 @@ public class ApplicationConfig {
     return new MigrationService(ordersStorageService);
   }
 
+  @Bean
+  public InvoiceDAO invoiceDAO() {
+    return new InvoicePostgresDAO();
+  }
+
+  @Bean
+  public InvoiceStorageService invoiceStorageService(InvoiceDAO invoiceDAO) {
+    return new InvoiceStorageService(invoiceDAO);
+  }
 }
