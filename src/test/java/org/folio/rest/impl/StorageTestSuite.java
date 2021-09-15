@@ -15,30 +15,31 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import io.vertx.core.AbstractVerticle;
-import io.vertx.core.Context;
-import io.vertx.core.Verticle;
-import io.vertx.core.impl.VertxImpl;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.folio.migration.MigrationServiceTest;
 import org.folio.postgres.testing.PostgresTesterContainer;
 import org.folio.rest.RestVerticle;
 import org.folio.rest.jaxrs.model.TenantJob;
 import org.folio.rest.persist.PostgresClient;
 import org.folio.rest.tools.client.test.HttpClientMock2;
 import org.folio.rest.tools.utils.NetworkUtils;
-import org.folio.migration.MigrationServiceTest;
+import org.folio.rest.utils.HelperUtilsTest;
 import org.folio.service.order.OrderStorageServiceTest;
 import org.folio.spring.SpringContextUtil;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Nested;
+import org.testcontainers.containers.PostgreSQLContainer;
 
 import io.restassured.http.Header;
+import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Context;
 import io.vertx.core.DeploymentOptions;
+import io.vertx.core.Verticle;
 import io.vertx.core.Vertx;
+import io.vertx.core.impl.VertxImpl;
 import io.vertx.core.json.JsonObject;
-import org.testcontainers.containers.PostgreSQLContainer;
 
 public class StorageTestSuite {
   private static final Logger logger = LogManager.getLogger(StorageTestSuite.class);
@@ -164,7 +165,7 @@ public class StorageTestSuite {
   @Nested
   class DocumentTestNested extends DocumentTest {}
   @Nested
-  class HelperUtilsTestNested extends HelperUtilsTest{}
+  class HelperUtilsTestNested extends HelperUtilsTest {}
   @Nested
   class ExportConfigCredentialsTestNested extends ExportConfigCredentialsTest {}
   @Nested

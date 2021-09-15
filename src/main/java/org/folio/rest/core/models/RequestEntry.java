@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static org.folio.rest.persist.HelperUtils.encodeQuery;
+import static org.folio.rest.utils.HelperUtils.encodeQuery;
 
 public class RequestEntry {
 

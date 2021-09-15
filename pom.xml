@@ -26,7 +26,7 @@
     <generated_sources_dir>${project.build.directory}/generated-sources</generated_sources_dir>
     <jsonschema2pojo_output_dir>${generated_sources_dir}/jsonschema2pojo</jsonschema2pojo_output_dir>
     <spring.version>5.2.6.RELEASE</spring.version>
-    <sonar.exclusions>**/models/*.java, **/completablefuture/FolioVertxCompletableFuture.java</sonar.exclusions>
+    <sonar.exclusions>**/models/**.java, **/completablefuture/FolioVertxCompletableFuture.java</sonar.exclusions>
     <sonar.test.exclusions>**/*Test.java</sonar.test.exclusions>
     <argLine />
   </properties>

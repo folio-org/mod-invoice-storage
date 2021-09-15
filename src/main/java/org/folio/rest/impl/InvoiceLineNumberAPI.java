@@ -1,6 +1,6 @@
 package org.folio.rest.impl;
 
-import static org.folio.rest.persist.HelperUtils.SequenceQuery.GET_IL_NUMBER_FROM_SEQUENCE;
+import static org.folio.rest.utils.HelperUtils.SequenceQuery.GET_IL_NUMBER_FROM_SEQUENCE;
 
 import java.util.Map;
 

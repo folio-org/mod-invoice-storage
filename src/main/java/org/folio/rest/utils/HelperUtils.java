@@ -1,4 +1,4 @@
-package org.folio.rest.persist;
+package org.folio.rest.utils;
 
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 

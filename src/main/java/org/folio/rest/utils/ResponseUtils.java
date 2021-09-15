@@ -1,4 +1,4 @@
-package org.folio.rest.util;
+package org.folio.rest.utils;
 
 import static javax.ws.rs.core.HttpHeaders.CONTENT_TYPE;
 import static javax.ws.rs.core.HttpHeaders.LOCATION;

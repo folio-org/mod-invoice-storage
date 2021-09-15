@@ -1,6 +1,6 @@
 package org.folio.migration;
 
-import static org.folio.rest.util.ResponseUtils.handleFailure;
+import static org.folio.rest.utils.ResponseUtils.handleFailure;
 
 import io.vertx.core.Context;
 import io.vertx.core.Future;

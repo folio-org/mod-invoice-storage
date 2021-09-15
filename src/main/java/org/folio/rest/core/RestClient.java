@@ -14,7 +14,7 @@ import java.util.concurrent.CompletableFuture;
 
 import static java.util.Objects.nonNull;
 import static org.folio.rest.RestVerticle.OKAPI_HEADER_TENANT;
-import static org.folio.rest.persist.HelperUtils.verifyAndExtractBody;
+import static org.folio.rest.utils.HelperUtils.verifyAndExtractBody;
 
 public class RestClient {
 
