@@ -24,7 +24,8 @@ public class OrderStorageService {
   private static final Logger logger = LogManager.getLogger(OrderStorageService.class);
 
   public static final int MAX_IDS_FOR_GET_RQ = 15;
-  private static final String PURCHASE_ORDER_BY_ID_ENDPOINT = "/orders-storage/purchase-orders/{id}";
+  private static final String PURCHASE_ORDER_ENDPOINT = "/orders-storage/purchase-orders";
+  private static final String PURCHASE_ORDER_BY_ID_ENDPOINT = PURCHASE_ORDER_ENDPOINT + "/{id}";
   private static final String ORDER_INVOICE_RELATIONSHIP_ENDPOINT = "/orders-storage/order-invoice-relns";
 
   private final RestClient restClient;
@@ -45,7 +46,7 @@ public class OrderStorageService {
   private CompletableFuture<List<PurchaseOrder>> getOrdersChunk(List<String> ids, RequestContext requestContext) {
     String query = convertIdsToCqlQuery(ids, "id");
 
-    RequestEntry requestEntry = new RequestEntry(PURCHASE_ORDER_BY_ID_ENDPOINT)
+    RequestEntry requestEntry = new RequestEntry(PURCHASE_ORDER_ENDPOINT)
       .withQuery(query)
       .withLimit(Integer.MAX_VALUE)
       .withOffset(0);
