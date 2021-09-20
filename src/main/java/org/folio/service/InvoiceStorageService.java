@@ -5,12 +5,12 @@ import static org.folio.rest.impl.InvoiceStorageImpl.DOCUMENT_TABLE;
 import static org.folio.rest.impl.InvoiceStorageImpl.INVOICE_ID_FIELD_NAME;
 import static org.folio.rest.impl.InvoiceStorageImpl.INVOICE_PREFIX;
 import static org.folio.rest.impl.InvoiceStorageImpl.INVOICE_TABLE;
-import static org.folio.rest.persist.HelperUtils.combineCqlExpressions;
-import static org.folio.rest.util.ResponseUtils.buildContentResponse;
-import static org.folio.rest.util.ResponseUtils.buildErrorResponse;
-import static org.folio.rest.util.ResponseUtils.buildNoContentResponse;
-import static org.folio.rest.util.ResponseUtils.buildResponseWithLocation;
-import static org.folio.rest.util.RestConstants.OKAPI_URL;
+import static org.folio.rest.utils.HelperUtils.combineCqlExpressions;
+import static org.folio.rest.utils.ResponseUtils.buildContentResponse;
+import static org.folio.rest.utils.ResponseUtils.buildErrorResponse;
+import static org.folio.rest.utils.ResponseUtils.buildNoContentResponse;
+import static org.folio.rest.utils.ResponseUtils.buildResponseWithLocation;
+import static org.folio.rest.utils.RestConstants.OKAPI_URL;
 
 import java.util.Map;
 

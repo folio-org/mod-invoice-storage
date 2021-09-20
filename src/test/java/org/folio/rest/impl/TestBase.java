@@ -3,6 +3,7 @@ package org.folio.rest.impl;
 import static io.restassured.RestAssured.given;
 import static org.folio.rest.RestVerticle.OKAPI_HEADER_TENANT;
 import static org.folio.rest.RestVerticle.OKAPI_HEADER_TOKEN;
+import static org.folio.rest.impl.StorageTestSuite.initSpringContext;
 import static org.folio.rest.impl.StorageTestSuite.storageUrl;
 import static org.folio.rest.utils.TestEntities.INVOICE;
 import static org.hamcrest.Matchers.equalTo;
@@ -19,6 +20,7 @@ import java.util.concurrent.TimeoutException;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.folio.config.ApplicationConfig;
 import org.folio.rest.jaxrs.model.BatchVoucher;
 import org.folio.rest.utils.TestEntities;
 import org.junit.jupiter.api.AfterAll;
@@ -43,13 +45,13 @@ public abstract class TestBase {
 
   private static boolean invokeStorageTestSuiteAfter = false;
 
-  static final String ISOLATED_TENANT = "isolated";
-  static final String NON_EXISTED_ID = "bad500aa-aaaa-500a-aaaa-aaaaaaaaaaaa";
-  static final Header TENANT_HEADER = new Header(OKAPI_HEADER_TENANT, "diku");
-  static final Header TENANT_WITHOUT_DB_HEADER = new Header(OKAPI_HEADER_TENANT, "no_db_tenant");
-  static final Header USER_ID_HEADER = new Header("X-Okapi-User-id", "28d0fb04-d137-11e8-a8d5-f2801f1b9fd1");
-  static final Header X_OKAPI_TOKEN = new Header(OKAPI_HEADER_TOKEN, "eyJhbGciOiJIUzI1NiJ9");
-  static final Header ISOLATED_TENANT_HEADER = new Header(OKAPI_HEADER_TENANT, ISOLATED_TENANT);
+  public static final String ISOLATED_TENANT = "isolated";
+  public static final String NON_EXISTED_ID = "bad500aa-aaaa-500a-aaaa-aaaaaaaaaaaa";
+  public static final Header TENANT_HEADER = new Header(OKAPI_HEADER_TENANT, "diku");
+  public static final Header TENANT_WITHOUT_DB_HEADER = new Header(OKAPI_HEADER_TENANT, "no_db_tenant");
+  public static final Header USER_ID_HEADER = new Header("X-Okapi-User-id", "28d0fb04-d137-11e8-a8d5-f2801f1b9fd1");
+  public static final Header X_OKAPI_TOKEN = new Header(OKAPI_HEADER_TOKEN, "eyJhbGciOiJIUzI1NiJ9");
+  public static final Header ISOLATED_TENANT_HEADER = new Header(OKAPI_HEADER_TENANT, ISOLATED_TENANT);
 
   public static final String ID = "id";
 
@@ -60,10 +62,11 @@ public abstract class TestBase {
       invokeStorageTestSuiteAfter = true;
       StorageTestSuite.before();
     }
+    initSpringContext(ApplicationConfig.class);
   }
 
   @AfterAll
-  public static void testBaseAfterClass() throws InterruptedException, ExecutionException, TimeoutException {
+  public static void testBaseAfterClass()  throws InterruptedException, ExecutionException, TimeoutException, MalformedURLException {
     if (invokeStorageTestSuiteAfter) {
       StorageTestSuite.after();
     }

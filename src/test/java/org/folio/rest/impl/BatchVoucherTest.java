@@ -117,7 +117,7 @@ public class BatchVoucherTest extends TestBase {
   }
 
   @Test
-  void testGetShouldReturn422IfProvidedIdHasIncorrectFormat() throws MalformedURLException {
+  void testGetShouldReturn400IfProvidedIdHasIncorrectFormat() throws MalformedURLException {
     postData(BATCH_VOUCHER_ENDPOINT, BATCH_VOUCHER_WITHOUT_ID.toString()).path(ID);
 
     given()

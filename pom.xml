@@ -23,6 +23,11 @@
     <jmockit.version>1.49</jmockit.version>
     <testcontainers.version>1.15.3</testcontainers.version>
     <postgres.image>postgres:12-alpine</postgres.image>
+    <generated_sources_dir>${project.build.directory}/generated-sources</generated_sources_dir>
+    <jsonschema2pojo_output_dir>${generated_sources_dir}/jsonschema2pojo</jsonschema2pojo_output_dir>
+    <spring.version>5.2.6.RELEASE</spring.version>
+    <sonar.exclusions>**/models/**.java, **/completablefuture/FolioVertxCompletableFuture.java</sonar.exclusions>
+    <sonar.test.exclusions>**/*Test.java</sonar.test.exclusions>
     <argLine />
   </properties>
 
@@ -110,6 +115,22 @@
       <version>0.7.3</version>
     </dependency>
     <dependency>
+      <groupId>commons-lang</groupId>
+      <artifactId>commons-lang</artifactId>
+      <version>2.6</version>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-test</artifactId>
+      <version>${spring.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-context</artifactId>
+      <version>${spring.version}</version>
+    </dependency>
+    <dependency>
       <groupId>org.testcontainers</groupId>
       <artifactId>postgresql</artifactId>
       <version>${testcontainers.version}</version>
@@ -132,6 +153,18 @@
       <version>${raml-module-builder.version}</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-junit-jupiter</artifactId>
+      <version>3.4.6</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.vertx</groupId>
+      <artifactId>vertx-junit5</artifactId>
+      <version>${vertx.version}</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>
@@ -151,6 +184,56 @@
           <release>11</release>
           <encoding>UTF-8</encoding>
         </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>properties-maven-plugin</artifactId>
+        <version>1.0.0</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>set-system-properties</goal>
+            </goals>
+            <configuration>
+              <properties>
+                <property>
+                  <name>jsonschema2pojo.config.includeHashcodeAndEquals</name>
+                  <value>true</value>
+                </property>
+              </properties>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.jsonschema2pojo</groupId>
+        <artifactId>jsonschema2pojo-maven-plugin</artifactId>
+        <version>1.0.2</version>
+        <configuration>
+          <includes>*.json</includes>
+          <outputDirectory>${jsonschema2pojo_output_dir}</outputDirectory>
+          <generateBuilders>true</generateBuilders>
+        </configuration>
+        <executions>
+          <execution>
+            <id>mod-orders-storage</id>
+            <goals>
+              <goal>generate</goal>
+            </goals>
+            <configuration>
+              <includes>
+                <include>purchase_order.json</include>
+                <include>purchase_order_collection.json</include>
+                <include>order_invoice_relationship.json</include>
+                <include>order_invoice_relationship_collection.json</include>
+              </includes>
+              <sourceDirectory>${basedir}/ramls/acq-models/mod-orders-storage/schemas</sourceDirectory>
+              <targetPackage>org.folio.rest.acq.model.orders</targetPackage>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
 
       <plugin>
@@ -194,18 +277,6 @@
               </sources>
             </configuration>
           </execution>
-          <execution>
-            <id>reserve-db-port</id>
-            <phase>initialize</phase>
-            <goals>
-              <goal>reserve-network-port</goal>
-            </goals>
-            <configuration>
-              <portNames>
-                <portName>db.port</portName>
-              </portNames>
-            </configuration>
-          </execution>
         </executions>
       </plugin>
       <plugin>
@@ -221,6 +292,7 @@
           </execution>
         </executions>
       </plugin>
+
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>exec-maven-plugin</artifactId>
@@ -244,6 +316,7 @@
           </execution>
         </executions>
       </plugin>
+
       <plugin>
         <groupId>com.nickwongdev</groupId>
         <artifactId>aspectj-maven-plugin</artifactId>
@@ -426,6 +499,8 @@
           <localCheckout>true</localCheckout>
         </configuration>
       </plugin>
+
+
 
     </plugins>
   </build>

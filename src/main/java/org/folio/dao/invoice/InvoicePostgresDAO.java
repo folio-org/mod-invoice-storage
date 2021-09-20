@@ -4,9 +4,9 @@ import static org.folio.rest.impl.InvoiceStorageImpl.DOCUMENT_TABLE;
 import static org.folio.rest.impl.InvoiceStorageImpl.INVOICE_ID_FIELD_NAME;
 import static org.folio.rest.impl.InvoiceStorageImpl.INVOICE_LINE_TABLE;
 import static org.folio.rest.impl.InvoiceStorageImpl.INVOICE_TABLE;
-import static org.folio.rest.persist.HelperUtils.SequenceQuery.CREATE_SEQUENCE;
-import static org.folio.rest.persist.HelperUtils.SequenceQuery.DROP_SEQUENCE;
-import static org.folio.rest.util.ResponseUtils.handleFailure;
+import static org.folio.rest.utils.HelperUtils.SequenceQuery.CREATE_SEQUENCE;
+import static org.folio.rest.utils.HelperUtils.SequenceQuery.DROP_SEQUENCE;
+import static org.folio.rest.utils.ResponseUtils.handleFailure;
 
 import java.util.UUID;
 

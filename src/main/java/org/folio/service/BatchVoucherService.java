@@ -1,7 +1,7 @@
 package org.folio.service;
 
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
-import static org.folio.rest.util.ResponseUtils.handleNoContentResponse;
+import static org.folio.rest.utils.ResponseUtils.handleNoContentResponse;
 
 import java.util.Map;
 
