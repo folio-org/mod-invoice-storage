@@ -56,6 +56,11 @@
     },
     {
       "run": "after",
+      "snippetPath": "data-migration/5.2.0/restriction_for_fund_codes.sql",
+      "fromModuleVersion": "mod-invoice-storage-5.2.0"
+    },
+    {
+      "run": "after",
       "snippetPath": "data-migration/5.2.0/update_invoices_with_po_numbers.sql",
       "fromModuleVersion": "mod-invoice-storage-5.2.0"
     }
