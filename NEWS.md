@@ -1,4 +1,15 @@
-## 5.2.0 - Unreleased
+## 5.3.0 - Unreleased
+
+## 5.2.0 - Released
+The primary focus of this release was to perform migration scripts according to schema changes
+
+[Full Changelog](https://github.com/folio-org/mod-invoice-storage/compare/v5.1.0...v5.2.0)
+
+### Stories
+* [MODINVOSTO-122](https://issues.folio.org/browse/MODINVOSTO-122) - Migration script for Fund code in the fund distribution
+* [MODINVOSTO-119](https://issues.folio.org/browse/MODINVOSTO-119) - Cancel invoice: Update voucher and transaction schema with new fields
+* [MODINVOSTO-73](https://issues.folio.org/browse/MODINVOSTO-73) - poNumbers cross-module migration
+
 
 ## 5.1.0 - Released
 The primary focus of this release was to update RMB version up to v33.0.0, various schema fields updated as well
