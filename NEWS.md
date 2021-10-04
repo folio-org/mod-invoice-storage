@@ -10,7 +10,6 @@ The primary focus of this release was to perform migration scripts according to 
 * [MODINVOSTO-120](https://issues.folio.org/browse/MODINVOSTO-120) - Cannot set voucher "Starting number" or reset sequence
 * [MODINVOSTO-119](https://issues.folio.org/browse/MODINVOSTO-119) - Cancel invoice: Update voucher and transaction schema with new fields
 * [MODINVOSTO-73](https://issues.folio.org/browse/MODINVOSTO-73) - poNumbers cross-module migration
-* [FOLIO-2917](https://issues.folio.org/browse/FOLIO-2917) - Develop CI job to ensure API JSON Schema has property descriptions
 
 
 ## 5.1.0 - Released
