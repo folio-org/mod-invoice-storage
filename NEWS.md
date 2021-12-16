@@ -1,5 +1,14 @@
 ## 5.3.0 - Unreleased
 
+## 5.2.1 - Released
+This bugfix release focused on fixing Log4j vulnerability
+
+[Full Changelog](https://github.com/folio-org/mod-invoice-storage/compare/v5.2.0...v5.2.1)
+
+### Bug Fixes
+
+* [MODINVOSTO-134](https://issues.folio.org/browse/MODINVOSTO-134) - Kiwi R3 2021 - Log4j vulnerability verification and correction
+
 ## 5.2.0 - Released
 The primary focus of this release was to perform migration scripts according to schema changes
 
