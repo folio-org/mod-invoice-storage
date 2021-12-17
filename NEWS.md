@@ -1,5 +1,15 @@
 ## 5.2.0 - Unreleased
 
+## 5.1.2 - Released
+
+The focus of this release was to fix Log4j vulnerability
+
+[Full Changelog](https://github.com/folio-org/mod-invoice-storage/compare/v5.1.1...v5.1.2)
+
+### Bug Fixes
+
+* [MODINVOSTO-135](https://issues.folio.org/browse/MODINVOSTO-135) - Juniper R2 2021 - Log4j vulnerability verification and correction
+
 ## 5.1.1 - Released
 The primary focus of this release was to fix type of error returned when generating the start number of the voucher
 
