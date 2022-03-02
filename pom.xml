@@ -28,6 +28,7 @@
     <spring.version>5.2.6.RELEASE</spring.version>
     <sonar.exclusions>**/models/**.java, **/completablefuture/FolioVertxCompletableFuture.java</sonar.exclusions>
     <sonar.test.exclusions>**/*Test.java</sonar.test.exclusions>
+    <log4j.version>2.17.2</log4j.version>
     <argLine />
   </properties>
 
