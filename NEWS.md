@@ -1,4 +1,13 @@
-## 5.3.0 - Unreleased
+## 5.4.0 - Unreleased
+
+## 5.3.0 - Released
+The primary focus of this release was to fox log4j security issue
+
+[Full Changelog](https://github.com/folio-org/mod-invoice-storage/compare/v5.2.0...v5.3.0)
+
+### Stories
+* [MODINVOSTO-140](https://issues.folio.org/browse/MODINVOSTO-140) - Update Log4J dependency
+  
 
 ## 5.2.0 - Released
 The primary focus of this release was to perform migration scripts according to schema changes
