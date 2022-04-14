@@ -115,7 +115,7 @@
           "removeAccents": true
         }
       ],
-      "likeIndex": [
+      "ginIndex": [
         {
           "fieldName": "acqUnitIds",
           "tOps": "ADD",
@@ -146,7 +146,7 @@
           "removeAccents": true
         }
       ],
-      "likeIndex": [
+      "ginIndex": [
         {
           "fieldName": "poLineId",
           "tOps": "ADD",
@@ -166,7 +166,7 @@
           "tOps": "DELETE"
         }
       ],
-      "likeIndex": [
+      "ginIndex": [
         {
           "fieldName": "exportToAccounting",
           "tOps": "ADD",
