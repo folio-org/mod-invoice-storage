@@ -107,6 +107,22 @@
           "tableAlias": "invoices"
         }
       ],
+      "fullTextIndex": [
+        {
+          "fieldName": "acqUnitIds",
+          "tOps": "ADD",
+          "caseSensitive": false,
+          "removeAccents": true
+        }
+      ],
+      "ginIndex": [
+        {
+          "fieldName": "acqUnitIds",
+          "tOps": "ADD",
+          "caseSensitive": false,
+          "removeAccents": true
+        }
+      ],
       "customSnippetPath": "invoice_number_sequence.sql"
     },
     {
@@ -129,6 +145,14 @@
           "caseSensitive": false,
           "removeAccents": true
         }
+      ],
+      "ginIndex": [
+        {
+          "fieldName": "poLineId",
+          "tOps": "ADD",
+          "caseSensitive": false,
+          "removeAccents": true
+        }
       ]
     },
     {
@@ -140,6 +164,22 @@
         {
           "fieldName": "voucherNumber",
           "tOps": "DELETE"
+        }
+      ],
+      "ginIndex": [
+        {
+          "fieldName": "exportToAccounting",
+          "tOps": "ADD",
+          "caseSensitive": false,
+          "removeAccents": true
+        }
+      ],
+      "index": [
+        {
+          "fieldName": "voucherDate",
+          "tOps": "ADD",
+          "caseSensitive": false,
+          "removeAccents": true
         }
       ],
       "foreignKeys": [
