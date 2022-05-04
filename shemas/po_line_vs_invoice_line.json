@@ -1,0 +1,35 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "description": "po line vs invoice line",
+  "type": "object",
+  "properties": {
+    "id": {
+      "description": "Unique identifier",
+      "$ref": "../common/schemas/uuid.json"
+    },
+    "poLineId": {
+      "description": "Reference on order line",
+      "$ref": "../common/schemas/uuid.json"
+    },
+    "poLineNumber": {
+      "description": "Number of the order line",
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9]{1,22}-[0-9]{1,3}$"
+    },
+    "invoiceLineId": {
+      "description": "Reference on invoice line",
+      "$ref": "../common/schemas/uuid.json"
+    },
+    "invoiceLineNumber": {
+      "description": "Number of the invoice line",
+      "type": "string"
+    }
+  },
+  "required": [
+    "id",
+    "poLineId",
+    "poLineNumber",
+    "invoiceLineId",
+    "invoiceLineNumber"
+  ]
+}
