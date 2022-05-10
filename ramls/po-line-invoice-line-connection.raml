@@ -1,0 +1,51 @@
+#%RAML 1.0
+title: API for the order line number with which the invoice line is associated
+baseUri: http://github.com/folio-org/mod-invoice-storage
+version: v1
+
+documentation:
+  - title:  the order line number with which the invoice line is associated
+    content: <b>API used to manage the order line number with which the invoice line is associated</b>
+
+types:
+  po-line-invoice-line: !include acq-models/mod-invoice-storage/schemas/po_line_vs_invoice_line.json
+  po-line-invoice-line-collection: !include acq-models/mod-invoice-storage/schemas/po_line_vs_invoice_line_collection.json
+  errors: !include raml-util/schemas/errors.schema
+  sequenceNumber: !include acq-models/common/schemas/sequence_number.json
+  UUID:
+    type: string
+    pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$
+
+traits:
+  validate: !include raml-util/traits/validation.raml
+  language: !include raml-util/traits/language.raml
+  pageable:  !include raml-util/traits/pageable.raml
+  searchable: !include raml-util/traits/searchable.raml
+
+resourceTypes:
+  collection: !include raml-util/rtypes/collection.raml
+  collection-item: !include raml-util/rtypes/item-collection.raml
+
+
+/invoice-storage/po-line-number:
+  type:
+    collection:
+      schemaCollection: po-line-invoice-line-collection
+      schemaItem: po-line-invoice-line
+      exampleCollection: !include acq-models/mod-invoice-storage/examples/po_line_invoice_line_collection.sample
+      exampleItem: !include acq-models/mod-invoice-storage/examples/po_line_vs_invoice_line.sample
+  get:
+    description: Get list of po line invoice lines
+    is: [
+      pageable,
+      searchable: { description: "with valid searchable fields: for example poLineId", example: "poLineId==\"c0d08448-347b-418a-8c2f-5fb50248d67e\"" }
+    ]
+  /{id}:
+    uriParameters:
+      id:
+        description: The UUID of an po line invoice line
+        type: UUID
+    type:
+      collection-item:
+        schema: po-line-invoice-line
+        exampleItem: !include acq-models/mod-invoice-storage/examples/po_line_vs_invoice_line.sample
