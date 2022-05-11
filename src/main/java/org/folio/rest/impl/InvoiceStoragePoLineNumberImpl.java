@@ -14,21 +14,14 @@ import java.util.Map;
 public class InvoiceStoragePoLineNumberImpl implements InvoiceStoragePoLineNumber {
   public static final String PO_LINE_INVOICE_LINE_TABLE = "po_line_vs_invoice_lines";
 
-
-
   @Override
   public void getInvoiceStoragePoLineNumber(int offset, int limit, String query, String lang, Map<String, String> okapiHeaders, Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
-    System.out.print("inside : getInvoiceStoragePoLineNumber");
-
     PgUtil.get(PO_LINE_INVOICE_LINE_TABLE, PoLineInvoiceLine.class, PoLineInvoiceLineCollection.class, query, offset, limit, okapiHeaders, vertxContext,
       InvoiceStoragePoLineNumber.GetInvoiceStoragePoLineNumberResponse.class, asyncResultHandler);
   }
 
   @Override
   public void postInvoiceStoragePoLineNumber(String lang, PoLineInvoiceLine entity, Map<String, String> okapiHeaders, Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
-    //invoiceStorageService.postInvoiceStorageInvoices(entity, asyncResultHandler, vertxContext, okapiHeaders);
-    System.out.print("inside : postInvoiceStoragePoLineNumber");
-
     PgUtil.post(PO_LINE_INVOICE_LINE_TABLE, entity, okapiHeaders, vertxContext, InvoiceStoragePoLineNumber.PostInvoiceStoragePoLineNumberResponse.class,
       asyncResultHandler);
   }
