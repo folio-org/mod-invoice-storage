@@ -8,6 +8,11 @@
       "handlers": [
         {
           "methods": ["GET"],
+          "pathPattern": "/invoice-storage/po-line-number",
+          "permissionsRequired": ["invoice-storage.po-line-number.item.get"]
+        },
+        {
+          "methods": ["GET"],
           "pathPattern": "/invoice-storage/invoices",
           "permissionsRequired": ["invoice-storage.invoices.collection.get"]
         },
@@ -358,6 +363,11 @@
   ],
   "permissionSets": [
     {
+      "permissionName": "invoice-storage.po-line-number.item.get",
+      "displayName": "Invoice storage - get purchase order number",
+      "description": "get purchase order number"
+    },
+    {
       "permissionName": "invoice-storage.invoices.collection.get",
       "displayName": "Invoice storage - get invoice collection",
       "description": "Get invoice collection"
@@ -676,6 +686,7 @@
       "displayName": "Invoice storage module - all permissions",
       "description": "Entire set of permissions needed to use the invoice module",
       "subPermissions": [
+        "invoice-storage.po-line-number.item.get",
         "invoice-storage.invoices.collection.get",
         "invoice-storage.invoices.item.get",
         "invoice-storage.invoices.item.post",
