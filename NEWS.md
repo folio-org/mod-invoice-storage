@@ -1,4 +1,14 @@
-## 5.4.0 - Unreleased
+## 5.5.0 - Unreleased
+
+## 5.4.0 - Released (Morning Glory R2 2022)
+The primary focus of this release was to improve performance and update RMB dependency
+
+[Full Changelog](https://github.com/folio-org/mod-invoice-storage/compare/v5.3.0...v5.4.0)
+
+### Stories
+* [MODINVOSTO-145](https://issues.folio.org/browse/MODINVOSTO-145) - Upgrade RAML Module Builder
+* [MODINVOSTO-133](https://issues.folio.org/browse/MODINVOSTO-133) - Add indexes to improve searching speed of invoices
+
 
 ## 5.3.0 - Released
 The primary focus of this release was to fox log4j security issue
