@@ -220,7 +220,7 @@
           "targetTable": "invoices"
         }
       ],
-      "customSnippetPath" : "document_table.sql"
+      "customSnippetPath": "document_table.sql"
     },
     {
       "tableName": "batch_vouchers",
@@ -243,6 +243,34 @@
           "targetTable": "batch_vouchers",
           "targetTableAlias": "batchVouchers",
           "tableAlias": "batchVoucherExports"
+        }
+      ]
+    },
+    {
+      "tableName": "po_line_vs_invoice_line",
+      "fromModuleVersion": "mod-invoice-storage-5.4.1",
+      "withMetadata": true,
+      "foreignKeys": [
+        {
+          "fieldName": "invoiceLineNumber",
+          "targetTable": "invoices",
+          "tableAlias": "poLineVsIinvoiceLline",
+          "targetTableAlias": "invoices",
+          "tOps": "ADD"
+        }
+      ],
+      "index": [
+        {
+          "fieldName": "poLineNumber",
+          "tOps": "ADD",
+          "caseSensitive": false,
+          "removeAccents": true
+        },
+        {
+          "fieldName": "invoiceLineNumber",
+          "tOps": "ADD",
+          "caseSensitive": false,
+          "removeAccents": true
         }
       ]
     }

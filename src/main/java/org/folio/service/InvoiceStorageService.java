@@ -24,8 +24,7 @@ import org.folio.rest.jaxrs.model.Document;
 import org.folio.rest.jaxrs.model.DocumentCollection;
 import org.folio.rest.jaxrs.model.Invoice;
 import org.folio.rest.jaxrs.model.InvoiceDocument;
-import org.folio.rest.jaxrs.resource.InvoiceStorage.GetInvoiceStorageInvoicesDocumentsByIdResponse;
-import org.folio.rest.jaxrs.resource.InvoiceStorage.PutInvoiceStorageInvoicesByIdResponse;
+import org.folio.rest.jaxrs.resource.InvoiceStorage;
 import org.folio.rest.persist.DBClient;
 import org.folio.rest.persist.PgUtil;
 
@@ -114,7 +113,7 @@ public class InvoiceStorageService {
   public void putInvoiceStorageInvoicesById(String id, Invoice invoice, Map<String, String> okapiHeaders,
       Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
     PgUtil.put(INVOICE_TABLE, invoice, id, okapiHeaders, vertxContext,
-      PutInvoiceStorageInvoicesByIdResponse.class, reply -> {
+        InvoiceStorage.PutInvoiceStorageInvoicesByIdResponse.class, reply -> {
         asyncResultHandler.handle(reply);
         DBClient client = new DBClient(vertxContext, okapiHeaders);
         invoiceDAO.deleteSequence(invoice, client);
@@ -127,7 +126,7 @@ public class InvoiceStorageService {
     String resultQuery = StringUtils.isNotEmpty(query) ? combineCqlExpressions("and", getByIdQuery, query) : getByIdQuery;
 
     PgUtil.get(DOCUMENT_TABLE, Document.class, DocumentCollection.class, resultQuery, offset, limit, okapiHeaders, vertxContext,
-      GetInvoiceStorageInvoicesDocumentsByIdResponse.class, asyncResultHandler);
+      InvoiceStorage.GetInvoiceStorageInvoicesDocumentsByIdResponse.class, asyncResultHandler);
   }
 
   public void postInvoiceStorageInvoicesDocumentsById(String invoiceId, InvoiceDocument invoiceDoc,

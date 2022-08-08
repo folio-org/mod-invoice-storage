@@ -42,7 +42,7 @@ public class InvoiceStorageImpl implements InvoiceStorage {
   public void getInvoiceStorageInvoices(int offset, int limit, String query, String lang, Map<String, String> okapiHeaders,
       Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
     PgUtil.get(INVOICE_TABLE, Invoice.class, InvoiceCollection.class, query, offset, limit, okapiHeaders, vertxContext,
-      GetInvoiceStorageInvoicesResponse.class, asyncResultHandler);
+      InvoiceStorage.GetInvoiceStorageInvoicesResponse.class, asyncResultHandler);
   }
 
   @Validate

@@ -1,0 +1,89 @@
+#%RAML 1.0
+
+title: Lines
+version: v4.0
+protocols: [ HTTP, HTTPS ]
+baseUri: http://github.com/folio-org/mod-invoice-storage
+
+documentation:
+  - title: define new CRUD API
+    content: <b>API used to define new CRUD API</b>
+
+types:
+  linesCollection: !include acq-models/mod-invoice-storage/schemas/po_line_vs_invoice_line_collection.json
+  line: !include acq-models/mod-invoice-storage/schemas/po_line_vs_invoice_line.json
+  errors: !include raml-util/schemas/errors.schema
+  UUID:
+    type: string
+    pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$
+
+traits:
+  validate: !include raml-util/traits/validation.raml
+  language: !include raml-util/traits/language.raml
+  pageable: !include raml-util/traits/pageable.raml
+  searchable: !include raml-util/traits/searchable.raml
+
+resourceTypes:
+  collection: !include raml-util/rtypes/collection.raml
+  collection-item: !include raml-util/rtypes/item-collection.raml
+  get-delete: !include raml-util/rtypes/get-delete.raml
+
+/po-line-invoice-line:
+  /lines:
+    type:
+      collection:
+        schemaCollection: linesCollection
+        schemaItem: line
+        exampleCollection: !include acq-models/mod-invoice-storage/examples/po_line_vs_invoice_line_collection.sample
+        exampleItem: !include acq-models/mod-invoice-storage/examples/po_line_vs_invoice_line.sample
+
+    get:
+      description: Get list of lines
+      is: [
+        pageable,
+        searchable: { description: "with valid searchable fields: for example polineId", example: "polineId==\"b172da0f-77be-4421-b61f-556e5308d180\"" }
+      ]
+    /{id}:
+      uriParameters:
+        id:
+          description: The UUID of a line id
+          type: UUID
+      type:
+        collection-item:
+            schema: line
+            exampleItem: !include acq-models/mod-invoice-storage/examples/po_line_vs_invoice_line.sample
+#      post:
+#        is: [ validate ]
+#      put:
+#        is: [ validate ]
+#      delete:
+#        is: [ validate ]
+#    post:
+#      description: |
+#        Add a new <<line>>
+#      body:
+#        application/json:
+#          type: line
+#          example: !include acq-models/mod-invoice-storage/examples/po_line_vs_invoice_line.sample
+#      responses:
+#        200:
+#          body:
+#            application/json:
+#              example: |
+#                { "message": "The line has been properly entered" }
+#
+#    put:
+#      description: |
+#        update a <<line>>
+#      body:
+#        application/json:
+#          type: line
+#          example: !include acq-models/mod-invoice-storage/examples/po_line_vs_invoice_line.sample
+#      responses:
+#        200:
+#          body:
+#            application/json:
+#              example: |
+#                { "message": "The line has been successfully entered" }
+
+

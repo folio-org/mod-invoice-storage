@@ -53,6 +53,55 @@
         }
       ]
     },
+
+
+
+
+
+
+    {
+      "id": "po-line-invoice-line.lines",
+      "version": "5.0",
+      "handlers": [
+        {
+          "methods": ["GET"],
+          "pathPattern": "/po-line-invoice-line/lines",
+          "permissionsRequired": ["po-line-invoice-line.lines.collection.get"]
+        },
+        {
+          "methods": ["POST"],
+          "pathPattern": "/po-line-invoice-line/lines",
+          "permissionsRequired": ["po-line-invoice-line.lines.item.post"]
+        },
+        {
+          "methods": ["GET"],
+          "pathPattern": "/po-line-invoice-line/lines/{id}",
+          "permissionsRequired": ["po-line-invoice-line.lines.item.get"]
+        },
+        {
+          "methods": ["PUT"],
+          "pathPattern": "/po-line-invoice-line/lines/{id}",
+          "permissionsRequired": ["po-line-invoice-line.lines.item.put"]
+        },
+        {
+          "methods": ["DELETE"],
+          "pathPattern": "/po-line-invoice-line/lines/{id}",
+          "permissionsRequired": ["po-line-invoice-line.lines.item.delete"]
+        }
+
+      ]
+    },
+
+
+
+
+
+
+
+
+
+
+
     {
       "id": "invoice-storage.invoice-lines",
       "version": "4.0",
@@ -402,6 +451,57 @@
       "displayName": "Invoice storage - delete document",
       "description": "Delete document"
     },
+
+
+
+
+
+
+
+
+
+
+
+    {
+      "permissionName": "po-line-invoice-line.lines.collection.get",
+      "displayName": "po-line-invoice-line - get lines collection",
+      "description": "Get lines collection"
+    },
+    {
+      "permissionName": "po-line-invoice-line.lines.item.get",
+      "displayName": "po-line-invoice-line - get individual line",
+      "description": "Get individual line"
+    },
+    {
+      "permissionName": "po-line-invoice-line.lines.item.post",
+      "displayName": "po-line-invoice-line - create line",
+      "description": "Create line"
+    },
+    {
+      "permissionName": "po-line-invoice-line.lines.item.put",
+      "displayName": "po-line-invoice-line - modify line",
+      "description": "Modify line"
+    },
+    {
+      "permissionName": "po-line-invoice-line.lines.item.delete",
+      "displayName": "po-line-invoice-line - delete line",
+      "description": "Delete line"
+    },
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     {
       "permissionName": "invoice-storage.invoice-lines.collection.get",
       "displayName": "Invoice storage - get invoice line collection",
