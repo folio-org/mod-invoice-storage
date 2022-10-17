@@ -17,12 +17,10 @@ import java.util.concurrent.TimeoutException;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.folio.migration.MigrationServiceTest;
 import org.folio.postgres.testing.PostgresTesterContainer;
 import org.folio.rest.RestVerticle;
 import org.folio.rest.jaxrs.model.TenantJob;
 import org.folio.rest.persist.PostgresClient;
-import org.folio.rest.tools.client.test.HttpClientMock2;
 import org.folio.rest.tools.utils.NetworkUtils;
 import org.folio.rest.utils.HelperUtilsTest;
 import org.folio.service.order.OrderStorageServiceTest;
@@ -30,8 +28,6 @@ import org.folio.spring.SpringContextUtil;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Nested;
-import org.testcontainers.containers.PostgreSQLContainer;
-
 import io.restassured.http.Header;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Context;
@@ -49,7 +45,6 @@ public class StorageTestSuite {
   public static final Header URL_TO_HEADER = new Header("X-Okapi-Url-to", "http://localhost:" + port);
   private static TenantJob tenantJob;
   public static final String POSTGRES_DOCKER_IMAGE = "postgres:12-alpine";
-  private static PostgreSQLContainer<?> postgresSQLContainer;
 
   private StorageTestSuite() {}
 
@@ -101,7 +96,7 @@ public class StorageTestSuite {
 
     DeploymentOptions options = new DeploymentOptions();
 
-    options.setConfig(new JsonObject().put("http.port", port).put(HttpClientMock2.MOCK_MODE, "true"));
+    options.setConfig(new JsonObject().put("http.port", port));
     options.setWorker(true);
 
     startVerticle(options);
@@ -174,10 +169,6 @@ public class StorageTestSuite {
   class BatchVoucherExportsTestNested extends BatchVoucherExportsImplTest{}
   @Nested
   class VoucherNumberTestNested extends VoucherNumberTest {}
-  @Nested
-  class MigrationServiceTestNested extends MigrationServiceTest {}
-  @Nested
-  class TenantReferenceAPITestNested extends TenantReferenceAPITest{}
   @Nested
   class OrderStorageServiceTestNested extends OrderStorageServiceTest {}
 }
