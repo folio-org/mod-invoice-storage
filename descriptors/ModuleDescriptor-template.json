@@ -300,12 +300,7 @@
       "handlers": [
         {
           "methods": ["POST"],
-          "pathPattern": "/_/tenant",
-          "modulePermissions": [
-            "orders-storage.purchase-orders.item.get",
-            "orders-storage.purchase-orders.collection.get",
-            "orders-storage.order-invoice-relationships.collection.get"
-          ]
+          "pathPattern": "/_/tenant"
         },
         {
           "methods": ["GET", "DELETE"],
@@ -343,17 +338,6 @@
           "permissionsRequired": ["batch-group-storage.batch-groups.item.delete"]
         }
       ]
-    }
-  ],
-  "requires": [
-
-    {
-      "id": "orders-storage.order-invoice-relationships",
-      "version": "1.0"
-    },
-    {
-      "id": "orders-storage.purchase-orders",
-      "version": "8.0"
     }
   ],
   "permissionSets": [
