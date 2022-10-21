@@ -1,4 +1,14 @@
-## 5.5.0 - Unreleased
+## 5.6.0 - Unreleased
+
+## 5.5.0 - Released
+
+The primary focus of this release was to update RMB dependency and remove deprecated migration service
+
+[Full Changelog](https://github.com/folio-org/mod-invoice-storage/compare/v5.4.0...v5.5.0)
+
+### Stories
+* [MODINVOSTO-351](https://issues.folio.org/browse/MODINVOSTO-351) - Upgrade RAML Module Builder
+* [MODINVOSTO-150](https://issues.folio.org/browse/MODINVOSTO-150) - Remove 5.2.0 MigrationService
 
 ## 5.4.0 - Released (Morning Glory R2 2022)
 The primary focus of this release was to improve performance and update RMB dependency
