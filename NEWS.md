@@ -1,4 +1,13 @@
-## 5.6.0 - Unreleased
+## 5.7.0 - Unreleased
+
+## 5.6.0 - Released - Released (Orchid R1 2023)
+
+The primary focus of this release was to improvement logging
+
+[Full Changelog](https://github.com/folio-org/mod-invoice-storage/compare/v5.5.0...v5.6.0)
+
+### Stories
+* [MODINVOSTO-151](https://issues.folio.org/browse/MODINVOSTO-151) - Logging improvement - Configuration
 
 ## 5.5.0 - Released
 
