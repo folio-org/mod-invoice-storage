@@ -49,7 +49,7 @@ public class InvoiceStorageService {
       Context vertxContext, Map<String, String> headers) {
     try {
       vertxContext.runOnContext(v -> {
-        log.info("Creating a new invoice");
+        log.info("postInvoiceStorageInvoices:: Creating a new invoice");
 
         DBClient client = new DBClient(vertxContext, headers);
         client.startTx()
@@ -62,7 +62,7 @@ public class InvoiceStorageService {
               client.rollbackTransaction().onComplete(res -> asyncResultHandler.handle(buildErrorResponse(
                 reply.cause())));
             } else {
-              log.info("Preparing response to client");
+              log.info("postInvoiceStorageInvoices:: Preparing response to client");
               asyncResultHandler.handle(
                 buildResponseWithLocation(headers.get(OKAPI_URL), INVOICE_PREFIX + invoice.getId(), invoice)
               );

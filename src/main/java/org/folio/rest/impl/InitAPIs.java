@@ -40,6 +40,7 @@ public class InitAPIs implements InitAPI {
       },
       result -> {
         if (result.succeeded()) {
+          logger.info("APIs initialized successfully");
           resultHandler.handle(Future.succeededFuture(true));
         } else {
           logger.error("Failure to init API", result.cause());

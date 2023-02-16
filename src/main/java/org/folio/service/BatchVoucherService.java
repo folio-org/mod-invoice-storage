@@ -49,12 +49,14 @@ public class BatchVoucherService {
 
   public Future<Tx<Map<String, String>>> deleteBatchVoucherById(Tx<Map<String, String>> tx) {
     Promise<Tx<Map<String, String>>> promise = Promise.promise();
-
+    logger.debug("Trying to delete batch voucher with id: {}", tx.getEntity().get(BATCH_VOUCHER_ID));
     pgClient.delete(tx.getConnection(), BATCH_VOUCHERS_TABLE, tx.getEntity().get(BATCH_VOUCHER_ID), rs -> {
       logger.info("deletion of batch voucher completed");
       if (rs.result().rowCount() == 0) {
+        logger.warn("Batch voucher with id {} not found", tx.getEntity().get(BATCH_VOUCHER_ID));
         promise.fail(new HttpException(NOT_FOUND.getStatusCode(), NOT_FOUND.getReasonPhrase()));
       } else {
+        logger.info("Batch voucher with id {} deleted", tx.getEntity().get(BATCH_VOUCHER_ID));
         promise.complete(tx);
       }
     });
