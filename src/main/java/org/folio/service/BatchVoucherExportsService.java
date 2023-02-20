@@ -55,17 +55,14 @@ public class BatchVoucherExportsService {
 
   public Future<Tx<Map<String, String>>> deleteBatchVoucherExportById(Tx<Map<String, String>> tx) {
     Promise<Tx<Map<String, String>>> promise = Promise.promise();
-    logger.debug("deleteBatchVoucherExportById:: Trying to delete batch voucher export with id: {}",
-      tx.getEntity().get(BATCH_VOUCHER_EXPORT_ID));
+    logger.debug("deleteBatchVoucherExportById:: Trying to delete batch voucher export with id: {}", tx.getEntity().get(BATCH_VOUCHER_EXPORT_ID));
     pgClient.delete(tx.getConnection(), BATCH_VOUCHER_EXPORTS_TABLE, tx.getEntity().get(BATCH_VOUCHER_EXPORT_ID), rs -> {
       logger.info("deleteBatchVoucherExportById:: Deletion of batch voucher exports completed ");
       if (rs.result().rowCount() == 0) {
-        logger.warn("deleteBatchVoucherExportById:: No rows deleted for batch voucher export with id {}",
-          tx.getEntity().get(BATCH_VOUCHER_EXPORT_ID));
+        logger.warn("deleteBatchVoucherExportById:: No rows deleted for batch voucher export");
         promise.fail(new HttpException(NOT_FOUND.getStatusCode(), NOT_FOUND.getReasonPhrase()));
       } else {
-        logger.error("Failed to delete batch voucher export with id {}: {}",
-          tx.getEntity().get(BATCH_VOUCHER_EXPORT_ID), rs.cause().getMessage());
+        logger.error("Failed to delete batch voucher export", rs.cause());
         promise.complete(tx);
       }
     });
