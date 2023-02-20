@@ -117,7 +117,6 @@ public class ExportConfigurationsImpl implements BatchVoucherStorageExportConfig
                     GetBatchVoucherStorageExportConfigurationsCredentialsByIdResponse.respond200WithApplicationJson(response)));
               }
             } else {
-              logger.error("Error retrieving batch voucher storage export configurations credentials for id: {}", id, reply.cause());
               asyncResultHandler.handle(Future.succeededFuture(
                   GetBatchVoucherStorageExportConfigurationsCredentialsByIdResponse.respond500WithTextPlain(reply.cause()
                     .getMessage())));
@@ -162,7 +161,6 @@ public class ExportConfigurationsImpl implements BatchVoucherStorageExportConfig
                     Future.succeededFuture(DeleteBatchVoucherStorageExportConfigurationsCredentialsByIdResponse.respond204()));
               }
             } else {
-              logger.error("Error deleting batch voucher storage export configurations credentials with id: {}", id, reply.cause());
               asyncResultHandler.handle(Future.succeededFuture(
                   DeleteBatchVoucherStorageExportConfigurationsCredentialsByIdResponse.respond500WithTextPlain(reply.cause()
                     .getMessage())));
@@ -229,19 +227,18 @@ public class ExportConfigurationsImpl implements BatchVoucherStorageExportConfig
                 logger.info("getAndPutCredentials:: Successfully updated export configurations credentials with id: {}", id);
               }
             } else {
-              logger.error("Error getting export configurations credentials with exportConfigId: {}", id, reply.cause());
               asyncResultHandler.handle(Future.succeededFuture(
                   PutBatchVoucherStorageExportConfigurationsCredentialsByIdResponse.respond500WithTextPlain(reply.cause()
                     .getMessage())));
             }
           } catch (Exception e) {
-            logger.error("Error while getting export configurations credentials by id: {}", id, e);
+            logger.error("Error while getting and updating export configurations credentials by id: {}", id, e);
             asyncResultHandler.handle(Future.succeededFuture(PutBatchVoucherStorageExportConfigurationsCredentialsByIdResponse
               .respond500WithTextPlain(Response.Status.INTERNAL_SERVER_ERROR.getReasonPhrase())));
           }
         });
       } catch (Exception e) {
-        logger.error("Error while trying to get export configurations credentials by id: {}", id, e);
+        logger.error("Error while trying to get and update export configurations credentials by id: {}", id, e);
         asyncResultHandler.handle(Future.succeededFuture(PutBatchVoucherStorageExportConfigurationsCredentialsByIdResponse
           .respond500WithTextPlain(Response.Status.INTERNAL_SERVER_ERROR.getReasonPhrase())));
       }
