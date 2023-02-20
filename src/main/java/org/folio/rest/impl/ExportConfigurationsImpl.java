@@ -201,7 +201,7 @@ public class ExportConfigurationsImpl implements BatchVoucherStorageExportConfig
 
   private void getAndPutCredentials(String id, Credentials entity,
       Map<String, String> okapiHeaders, Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
-    logger.debug("getAndPutCredentials:: Trying to get and update credentials by id: {}", id);
+    logger.debug("Trying to get and update credentials by id: {}", id);
     vertxContext.runOnContext((Void v) -> {
       try {
         String tenantId = TenantTool.calculateTenantId(okapiHeaders.get(RestVerticle.OKAPI_HEADER_TENANT));
@@ -214,7 +214,7 @@ public class ExportConfigurationsImpl implements BatchVoucherStorageExportConfig
               if (reply.result()
                 .getResults()
                 .isEmpty()) {
-                logger.warn("getAndPutCredentials:: Export configurations credentials with exportConfigId '{}' not found", id);
+                logger.warn("Export configurations credentials with exportConfigId '{}' not found", id);
                 asyncResultHandler.handle(Future.succeededFuture(PutBatchVoucherStorageExportConfigurationsCredentialsByIdResponse
                   .respond404WithTextPlain(Response.Status.NOT_FOUND.getReasonPhrase())));
               } else {
@@ -224,7 +224,7 @@ public class ExportConfigurationsImpl implements BatchVoucherStorageExportConfig
                 entity.setId(response.getId());
                 PgUtil.put(EXPORT_CONFIG_CREDENTIALS_TABLE, entity, entity.getId(), okapiHeaders, vertxContext,
                     BatchVoucherStorageExportConfigurations.PutBatchVoucherStorageExportConfigurationsCredentialsByIdResponse.class, asyncResultHandler);
-                logger.info("getAndPutCredentials:: Successfully updated export configurations credentials with id: {}", id);
+                logger.info("Successfully updated export configurations credentials with id: {}", id);
               }
             } else {
               asyncResultHandler.handle(Future.succeededFuture(
