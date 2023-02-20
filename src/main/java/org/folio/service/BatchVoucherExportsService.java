@@ -93,7 +93,7 @@ public class BatchVoucherExportsService {
     logger.debug("Trying to get batch voucher id for batch voucher export with id: {}", tx.getEntity().get(BATCH_VOUCHER_EXPORT_ID));
     pgClient.getById(BATCH_VOUCHER_EXPORTS_TABLE, tx.getEntity().get(BATCH_VOUCHER_EXPORT_ID), BatchVoucherExport.class, rs -> {
       if (rs.failed() || rs.result() == null) {
-        logger.warn("Failed to get batch voucher id for batch voucher export with id: {}", rs.cause().getMessage());
+        logger.warn("Failed to get batch voucher id for batch voucher export", rs.cause());
         promise.fail(new HttpException(NOT_FOUND.getStatusCode(), NOT_FOUND.getReasonPhrase()));
       } else {
         logger.info("Batch voucher id '{}' retrieved for batch voucher export with id", rs.result().getBatchVoucherId());
