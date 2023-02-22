@@ -47,7 +47,8 @@ public class InvoiceLineNumberAPI implements InvoiceStorageInvoiceLineNumber {
                   .handle(Future.succeededFuture(InvoiceStorageInvoiceLineNumber.GetInvoiceStorageInvoiceLineNumberResponse
                     .respond200WithApplicationJson(new InvoiceLineNumber().withSequenceNumber(invoiceLineNumber))));
               } else {
-                throw new IllegalArgumentException("Unable to retrieve invoice line number for invoiceId: " + invoiceId);
+                String errorMsg = String.format("Unable to retrieve invoice line number for invoiceId: %s", invoiceId);
+                throw new IllegalArgumentException(errorMsg, getILNumberReply.cause());
               }
             } catch (Exception e) {
               log.error("Error while handling response for invoice line number request for invoiceId: {}", invoiceId, e);

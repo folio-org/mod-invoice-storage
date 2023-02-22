@@ -189,7 +189,7 @@ public class InvoicePostgresDAO implements InvoiceDAO {
         }
       });
     } catch (Exception e) {
-      log.error("Error while creating invoice document", e);
+      log.error("Error while creating invoice document with id: {}", invoiceDoc.getDocumentMetadata().getInvoiceId(), e);
       promise.fail(new HttpException(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), e.getMessage()));
     }
     return promise.future();

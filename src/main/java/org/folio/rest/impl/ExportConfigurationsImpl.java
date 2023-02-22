@@ -32,6 +32,7 @@ public class ExportConfigurationsImpl implements BatchVoucherStorageExportConfig
   public static final String BATCH_VOUCHER_EXPORT_CONFIGS_TABLE = "batch_voucher_export_configs";
   public static final String EXPORT_CONFIG_CREDENTIALS_TABLE = "export_config_credentials";
   private static final String MISMATCH_ERROR_MESSAGE = "Batch voucher export configuration credentials id mismatch";
+  private static final String BATCH_VOUCHER_EXPORT_NOT_FOUND_MESSAGE = "Batch voucher storage export configurations credentials with id '{}' not found";
 
   @Validate
   @Override
@@ -105,7 +106,7 @@ public class ExportConfigurationsImpl implements BatchVoucherStorageExportConfig
               if (reply.result()
                 .getResults()
                 .isEmpty()) {
-                logger.warn("Batch voucher storage export configurations credentials with id '{}' not found", id);
+                logger.warn(BATCH_VOUCHER_EXPORT_NOT_FOUND_MESSAGE, id);
                 asyncResultHandler.handle(Future.succeededFuture(GetBatchVoucherStorageExportConfigurationsCredentialsByIdResponse
                   .respond404WithTextPlain(Response.Status.NOT_FOUND.getReasonPhrase())));
               } else {
@@ -151,7 +152,7 @@ public class ExportConfigurationsImpl implements BatchVoucherStorageExportConfig
             if (reply.succeeded()) {
               if (reply.result()
                 .rowCount() == 0) {
-                logger.warn("Batch voucher storage export configurations credentials with id '{}' not found", id);
+                logger.warn(BATCH_VOUCHER_EXPORT_NOT_FOUND_MESSAGE, id);
                 asyncResultHandler
                   .handle(Future.succeededFuture(DeleteBatchVoucherStorageExportConfigurationsCredentialsByIdResponse
                     .respond404WithTextPlain(Response.Status.NOT_FOUND.getReasonPhrase())));

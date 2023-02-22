@@ -82,7 +82,7 @@ public class InvoiceStorageService {
       Context vertxContext, Map<String, String> headers) {
     try {
       vertxContext.runOnContext(v -> {
-        log.info("Delete invoice {}", id);
+        log.info("deleteInvoiceStorageInvoicesById:: Delete invoice {}", id);
 
         DBClient client = new DBClient(vertxContext, headers);
         client.startTx()
@@ -99,7 +99,7 @@ public class InvoiceStorageService {
               // The result of rollback operation is not so important, main failure cause is used to build the response
               client.rollbackTransaction().onComplete(res -> asyncResultHandler.handle(buildErrorResponse(cause)));
             } else {
-              log.info("Invoice {} and associated lines and documents if any were successfully deleted", id);
+              log.info("deleteInvoiceStorageInvoicesById:: Invoice {} and associated lines and documents if any were successfully deleted", id);
               asyncResultHandler.handle(buildNoContentResponse());
             }
           });
