@@ -1,10 +1,10 @@
 package org.folio.service;
 
-import static com.google.common.collect.ImmutableMap.of;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static org.folio.rest.impl.BatchVoucherExportsImpl.BATCH_VOUCHER_EXPORTS_TABLE;
 import static org.folio.rest.utils.ResponseUtils.handleNoContentResponse;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.ws.rs.core.Response;
@@ -17,8 +17,6 @@ import org.folio.rest.persist.PostgresClient;
 import org.folio.rest.persist.Tx;
 import org.folio.rest.persist.Criteria.Criterion;
 
-import com.google.common.collect.Maps;
-
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Context;
 import io.vertx.core.Future;
@@ -30,7 +28,7 @@ public class BatchVoucherExportsService {
 
   private static final String BATCH_VOUCHER_EXPORT_ID = "batchVoucherExportId";
   private static final String BATCH_VOUCHER_ID = "batchVoucherId";
-  private static final Logger logger = LogManager.getLogger(BatchVoucherExportsService.class);
+  private static final Logger log = LogManager.getLogger(BatchVoucherExportsService.class);
   private final PostgresClient pgClient;
 
   public BatchVoucherExportsService(PostgresClient pgClient) {
@@ -42,7 +40,7 @@ public class BatchVoucherExportsService {
     BatchVoucherService batchVoucherService = new BatchVoucherService(pgClient);
 
     vertxContext.runOnContext(v -> {
-      Tx<Map<String, String>> tx = new Tx<>(Maps.newHashMap(of(BATCH_VOUCHER_EXPORT_ID, id)), pgClient);
+      Tx<Map<String, String>> tx = new Tx<>(new HashMap<>(Map.of(BATCH_VOUCHER_EXPORT_ID, id)), pgClient);
 
       tx.startTx()
         .compose(this::getAssociatedBatchVoucherId)
@@ -56,14 +54,14 @@ public class BatchVoucherExportsService {
   public Future<Tx<Map<String, String>>> deleteBatchVoucherExportById(Tx<Map<String, String>> tx) {
     Promise<Tx<Map<String, String>>> promise = Promise.promise();
     String batchVoucherExportId = tx.getEntity().get(BATCH_VOUCHER_EXPORT_ID);
-    logger.debug("deleteBatchVoucherExportById:: Trying to delete batch voucher export with id: {}", batchVoucherExportId);
+    log.debug("deleteBatchVoucherExportById:: Trying to delete batch voucher export with id: {}", batchVoucherExportId);
     pgClient.delete(tx.getConnection(), BATCH_VOUCHER_EXPORTS_TABLE, batchVoucherExportId, rs -> {
-      logger.info("deleteBatchVoucherExportById:: Deletion of batch voucher exports completed");
+      log.info("deleteBatchVoucherExportById:: Deletion of batch voucher exports completed");
       if (rs.result().rowCount() == 0) {
-        logger.warn("deleteBatchVoucherExportById:: No rows deleted for batch voucher export");
+        log.warn("deleteBatchVoucherExportById:: No rows deleted for batch voucher export");
         promise.fail(new HttpException(NOT_FOUND.getStatusCode(), NOT_FOUND.getReasonPhrase()));
       } else {
-        logger.error("Failed to delete batch voucher export", rs.cause());
+        log.error("Failed to delete batch voucher export", rs.cause());
         promise.complete(tx);
       }
     });
@@ -73,16 +71,16 @@ public class BatchVoucherExportsService {
   public Future<Tx<Map<String, String>>> deleteBatchVoucherExportsByBatchVoucherId(Tx<Map<String, String>> tx) {
     Promise<Tx<Map<String, String>>> promise = Promise.promise();
     String batchVoucherId = tx.getEntity().get(BATCH_VOUCHER_ID);
-    logger.debug("deleteBatchVoucherExportsByBatchVoucherId:: Trying to delete batch voucher exports with batch voucher id: {}", batchVoucherId);
+    log.debug("deleteBatchVoucherExportsByBatchVoucherId:: Trying to delete batch voucher exports with batch voucher id: {}", batchVoucherId);
     Criterion criterion = new CriterionBuilder().with(BATCH_VOUCHER_ID, batchVoucherId).build();
 
     pgClient.delete(tx.getConnection(), BATCH_VOUCHER_EXPORTS_TABLE, criterion, rs -> {
-      logger.info("deleteBatchVoucherExportsByBatchVoucherId:: Deletion of batch voucher exports completed");
+      log.info("deleteBatchVoucherExportsByBatchVoucherId:: Deletion of batch voucher exports completed");
       if (rs.failed()) {
-        logger.warn("deleteBatchVoucherExportsByBatchVoucherId:: Failed to delete batch voucher exports with batch voucher id {}: {}", batchVoucherId, rs.cause());
+        log.warn("deleteBatchVoucherExportsByBatchVoucherId:: Failed to delete batch voucher exports with batch voucher id {}: {}", batchVoucherId, rs.cause());
         promise.fail(new HttpException(NOT_FOUND.getStatusCode(), NOT_FOUND.getReasonPhrase()));
       } else {
-        logger.info("deleteBatchVoucherExportsByBatchVoucherId:: Batch voucher exports with batch voucher id {} deleted", batchVoucherId);
+        log.info("deleteBatchVoucherExportsByBatchVoucherId:: Batch voucher exports with batch voucher id {} deleted", batchVoucherId);
         promise.complete(tx);
       }
     });
@@ -92,13 +90,13 @@ public class BatchVoucherExportsService {
   public Future<Tx<Map<String, String>>> getAssociatedBatchVoucherId(Tx<Map<String, String>> tx) {
     Promise<Tx<Map<String, String>>> promise = Promise.promise();
     String batchVoucherExportId = tx.getEntity().get(BATCH_VOUCHER_EXPORT_ID);
-    logger.debug("getAssociatedBatchVoucherId:: Trying to get batch voucher id for batch voucher export with id: {}", batchVoucherExportId);
+    log.debug("getAssociatedBatchVoucherId:: Trying to get batch voucher id for batch voucher export with id: {}", batchVoucherExportId);
     pgClient.getById(BATCH_VOUCHER_EXPORTS_TABLE, batchVoucherExportId, BatchVoucherExport.class, rs -> {
       if (rs.failed() || rs.result() == null) {
-        logger.error("Failed to get batch voucher id for batch voucher export id: {}", batchVoucherExportId, rs.cause());
+        log.error("Failed to get batch voucher id for batch voucher export id: {}", batchVoucherExportId, rs.cause());
         promise.fail(new HttpException(NOT_FOUND.getStatusCode(), NOT_FOUND.getReasonPhrase()));
       } else {
-        logger.info("getAssociatedBatchVoucherIdBatch:: voucher id '{}' retrieved for batch voucher export with id", rs.result().getBatchVoucherId());
+        log.info("getAssociatedBatchVoucherIdBatch:: voucher id '{}' retrieved for batch voucher export with id", rs.result().getBatchVoucherId());
         tx.getEntity().put(BATCH_VOUCHER_ID, rs.result().getBatchVoucherId());
         promise.complete(tx);
       }

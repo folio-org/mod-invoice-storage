@@ -21,11 +21,10 @@ import static org.folio.service.util.CommonServiceUtil.collectResultsOnSuccess;
 
 public class OrderStorageService {
 
-  private static final Logger logger = LogManager.getLogger(OrderStorageService.class);
+  private static final Logger log = LogManager.getLogger(OrderStorageService.class);
 
   public static final int MAX_IDS_FOR_GET_RQ = 15;
   private static final String PURCHASE_ORDER_ENDPOINT = "/orders-storage/purchase-orders";
-  private static final String PURCHASE_ORDER_BY_ID_ENDPOINT = PURCHASE_ORDER_ENDPOINT + "/{id}";
   private static final String ORDER_INVOICE_RELATIONSHIP_ENDPOINT = "/orders-storage/order-invoice-relns";
 
   private final RestClient restClient;
@@ -35,7 +34,7 @@ public class OrderStorageService {
   }
 
   public CompletableFuture<List<PurchaseOrder>> getPurchaseOrdersByIds(List<String> ids, RequestContext requestContext) {
-
+    log.debug("getPurchaseOrdersByIds:: Getting orders by ids: {}", ids);
     return collectResultsOnSuccess(ofSubLists(ids, MAX_IDS_FOR_GET_RQ)
       .map(chunkIds -> getOrdersChunk(chunkIds, requestContext)).toList())
       .thenApply(lists -> lists.stream()
@@ -44,6 +43,7 @@ public class OrderStorageService {
   }
 
   private CompletableFuture<List<PurchaseOrder>> getOrdersChunk(List<String> ids, RequestContext requestContext) {
+    log.debug("getOrdersChunk:: Getting orders by ids: {}", ids);
     String query = convertIdsToCqlQuery(ids, "id");
 
     RequestEntry requestEntry = new RequestEntry(PURCHASE_ORDER_ENDPOINT)
@@ -56,6 +56,7 @@ public class OrderStorageService {
   }
 
   public CompletableFuture<OrderInvoiceRelationshipCollection> getOrderInvoiceRelationshipCollection(RequestContext requestContext) {
+    log.debug("getOrderInvoiceRelationshipCollection:: Getting order invoice relationships");
     RequestEntry requestEntry = new RequestEntry(ORDER_INVOICE_RELATIONSHIP_ENDPOINT)
       .withOffset(0)
       .withLimit(Integer.MAX_VALUE);

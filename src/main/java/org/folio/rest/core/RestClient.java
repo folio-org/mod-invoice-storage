@@ -18,7 +18,7 @@ import static org.folio.rest.utils.HelperUtils.verifyAndExtractBody;
 
 public class RestClient {
 
-  private static final Logger logger = LogManager.getLogger();
+  private static final Logger log = LogManager.getLogger();
   private static final String EXCEPTION_CALLING_ENDPOINT_MSG = "Exception calling %s %s - %s";
   public static final String OKAPI_URL = "x-okapi-url";
 
@@ -32,35 +32,35 @@ public class RestClient {
     CompletableFuture<S> future = new CompletableFuture<>();
     String endpoint = requestEntry.buildEndpoint();
     HttpClientInterface client = getHttpClient(requestContext.getHeaders());
-    if (logger.isDebugEnabled()) {
-      logger.debug("Calling GET {}", endpoint);
+    if (log.isDebugEnabled()) {
+      log.debug("Calling GET {}", endpoint);
     }
 
     try {
       client
         .request(HttpMethod.GET, endpoint, requestContext.getHeaders())
         .thenApply(response -> {
-          if (logger.isDebugEnabled()) {
-            logger.debug("Validating response for GET {}", endpoint);
+          if (log.isDebugEnabled()) {
+            log.debug("Validating response for GET {}", endpoint);
           }
           return verifyAndExtractBody(response);
         })
         .thenAccept(body -> {
           client.closeClient();
-          if (logger.isDebugEnabled()) {
-            logger.debug("The response body for GET {}: {}", endpoint, nonNull(body) ? body.encodePrettily() : null);
+          if (log.isDebugEnabled()) {
+            log.debug("The response body for GET {}: {}", endpoint, nonNull(body) ? body.encodePrettily() : null);
           }
           S responseEntity = body.mapTo(responseType);
           future.complete(responseEntity);
         })
         .exceptionally(t -> {
           client.closeClient();
-          logger.error(String.format(EXCEPTION_CALLING_ENDPOINT_MSG, HttpMethod.GET, endpoint, requestContext), t);
+          log.error(String.format(EXCEPTION_CALLING_ENDPOINT_MSG, HttpMethod.GET, endpoint, requestContext), t);
           future.completeExceptionally(t.getCause());
           return null;
         });
     } catch (Exception e) {
-      logger.error(String.format(EXCEPTION_CALLING_ENDPOINT_MSG, HttpMethod.GET, requestEntry.getBaseEndpoint(), requestContext), e);
+      log.error(String.format(EXCEPTION_CALLING_ENDPOINT_MSG, HttpMethod.GET, requestEntry.getBaseEndpoint(), requestContext), e);
       client.closeClient();
       future.completeExceptionally(e);
     }

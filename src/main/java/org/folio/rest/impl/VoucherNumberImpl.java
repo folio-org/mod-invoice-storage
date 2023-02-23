@@ -73,6 +73,7 @@ public class VoucherNumberImpl implements VoucherStorageVoucherNumber {
 
   private void getVoucherNumber(String lang, Map<String, String> okapiHeaders, Handler<AsyncResult<Response>> asyncResultHandler,
       Context vertxContext, String voucherNumberQuery) {
+    log.debug("getVoucherNumber:: Getting voucher number by query: {}", voucherNumberQuery);
     vertxContext.runOnContext((Void v) -> {
       VoucherNumberHelper getVoucherNumberStartHelper = new VoucherNumberHelper();
       String tenantId = TenantTool.calculateTenantId(okapiHeaders.get(RestVerticle.OKAPI_HEADER_TENANT));
@@ -80,5 +81,6 @@ public class VoucherNumberImpl implements VoucherStorageVoucherNumber {
         .selectSingle(voucherNumberQuery,
             reply -> getVoucherNumberStartHelper.retrieveVoucherNumber(reply, asyncResultHandler, messages, lang));
     });
+    log.info("getVoucherNumber:: Finished getting voucher number by query: {}", voucherNumberQuery);
   }
 }

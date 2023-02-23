@@ -88,7 +88,7 @@ public class TenantReferenceAPI extends TenantAPI {
   @Override
   public void deleteTenantByOperationId(String operationId, Map<String, String> headers, Handler<AsyncResult<Response>> handler,
       Context ctx) {
-    log.info("deleteTenant");
+    log.info("Trying to delete tenant by operation id: {}", operationId);
     super.deleteTenantByOperationId(operationId, headers, res -> {
       Vertx vertx = ctx.owner();
       String tenantId = TenantTool.tenantId(headers);

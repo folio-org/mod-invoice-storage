@@ -49,7 +49,7 @@ public class InvoiceStorageService {
       Context vertxContext, Map<String, String> headers) {
     try {
       vertxContext.runOnContext(v -> {
-        log.info("postInvoiceStorageInvoices:: Creating a new invoice");
+        log.info("postInvoiceStorageInvoices:: Creating a new invoice by id: {}", invoice.getId());
 
         DBClient client = new DBClient(vertxContext, headers);
         client.startTx()
@@ -70,7 +70,7 @@ public class InvoiceStorageService {
           });
       });
     } catch (Exception e) {
-      log.error(e.getMessage(), e);
+      log.error("Error occurred while creating a new invoice with id: {}", invoice.getId(), e);
       asyncResultHandler.handle(buildErrorResponse(
         new HttpException(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(),
           Response.Status.INTERNAL_SERVER_ERROR.getReasonPhrase())
@@ -94,8 +94,7 @@ public class InvoiceStorageService {
           .onComplete(result -> {
             if (result.failed()) {
               HttpException cause = (HttpException) result.cause();
-              String errorMessage = String.format("Invoice %s and associated lines and documents if any failed to be deleted", id);
-              log.error(errorMessage, cause);
+              log.error("Invoice '{}' and associated lines and documents if any failed to be deleted", id, cause);
               // The result of rollback operation is not so important, main failure cause is used to build the response
               client.rollbackTransaction().onComplete(res -> asyncResultHandler.handle(buildErrorResponse(cause)));
             } else {
@@ -105,7 +104,7 @@ public class InvoiceStorageService {
           });
       });
     } catch (Exception e) {
-      log.error(e.getMessage(), e);
+      log.error("Error occurred while deleting invoice with id: {}", id, e);
       asyncResultHandler.handle(buildErrorResponse(new HttpException(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(),
           Response.Status.INTERNAL_SERVER_ERROR.getReasonPhrase())));
     }
@@ -113,27 +112,34 @@ public class InvoiceStorageService {
 
   public void putInvoiceStorageInvoicesById(String id, Invoice invoice, Map<String, String> okapiHeaders,
       Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
+    log.debug("putInvoiceStorageInvoicesById:: Updating invoice with id: {}", id);
     PgUtil.put(INVOICE_TABLE, invoice, id, okapiHeaders, vertxContext,
       PutInvoiceStorageInvoicesByIdResponse.class, reply -> {
         asyncResultHandler.handle(reply);
         DBClient client = new DBClient(vertxContext, okapiHeaders);
         invoiceDAO.deleteSequence(invoice, client);
+        log.info("putInvoiceStorageInvoicesById:: Invoice with id: {} was successfully updated", id);
       });
   }
 
   public void getInvoiceStorageInvoicesDocumentsById(String id, int offset, int limit, String query,
       Map<String, String> okapiHeaders, Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
+    log.debug("getInvoiceStorageInvoicesDocumentsById:: Getting invoice documents by invoice id: {}", id);
     String getByIdQuery = INVOICE_ID_FIELD_NAME + "==" + id;
     String resultQuery = StringUtils.isNotEmpty(query) ? combineCqlExpressions("and", getByIdQuery, query) : getByIdQuery;
 
     PgUtil.get(DOCUMENT_TABLE, Document.class, DocumentCollection.class, resultQuery, offset, limit, okapiHeaders, vertxContext,
       GetInvoiceStorageInvoicesDocumentsByIdResponse.class, asyncResultHandler);
+    log.info("getInvoiceStorageInvoicesDocumentsById:: Invoice documents by invoice id: {} were successfully retrieved", id);
   }
 
   public void postInvoiceStorageInvoicesDocumentsById(String invoiceId, InvoiceDocument invoiceDoc,
       Map<String, String> okapiHeaders, Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
+    log.debug("postInvoiceStorageInvoicesDocumentsById:: Creating a new invoice document for invoice with id: {}", invoiceId);
     vertxContext.runOnContext((Void v) -> {
-      if (!StringUtils.equals(invoiceDoc.getDocumentMetadata().getInvoiceId(), invoiceId)) {
+      String invoiceIdFromPath = invoiceDoc.getDocumentMetadata().getInvoiceId();
+      if (!StringUtils.equals(invoiceIdFromPath, invoiceId)) {
+        log.error("postInvoiceStorageInvoicesDocumentsById:: Invoice id mismatch. Invoice id from path: {}, invoice id from request body: {}", invoiceId, invoiceIdFromPath);
         asyncResultHandler.handle(buildErrorResponse(new HttpException(
           Response.Status.BAD_REQUEST.getStatusCode(), INVOICE_ID_MISMATCH_ERROR_MESSAGE
         )));
@@ -143,9 +149,11 @@ public class InvoiceStorageService {
       invoiceDAO.createInvoiceDocument(invoiceDoc, client)
         .onComplete(reply -> {
           if (reply.succeeded()) {
+            log.info("postInvoiceStorageInvoicesDocumentsById:: Successfully created a new invoice document for invoice with id: {}", invoiceId);
             asyncResultHandler.handle(buildResponseWithLocation(okapiHeaders.get(OKAPI_URL),
                 String.format(DOCUMENT_LOCATION, invoiceId, invoiceDoc.getDocumentMetadata().getId()), invoiceDoc));
           } else {
+            log.error("Error occurred while creating a new invoice document for invoice with id: {}", invoiceId, reply.cause());
             asyncResultHandler.handle(buildErrorResponse(reply.cause()));
           }
         });
@@ -154,13 +162,16 @@ public class InvoiceStorageService {
 
   public void getInvoiceStorageInvoicesDocumentsByIdAndDocumentId(String invoiceId, String documentId,
       Map<String, String> okapiHeaders, Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
+    log.debug("getInvoiceStorageInvoicesDocumentsByIdAndDocumentId:: Getting invoice document with id: {} for invoice with id: {}", documentId, invoiceId);
     vertxContext.runOnContext((Void v) -> {
       DBClient client = new DBClient(vertxContext, okapiHeaders);
       invoiceDAO.getInvoiceDocument(invoiceId, documentId, client)
         .onComplete(reply -> {
           if (reply.succeeded()) {
+            log.info("getInvoiceStorageInvoicesDocumentsByIdAndDocumentId:: Successfully retrieved invoice document with id: {} for invoice with id: {}", documentId, invoiceId);
             asyncResultHandler.handle(buildContentResponse(reply.result()));
           } else {
+            log.error("Error occurred while retrieving invoice document with id: {} for invoice with id: {}", documentId, invoiceId, reply.cause());
             asyncResultHandler.handle(buildErrorResponse(reply.cause()));
           }
         });

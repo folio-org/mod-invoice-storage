@@ -21,6 +21,7 @@ public class VoucherNumberHelper {
 
   public void retrieveVoucherNumber(AsyncResult<Row> reply, Handler<AsyncResult<Response>> asyncResultHandler,
     Messages messages, String lang) {
+    log.debug("retrieveVoucherNumber:: Trying to get voucher number");
     try {
       if (reply.succeeded()) {
         String voucherNumber = reply.result().getLong(0).toString();

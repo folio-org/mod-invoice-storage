@@ -24,7 +24,7 @@ import io.vertx.ext.web.handler.HttpException;
 
 public class ResponseUtils {
 
-  private static final Logger logger = LogManager.getLogger(ResponseUtils.class);
+  private static final Logger log = LogManager.getLogger(ResponseUtils.class);
 
   private ResponseUtils() {
   }
@@ -34,12 +34,12 @@ public class ResponseUtils {
     return result -> {
       if (result.failed()) {
         HttpException cause = (HttpException) result.cause();
-        logger.error(logMessage, cause, tx.getEntity(), "or associated data failed to be");
+        log.error(logMessage, cause, tx.getEntity(), "or associated data failed to be");
 
         // The result of rollback operation is not so important, main failure cause is used to build the response
         tx.rollbackTransaction().onComplete(res -> asyncResultHandler.handle(buildErrorResponse(cause)));
       } else {
-        logger.info(logMessage, tx.getEntity(), "and associated data were successfully");
+        log.info(logMessage, tx.getEntity(), "and associated data were successfully");
         asyncResultHandler.handle(buildNoContentResponse());
       }
     };
