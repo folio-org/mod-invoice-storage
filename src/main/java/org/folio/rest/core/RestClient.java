@@ -32,24 +32,18 @@ public class RestClient {
     CompletableFuture<S> future = new CompletableFuture<>();
     String endpoint = requestEntry.buildEndpoint();
     HttpClientInterface client = getHttpClient(requestContext.getHeaders());
-    if (log.isDebugEnabled()) {
-      log.debug("Calling GET {}", endpoint);
-    }
+    log.debug("Calling GET {}", endpoint);
 
     try {
       client
         .request(HttpMethod.GET, endpoint, requestContext.getHeaders())
         .thenApply(response -> {
-          if (log.isDebugEnabled()) {
-            log.debug("Validating response for GET {}", endpoint);
-          }
+          log.debug("Validating response for GET {}", endpoint);
           return verifyAndExtractBody(response);
         })
         .thenAccept(body -> {
           client.closeClient();
-          if (log.isDebugEnabled()) {
-            log.debug("The response body for GET {}: {}", endpoint, nonNull(body) ? body.encodePrettily() : null);
-          }
+          log.debug("The response body for GET {}: {}", endpoint, nonNull(body) ? body.encodePrettily() : null);
           S responseEntity = body.mapTo(responseType);
           future.complete(responseEntity);
         })
