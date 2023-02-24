@@ -91,4 +91,26 @@ class InvoicePostgresDAOTest {
       });
   }
 
+  @Test
+  void shouldFailWhenGettingInvoiceDocument(VertxTestContext testContext) {
+    String invoiceId = UUID.randomUUID().toString();
+    String documentId = UUID.randomUUID().toString();
+    when(client.getPgClient()).thenReturn(postgresClient);
+    Criterion criterion = new Criterion().addCriterion(new Criteria().addField("id").setOperation("=").setVal(invoiceId).setJSONB(false));
+    doAnswer((Answer<Void>) invocation -> {
+      Handler<AsyncResult<Results<Invoice>>> handler = invocation.getArgument(4);
+      handler.handle(Future.failedFuture(new HttpException(500, "Error")));
+      return null;
+    }).when(postgresClient).get(eq(INVOICE_TABLE), eq(Invoice.class), eq(criterion), eq(false), any(Handler.class));
+
+    testContext.assertFailure(invoicePostgresDAO.getInvoiceDocument(invoiceId, documentId, client)
+      .onComplete(ar -> {
+        HttpException exception = (HttpException) ar.cause();
+        testContext.verify(() -> {
+          assertEquals(500, exception.getCode());
+          assertEquals("Error", exception.getError().getMessage());
+        });
+        testContext.completeNow();
+      }));
+  }
 }
