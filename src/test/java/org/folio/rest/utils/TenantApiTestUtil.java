@@ -56,11 +56,11 @@ public class TenantApiTestUtil {
     CompletableFuture<TenantJob> future = new CompletableFuture<>();
     TenantClient tClient =  new TenantClient(URL_TO_HEADER.getValue(), tenantHeader.getValue(), null);
     try {
-      tClient.postTenant(tenantAttributes, event -> {
-        if (event.failed()) {
-          future.completeExceptionally(event.cause());
+      tClient.postTenant(tenantAttributes, ar -> {
+        if (ar.failed()) {
+          future.completeExceptionally(ar.cause());
         } else {
-          TenantJob tenantJob = event.result().bodyAsJson(TenantJob.class);
+          TenantJob tenantJob = ar.result().bodyAsJson(TenantJob.class);
           tClient.getTenantByOperationId(tenantJob.getId(), TENANT_OP_WAITING_TIME, result -> {
             if(result.failed()) {
               future.completeExceptionally(result.cause());
@@ -107,9 +107,9 @@ public class TenantApiTestUtil {
     TenantClient tClient =  new TenantClient(URL_TO_HEADER.getValue(), tenantHeader.getValue(), null);
     TenantAttributes tenantAttributes = prepareTenantBody(false, false).withPurge(true);
     try {
-      tClient.postTenant(tenantAttributes, event -> {
-        if (event.failed()) {
-          future.completeExceptionally(event.cause());
+      tClient.postTenant(tenantAttributes, ar -> {
+        if (ar.failed()) {
+          future.completeExceptionally(ar.cause());
         } else {
           future.complete(null);
         }

@@ -223,23 +223,20 @@ public class InvoicePostgresDAO implements InvoiceDAO {
             if (StringUtils.isNotEmpty(base64Content)){
               invoiceDocument.setContents(new Contents().withData(base64Content));
             }
-
+            log.info("Invoice document with invoiceId={} and documentId={} successfully retrieved", invoiceId, documentId);
             promise.complete(invoiceDocument);
           } else {
-            log.error("Error while getting invoice document with invoiceId={} and documentId={}",
-              invoiceId, documentId, reply.cause());
+            log.error("Error while getting invoice document with invoiceId={} and documentId={}", invoiceId, documentId, reply.cause());
             handleFailure(promise, reply);
           }
         } catch (Exception e) {
-          log.error("SQL Error while getting invoice document with invoiceId={} and documentId={}",
-            invoiceId, documentId, e);
+          log.error("SQL Error while getting invoice document with invoiceId={} and documentId={}", invoiceId, documentId, e);
           promise.fail(new HttpException(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(),
             Response.Status.INTERNAL_SERVER_ERROR.getReasonPhrase()));
         }
       });
     } catch (Exception e) {
-      log.error("Error while getting invoice document with invoiceId={} and documentId={}",
-        invoiceId, documentId, e);
+      log.error("Error while getting invoice document with invoiceId={} and documentId={}", invoiceId, documentId, e);
       promise.fail(new HttpException(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(),
         Response.Status.INTERNAL_SERVER_ERROR.getReasonPhrase()));
     }
