@@ -38,7 +38,7 @@ import io.vertx.core.impl.VertxImpl;
 import io.vertx.core.json.JsonObject;
 
 public class StorageTestSuite {
-  private static final Logger logger = LogManager.getLogger(StorageTestSuite.class);
+  private static final Logger log = LogManager.getLogger(StorageTestSuite.class);
 
   private static Vertx vertx;
   private static final int port = NetworkUtils.nextFreePort();
@@ -90,7 +90,7 @@ public class StorageTestSuite {
 
     vertx = Vertx.vertx();
 
-    logger.info("Start container database");
+    log.info("Start container database");
 
     PostgresClient.setPostgresTester(new PostgresTesterContainer());
 
@@ -106,7 +106,7 @@ public class StorageTestSuite {
 
   @AfterAll
   public static void after() throws InterruptedException, ExecutionException, TimeoutException {
-    logger.info("Delete tenant");
+    log.info("Delete tenant");
     deleteTenant(tenantJob, TENANT_HEADER);
 
     CompletableFuture<String> undeploymentComplete = new CompletableFuture<>();
@@ -121,14 +121,14 @@ public class StorageTestSuite {
     });
 
     undeploymentComplete.get(20, TimeUnit.SECONDS);
-    logger.info("Stop database");
+    log.info("Stop database");
     PostgresClient.stopPostgresTester();
   }
 
   private static void startVerticle(DeploymentOptions options)
     throws InterruptedException, ExecutionException, TimeoutException {
 
-    logger.info("Start verticle");
+    log.info("Start verticle");
 
     CompletableFuture<String> deploymentComplete = new CompletableFuture<>();
 

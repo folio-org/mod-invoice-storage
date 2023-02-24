@@ -12,8 +12,6 @@ import org.apache.logging.log4j.Logger;
 import org.folio.rest.persist.PostgresClient;
 import org.folio.rest.persist.Tx;
 
-import com.google.common.collect.ImmutableMap;
-
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Context;
 import io.vertx.core.Future;
