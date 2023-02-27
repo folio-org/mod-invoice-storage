@@ -14,7 +14,7 @@ import static org.folio.rest.utils.HelperUtils.encodeQuery;
 
 public class RequestEntry {
 
-  private static final Logger logger = LogManager.getLogger();
+  private static final Logger log = LogManager.getLogger();
 
   private String baseEndpoint;
   private Map<String, String> pathParams = new HashMap<>();
@@ -25,6 +25,7 @@ public class RequestEntry {
   }
 
   public RequestEntry withPathParameter(String key, String value) {
+    log.debug("withPathParameter:: key '{}' : value '{}'", key, value);
     pathParams.put(key, value);
     return this;
   }

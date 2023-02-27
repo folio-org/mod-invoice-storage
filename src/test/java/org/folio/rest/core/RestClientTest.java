@@ -47,8 +47,8 @@ public class RestClientTest {
   private RequestContext requestContext;
 
   @BeforeEach
-  public void initMocks(){
-    MockitoAnnotations.openMocks(this);
+  public void initMocks() throws Exception {
+    MockitoAnnotations.openMocks(this).close();
     okapiHeaders = new HashMap<>();
     okapiHeaders.put(OKAPI_URL, "http://localhost:" + 8081);
     okapiHeaders.put(X_OKAPI_TOKEN.getName(), X_OKAPI_TOKEN.getValue());
@@ -81,6 +81,21 @@ public class RestClientTest {
     String uuid = UUID.randomUUID().toString();
     doReturn(httpClient).when(restClient).getHttpClient(okapiHeaders);
     CompletableFuture<Invoice> result = restClient.getById(INVOICE.getEndpointWithId(), uuid, requestContext, Invoice.class);
+    assertThrows(CompletionException.class, result::join);
+  }
+
+  @Test
+  void testGetShouldThrowExceptionWhenSearchByIdAndResponseCodeIsNot200() throws Exception {
+    RestClient restClient = Mockito.spy(new RestClient());
+    String uuid = UUID.randomUUID().toString();
+    String endpoint = INVOICE.getEndpoint() + "/{id}";
+    Response response = new Response();
+    response.setCode(404);
+
+    doReturn(httpClient).when(restClient).getHttpClient(okapiHeaders);
+    doReturn(completedFuture(response)).when(httpClient).request(eq(HttpMethod.GET), anyString(), eq(okapiHeaders));
+
+    CompletableFuture<Invoice> result = restClient.getById(endpoint, uuid, requestContext, Invoice.class);
     assertThrows(CompletionException.class, result::join);
   }
 

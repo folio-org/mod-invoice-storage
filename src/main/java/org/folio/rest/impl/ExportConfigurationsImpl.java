@@ -27,11 +27,12 @@ import io.vertx.core.Handler;
 
 public class ExportConfigurationsImpl implements BatchVoucherStorageExportConfigurations {
 
-  private static final Logger logger = LogManager.getLogger(ExportConfigurationsImpl.class);
+  private static final Logger log = LogManager.getLogger(ExportConfigurationsImpl.class);
 
   public static final String BATCH_VOUCHER_EXPORT_CONFIGS_TABLE = "batch_voucher_export_configs";
   public static final String EXPORT_CONFIG_CREDENTIALS_TABLE = "export_config_credentials";
   private static final String MISMATCH_ERROR_MESSAGE = "Batch voucher export configuration credentials id mismatch";
+  private static final String BATCH_VOUCHER_EXPORT_NOT_FOUND_MESSAGE = "Batch voucher storage export configurations credentials with id '{}' not found";
 
   @Validate
   @Override
@@ -92,6 +93,7 @@ public class ExportConfigurationsImpl implements BatchVoucherStorageExportConfig
   @Override
   public void getBatchVoucherStorageExportConfigurationsCredentialsById(String id, String lang, Map<String, String> okapiHeaders,
       Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
+    log.debug("Trying to get batch voucher storage export configurations credentials by id: {}", id);
     vertxContext.runOnContext((Void v) -> {
       try {
         String tenantId = TenantTool.calculateTenantId(okapiHeaders.get(RestVerticle.OKAPI_HEADER_TENANT));
@@ -104,9 +106,11 @@ public class ExportConfigurationsImpl implements BatchVoucherStorageExportConfig
               if (reply.result()
                 .getResults()
                 .isEmpty()) {
+                log.warn(BATCH_VOUCHER_EXPORT_NOT_FOUND_MESSAGE, id);
                 asyncResultHandler.handle(Future.succeededFuture(GetBatchVoucherStorageExportConfigurationsCredentialsByIdResponse
                   .respond404WithTextPlain(Response.Status.NOT_FOUND.getReasonPhrase())));
               } else {
+                log.info("Successfully retrieved batch voucher storage export configurations credentials for id: {}", id);
                 Credentials response = reply.result()
                   .getResults()
                   .get(0);
@@ -119,13 +123,13 @@ public class ExportConfigurationsImpl implements BatchVoucherStorageExportConfig
                     .getMessage())));
             }
           } catch (Exception e) {
-            logger.error(e.getMessage(), e);
+            log.error("Error while getting batch voucher storage export configurations credentials by id: {}", id, e);
             asyncResultHandler.handle(Future.succeededFuture(GetBatchVoucherStorageExportConfigurationsCredentialsByIdResponse
               .respond500WithTextPlain(Response.Status.INTERNAL_SERVER_ERROR.getReasonPhrase())));
           }
         });
       } catch (Exception e) {
-        logger.error(e.getMessage(), e);
+        log.error("Error while trying to get batch voucher storage export configurations credentials by id: {}", id, e);
         asyncResultHandler.handle(Future.succeededFuture(GetBatchVoucherStorageExportConfigurationsCredentialsByIdResponse
           .respond500WithTextPlain(Response.Status.INTERNAL_SERVER_ERROR.getReasonPhrase())));
       }
@@ -137,6 +141,7 @@ public class ExportConfigurationsImpl implements BatchVoucherStorageExportConfig
   public void deleteBatchVoucherStorageExportConfigurationsCredentialsById(String id, String lang, Map<String, String> okapiHeaders,
       Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
     vertxContext.runOnContext((Void v) -> {
+      log.debug("Trying to delete batch voucher storage export configurations credentials by id: {}", id);
       try {
         String tenantId = TenantTool.calculateTenantId(okapiHeaders.get(RestVerticle.OKAPI_HEADER_TENANT));
         PostgresClient pgClient = PostgresClient.getInstance(vertxContext.owner(), tenantId);
@@ -147,10 +152,12 @@ public class ExportConfigurationsImpl implements BatchVoucherStorageExportConfig
             if (reply.succeeded()) {
               if (reply.result()
                 .rowCount() == 0) {
+                log.warn(BATCH_VOUCHER_EXPORT_NOT_FOUND_MESSAGE, id);
                 asyncResultHandler
                   .handle(Future.succeededFuture(DeleteBatchVoucherStorageExportConfigurationsCredentialsByIdResponse
                     .respond404WithTextPlain(Response.Status.NOT_FOUND.getReasonPhrase())));
               } else {
+                log.info("Successfully deleted batch voucher storage export configurations credentials with id: {}", id);
                 asyncResultHandler.handle(
                     Future.succeededFuture(DeleteBatchVoucherStorageExportConfigurationsCredentialsByIdResponse.respond204()));
               }
@@ -160,13 +167,13 @@ public class ExportConfigurationsImpl implements BatchVoucherStorageExportConfig
                     .getMessage())));
             }
           } catch (Exception e) {
-            logger.error(e.getMessage(), e);
+            log.error("Error while deleting batch voucher storage export configurations credentials by id: {}", id, e);
             asyncResultHandler.handle(Future.succeededFuture(DeleteBatchVoucherStorageExportConfigurationsCredentialsByIdResponse
               .respond500WithTextPlain(Response.Status.INTERNAL_SERVER_ERROR.getReasonPhrase())));
           }
         });
       } catch (Exception e) {
-        logger.error(e.getMessage(), e);
+        log.error("Error while trying to delete batch voucher storage export configurations credentials by id: {}", id, e);
         asyncResultHandler.handle(Future.succeededFuture(DeleteBatchVoucherStorageExportConfigurationsCredentialsByIdResponse
           .respond500WithTextPlain(Response.Status.INTERNAL_SERVER_ERROR.getReasonPhrase())));
       }
@@ -177,16 +184,17 @@ public class ExportConfigurationsImpl implements BatchVoucherStorageExportConfig
   @Override
   public void putBatchVoucherStorageExportConfigurationsCredentialsById(String id, String lang, Credentials entity,
       Map<String, String> okapiHeaders, Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
+    log.debug("Trying to put batch voucher storage export configurations credentials by id: {}", id);
     if (StringUtils.equals(entity.getExportConfigId(), id)) {
       if (!StringUtils.isEmpty(entity.getId())) {
         PgUtil.put(EXPORT_CONFIG_CREDENTIALS_TABLE, entity, entity.getId(), okapiHeaders, vertxContext,
             BatchVoucherStorageExportConfigurations.PutBatchVoucherStorageExportConfigurationsCredentialsByIdResponse.class, asyncResultHandler);
       } else {
-        logger.info("PUT payload is missing 'id'.  Looking up record from storage by exportConfigId: {}", id);
+        log.warn("PUT payload is missing 'id'.  Looking up record from storage by exportConfigId: {}", id);
         getAndPutCredentials(id, entity, okapiHeaders, asyncResultHandler, vertxContext);
       }
     } else {
-      logger.info("PUT with mismatch path/'exportConfigId' field: {}, {}", entity.getExportConfigId(), id);
+      log.warn("PUT with mismatch path/'exportConfigId' field: {}, {}", entity.getExportConfigId(), id);
       asyncResultHandler.handle(io.vertx.core.Future
         .succeededFuture(PutBatchVoucherStorageExportConfigurationsCredentialsByIdResponse.respond400WithTextPlain(MISMATCH_ERROR_MESSAGE)));
     }
@@ -194,6 +202,7 @@ public class ExportConfigurationsImpl implements BatchVoucherStorageExportConfig
 
   private void getAndPutCredentials(String id, Credentials entity,
       Map<String, String> okapiHeaders, Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
+    log.debug("Trying to get and update credentials by id: {}", id);
     vertxContext.runOnContext((Void v) -> {
       try {
         String tenantId = TenantTool.calculateTenantId(okapiHeaders.get(RestVerticle.OKAPI_HEADER_TENANT));
@@ -206,6 +215,7 @@ public class ExportConfigurationsImpl implements BatchVoucherStorageExportConfig
               if (reply.result()
                 .getResults()
                 .isEmpty()) {
+                log.warn("Export configurations credentials with exportConfigId '{}' not found", id);
                 asyncResultHandler.handle(Future.succeededFuture(PutBatchVoucherStorageExportConfigurationsCredentialsByIdResponse
                   .respond404WithTextPlain(Response.Status.NOT_FOUND.getReasonPhrase())));
               } else {
@@ -215,6 +225,7 @@ public class ExportConfigurationsImpl implements BatchVoucherStorageExportConfig
                 entity.setId(response.getId());
                 PgUtil.put(EXPORT_CONFIG_CREDENTIALS_TABLE, entity, entity.getId(), okapiHeaders, vertxContext,
                     BatchVoucherStorageExportConfigurations.PutBatchVoucherStorageExportConfigurationsCredentialsByIdResponse.class, asyncResultHandler);
+                log.info("Successfully updated export configurations credentials with id: {}", id);
               }
             } else {
               asyncResultHandler.handle(Future.succeededFuture(
@@ -222,13 +233,13 @@ public class ExportConfigurationsImpl implements BatchVoucherStorageExportConfig
                     .getMessage())));
             }
           } catch (Exception e) {
-            logger.error(e.getMessage(), e);
+            log.error("Error while getting and updating export configurations credentials by id: {}", id, e);
             asyncResultHandler.handle(Future.succeededFuture(PutBatchVoucherStorageExportConfigurationsCredentialsByIdResponse
               .respond500WithTextPlain(Response.Status.INTERNAL_SERVER_ERROR.getReasonPhrase())));
           }
         });
       } catch (Exception e) {
-        logger.error(e.getMessage(), e);
+        log.error("Error while trying to get and update export configurations credentials by id: {}", id, e);
         asyncResultHandler.handle(Future.succeededFuture(PutBatchVoucherStorageExportConfigurationsCredentialsByIdResponse
           .respond500WithTextPlain(Response.Status.INTERNAL_SERVER_ERROR.getReasonPhrase())));
       }

@@ -39,6 +39,7 @@ public class VoucherNumberImpl implements VoucherStorageVoucherNumber {
   @Override
   public void postVoucherStorageVoucherNumberStartByValue(String value, String lang, Map<String, String> okapiHeaders,
       Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
+    log.debug("Trying to set value '{}' for a voucher number sequence", value);
     vertxContext.runOnContext((Void v) -> {
       if (NumberUtils.isDigits(value)) {
         String tenantId = TenantTool.calculateTenantId(okapiHeaders.get(RestVerticle.OKAPI_HEADER_TENANT));
@@ -49,15 +50,14 @@ public class VoucherNumberImpl implements VoucherStorageVoucherNumber {
               asyncResultHandler.handle(
                   succeededFuture(VoucherStorageVoucherNumber.PostVoucherStorageVoucherNumberStartByValueResponse.respond204()));
             } else {
-              log.error(reply.cause()
-                .getMessage(), reply.cause());
+              log.error("Failed to (re)set start value for voucher number sequence: {}", value);
               String msg = messages.getMessage(lang, MessageConsts.InternalServerError);
               asyncResultHandler.handle(succeededFuture(
                   VoucherStorageVoucherNumber.PostVoucherStorageVoucherNumberStartByValueResponse.respond500WithTextPlain(msg)));
             }
           });
       } else {
-        log.debug("Illegal value: {}", value);
+        log.error("Error while trying to set start value for voucher number sequence: {}", value);
         asyncResultHandler.handle(succeededFuture(VoucherStorageVoucherNumber.PostVoucherStorageVoucherNumberStartByValueResponse
           .respond400WithTextPlain("Bad request - illegal value")));
       }
@@ -67,12 +67,13 @@ public class VoucherNumberImpl implements VoucherStorageVoucherNumber {
   @Override
   public void getVoucherStorageVoucherNumberStart(String lang, Map<String, String> okapiHeaders,
       Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
-    log.debug(" === Retrieving current start value for a voucher number sequence === ");
+    log.debug("Trying to retrieving current start value for a voucher number sequence");
     getVoucherNumber(lang, okapiHeaders, asyncResultHandler, vertxContext, CURRENT_VOUCHER_NUMBER_QUERY);
   }
 
   private void getVoucherNumber(String lang, Map<String, String> okapiHeaders, Handler<AsyncResult<Response>> asyncResultHandler,
       Context vertxContext, String voucherNumberQuery) {
+    log.debug("getVoucherNumber:: Getting voucher number by query: {}", voucherNumberQuery);
     vertxContext.runOnContext((Void v) -> {
       VoucherNumberHelper getVoucherNumberStartHelper = new VoucherNumberHelper();
       String tenantId = TenantTool.calculateTenantId(okapiHeaders.get(RestVerticle.OKAPI_HEADER_TENANT));
@@ -80,5 +81,6 @@ public class VoucherNumberImpl implements VoucherStorageVoucherNumber {
         .selectSingle(voucherNumberQuery,
             reply -> getVoucherNumberStartHelper.retrieveVoucherNumber(reply, asyncResultHandler, messages, lang));
     });
+    log.info("getVoucherNumber:: Finished getting voucher number by query: {}", voucherNumberQuery);
   }
 }

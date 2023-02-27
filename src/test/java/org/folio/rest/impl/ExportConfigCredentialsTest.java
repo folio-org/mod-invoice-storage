@@ -13,7 +13,7 @@ import io.restassured.response.Response;
 import io.vertx.core.json.JsonObject;
 
 public class ExportConfigCredentialsTest extends TestBase {
-  private static final Logger logger = LogManager.getLogger(ExportConfigCredentialsTest.class);
+  private static final Logger log = LogManager.getLogger(ExportConfigCredentialsTest.class);
 
   private static final String PASSWORD_FIELD = "password";
   private static final String MY_NEW_PASSWORD = "my_new_password";
@@ -47,7 +47,7 @@ public class ExportConfigCredentialsTest extends TestBase {
   @Test
   public void testExportConfigCredentialsCrud() throws MalformedURLException {
     try {
-      logger.info(String.format("--- mod-invoice-storage %s test: Creating %s ... ", simpleClassName, simpleClassName));
+      log.info(String.format("--- mod-invoice-storage %s test: Creating %s ... ", simpleClassName, simpleClassName));
 
       // prepare batch groups
       String batchGroupSample1 = getFile(SAMPLE_BATCH_GROUPS_FILE_1);
@@ -60,13 +60,13 @@ public class ExportConfigCredentialsTest extends TestBase {
       String sample = getFile(SAMPLE_CREDENTIALS_FILE_1);
       Response response = postData(BATCH_VOUCHER_EXPORT_CONFIG_CREDENTIALS_ENDPOINT, sample);
 
-      logger.info(String.format("--- mod-invoice-storage %s test: Valid fields exists ... ", simpleClassName));
+      log.info(String.format("--- mod-invoice-storage %s test: Valid fields exists ... ", simpleClassName));
       JsonObject sampleJson = JsonObject.mapFrom(new JsonObject(sample).mapTo(Credentials.class));
 
       JsonObject responseJson = JsonObject.mapFrom(response.then().extract().response().as(Credentials.class));
       testAllFieldsExists(responseJson, sampleJson);
 
-      logger.info(String.format("--- mod-invoice-storage %s test: Fetching %s with ID: %s", simpleClassName, simpleClassName, BATCH_VOUCHER_EXPORT_CONFIG_ID));
+      log.info(String.format("--- mod-invoice-storage %s test: Fetching %s with ID: %s", simpleClassName, simpleClassName, BATCH_VOUCHER_EXPORT_CONFIG_ID));
       Credentials credentials = getData(BATCH_VOUCHER_EXPORT_CONFIG_CREDENTIALS_ENDPOINT).then()
         .log().ifValidationFails()
         .statusCode(200).log().ifValidationFails()
@@ -75,12 +75,12 @@ public class ExportConfigCredentialsTest extends TestBase {
 
       Assertions.assertEquals(BATCH_VOUCHER_EXPORT_CONFIG_ID, credentials.getExportConfigId());
 
-      logger.info(String.format("--- mod-invoice-storage %s test: Editing %s with ID: %s", simpleClassName, simpleClassName, BATCH_VOUCHER_EXPORT_CONFIG_ID));
+      log.info(String.format("--- mod-invoice-storage %s test: Editing %s with ID: %s", simpleClassName, simpleClassName, BATCH_VOUCHER_EXPORT_CONFIG_ID));
       credentials.setPassword(MY_NEW_PASSWORD);
       JsonObject catJSON = JsonObject.mapFrom(credentials);
       testEntityEdit(BATCH_VOUCHER_EXPORT_CONFIG_CREDENTIALS_ENDPOINT_WITH_ID, catJSON.toString(), BATCH_VOUCHER_EXPORT_CONFIG_ID);
 
-      logger.info(String.format("--- mod-invoice-storage %s test: Fetching updated %s with ID: %s", simpleClassName, simpleClassName, BATCH_VOUCHER_EXPORT_CONFIG_ID));
+      log.info(String.format("--- mod-invoice-storage %s test: Fetching updated %s with ID: %s", simpleClassName, simpleClassName, BATCH_VOUCHER_EXPORT_CONFIG_ID));
       String existedValue = getData(BATCH_VOUCHER_EXPORT_CONFIG_CREDENTIALS_ENDPOINT)
         .then()
         .log().ifValidationFails()
@@ -92,13 +92,13 @@ public class ExportConfigCredentialsTest extends TestBase {
       Assertions.assertEquals(MY_NEW_PASSWORD, existedValue);
 
     } catch (Exception e) {
-      logger.error(String.format("--- mod-invoice-storage-test: %s API ERROR: %s", simpleClassName, e.getMessage()));
+      log.error(String.format("--- mod-invoice-storage-test: %s API ERROR: %s", simpleClassName, e.getMessage()));
       Assertions.fail(e.getMessage());
     } finally {
-      logger.info(String.format("--- mod-invoice-storages %s test: Deleting %s with ID: %s", simpleClassName, simpleClassName, BATCH_VOUCHER_EXPORT_CONFIG_ID));
+      log.info(String.format("--- mod-invoice-storages %s test: Deleting %s with ID: %s", simpleClassName, simpleClassName, BATCH_VOUCHER_EXPORT_CONFIG_ID));
       deleteDataSuccess(BATCH_VOUCHER_EXPORT_CONFIG_CREDENTIALS_ENDPOINT_WITH_ID, BATCH_VOUCHER_EXPORT_CONFIG_ID);
 
-      logger.info(String.format("--- mod-invoice-storages %s test: Verify %s is deleted with ID: %s", simpleClassName, simpleClassName, BATCH_VOUCHER_EXPORT_CONFIG_ID));
+      log.info(String.format("--- mod-invoice-storages %s test: Verify %s is deleted with ID: %s", simpleClassName, simpleClassName, BATCH_VOUCHER_EXPORT_CONFIG_ID));
       testVerifyEntityDeletion(BATCH_VOUCHER_EXPORT_CONFIG_CREDENTIALS_ENDPOINT_WITH_ID, BATCH_VOUCHER_EXPORT_CONFIG_ID);
 
       deleteDataSuccess(BATCH_VOUCHER_EXPORT_CONFIGS_ENDPOINT_WITH_ID, BATCH_VOUCHER_EXPORT_CONFIG_ID);
@@ -111,14 +111,14 @@ public class ExportConfigCredentialsTest extends TestBase {
 
   @Test
   public void testFetchEntityWithNonExistedId() throws MalformedURLException {
-    logger.info(String.format("--- mod-invoice-storage %s get by id test: Invalid %s: %s", simpleClassName,simpleClassName, NON_EXISTED_ID));
+    log.info(String.format("--- mod-invoice-storage %s get by id test: Invalid %s: %s", simpleClassName,simpleClassName, NON_EXISTED_ID));
     getDataById(BATCH_VOUCHER_EXPORT_CONFIG_CREDENTIALS_ENDPOINT_WITH_ID, NON_EXISTED_ID).then().log().ifValidationFails()
       .statusCode(404);
   }
 
   @Test
   public void testEditEntityWithNonExistedId() throws MalformedURLException {
-    logger.info(String.format("--- mod-invoice-storage %s put by id test: Invalid %s: %s", simpleClassName, simpleClassName, NON_EXISTED_ID));
+    log.info(String.format("--- mod-invoice-storage %s put by id test: Invalid %s: %s", simpleClassName, simpleClassName, NON_EXISTED_ID));
     String sampleData = getFile(SAMPLE_CREDENTIALS_FILE_1);
     Credentials credentials = (new JsonObject(sampleData).mapTo(Credentials.class));
     credentials.setId(NON_EXISTED_ID);
@@ -132,7 +132,7 @@ public class ExportConfigCredentialsTest extends TestBase {
   @Test
   public void testEditEntityWithoutId() throws MalformedURLException {
     try {
-      logger.info(String.format("--- mod-invoice-storage %s put by id test: no id", simpleClassName));
+      log.info(String.format("--- mod-invoice-storage %s put by id test: no id", simpleClassName));
       String sampleData = getFile(SAMPLE_CREDENTIALS_FILE_1);
       Credentials credentials = (new JsonObject(sampleData).mapTo(Credentials.class));
 
@@ -162,10 +162,10 @@ public class ExportConfigCredentialsTest extends TestBase {
         .ifValidationFails()
         .statusCode(404);
     } finally {
-      logger.info(String.format("--- mod-invoice-storages %s test: Deleting %s with ID: %s", simpleClassName, simpleClassName, BATCH_VOUCHER_EXPORT_CONFIG_ID));
+      log.info(String.format("--- mod-invoice-storages %s test: Deleting %s with ID: %s", simpleClassName, simpleClassName, BATCH_VOUCHER_EXPORT_CONFIG_ID));
       deleteDataSuccess(BATCH_VOUCHER_EXPORT_CONFIG_CREDENTIALS_ENDPOINT_WITH_ID, BATCH_VOUCHER_EXPORT_CONFIG_ID);
 
-      logger.info(String.format("--- mod-invoice-storages %s test: Verify %s is deleted with ID: %s", simpleClassName, simpleClassName, BATCH_VOUCHER_EXPORT_CONFIG_ID));
+      log.info(String.format("--- mod-invoice-storages %s test: Verify %s is deleted with ID: %s", simpleClassName, simpleClassName, BATCH_VOUCHER_EXPORT_CONFIG_ID));
       testVerifyEntityDeletion(BATCH_VOUCHER_EXPORT_CONFIG_CREDENTIALS_ENDPOINT_WITH_ID, BATCH_VOUCHER_EXPORT_CONFIG_ID);
 
       deleteDataSuccess(BATCH_VOUCHER_EXPORT_CONFIGS_ENDPOINT_WITH_ID, BATCH_VOUCHER_EXPORT_CONFIG_ID);
@@ -178,7 +178,7 @@ public class ExportConfigCredentialsTest extends TestBase {
 
   @Test
   public void testDeleteEntityWithNonExistedId() throws MalformedURLException {
-    logger.info(String.format("--- mod-invoice-storage %s delete by id test: Invalid %s: %s", simpleClassName, simpleClassName, NON_EXISTED_ID));
+    log.info(String.format("--- mod-invoice-storage %s delete by id test: Invalid %s: %s", simpleClassName, simpleClassName, NON_EXISTED_ID));
     deleteData(BATCH_VOUCHER_EXPORT_CONFIG_CREDENTIALS_ENDPOINT_WITH_ID, NON_EXISTED_ID)
       .then().log().ifValidationFails()
       .statusCode(404);
@@ -186,7 +186,7 @@ public class ExportConfigCredentialsTest extends TestBase {
 
   @Test
   public void testEntityWithMismatchId() throws MalformedURLException {
-    logger.info(String.format("--- mod-invoice-storage %s put by id test: Invalid %s: %s", simpleClassName, simpleClassName, NON_EXISTED_ID));
+    log.info(String.format("--- mod-invoice-storage %s put by id test: Invalid %s: %s", simpleClassName, simpleClassName, NON_EXISTED_ID));
 
     // prepare batch groups
     String batchGroupSample1 = getFile(SAMPLE_BATCH_GROUPS_FILE_1);

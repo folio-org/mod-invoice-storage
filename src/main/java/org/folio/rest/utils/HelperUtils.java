@@ -89,6 +89,7 @@ public class HelperUtils {
   }
 
   public static String encodeQuery(String query) {
+    log.debug("encodeQuery: query={}", query);
     try {
       return URLEncoder.encode(query, StandardCharsets.UTF_8.toString());
     } catch (UnsupportedEncodingException e) {

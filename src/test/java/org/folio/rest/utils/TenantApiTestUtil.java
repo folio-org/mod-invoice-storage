@@ -22,7 +22,7 @@ import org.folio.rest.tools.utils.ModuleName;
 
 public class TenantApiTestUtil {
 
-  private static final Logger logger = LogManager.getLogger(TenantApiTestUtil.class);
+  private static final Logger log = LogManager.getLogger(TenantApiTestUtil.class);
 
   public static final String LOAD_SYNC_PARAMETER = "loadSync";
   private static final int TENANT_OP_WAITING_TIME = 60000;
@@ -56,16 +56,16 @@ public class TenantApiTestUtil {
     CompletableFuture<TenantJob> future = new CompletableFuture<>();
     TenantClient tClient =  new TenantClient(URL_TO_HEADER.getValue(), tenantHeader.getValue(), null);
     try {
-      tClient.postTenant(tenantAttributes, event -> {
-        if (event.failed()) {
-          future.completeExceptionally(event.cause());
+      tClient.postTenant(tenantAttributes, ar -> {
+        if (ar.failed()) {
+          future.completeExceptionally(ar.cause());
         } else {
-          TenantJob tenantJob = event.result().bodyAsJson(TenantJob.class);
+          TenantJob tenantJob = ar.result().bodyAsJson(TenantJob.class);
           tClient.getTenantByOperationId(tenantJob.getId(), TENANT_OP_WAITING_TIME, result -> {
             if(result.failed()) {
               future.completeExceptionally(result.cause());
             } else {
-              logger.info("tenant successfully deleted");
+              log.info("tenant successfully deleted");
               future.complete(tenantJob);
             }
           });
@@ -85,10 +85,10 @@ public class TenantApiTestUtil {
       CompletableFuture<Void> completableFuture = new CompletableFuture<>();
       tenantClient.deleteTenantByOperationId(tenantJob.getId(), responseHandler -> {
         if (responseHandler.failed()) {
-          logger.info("Failed to delete tenant");
+          log.info("Failed to delete tenant");
           completableFuture.completeExceptionally(responseHandler.cause());
         } else {
-          logger.info("tenant has been deleted");
+          log.info("tenant has been deleted");
           completableFuture.complete(null);
         }
       });
@@ -107,9 +107,9 @@ public class TenantApiTestUtil {
     TenantClient tClient =  new TenantClient(URL_TO_HEADER.getValue(), tenantHeader.getValue(), null);
     TenantAttributes tenantAttributes = prepareTenantBody(false, false).withPurge(true);
     try {
-      tClient.postTenant(tenantAttributes, event -> {
-        if (event.failed()) {
-          future.completeExceptionally(event.cause());
+      tClient.postTenant(tenantAttributes, ar -> {
+        if (ar.failed()) {
+          future.completeExceptionally(ar.cause());
         } else {
           future.complete(null);
         }

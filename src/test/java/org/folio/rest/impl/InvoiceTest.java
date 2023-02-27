@@ -13,11 +13,11 @@ import org.junit.jupiter.api.Test;
 import io.vertx.core.json.JsonObject;
 
 public class InvoiceTest extends TestBase {
-  private static final Logger logger = LogManager.getLogger(InvoiceTest.class);
+  private static final Logger log = LogManager.getLogger(InvoiceTest.class);
 
   @Test
   public void testDeleteInvoiceAndAssociatedLines() throws MalformedURLException {
-    logger.info(String.format("--- mod-invoice-storage %s test: Delete invoice and associated invoice lines", INVOICE.name()));
+    log.info(String.format("--- mod-invoice-storage %s test: Delete invoice and associated invoice lines", INVOICE.name()));
     String invoiceSample = getFile(INVOICE.getSampleFileName());
     JsonObject invoiceJson = new JsonObject(invoiceSample);
     invoiceJson.remove("id");
@@ -31,9 +31,9 @@ public class InvoiceTest extends TestBase {
     invoiceLineSample = invoiceLineJson.toString();
 
     String firstLineId = createEntity(TestEntities.INVOICE_LINES.getEndpoint(), invoiceLineSample);
-    logger.info("Created line with id={}", firstLineId);
+    log.info("Created line with id={}", firstLineId);
     String secondLineId = createEntity(TestEntities.INVOICE_LINES.getEndpoint(), invoiceLineSample);
-    logger.info("Created line with id={}", secondLineId);
+    log.info("Created line with id={}", secondLineId);
 
     verifyCollectionQuantity(INVOICE.getEndpoint(), 1);
     verifyCollectionQuantity(TestEntities.INVOICE_LINES.getEndpoint(), 2);
@@ -47,7 +47,7 @@ public class InvoiceTest extends TestBase {
 
   @Test
   public void testCreateInvoiceNoDb() throws MalformedURLException {
-    logger.info(String.format("--- mod-invoice-storage %s test: Attempt to create invoice when no DB initialized", INVOICE.name()));
+    log.info(String.format("--- mod-invoice-storage %s test: Attempt to create invoice when no DB initialized", INVOICE.name()));
     String invoiceSample = getFile(INVOICE.getSampleFileName());
     JsonObject invoiceJson = new JsonObject(invoiceSample);
     invoiceJson.remove("id");
@@ -60,7 +60,7 @@ public class InvoiceTest extends TestBase {
 
   @Test
   public void testDeleteInvoiceNoDb() throws MalformedURLException {
-    logger.info(String.format("--- mod-invoice-storage %s test: Attempt to delete invoice when no DB initialized", INVOICE.name()));
+    log.info(String.format("--- mod-invoice-storage %s test: Attempt to delete invoice when no DB initialized", INVOICE.name()));
 
     deleteData(INVOICE.getEndpointWithId(), UUID.randomUUID().toString(), TENANT_WITHOUT_DB_HEADER)
       .then().log().ifValidationFails()

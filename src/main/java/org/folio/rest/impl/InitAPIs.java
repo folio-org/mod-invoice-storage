@@ -21,7 +21,7 @@ import io.vertx.core.json.jackson.DatabindCodec;
  * The class initializes vertx context adding spring context
  */
 public class InitAPIs implements InitAPI {
-  private static final Logger logger = LogManager.getLogger(InitAPIs.class);
+  private static final Logger log = LogManager.getLogger(InitAPIs.class);
 
   @Override
   public void init(Vertx vertx, Context context, Handler<AsyncResult<Boolean>> resultHandler) {
@@ -40,9 +40,10 @@ public class InitAPIs implements InitAPI {
       },
       result -> {
         if (result.succeeded()) {
+          log.info("APIs initialized successfully");
           resultHandler.handle(Future.succeededFuture(true));
         } else {
-          logger.error("Failure to init API", result.cause());
+          log.error("Failure to init API", result.cause());
           resultHandler.handle(Future.failedFuture(result.cause()));
         }
       });

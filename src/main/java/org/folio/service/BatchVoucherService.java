@@ -12,8 +12,6 @@ import org.apache.logging.log4j.Logger;
 import org.folio.rest.persist.PostgresClient;
 import org.folio.rest.persist.Tx;
 
-import com.google.common.collect.ImmutableMap;
-
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Context;
 import io.vertx.core.Future;
@@ -25,7 +23,7 @@ public class BatchVoucherService {
 
   private static final String BATCH_VOUCHER_ID = "batchVoucherId";
   private static final String BATCH_VOUCHERS_TABLE = "batch_vouchers";
-  private static final Logger logger = LogManager.getLogger(BatchVoucherService.class);
+  private static final Logger log = LogManager.getLogger(BatchVoucherService.class);
   private final PostgresClient pgClient;
 
   public BatchVoucherService(PostgresClient pgClient) {
@@ -33,11 +31,11 @@ public class BatchVoucherService {
   }
 
   public void deleteBatchVoucherById(String id, Context vertxContext, Handler<AsyncResult<Response>> asyncResultHandler) {
-
+    log.debug("deleteBatchVoucherById:: Trying to delete batch voucher with id: {}", id);
     BatchVoucherExportsService batchVoucherExportsService = new BatchVoucherExportsService(pgClient);
 
     vertxContext.runOnContext(v -> {
-      Tx<Map<String, String>> tx = new Tx<>(ImmutableMap.of(BATCH_VOUCHER_ID, id), pgClient);
+      Tx<Map<String, String>> tx = new Tx<>(Map.of(BATCH_VOUCHER_ID, id), pgClient);
 
       tx.startTx()
         .compose(batchVoucherExportsService::deleteBatchVoucherExportsByBatchVoucherId)
@@ -49,12 +47,15 @@ public class BatchVoucherService {
 
   public Future<Tx<Map<String, String>>> deleteBatchVoucherById(Tx<Map<String, String>> tx) {
     Promise<Tx<Map<String, String>>> promise = Promise.promise();
-
-    pgClient.delete(tx.getConnection(), BATCH_VOUCHERS_TABLE, tx.getEntity().get(BATCH_VOUCHER_ID), rs -> {
-      logger.info("deletion of batch voucher completed");
+    String batchVoucherId = tx.getEntity().get(BATCH_VOUCHER_ID);
+    log.debug("deleteBatchVoucherById:: Trying to delete batch voucher with id: {}", batchVoucherId);
+    pgClient.delete(tx.getConnection(), BATCH_VOUCHERS_TABLE, batchVoucherId, rs -> {
+      log.info("deleteBatchVoucherById:: deletion of batch voucher completed");
       if (rs.result().rowCount() == 0) {
+        log.warn("deleteBatchVoucherById:: Batch voucher with id '{}' not found", batchVoucherId);
         promise.fail(new HttpException(NOT_FOUND.getStatusCode(), NOT_FOUND.getReasonPhrase()));
       } else {
+        log.info("deleteBatchVoucherById:: Batch voucher with id '{}' deleted", batchVoucherId);
         promise.complete(tx);
       }
     });

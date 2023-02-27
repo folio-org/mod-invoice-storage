@@ -54,6 +54,7 @@ public class InvoicePostgresDAO implements InvoiceDAO {
         }
       });
     } catch (Exception e) {
+      log.error("Error when creating sequence for invoice with id={}", invoiceId, e);
       promise.fail(new HttpException(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), e.getMessage()));
     }
     return promise.future();
@@ -105,11 +106,13 @@ public class InvoicePostgresDAO implements InvoiceDAO {
     Promise<DBClient> promise = Promise.promise();
     client.getPgClient().delete(client.getConnection(), INVOICE_TABLE, id, reply -> {
       if (reply.failed()) {
+        log.error("Invoice deletion with id={} failed", id, reply.cause());
         handleFailure(promise, reply);
       } else {
         if (reply.result().rowCount() == 0) {
           promise.fail(new HttpException(Response.Status.NOT_FOUND.getStatusCode(), "Invoice not found"));
         } else {
+          log.info("Invoice with id={} successfully deleted", id);
           promise.complete(client);
         }
       }
@@ -127,6 +130,7 @@ public class InvoicePostgresDAO implements InvoiceDAO {
         log.error(errorMessage, reply.cause(), id);
         handleFailure(promise, reply);
       } else {
+        log.info("Invoice Line number sequence for invoice with id={} successfully dropped", id);
         promise.complete(client);
       }
     });
@@ -185,7 +189,7 @@ public class InvoicePostgresDAO implements InvoiceDAO {
         }
       });
     } catch (Exception e) {
-      log.error(e.getMessage(), e);
+      log.error("Error while creating invoice document with id: {}", invoiceDoc.getDocumentMetadata().getInvoiceId(), e);
       promise.fail(new HttpException(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), e.getMessage()));
     }
     return promise.future();
@@ -202,6 +206,7 @@ public class InvoicePostgresDAO implements InvoiceDAO {
         try {
           if (reply.succeeded()) {
             if (reply.result().rowCount() == 0) {
+              log.error("Invoice document with invoiceId={} and documentId={} not found", invoiceId, documentId);
               promise.fail(new HttpException(Response.Status.NOT_FOUND.getStatusCode(),
                 Response.Status.NOT_FOUND.getReasonPhrase()));
               return;
@@ -218,20 +223,20 @@ public class InvoicePostgresDAO implements InvoiceDAO {
             if (StringUtils.isNotEmpty(base64Content)){
               invoiceDocument.setContents(new Contents().withData(base64Content));
             }
-
+            log.info("Invoice document with invoiceId={} and documentId={} successfully retrieved", invoiceId, documentId);
             promise.complete(invoiceDocument);
           } else {
-            log.error(reply.cause().getMessage(), reply.cause());
+            log.error("Error while getting invoice document with invoiceId={} and documentId={}", invoiceId, documentId, reply.cause());
             handleFailure(promise, reply);
           }
         } catch (Exception e) {
-          log.error(e.getMessage(), e);
+          log.error("SQL Error while getting invoice document with invoiceId={} and documentId={}", invoiceId, documentId, e);
           promise.fail(new HttpException(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(),
             Response.Status.INTERNAL_SERVER_ERROR.getReasonPhrase()));
         }
       });
     } catch (Exception e) {
-      log.error(e.getMessage(), e);
+      log.error("Error while getting invoice document with invoiceId={} and documentId={}", invoiceId, documentId, e);
       promise.fail(new HttpException(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(),
         Response.Status.INTERNAL_SERVER_ERROR.getReasonPhrase()));
     }

@@ -34,30 +34,30 @@ class DocumentTest extends TestBase {
   private static final String DOCUMENT_ID = "433f8140-001e-4605-b5a8-f02793f3d2ec";
   private static final String ANOTHER_DOCUMENT_ID = "1f6c1af3-6475-43a2-8626-e2496616601c";
 
-  private static final Logger logger = LogManager.getLogger(DocumentTest.class);
+  private static final Logger log = LogManager.getLogger(DocumentTest.class);
 
   @Test
   void testDocumentsCrud() throws MalformedURLException {
     try {
-      logger.info("--- mod-invoice-storage Document test:");
+      log.info("--- mod-invoice-storage Document test:");
 
-      logger.info("--- mod-invoice-storage Document test: prepare two invoices");
+      log.info("--- mod-invoice-storage Document test: prepare two invoices");
       postData(INVOICE.getEndpoint(), getFile(SAMPLE_INVOICE_FILE)).then()
         .statusCode(201);
       postData(INVOICE.getEndpoint(), getFile(SAMPLE_INVOICE_FILE_2)).then()
         .statusCode(201);
 
-      logger.info("--- mod-invoice-storage Document test: prepare two create two documents");
+      log.info("--- mod-invoice-storage Document test: prepare two create two documents");
       postData(DOCUMENT_ENDPOINT, getFile(SAMPLE_DOCUMENT_FILE)).then()
         .statusCode(201);
       postData(ANOTHER_DOCUMENT_ENDPOINT, getFile(SAMPLE_DOCUMENT_FILE_2)).then()
         .statusCode(201);
 
-      logger.info("--- mod-invoice-storage Document test: Try to create document with mismatched invoiceId");
+      log.info("--- mod-invoice-storage Document test: Try to create document with mismatched invoiceId");
       postData(DOCUMENT_ENDPOINT, getFile(SAMPLE_DOCUMENT_INVALID_INVOICE)).then()
         .statusCode(400);
 
-      logger.info(String.format("--- mod-invoice-storage  test: Fetching with ID: %s", INVOICE_ID));
+      log.info(String.format("--- mod-invoice-storage  test: Fetching with ID: %s", INVOICE_ID));
       InvoiceDocument createdDocument = getDataById(DOCUMENT_ENDPOINT_WITH_ID, DOCUMENT_ID).then()
         .log().ifValidationFails()
         .statusCode(200)
@@ -69,7 +69,7 @@ class DocumentTest extends TestBase {
       assertEquals(INVOICE_ID, createdDocument.getDocumentMetadata().getInvoiceId());
       assertNotNull(createdDocument.getContents().getData());
 
-      logger.info(String.format("--- mod-invoice-storage  test: Get list of documents for invoice %s", INVOICE_ID));
+      log.info(String.format("--- mod-invoice-storage  test: Get list of documents for invoice %s", INVOICE_ID));
       DocumentCollection documents = getData(DOCUMENT_ENDPOINT).then()
         .log().ifValidationFails()
         .statusCode(200)
@@ -80,7 +80,7 @@ class DocumentTest extends TestBase {
       // check only one document was found
       Assertions.assertEquals(1, documents.getTotalRecords());
 
-      logger.info(String.format("--- mod-invoice-storage  test: Get list of documents by query for invoice %s", INVOICE_ID));
+      log.info(String.format("--- mod-invoice-storage  test: Get list of documents by query for invoice %s", INVOICE_ID));
       DocumentCollection documentsByQuery = getData(DOCUMENT_ENDPOINT + "?query=name==sample.pdf OR name<>sample.pdf sortBy name").then()
         .log().ifValidationFails()
         .statusCode(200)
@@ -92,16 +92,16 @@ class DocumentTest extends TestBase {
       Assertions.assertEquals(1, documentsByQuery.getTotalRecords());
 
     } catch (Exception e) {
-      logger.error(String.format("--- mod-invoice-storage-test:  API ERROR: %s", e.getMessage()));
+      log.error(String.format("--- mod-invoice-storage-test:  API ERROR: %s", e.getMessage()));
       fail(e.getMessage());
     } finally {
-      logger.info(String.format("--- mod-invoice-storage test: Deleting document with ID: %s", DOCUMENT_ID));
+      log.info(String.format("--- mod-invoice-storage test: Deleting document with ID: %s", DOCUMENT_ID));
       deleteDataSuccess(DOCUMENT_ENDPOINT_WITH_ID, DOCUMENT_ID);
       deleteDataSuccess(ANOTHER_DOCUMENT_ENDPOINT_WITH_ID, ANOTHER_DOCUMENT_ID);
       testVerifyEntityDeletion(DOCUMENT_ENDPOINT_WITH_ID, DOCUMENT_ID);
       testVerifyEntityDeletion(ANOTHER_DOCUMENT_ENDPOINT_WITH_ID, ANOTHER_DOCUMENT_ID);
 
-      logger.info(String.format("--- mod-invoice-storage test: Verify invoice is deleted by ID: %s", INVOICE_ID));
+      log.info(String.format("--- mod-invoice-storage test: Verify invoice is deleted by ID: %s", INVOICE_ID));
       deleteDataSuccess(INVOICE.getEndpointWithId(), INVOICE_ID);
       testVerifyEntityDeletion(INVOICE.getEndpointWithId(), INVOICE_ID);
       deleteDataSuccess(INVOICE.getEndpointWithId(), ANOTHER_INVOICE_ID);
@@ -111,7 +111,7 @@ class DocumentTest extends TestBase {
 
   @Test
   void testFetchEntityWithNonExistedId() throws MalformedURLException {
-    logger.info(String.format("--- mod-invoice-storage get document by id test: Invalid id: %s", NON_EXISTED_ID));
+    log.info(String.format("--- mod-invoice-storage get document by id test: Invalid id: %s", NON_EXISTED_ID));
     getDataById(DOCUMENT_ENDPOINT_WITH_ID, NON_EXISTED_ID).then()
       .log()
       .ifValidationFails()
@@ -120,7 +120,7 @@ class DocumentTest extends TestBase {
 
   @Test
   void testDeleteEntityWithNonExistedId() throws MalformedURLException {
-    logger.info(String.format("--- mod-invoice-storage delete document by id test: Invalid id: %s", NON_EXISTED_ID));
+    log.info(String.format("--- mod-invoice-storage delete document by id test: Invalid id: %s", NON_EXISTED_ID));
     deleteData(DOCUMENT_ENDPOINT_WITH_ID, NON_EXISTED_ID).then()
       .log()
       .ifValidationFails()
