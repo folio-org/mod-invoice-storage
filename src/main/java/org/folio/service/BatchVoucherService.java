@@ -55,7 +55,7 @@ public class BatchVoucherService {
         log.warn("deleteBatchVoucherById:: Batch voucher with id '{}' not found", batchVoucherId);
         promise.fail(new HttpException(NOT_FOUND.getStatusCode(), NOT_FOUND.getReasonPhrase()));
       } else {
-        log.info("deleteBatchVoucherById:: Batch voucher with id '{}' deleted", tx.getEntity().get(BATCH_VOUCHER_ID));
+        log.info("deleteBatchVoucherById:: Batch voucher with id '{}' deleted", batchVoucherId);
         promise.complete(tx);
       }
     });

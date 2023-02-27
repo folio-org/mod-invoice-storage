@@ -56,12 +56,12 @@ public class BatchVoucherExportsService {
     String batchVoucherExportId = tx.getEntity().get(BATCH_VOUCHER_EXPORT_ID);
     log.debug("deleteBatchVoucherExportById:: Trying to delete batch voucher export with id: {}", batchVoucherExportId);
     pgClient.delete(tx.getConnection(), BATCH_VOUCHER_EXPORTS_TABLE, batchVoucherExportId, rs -> {
-      log.info("deleteBatchVoucherExportById:: Deletion of batch voucher exports completed");
+      log.info("deleteBatchVoucherExportById:: Deletion of batch voucher export with id '{}' completed", batchVoucherExportId);
       if (rs.result().rowCount() == 0) {
-        log.warn("deleteBatchVoucherExportById:: No rows deleted for batch voucher export");
+        log.warn("deleteBatchVoucherExportById:: No rows deleted for batch voucher export with id {}", batchVoucherExportId);
         promise.fail(new HttpException(NOT_FOUND.getStatusCode(), NOT_FOUND.getReasonPhrase()));
       } else {
-        log.error("Failed to delete batch voucher export", rs.cause());
+        log.error("Failed to delete batch voucher export with id: {} ", batchVoucherExportId, rs.cause());
         promise.complete(tx);
       }
     });
@@ -77,7 +77,7 @@ public class BatchVoucherExportsService {
     pgClient.delete(tx.getConnection(), BATCH_VOUCHER_EXPORTS_TABLE, criterion, rs -> {
       log.info("deleteBatchVoucherExportsByBatchVoucherId:: Deletion of batch voucher exports completed");
       if (rs.failed()) {
-        log.warn("deleteBatchVoucherExportsByBatchVoucherId:: Failed to delete batch voucher exports with batch voucher id {}: {}", batchVoucherId, rs.cause());
+        log.warn("deleteBatchVoucherExportsByBatchVoucherId:: Failed to delete batch voucher exports with batch voucher id {}", batchVoucherId, rs.cause());
         promise.fail(new HttpException(NOT_FOUND.getStatusCode(), NOT_FOUND.getReasonPhrase()));
       } else {
         log.info("deleteBatchVoucherExportsByBatchVoucherId:: Batch voucher exports with batch voucher id {} deleted", batchVoucherId);
