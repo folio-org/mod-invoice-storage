@@ -23,7 +23,7 @@ public class VoucherStorageImpl implements VoucherStorage {
 
   @Validate
   @Override
-  public void getVoucherStorageVouchers(int offset, int limit, String query, String lang, Map<String, String> okapiHeaders,
+  public void getVoucherStorageVouchers(String totalRecords, int offset, int limit, String query, Map<String, String> okapiHeaders,
       Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
     PgUtil.get(VOUCHER_TABLE, Voucher.class, VoucherCollection.class, query, offset, limit, okapiHeaders, vertxContext,
         GetVoucherStorageVouchersResponse.class, asyncResultHandler);
@@ -31,14 +31,14 @@ public class VoucherStorageImpl implements VoucherStorage {
 
   @Validate
   @Override
-  public void postVoucherStorageVouchers(String lang, Voucher entity, Map<String, String> okapiHeaders,
+  public void postVoucherStorageVouchers(Voucher entity, Map<String, String> okapiHeaders,
       Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
     PgUtil.post(VOUCHER_TABLE, entity, okapiHeaders, vertxContext, PostVoucherStorageVouchersResponse.class, asyncResultHandler);
   }
 
   @Validate
   @Override
-  public void getVoucherStorageVouchersById(String id, String lang, Map<String, String> okapiHeaders,
+  public void getVoucherStorageVouchersById(String id, Map<String, String> okapiHeaders,
       Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
     PgUtil.getById(VOUCHER_TABLE, Voucher.class, id, okapiHeaders, vertxContext, GetVoucherStorageVouchersByIdResponse.class,
         asyncResultHandler);
@@ -46,7 +46,7 @@ public class VoucherStorageImpl implements VoucherStorage {
 
   @Validate
   @Override
-  public void deleteVoucherStorageVouchersById(String id, String lang, Map<String, String> okapiHeaders,
+  public void deleteVoucherStorageVouchersById(String id, Map<String, String> okapiHeaders,
       Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
     PgUtil.deleteById(VOUCHER_TABLE, id, okapiHeaders, vertxContext, DeleteVoucherStorageVouchersByIdResponse.class,
         asyncResultHandler);
@@ -54,7 +54,7 @@ public class VoucherStorageImpl implements VoucherStorage {
 
   @Validate
   @Override
-  public void putVoucherStorageVouchersById(String id, String lang, Voucher entity, Map<String, String> okapiHeaders,
+  public void putVoucherStorageVouchersById(String id, Voucher entity, Map<String, String> okapiHeaders,
       Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
     PgUtil.put(VOUCHER_TABLE, entity, id, okapiHeaders, vertxContext, PutVoucherStorageVouchersByIdResponse.class,
         asyncResultHandler);
@@ -62,35 +62,35 @@ public class VoucherStorageImpl implements VoucherStorage {
   }
 
   @Override
-  public void getVoucherStorageVoucherLines(int offset, int limit, String query, String lang, Map<String, String> okapiHeaders,
+  public void getVoucherStorageVoucherLines(String totalRecords, int offset, int limit, String query, Map<String, String> okapiHeaders,
       Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
     PgUtil.get(VOUCHER_LINE_TABLE, VoucherLine.class, VoucherLineCollection.class, query, offset, limit, okapiHeaders, vertxContext,
         GetVoucherStorageVoucherLinesResponse.class, asyncResultHandler);
   }
 
   @Override
-  public void postVoucherStorageVoucherLines(String lang, VoucherLine entity, Map<String, String> okapiHeaders,
+  public void postVoucherStorageVoucherLines(VoucherLine entity, Map<String, String> okapiHeaders,
       Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
     PgUtil.post(VOUCHER_LINE_TABLE, entity, okapiHeaders, vertxContext, PostVoucherStorageVoucherLinesResponse.class,
         asyncResultHandler);
   }
 
   @Override
-  public void putVoucherStorageVoucherLinesById(String id, String lang, VoucherLine entity, Map<String, String> okapiHeaders,
+  public void putVoucherStorageVoucherLinesById(String id, VoucherLine entity, Map<String, String> okapiHeaders,
       Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
     PgUtil.put(VOUCHER_LINE_TABLE, entity, id, okapiHeaders, vertxContext, PutVoucherStorageVoucherLinesByIdResponse.class,
         asyncResultHandler);
   }
 
   @Override
-  public void getVoucherStorageVoucherLinesById(String id, String lang, Map<String, String> okapiHeaders,
+  public void getVoucherStorageVoucherLinesById(String id, Map<String, String> okapiHeaders,
       Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
     PgUtil.getById(VOUCHER_LINE_TABLE, VoucherLine.class, id, okapiHeaders, vertxContext,
         GetVoucherStorageVoucherLinesByIdResponse.class, asyncResultHandler);
   }
 
   @Override
-  public void deleteVoucherStorageVoucherLinesById(String id, String lang, Map<String, String> okapiHeaders,
+  public void deleteVoucherStorageVoucherLinesById(String id, Map<String, String> okapiHeaders,
       Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
     PgUtil.deleteById(VOUCHER_LINE_TABLE, id, okapiHeaders, vertxContext, DeleteVoucherStorageVoucherLinesByIdResponse.class,
         asyncResultHandler);

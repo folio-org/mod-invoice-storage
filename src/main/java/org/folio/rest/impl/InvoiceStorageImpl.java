@@ -39,7 +39,7 @@ public class InvoiceStorageImpl implements InvoiceStorage {
 
   @Validate
   @Override
-  public void getInvoiceStorageInvoices(int offset, int limit, String query, String lang, Map<String, String> okapiHeaders,
+  public void getInvoiceStorageInvoices(String totalRecords, int offset, int limit, String query, Map<String, String> okapiHeaders,
       Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
     PgUtil.get(INVOICE_TABLE, Invoice.class, InvoiceCollection.class, query, offset, limit, okapiHeaders, vertxContext,
       GetInvoiceStorageInvoicesResponse.class, asyncResultHandler);
@@ -47,14 +47,14 @@ public class InvoiceStorageImpl implements InvoiceStorage {
 
   @Validate
   @Override
-  public void postInvoiceStorageInvoices(String lang, Invoice entity, Map<String, String> okapiHeaders,
+  public void postInvoiceStorageInvoices(Invoice entity, Map<String, String> okapiHeaders,
       Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
     invoiceStorageService.postInvoiceStorageInvoices(entity, asyncResultHandler, vertxContext, okapiHeaders);
   }
 
   @Validate
   @Override
-  public void getInvoiceStorageInvoicesById(String id, String lang, Map<String, String> okapiHeaders,
+  public void getInvoiceStorageInvoicesById(String id, Map<String, String> okapiHeaders,
       Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
     PgUtil.getById(INVOICE_TABLE, Invoice.class, id, okapiHeaders, vertxContext, GetInvoiceStorageInvoicesByIdResponse.class,
         asyncResultHandler);
@@ -62,21 +62,21 @@ public class InvoiceStorageImpl implements InvoiceStorage {
 
   @Validate
   @Override
-  public void deleteInvoiceStorageInvoicesById(String id, String lang, Map<String, String> okapiHeaders,
+  public void deleteInvoiceStorageInvoicesById(String id, Map<String, String> okapiHeaders,
       Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
     invoiceStorageService.deleteInvoiceStorageInvoicesById(id, asyncResultHandler, vertxContext, okapiHeaders);
   }
 
   @Validate
   @Override
-  public void putInvoiceStorageInvoicesById(String id, String lang, Invoice entity, Map<String, String> okapiHeaders,
+  public void putInvoiceStorageInvoicesById(String id, Invoice entity, Map<String, String> okapiHeaders,
       Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
     invoiceStorageService.putInvoiceStorageInvoicesById(id, entity, okapiHeaders, asyncResultHandler, vertxContext);
   }
 
   @Validate
   @Override
-  public void getInvoiceStorageInvoicesDocumentsById(String id, int offset, int limit, String query, String lang,
+  public void getInvoiceStorageInvoicesDocumentsById(String id, String totalRecords, int offset, int limit, String query,
       Map<String, String> okapiHeaders, Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
     invoiceStorageService.getInvoiceStorageInvoicesDocumentsById(id, offset, limit, query, okapiHeaders, asyncResultHandler,
         vertxContext);
@@ -84,14 +84,14 @@ public class InvoiceStorageImpl implements InvoiceStorage {
 
   @Validate
   @Override
-  public void postInvoiceStorageInvoicesDocumentsById(String id, String lang, InvoiceDocument entity,
-      Map<String, String> okapiHeaders, Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
+  public void postInvoiceStorageInvoicesDocumentsById(String id, InvoiceDocument entity, Map<String, String> okapiHeaders,
+      Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
     invoiceStorageService.postInvoiceStorageInvoicesDocumentsById(id, entity, okapiHeaders, asyncResultHandler, vertxContext);
   }
 
   @Validate
   @Override
-  public void getInvoiceStorageInvoicesDocumentsByIdAndDocumentId(String id, String documentId, String lang,
+  public void getInvoiceStorageInvoicesDocumentsByIdAndDocumentId(String id, String documentId,
       Map<String, String> okapiHeaders, Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
     invoiceStorageService.getInvoiceStorageInvoicesDocumentsByIdAndDocumentId(id, documentId, okapiHeaders, asyncResultHandler,
         vertxContext);
@@ -99,7 +99,7 @@ public class InvoiceStorageImpl implements InvoiceStorage {
 
   @Validate
   @Override
-  public void deleteInvoiceStorageInvoicesDocumentsByIdAndDocumentId(String id, String documentId, String lang,
+  public void deleteInvoiceStorageInvoicesDocumentsByIdAndDocumentId(String id, String documentId,
       Map<String, String> okapiHeaders, Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
     PgUtil.deleteById(DOCUMENT_TABLE, documentId, okapiHeaders, vertxContext,
         DeleteInvoiceStorageInvoicesDocumentsByIdAndDocumentIdResponse.class, asyncResultHandler);
@@ -107,7 +107,7 @@ public class InvoiceStorageImpl implements InvoiceStorage {
 
   @Validate
   @Override
-  public void getInvoiceStorageInvoiceLines(int offset, int limit, String query, String lang, Map<String, String> okapiHeaders,
+  public void getInvoiceStorageInvoiceLines(String totalRecords, int offset, int limit, String query, Map<String, String> okapiHeaders,
       Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
     PgUtil.get(INVOICE_LINE_TABLE, InvoiceLine.class, InvoiceLineCollection.class, query, offset, limit, okapiHeaders, vertxContext,
         GetInvoiceStorageInvoiceLinesResponse.class, asyncResultHandler);
@@ -115,7 +115,7 @@ public class InvoiceStorageImpl implements InvoiceStorage {
 
   @Validate
   @Override
-  public void postInvoiceStorageInvoiceLines(String lang, InvoiceLine entity, Map<String, String> okapiHeaders,
+  public void postInvoiceStorageInvoiceLines(InvoiceLine entity, Map<String, String> okapiHeaders,
       Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
     PgUtil.post(INVOICE_LINE_TABLE, entity, okapiHeaders, vertxContext, PostInvoiceStorageInvoiceLinesResponse.class,
         asyncResultHandler);
@@ -123,7 +123,7 @@ public class InvoiceStorageImpl implements InvoiceStorage {
 
   @Validate
   @Override
-  public void putInvoiceStorageInvoiceLinesById(String id, String lang, InvoiceLine entity, Map<String, String> okapiHeaders,
+  public void putInvoiceStorageInvoiceLinesById(String id, InvoiceLine entity, Map<String, String> okapiHeaders,
       Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
     PgUtil.put(INVOICE_LINE_TABLE, entity, id, okapiHeaders, vertxContext, PutInvoiceStorageInvoiceLinesByIdResponse.class,
         asyncResultHandler);
@@ -131,7 +131,7 @@ public class InvoiceStorageImpl implements InvoiceStorage {
 
   @Validate
   @Override
-  public void getInvoiceStorageInvoiceLinesById(String id, String lang, Map<String, String> okapiHeaders,
+  public void getInvoiceStorageInvoiceLinesById(String id, Map<String, String> okapiHeaders,
       Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
     PgUtil.getById(INVOICE_LINE_TABLE, InvoiceLine.class, id, okapiHeaders, vertxContext,
         GetInvoiceStorageInvoiceLinesByIdResponse.class, asyncResultHandler);
@@ -139,10 +139,9 @@ public class InvoiceStorageImpl implements InvoiceStorage {
 
   @Validate
   @Override
-  public void deleteInvoiceStorageInvoiceLinesById(String id, String lang, Map<String, String> okapiHeaders,
+  public void deleteInvoiceStorageInvoiceLinesById(String id, Map<String, String> okapiHeaders,
       Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
     PgUtil.deleteById(INVOICE_LINE_TABLE, id, okapiHeaders, vertxContext, DeleteInvoiceStorageInvoiceLinesByIdResponse.class,
         asyncResultHandler);
   }
-
 }

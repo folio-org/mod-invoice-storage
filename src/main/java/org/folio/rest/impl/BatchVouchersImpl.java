@@ -27,7 +27,7 @@ public class BatchVouchersImpl implements BatchVoucherStorageBatchVouchers {
 
   @Validate
   @Override
-  public void postBatchVoucherStorageBatchVouchers(String lang, BatchVoucher entity, Map<String, String> okapiHeaders,
+  public void postBatchVoucherStorageBatchVouchers(BatchVoucher entity, Map<String, String> okapiHeaders,
       Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
     PgUtil.post(BATCH_VOUCHERS_TABLE, entity, okapiHeaders, vertxContext,
         BatchVoucherStorageBatchVouchers.PostBatchVoucherStorageBatchVouchersResponse.class, asyncResultHandler);
@@ -35,7 +35,7 @@ public class BatchVouchersImpl implements BatchVoucherStorageBatchVouchers {
 
   @Validate
   @Override
-  public void getBatchVoucherStorageBatchVouchersById(String id, String lang, Map<String, String> okapiHeaders,
+  public void getBatchVoucherStorageBatchVouchersById(String id, Map<String, String> okapiHeaders,
       Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
     PgUtil.getById(BATCH_VOUCHERS_TABLE, BatchVoucher.class, id, okapiHeaders, vertxContext,
         BatchVoucherStorageBatchVouchers.GetBatchVoucherStorageBatchVouchersByIdResponse.class, asyncResultHandler);
@@ -43,7 +43,7 @@ public class BatchVouchersImpl implements BatchVoucherStorageBatchVouchers {
 
   @Validate
   @Override
-  public void deleteBatchVoucherStorageBatchVouchersById(String id, String lang, Map<String, String> okapiHeaders,
+  public void deleteBatchVoucherStorageBatchVouchersById(String id, Map<String, String> okapiHeaders,
       Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
     batchVoucherService.deleteBatchVoucherById(id, vertxContext, asyncResultHandler);
   }
