@@ -8,6 +8,7 @@ import java.util.Map;
 
 import javax.ws.rs.core.Response;
 
+import io.vertx.ext.web.handler.HttpException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.folio.rest.RestVerticle;
@@ -15,19 +16,15 @@ import org.folio.rest.annotations.Validate;
 import org.folio.rest.jaxrs.model.InvoiceLineNumber;
 import org.folio.rest.jaxrs.resource.InvoiceStorageInvoiceLineNumber;
 import org.folio.rest.persist.PostgresClient;
-//import org.folio.rest.tools.messages.MessageConsts;
-//import org.folio.rest.tools.messages.Messages;
 import org.folio.rest.tools.utils.TenantTool;
 
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Context;
-//import io.vertx.core.Future;
 import io.vertx.core.Handler;
 
 public class InvoiceLineNumberAPI implements InvoiceStorageInvoiceLineNumber {
 
   private static final Logger log = LogManager.getLogger(InvoiceLineNumberAPI.class);
-//  private final Messages messages = Messages.getInstance();
 
   @Validate
   @Override
@@ -52,8 +49,8 @@ public class InvoiceLineNumberAPI implements InvoiceStorageInvoiceLineNumber {
               }
             } catch (Exception e) {
               log.error("Error while handling response for invoice line number request for invoiceId: {}", invoiceId, e);
-              asyncResultHandler.handle(buildErrorResponse(getILNumberReply.cause()));
-//              logErrorAndRespond400(asyncResultHandler, getILNumberReply.cause());
+              asyncResultHandler.handle(buildErrorResponse(new HttpException(Response.Status.BAD_REQUEST.getStatusCode(),
+                getILNumberReply.cause().getMessage())));
             }
           });
       } catch (Exception e) {
@@ -62,10 +59,4 @@ public class InvoiceLineNumberAPI implements InvoiceStorageInvoiceLineNumber {
       }
     });
 	}
-
-//  private void logErrorAndRespond400(Handler<AsyncResult<Response>> asyncResultHandler, Throwable e) {
-//    log.error("Bad Request", e);
-//    asyncResultHandler.handle(Future.succeededFuture(GetInvoiceStorageInvoiceLineNumberResponse
-//      .respond400WithTextPlain(e.getMessage())));
-//  }
 }
