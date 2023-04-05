@@ -6,7 +6,7 @@ import static org.folio.rest.impl.InvoiceStorageImpl.INVOICE_ID_FIELD_NAME;
 import static org.folio.rest.impl.InvoiceStorageImpl.INVOICE_PREFIX;
 import static org.folio.rest.impl.InvoiceStorageImpl.INVOICE_TABLE;
 import static org.folio.rest.utils.HelperUtils.combineCqlExpressions;
-import static org.folio.rest.utils.ResponseUtils.buildContentResponse;
+import static org.folio.rest.utils.ResponseUtils.buildOkResponse;
 import static org.folio.rest.utils.ResponseUtils.buildErrorResponse;
 import static org.folio.rest.utils.ResponseUtils.buildNoContentResponse;
 import static org.folio.rest.utils.ResponseUtils.buildResponseWithLocation;
@@ -169,7 +169,7 @@ public class InvoiceStorageService {
         .onComplete(reply -> {
           if (reply.succeeded()) {
             log.info("getInvoiceStorageInvoicesDocumentsByIdAndDocumentId:: Successfully retrieved invoice document with id: {} for invoice with id: {}", documentId, invoiceId);
-            asyncResultHandler.handle(buildContentResponse(reply.result()));
+            asyncResultHandler.handle(buildOkResponse(reply.result()));
           } else {
             log.error("Error occurred while retrieving invoice document with id: {} for invoice with id: {}", documentId, invoiceId, reply.cause());
             asyncResultHandler.handle(buildErrorResponse(reply.cause()));

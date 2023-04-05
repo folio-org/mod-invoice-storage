@@ -1,6 +1,8 @@
 package org.folio.rest.impl;
 
 import static org.folio.rest.utils.HelperUtils.SequenceQuery.GET_IL_NUMBER_FROM_SEQUENCE;
+import static org.folio.rest.utils.ResponseUtils.buildErrorResponse;
+import static org.folio.rest.utils.ResponseUtils.buildOkResponse;
 
 import java.util.Map;
 
@@ -13,23 +15,23 @@ import org.folio.rest.annotations.Validate;
 import org.folio.rest.jaxrs.model.InvoiceLineNumber;
 import org.folio.rest.jaxrs.resource.InvoiceStorageInvoiceLineNumber;
 import org.folio.rest.persist.PostgresClient;
-import org.folio.rest.tools.messages.MessageConsts;
-import org.folio.rest.tools.messages.Messages;
+//import org.folio.rest.tools.messages.MessageConsts;
+//import org.folio.rest.tools.messages.Messages;
 import org.folio.rest.tools.utils.TenantTool;
 
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Context;
-import io.vertx.core.Future;
+//import io.vertx.core.Future;
 import io.vertx.core.Handler;
 
 public class InvoiceLineNumberAPI implements InvoiceStorageInvoiceLineNumber {
 
   private static final Logger log = LogManager.getLogger(InvoiceLineNumberAPI.class);
-  private final Messages messages = Messages.getInstance();
+//  private final Messages messages = Messages.getInstance();
 
   @Validate
   @Override
-  public void getInvoiceStorageInvoiceLineNumber(String invoiceId, String lang, Map<String, String> okapiHeaders,
+  public void getInvoiceStorageInvoiceLineNumber(String invoiceId, Map<String, String> okapiHeaders,
       Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
     log.debug("Trying to get invoice line number for invoiceId: {}", invoiceId);
     vertxContext.runOnContext((Void v) -> {
@@ -43,34 +45,27 @@ public class InvoiceLineNumberAPI implements InvoiceStorageInvoiceLineNumber {
                   .getLong(0)
                   .toString();
                 log.info("Successfully retrieved invoice line number {} for invoiceId: {}", invoiceLineNumber, invoiceId);
-                asyncResultHandler
-                  .handle(Future.succeededFuture(InvoiceStorageInvoiceLineNumber.GetInvoiceStorageInvoiceLineNumberResponse
-                    .respond200WithApplicationJson(new InvoiceLineNumber().withSequenceNumber(invoiceLineNumber))));
+                asyncResultHandler.handle(buildOkResponse(new InvoiceLineNumber().withSequenceNumber(invoiceLineNumber)));
               } else {
                 String errorMsg = String.format("Unable to retrieve invoice line number for invoiceId: %s", invoiceId);
                 throw new IllegalArgumentException(errorMsg, getILNumberReply.cause());
               }
             } catch (Exception e) {
               log.error("Error while handling response for invoice line number request for invoiceId: {}", invoiceId, e);
-              logErrorAndRespond400(asyncResultHandler, getILNumberReply.cause());
+              asyncResultHandler.handle(buildErrorResponse(getILNumberReply.cause()));
+//              logErrorAndRespond400(asyncResultHandler, getILNumberReply.cause());
             }
           });
       } catch (Exception e) {
         log.error("Error while attempting to retrieve invoice line number for invoiceId: {}", invoiceId, e);
-        logErrorAndRespond500(lang, asyncResultHandler, e);
+        asyncResultHandler.handle(buildErrorResponse(e));
       }
     });
 	}
 
-  private void logErrorAndRespond400(Handler<AsyncResult<Response>> asyncResultHandler, Throwable e) {
-    log.error("Bad Request", e);
-    asyncResultHandler.handle(Future.succeededFuture(GetInvoiceStorageInvoiceLineNumberResponse
-      .respond400WithTextPlain(e.getMessage())));
-  }
-
-  private void logErrorAndRespond500(String lang, Handler<AsyncResult<Response>> asyncResultHandler, Throwable e) {
-    log.error("Internal Server Error", e);
-    asyncResultHandler.handle(Future.succeededFuture(GetInvoiceStorageInvoiceLineNumberResponse
-      .respond500WithTextPlain(messages.getMessage(lang, MessageConsts.InternalServerError))));
-  }
+//  private void logErrorAndRespond400(Handler<AsyncResult<Response>> asyncResultHandler, Throwable e) {
+//    log.error("Bad Request", e);
+//    asyncResultHandler.handle(Future.succeededFuture(GetInvoiceStorageInvoiceLineNumberResponse
+//      .respond400WithTextPlain(e.getMessage())));
+//  }
 }
