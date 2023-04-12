@@ -10,12 +10,8 @@ documentation:
 types:
   sequenceNumber: !include acq-models/common/schemas/sequence_number.json
 
-traits:
-    language: !include raml-util/traits/language.raml
-
 /invoice-storage/invoice-number:
     get:
-      is: [language]
       description: Get generated invoice number
       responses:
         200:

@@ -30,7 +30,7 @@ public class BatchVoucherExportsImpl implements BatchVoucherStorageBatchVoucherE
 
   @Validate
   @Override
-  public void getBatchVoucherStorageBatchVoucherExports(int offset, int limit, String query, String lang,
+  public void getBatchVoucherStorageBatchVoucherExports(String totalRecords, int offset, int limit, String query,
     Map<String, String> okapiHeaders, Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
     PgUtil.get(BATCH_VOUCHER_EXPORTS_TABLE, BatchVoucherExport.class, BatchVoucherExportCollection.class, query, offset, limit,
       okapiHeaders, vertxContext, BatchVoucherStorageBatchVoucherExports.GetBatchVoucherStorageBatchVoucherExportsResponse.class,
@@ -39,7 +39,7 @@ public class BatchVoucherExportsImpl implements BatchVoucherStorageBatchVoucherE
 
   @Validate
   @Override
-  public void postBatchVoucherStorageBatchVoucherExports(String lang, BatchVoucherExport entity, Map<String, String> okapiHeaders,
+  public void postBatchVoucherStorageBatchVoucherExports(BatchVoucherExport entity, Map<String, String> okapiHeaders,
     Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
     PgUtil.post(BATCH_VOUCHER_EXPORTS_TABLE, entity, okapiHeaders, vertxContext,
       BatchVoucherStorageBatchVoucherExports.PostBatchVoucherStorageBatchVoucherExportsResponse.class, asyncResultHandler);
@@ -47,7 +47,7 @@ public class BatchVoucherExportsImpl implements BatchVoucherStorageBatchVoucherE
 
   @Validate
   @Override
-  public void getBatchVoucherStorageBatchVoucherExportsById(String id, String lang, Map<String, String> okapiHeaders,
+  public void getBatchVoucherStorageBatchVoucherExportsById(String id, Map<String, String> okapiHeaders,
     Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
     PgUtil.getById(BATCH_VOUCHER_EXPORTS_TABLE, BatchVoucherExport.class, id, okapiHeaders, vertxContext,
       BatchVoucherStorageBatchVoucherExports.GetBatchVoucherStorageBatchVoucherExportsByIdResponse.class, asyncResultHandler);
@@ -55,14 +55,14 @@ public class BatchVoucherExportsImpl implements BatchVoucherStorageBatchVoucherE
 
   @Validate
   @Override
-  public void deleteBatchVoucherStorageBatchVoucherExportsById(String id, String lang, Map<String, String> okapiHeaders,
+  public void deleteBatchVoucherStorageBatchVoucherExportsById(String id, Map<String, String> okapiHeaders,
     Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
     batchVoucherExportsService.deleteBatchVoucherExportsById(id, vertxContext, asyncResultHandler);
   }
 
   @Validate
   @Override
-  public void putBatchVoucherStorageBatchVoucherExportsById(String id, String lang, BatchVoucherExport entity,
+  public void putBatchVoucherStorageBatchVoucherExportsById(String id, BatchVoucherExport entity,
     Map<String, String> okapiHeaders, Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
     PgUtil.put(BATCH_VOUCHER_EXPORTS_TABLE, entity, id, okapiHeaders, vertxContext,
       BatchVoucherStorageBatchVoucherExports.PutBatchVoucherStorageBatchVoucherExportsByIdResponse.class, asyncResultHandler);

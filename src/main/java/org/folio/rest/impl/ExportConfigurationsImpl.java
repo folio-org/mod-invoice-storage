@@ -36,7 +36,7 @@ public class ExportConfigurationsImpl implements BatchVoucherStorageExportConfig
 
   @Validate
   @Override
-  public void getBatchVoucherStorageExportConfigurations(int offset, int limit, String query, String lang,
+  public void getBatchVoucherStorageExportConfigurations(String totalRecords, int offset, int limit, String query,
       Map<String, String> okapiHeaders, Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
     PgUtil.get(BATCH_VOUCHER_EXPORT_CONFIGS_TABLE, ExportConfig.class, ExportConfigCollection.class, query, offset, limit,
         okapiHeaders, vertxContext, BatchVoucherStorageExportConfigurations.GetBatchVoucherStorageExportConfigurationsResponse.class,
@@ -45,7 +45,7 @@ public class ExportConfigurationsImpl implements BatchVoucherStorageExportConfig
 
   @Validate
   @Override
-  public void postBatchVoucherStorageExportConfigurations(String lang, ExportConfig entity, Map<String, String> okapiHeaders,
+  public void postBatchVoucherStorageExportConfigurations(ExportConfig entity, Map<String, String> okapiHeaders,
       Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
     PgUtil.post(BATCH_VOUCHER_EXPORT_CONFIGS_TABLE, entity, okapiHeaders, vertxContext,
         BatchVoucherStorageExportConfigurations.PostBatchVoucherStorageExportConfigurationsResponse.class, asyncResultHandler);
@@ -53,7 +53,7 @@ public class ExportConfigurationsImpl implements BatchVoucherStorageExportConfig
 
   @Validate
   @Override
-  public void getBatchVoucherStorageExportConfigurationsById(String id, String lang, Map<String, String> okapiHeaders,
+  public void getBatchVoucherStorageExportConfigurationsById(String id, Map<String, String> okapiHeaders,
       Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
     PgUtil.getById(BATCH_VOUCHER_EXPORT_CONFIGS_TABLE, ExportConfig.class, id, okapiHeaders, vertxContext,
         BatchVoucherStorageExportConfigurations.GetBatchVoucherStorageExportConfigurationsByIdResponse.class, asyncResultHandler);
@@ -61,7 +61,7 @@ public class ExportConfigurationsImpl implements BatchVoucherStorageExportConfig
 
   @Validate
   @Override
-  public void deleteBatchVoucherStorageExportConfigurationsById(String id, String lang, Map<String, String> okapiHeaders,
+  public void deleteBatchVoucherStorageExportConfigurationsById(String id, Map<String, String> okapiHeaders,
       Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
     PgUtil.deleteById(BATCH_VOUCHER_EXPORT_CONFIGS_TABLE, id, okapiHeaders, vertxContext,
         BatchVoucherStorageExportConfigurations.DeleteBatchVoucherStorageExportConfigurationsByIdResponse.class, asyncResultHandler);
@@ -69,7 +69,7 @@ public class ExportConfigurationsImpl implements BatchVoucherStorageExportConfig
 
   @Validate
   @Override
-  public void putBatchVoucherStorageExportConfigurationsById(String id, String lang, ExportConfig entity,
+  public void putBatchVoucherStorageExportConfigurationsById(String id, ExportConfig entity,
       Map<String, String> okapiHeaders, Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
     PgUtil.put(BATCH_VOUCHER_EXPORT_CONFIGS_TABLE, entity, id, okapiHeaders, vertxContext,
         BatchVoucherStorageExportConfigurations.PutBatchVoucherStorageExportConfigurationsByIdResponse.class, asyncResultHandler);
@@ -91,7 +91,7 @@ public class ExportConfigurationsImpl implements BatchVoucherStorageExportConfig
 
   @Validate
   @Override
-  public void getBatchVoucherStorageExportConfigurationsCredentialsById(String id, String lang, Map<String, String> okapiHeaders,
+  public void getBatchVoucherStorageExportConfigurationsCredentialsById(String id, Map<String, String> okapiHeaders,
       Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
     log.debug("Trying to get batch voucher storage export configurations credentials by id: {}", id);
     vertxContext.runOnContext((Void v) -> {
@@ -138,7 +138,7 @@ public class ExportConfigurationsImpl implements BatchVoucherStorageExportConfig
 
   @Validate
   @Override
-  public void deleteBatchVoucherStorageExportConfigurationsCredentialsById(String id, String lang, Map<String, String> okapiHeaders,
+  public void deleteBatchVoucherStorageExportConfigurationsCredentialsById(String id, Map<String, String> okapiHeaders,
       Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
     vertxContext.runOnContext((Void v) -> {
       log.debug("Trying to delete batch voucher storage export configurations credentials by id: {}", id);
@@ -182,7 +182,7 @@ public class ExportConfigurationsImpl implements BatchVoucherStorageExportConfig
 
   @Validate
   @Override
-  public void putBatchVoucherStorageExportConfigurationsCredentialsById(String id, String lang, Credentials entity,
+  public void putBatchVoucherStorageExportConfigurationsCredentialsById(String id, Credentials entity,
       Map<String, String> okapiHeaders, Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
     log.debug("Trying to put batch voucher storage export configurations credentials by id: {}", id);
     if (StringUtils.equals(entity.getExportConfigId(), id)) {

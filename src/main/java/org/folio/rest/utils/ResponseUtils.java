@@ -78,7 +78,7 @@ public class ResponseUtils {
     return Future.succeededFuture(Response.noContent().build());
   }
 
-  public static Future<Response> buildContentResponse(Object body) {
+  public static Future<Response> buildOkResponse(Object body) {
     return Future.succeededFuture(Response.ok(body, APPLICATION_JSON).build());
   }
 

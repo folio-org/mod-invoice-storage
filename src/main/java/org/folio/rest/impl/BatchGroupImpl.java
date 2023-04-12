@@ -20,7 +20,7 @@ public class BatchGroupImpl implements BatchGroupStorage {
 
   @Validate
   @Override
-  public void getBatchGroupStorageBatchGroups(int offset, int limit, String query, String lang, Map<String, String> okapiHeaders,
+  public void getBatchGroupStorageBatchGroups(String totalRecords, int offset, int limit, String query, Map<String, String> okapiHeaders,
       Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
     PgUtil.get(BATCH_GROUP_TABLE,BatchGroup.class,BatchGroupCollection.class,query,offset,limit,okapiHeaders,vertxContext,
       BatchGroupStorage.GetBatchGroupStorageBatchGroupsResponse.class,asyncResultHandler);
@@ -28,7 +28,7 @@ public class BatchGroupImpl implements BatchGroupStorage {
 
   @Validate
   @Override
-  public void postBatchGroupStorageBatchGroups(String lang, BatchGroup entity, Map<String, String> okapiHeaders,
+  public void postBatchGroupStorageBatchGroups(BatchGroup entity, Map<String, String> okapiHeaders,
       Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
     PgUtil.post(BATCH_GROUP_TABLE, entity, okapiHeaders, vertxContext,
       BatchGroupStorage.PostBatchGroupStorageBatchGroupsResponse.class, asyncResultHandler);
@@ -36,7 +36,7 @@ public class BatchGroupImpl implements BatchGroupStorage {
 
   @Validate
   @Override
-  public void getBatchGroupStorageBatchGroupsById(String id, String lang, Map<String, String> okapiHeaders,
+  public void getBatchGroupStorageBatchGroupsById(String id, Map<String, String> okapiHeaders,
       Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
     PgUtil.getById(BATCH_GROUP_TABLE, BatchGroup.class, id, okapiHeaders, vertxContext,
       BatchGroupStorage.GetBatchGroupStorageBatchGroupsByIdResponse.class, asyncResultHandler);
@@ -44,7 +44,7 @@ public class BatchGroupImpl implements BatchGroupStorage {
 
   @Validate
   @Override
-  public void deleteBatchGroupStorageBatchGroupsById(String id, String lang, Map<String, String> okapiHeaders,
+  public void deleteBatchGroupStorageBatchGroupsById(String id, Map<String, String> okapiHeaders,
       Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
     PgUtil.deleteById(BATCH_GROUP_TABLE, id, okapiHeaders, vertxContext,
       BatchGroupStorage.DeleteBatchGroupStorageBatchGroupsByIdResponse.class, asyncResultHandler);
@@ -52,7 +52,7 @@ public class BatchGroupImpl implements BatchGroupStorage {
 
   @Validate
   @Override
-  public void putBatchGroupStorageBatchGroupsById(String id, String lang, BatchGroup entity, Map<String, String> okapiHeaders,
+  public void putBatchGroupStorageBatchGroupsById(String id, BatchGroup entity, Map<String, String> okapiHeaders,
       Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
     PgUtil.put(BATCH_GROUP_TABLE, entity, id, okapiHeaders, vertxContext,
       BatchGroupStorage.PutBatchGroupStorageBatchGroupsByIdResponse.class, asyncResultHandler);

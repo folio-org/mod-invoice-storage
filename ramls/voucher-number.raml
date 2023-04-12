@@ -10,12 +10,8 @@ documentation:
 types:
   sequenceNumber: !include acq-models/common/schemas/sequence_number.json
 
-traits:
-    language: !include raml-util/traits/language.raml
-
 /voucher-storage/voucher-number:
     get:
-      is: [language]
       description: Get generated voucher number
       responses:
         200:
@@ -30,7 +26,6 @@ traits:
     /start:
       displayName: Voucher Number
       description: Manage Voucher numbers
-      is: [language]
       get:
         description: Get voucher number start
         responses:
@@ -48,7 +43,6 @@ traits:
                 text/plain:
                   example: "Bad request"
       /{value}:
-        is: [language]
         post:
           description: (Re)set the start value of the voucher number sequence
           responses:
