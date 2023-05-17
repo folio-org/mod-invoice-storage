@@ -1,6 +1,7 @@
 package org.folio.rest.impl;
 
 import static org.folio.rest.utils.TestEntities.INVOICE;
+import static org.folio.rest.utils.TestEntities.INVOICE_LINES;
 
 import java.net.MalformedURLException;
 import java.util.HashMap;
@@ -9,6 +10,7 @@ import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.folio.rest.jaxrs.model.Invoice;
+import org.folio.rest.jaxrs.model.InvoiceLine;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -39,11 +41,12 @@ public class InvoiceLineNumberTest extends TestBase {
       log.info(String.format("--- mod-invoice-storage %s test: Testing invoice-line numbers retrieving for non-existed invoice ID: %s", INVOICE.name(), NON_EXISTING_INVOICE_ID));
       testGetInvoiceLineNumberForNonExistedIL(NON_EXISTING_INVOICE_ID);
 
-    } catch (Exception e) {
-      log.error(String.format("--- mod-invoice-storage test: %s API ERROR: %s", INVOICE.name(), e.getMessage()));
+      log.info(String.format("--- mod-invoice-storage %s test: Testing invoice-line numbers retrieving based on existing invoice lines", INVOICE.name()));
+      testGetInvoiceLineNumberBasedOnInvoiceLines(invoice);
+
     } finally {
-        log.info(String.format("--- mod-invoice-storage %s test: Deleting %s with ID: %s", INVOICE.name(), INVOICE.name(), invoiceId));
-        deleteDataSuccess(INVOICE.getEndpointWithId(), invoiceId);
+      log.info(String.format("--- mod-invoice-storage %s test: Deleting %s with ID: %s", INVOICE.name(), INVOICE.name(), invoiceId));
+      deleteDataSuccess(INVOICE.getEndpointWithId(), invoiceId);
     }
   }
 
@@ -53,6 +56,15 @@ public class InvoiceLineNumberTest extends TestBase {
     String invoiceSample = jsonSample.encodePrettily();
     Response response = postData(INVOICE.getEndpoint(), invoiceSample);
     return response.then().extract().as(Invoice.class);
+  }
+
+  private InvoiceLine createInvoiceLine(String invoiceId) throws MalformedURLException {
+    JsonObject jsonSample = new JsonObject(getFile(INVOICE_LINES.getSampleFileName()));
+    jsonSample.remove("id");
+    jsonSample.put("invoiceId", invoiceId);
+    String invoiceLineSample = jsonSample.encodePrettily();
+    Response response = postData(INVOICE_LINES.getEndpoint(), invoiceLineSample);
+    return response.then().extract().as(InvoiceLine.class);
   }
 
   private void testGetInvoiceLineNumberForExistedIL(String invoiceId) throws MalformedURLException {
@@ -91,4 +103,19 @@ public class InvoiceLineNumberTest extends TestBase {
         .path("sequenceNumber"));
   }
 
+  private void testGetInvoiceLineNumberBasedOnInvoiceLines(Invoice invoice) throws MalformedURLException {
+    String invoiceId = invoice.getId();
+    invoice.setNextInvoiceLineNumber(null);
+    putData(INVOICE.getEndpointWithId(), invoiceId, JsonObject.mapFrom(invoice).encodePrettily())
+      .then()
+      .statusCode(204);
+    InvoiceLine invoiceLine = createInvoiceLine(invoiceId);
+    Assertions.assertEquals("1", invoiceLine.getInvoiceLineNumber());
+    invoice.setNextInvoiceLineNumber(null);
+    putData(INVOICE.getEndpointWithId(), invoiceId, JsonObject.mapFrom(invoice).encodePrettily())
+      .then()
+      .statusCode(204);
+    int nextInvoiceLineNumber = retrieveInvoiceLineNumber(invoiceId);
+    Assertions.assertEquals(2, nextInvoiceLineNumber);
+  }
 }
