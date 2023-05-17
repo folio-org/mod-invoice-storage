@@ -5,7 +5,6 @@ import static org.folio.rest.RestVerticle.OKAPI_HEADER_TENANT;
 import static org.folio.rest.RestVerticle.OKAPI_HEADER_TOKEN;
 import static org.folio.rest.impl.StorageTestSuite.initSpringContext;
 import static org.folio.rest.impl.StorageTestSuite.storageUrl;
-import static org.folio.rest.utils.TestEntities.INVOICE;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -177,15 +176,6 @@ public abstract class TestBase {
         .contentType(ContentType.JSON)
         .body(input)
           .put(storageUrl(endpoint));
-  }
-
-  Response putInvoiceNumberData(String id, String input) throws MalformedURLException {
-    return given()
-      .pathParam("id", id)
-      .header(TENANT_HEADER)
-      .contentType(ContentType.JSON)
-      .body(input)
-        .put(storageUrl(INVOICE.getEndpointWithId()));
   }
 
   void deleteDataSuccess(String endpoint, String id) throws MalformedURLException {
