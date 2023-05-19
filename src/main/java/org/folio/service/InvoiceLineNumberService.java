@@ -85,10 +85,10 @@ public class InvoiceLineNumberService {
 
   public Future<Integer> getLastLineNumber(String invoiceId, Conn conn) {
     return getInvoiceLinesByInvoiceId(invoiceId, conn)
-      .map(this::getLastLineNumber);
+      .map(lines -> this.getLastLineNumber(invoiceId, lines));
   }
 
-  private int getLastLineNumber(List<InvoiceLine> invoiceLines) {
+  private int getLastLineNumber(String invoiceId, List<InvoiceLine> invoiceLines) {
     try {
       return invoiceLines.stream()
         .map(InvoiceLine::getInvoiceLineNumber)
@@ -97,6 +97,7 @@ public class InvoiceLineNumberService {
         .reduce(Integer::max)
         .orElse(0);
     } catch (Exception t) {
+      log.warn("Error calculating a new line number based on existing lines, invoiceId={}", invoiceId, t);
       return 0;
     }
   }
