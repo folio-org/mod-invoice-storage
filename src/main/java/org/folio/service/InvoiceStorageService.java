@@ -54,7 +54,6 @@ public class InvoiceStorageService {
         DBClient client = new DBClient(vertxContext, headers);
         client.startTx()
           .compose(t -> invoiceDAO.createInvoice(invoice, client))
-          .compose(t -> invoiceDAO.createSequence(invoice.getId(), client))
           .compose(t -> client.endTx())
           .onComplete(reply -> {
             if (reply.failed()) {
@@ -87,7 +86,6 @@ public class InvoiceStorageService {
         DBClient client = new DBClient(vertxContext, headers);
         client.startTx()
           .compose(t -> invoiceDAO.deleteInvoiceLinesByInvoiceId(id, client))
-          .compose(t -> invoiceDAO.deleteSequenceByInvoiceId(id, client))
           .compose(t -> invoiceDAO.deleteInvoiceDocumentsByInvoiceId(id, client))
           .compose(t -> invoiceDAO.deleteInvoice(id, client))
           .compose(t -> client.endTx())
@@ -115,10 +113,12 @@ public class InvoiceStorageService {
     log.debug("putInvoiceStorageInvoicesById:: Updating invoice with id: {}", id);
     PgUtil.put(INVOICE_TABLE, invoice, id, okapiHeaders, vertxContext,
       PutInvoiceStorageInvoicesByIdResponse.class, reply -> {
+        if (reply.succeeded()) {
+          log.info("putInvoiceStorageInvoicesById:: Invoice with id: {} was successfully updated", id);
+        } else {
+          log.error("Error occurred while updating invoice with id: {}", id, reply.cause());
+        }
         asyncResultHandler.handle(reply);
-        DBClient client = new DBClient(vertxContext, okapiHeaders);
-        invoiceDAO.deleteSequence(invoice, client);
-        log.info("putInvoiceStorageInvoicesById:: Invoice with id: {} was successfully updated", id);
       });
   }
 

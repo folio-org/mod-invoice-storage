@@ -1,26 +1,21 @@
 package org.folio.rest.impl;
 
-import static org.folio.rest.impl.InvoiceStorageImpl.INVOICE_TABLE;
 import static org.folio.rest.utils.TestEntities.INVOICE;
+import static org.folio.rest.utils.TestEntities.INVOICE_LINES;
 
 import java.net.MalformedURLException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.folio.rest.persist.PostgresClient;
-import org.hamcrest.Matchers;
+import org.folio.rest.jaxrs.model.Invoice;
+import org.folio.rest.jaxrs.model.InvoiceLine;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import io.restassured.response.Response;
-import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
-import io.vertx.sqlclient.Row;
-import io.vertx.sqlclient.RowSet;
 
 
 public class InvoiceLineNumberTest extends TestBase {
@@ -28,87 +23,48 @@ public class InvoiceLineNumberTest extends TestBase {
   private static final Logger log = LogManager.getLogger(InvoiceLineNumberTest.class);
 
   private static final String INVOICE_LINE_NUMBER_ENDPOINT = "/invoice-storage/invoice-line-number";
-  private static final String SEQUENCE_ID = "\"ilNumber_8ad4b87b-9b47-4199-b0c3-5480745c6b41\"";
   private static final String NON_EXISTING_INVOICE_ID = "f6b47acf-361a-497e-9ddb-45e3802df902";
-
-  private static final String CREATE_SEQUENCE = "CREATE SEQUENCE " + SEQUENCE_ID;
-  private static final String SETVAL = "SELECT * FROM SETVAL('" + SEQUENCE_ID + "',13)";
-  private static final String NEXTVAL = "SELECT * FROM NEXTVAL('" + SEQUENCE_ID + "')";
-  private static final String DROP_SEQUENCE = "DROP SEQUENCE " + SEQUENCE_ID;
 
   @Test
   public void testSequenceFlow() throws MalformedURLException {
-    String sampleId = null;
+    String invoiceId = null;
     try {
 
-      log.info(String.format("--- mod-invoice-storage %s test: Testing of environment on Sequence support", INVOICE.name()));
-      testSequenceSupport();
-
-      log.info(String.format("--- mod-invoice-storage %s test: Creating an invoice and a sequence ... ", INVOICE.name()));
-      JsonObject jsonSample = new JsonObject(getFile(INVOICE.getSampleFileName()));
-      jsonSample.remove("id");
-      String invoiceSample = jsonSample.encodePrettily();
-      Response response = postData(INVOICE.getEndpoint(), invoiceSample);
-
-      sampleId = response.then().extract().path("id");
-      jsonSample.put("id", sampleId);
-      log.info(String.format("--- mod-invoice-storage %s test: Verify creating duplicate invoice fails", INVOICE.name()));
-      testCreateDuplicateInvoice(jsonSample.encodePrettily());
+      log.info(String.format("--- mod-invoice-storage %s test: Creating an invoice with the next line number... ", INVOICE.name()));
+      Invoice invoice = createInvoice();
+      Assertions.assertEquals(1, invoice.getNextInvoiceLineNumber());
+      invoiceId = invoice.getId();
 
       log.info(String.format("--- mod-invoice-storage %s test: Test retrieving invoice-line number for existing invoice and sequence ... ", INVOICE.name()));
-
-      testGetInvoiceLineNumberForExistedIL(sampleId);
+      testGetInvoiceLineNumberForExistedIL(invoiceId);
 
       log.info(String.format("--- mod-invoice-storage %s test: Testing invoice-line numbers retrieving for non-existed invoice ID: %s", INVOICE.name(), NON_EXISTING_INVOICE_ID));
       testGetInvoiceLineNumberForNonExistedIL(NON_EXISTING_INVOICE_ID);
 
-      log.info(String.format("--- mod-invoice-storage %s test: Update invoice with ID %s which will drop existing sequence", INVOICE.name(), sampleId));
-      testInvoiceEdit(invoiceSample, sampleId);
+      log.info(String.format("--- mod-invoice-storage %s test: Testing invoice-line numbers retrieving based on existing invoice lines", INVOICE.name()));
+      testGetInvoiceLineNumberBasedOnInvoiceLines(invoice);
 
-      log.info(String.format("--- mod-invoice-storage %s test: Verification/confirming of sequence deletion for invoice ID: %s",  INVOICE.name(), sampleId));
-      testGetInvoiceLineNumberForNonExistedIL(sampleId);
-
-      log.info(String.format("--- mod-invoice-storage %s test: Test updating invoice with already deleted invoice-line number sequence", INVOICE.name()));
-      testInvoiceEdit(invoiceSample, sampleId);
-
-    } catch (Exception e) {
-      log.error(String.format("--- mod-invoice-storage test: %s API ERROR: %s", INVOICE.name(), e.getMessage()));
     } finally {
-        log.info(String.format("--- mod-invoice-storage %s test: Deleting %s with ID: %s", INVOICE.name(), INVOICE.name(), sampleId));
-        deleteDataSuccess(INVOICE.getEndpointWithId(), sampleId);
+      log.info(String.format("--- mod-invoice-storage %s test: Deleting %s with ID: %s", INVOICE.name(), INVOICE.name(), invoiceId));
+      deleteDataSuccess(INVOICE.getEndpointWithId(), invoiceId);
     }
   }
 
-  private void testCreateDuplicateInvoice(String invoiceSample) throws MalformedURLException {
+  private Invoice createInvoice() throws MalformedURLException {
+    JsonObject jsonSample = new JsonObject(getFile(INVOICE.getSampleFileName()));
+    jsonSample.remove("id");
+    String invoiceSample = jsonSample.encodePrettily();
     Response response = postData(INVOICE.getEndpoint(), invoiceSample);
-    response.then()
-      .statusCode(400)
-      .body(Matchers.containsString("duplicate key value violates unique constraint \"" + INVOICE_TABLE + "_pkey\""));
+    return response.then().extract().as(Invoice.class);
   }
 
-  private void testInvoiceEdit(String invoiceSample, String sampleId) throws MalformedURLException {
-    JsonObject catJSON = new JsonObject(invoiceSample);
-    catJSON.put("id", sampleId);
-    catJSON.put("folioInvoiceNo", "666666");
-    catJSON.put("status", "Cancelled");
-    Response response = putInvoiceNumberData(sampleId, catJSON.toString());
-    response.then()
-      .statusCode(204);
-  }
-
-  private void testSequenceSupport() {
-    execute(CREATE_SEQUENCE);
-    execute(SETVAL);
-    RowSet<Row> rs = execute(NEXTVAL);
-    execute(DROP_SEQUENCE);
-    long result = rs.iterator().next().getLong(0);//rs.toJson().getJsonArray("results").getList().get(0).toString();
-    Assertions.assertEquals(14, result);
-    try {
-      execute(NEXTVAL);
-    } catch (Exception e) {
-      e.printStackTrace();
-//        assertEquals(GenericDatabaseException.class, e.getCause().getClass());
-    }
+  private InvoiceLine createInvoiceLine(String invoiceId) throws MalformedURLException {
+    JsonObject jsonSample = new JsonObject(getFile(INVOICE_LINES.getSampleFileName()));
+    jsonSample.remove("id");
+    jsonSample.put("invoiceId", invoiceId);
+    String invoiceLineSample = jsonSample.encodePrettily();
+    Response response = postData(INVOICE_LINES.getEndpoint(), invoiceLineSample);
+    return response.then().extract().as(InvoiceLine.class);
   }
 
   private void testGetInvoiceLineNumberForExistedIL(String invoiceId) throws MalformedURLException {
@@ -133,7 +89,7 @@ public class InvoiceLineNumberTest extends TestBase {
     params.put("invoiceId", invoiceId);
     getDataByParam(INVOICE_LINE_NUMBER_ENDPOINT, params)
       .then()
-        .statusCode(400);
+        .statusCode(404);
   }
 
   private int retrieveInvoiceLineNumber(String invoiceId) throws MalformedURLException {
@@ -147,22 +103,19 @@ public class InvoiceLineNumberTest extends TestBase {
         .path("sequenceNumber"));
   }
 
-  private static RowSet<Row> execute(String query) {
-    PostgresClient client = PostgresClient.getInstance(Vertx.vertx());
-    CompletableFuture<RowSet<Row>> future = new CompletableFuture<>();
-    RowSet<Row> rowSet = null;
-    try {
-      client.select(query, result -> {
-        if (result.succeeded()) {
-          future.complete(result.result());
-        } else {
-            future.completeExceptionally(result.cause());
-        }
-      });
-      rowSet = future.get(10, TimeUnit.SECONDS);
-    } catch (Exception e) {
-        future.completeExceptionally(e);
-    }
-    return rowSet;
+  private void testGetInvoiceLineNumberBasedOnInvoiceLines(Invoice invoice) throws MalformedURLException {
+    String invoiceId = invoice.getId();
+    invoice.setNextInvoiceLineNumber(null);
+    putData(INVOICE.getEndpointWithId(), invoiceId, JsonObject.mapFrom(invoice).encodePrettily())
+      .then()
+      .statusCode(204);
+    InvoiceLine invoiceLine = createInvoiceLine(invoiceId);
+    Assertions.assertEquals("1", invoiceLine.getInvoiceLineNumber());
+    invoice.setNextInvoiceLineNumber(null);
+    putData(INVOICE.getEndpointWithId(), invoiceId, JsonObject.mapFrom(invoice).encodePrettily())
+      .then()
+      .statusCode(204);
+    int nextInvoiceLineNumber = retrieveInvoiceLineNumber(invoiceId);
+    Assertions.assertEquals(2, nextInvoiceLineNumber);
   }
 }

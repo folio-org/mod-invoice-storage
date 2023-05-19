@@ -1,62 +1,33 @@
 package org.folio.rest.impl;
 
-import static org.folio.rest.utils.HelperUtils.SequenceQuery.GET_IL_NUMBER_FROM_SEQUENCE;
-import static org.folio.rest.utils.ResponseUtils.buildErrorResponse;
-import static org.folio.rest.utils.ResponseUtils.buildOkResponse;
-
 import java.util.Map;
 
 import javax.ws.rs.core.Response;
 
-import io.vertx.ext.web.handler.HttpException;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.folio.rest.RestVerticle;
+import io.vertx.core.Vertx;
 import org.folio.rest.annotations.Validate;
-import org.folio.rest.jaxrs.model.InvoiceLineNumber;
 import org.folio.rest.jaxrs.resource.InvoiceStorageInvoiceLineNumber;
-import org.folio.rest.persist.PostgresClient;
-import org.folio.rest.tools.utils.TenantTool;
 
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Context;
 import io.vertx.core.Handler;
+import org.folio.service.InvoiceLineNumberService;
+import org.folio.spring.SpringContextUtil;
+import org.springframework.beans.factory.annotation.Autowired;
 
 public class InvoiceLineNumberAPI implements InvoiceStorageInvoiceLineNumber {
 
-  private static final Logger log = LogManager.getLogger(InvoiceLineNumberAPI.class);
+  @Autowired
+  private InvoiceLineNumberService invoiceLineNumberService;
+
+  public InvoiceLineNumberAPI() {
+    SpringContextUtil.autowireDependencies(this, Vertx.currentContext());
+  }
 
   @Validate
   @Override
   public void getInvoiceStorageInvoiceLineNumber(String invoiceId, Map<String, String> okapiHeaders,
       Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
-    log.debug("Trying to get invoice line number for invoiceId: {}", invoiceId);
-    vertxContext.runOnContext((Void v) -> {
-      try {
-        String tenantId = TenantTool.calculateTenantId(okapiHeaders.get(RestVerticle.OKAPI_HEADER_TENANT));
-        PostgresClient.getInstance(vertxContext.owner(), tenantId)
-          .selectSingle(GET_IL_NUMBER_FROM_SEQUENCE.getQuery(invoiceId), getILNumberReply -> {
-            try {
-              if (getILNumberReply.succeeded()) {
-                String invoiceLineNumber = getILNumberReply.result()
-                  .getLong(0)
-                  .toString();
-                log.info("Successfully retrieved invoice line number {} for invoiceId: {}", invoiceLineNumber, invoiceId);
-                asyncResultHandler.handle(buildOkResponse(new InvoiceLineNumber().withSequenceNumber(invoiceLineNumber)));
-              } else {
-                String errorMsg = String.format("Unable to retrieve invoice line number for invoiceId: %s", invoiceId);
-                throw new IllegalArgumentException(errorMsg, getILNumberReply.cause());
-              }
-            } catch (Exception e) {
-              log.error("Error while handling response for invoice line number request for invoiceId: {}", invoiceId, e);
-              asyncResultHandler.handle(buildErrorResponse(new HttpException(Response.Status.BAD_REQUEST.getStatusCode(),
-                getILNumberReply.cause().getMessage())));
-            }
-          });
-      } catch (Exception e) {
-        log.error("Error while attempting to retrieve invoice line number for invoiceId: {}", invoiceId, e);
-        asyncResultHandler.handle(buildErrorResponse(e));
-      }
-    });
+    invoiceLineNumberService.getInvoiceStorageInvoiceLineNumber(invoiceId, okapiHeaders, asyncResultHandler, vertxContext);
 	}
 }
