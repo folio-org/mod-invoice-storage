@@ -57,7 +57,7 @@ public class InvoiceLineNumberService {
   public Future<InvoiceLineNumber> retrieveNewLineNumber(String invoiceId, DBClient dbClient) {
     PostgresClient pgClient = dbClient.getPgClient();
     log.debug("retrieveNewLineNumber: getting invoice {} for update", invoiceId);
-    return pgClient.withConn(conn -> invoiceDAO.getInvoiceByIdForUpdate(invoiceId, conn)
+    return pgClient.withTrans(conn -> invoiceDAO.getInvoiceByIdForUpdate(invoiceId, conn)
       .compose(invoice -> {
         if (invoice.getNextInvoiceLineNumber() != null)
           return Future.succeededFuture(invoice);
