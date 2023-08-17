@@ -13,22 +13,34 @@
   </licenses>
 
   <properties>
-    <aspectj.version>1.9.7</aspectj.version>
-    <raml-module-builder.version>35.0.1</raml-module-builder.version>
-    <vertx.version>4.3.4</vertx.version>
-    <junit-jupiter-version>5.9.0</junit-jupiter-version>
-    <rest-assured.version>5.2.0</rest-assured.version>
+    <!--Project properties-->
+    <java.version>17</java.version>
+    <spring.version>5.3.23</spring.version>
     <ramlfiles_path>${basedir}/ramls</ramlfiles_path>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <jmockit.version>1.49</jmockit.version>
-    <testcontainers.version>1.17.4</testcontainers.version>
-    <postgres.image>postgres:12-alpine</postgres.image>
     <generated_sources_dir>${project.build.directory}/generated-sources</generated_sources_dir>
     <jsonschema2pojo_output_dir>${generated_sources_dir}/jsonschema2pojo</jsonschema2pojo_output_dir>
-    <spring.version>5.3.23</spring.version>
+    <postgres.image>postgres:12-alpine</postgres.image>
+
+    <!--Dependency Management Properties-->
+    <vertx.version>4.3.4</vertx.version>
+    <jackson-bom.version>2.13.4</jackson-bom.version>
+    <log4j.version>2.19.0</log4j.version>
+
+    <!--Dependency properties-->
+    <aspectj.version>1.9.19</aspectj.version>
+    <aspectj-maven-plugin.version>1.13.1</aspectj-maven-plugin.version>
+    <rest-assured.version>5.2.0</rest-assured.version>
+    <raml-module-builder.version>35.0.1</raml-module-builder.version>
+
+    <!--Test Scope dependencies-->
+    <junit-jupiter-version>5.9.0</junit-jupiter-version>
+    <jmockit.version>1.49</jmockit.version>
+    <testcontainers.version>1.17.4</testcontainers.version>
+
+    <!--Sonar properties-->
     <sonar.exclusions>**/models/**.java</sonar.exclusions>
     <sonar.test.exclusions>**/*Test.java</sonar.test.exclusions>
-    <log4j.version>2.19.0</log4j.version>
     <argLine />
   </properties>
 
@@ -52,7 +64,7 @@
       <dependency>
         <groupId>com.fasterxml.jackson</groupId>
         <artifactId>jackson-bom</artifactId>
-        <version>2.13.4</version>
+        <version>${jackson-bom.version}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -183,7 +195,7 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.8.1</version>
         <configuration>
-          <release>11</release>
+          <release>${java.version}</release>
           <encoding>UTF-8</encoding>
         </configuration>
       </plugin>
@@ -320,14 +332,14 @@
       </plugin>
 
       <plugin>
-        <groupId>com.nickwongdev</groupId>
+        <groupId>dev.aspectj</groupId>
         <artifactId>aspectj-maven-plugin</artifactId>
-        <version>1.12.6</version>
+        <version>${aspectj-maven-plugin.version}</version>
         <configuration>
           <verbose>true</verbose>
-          <complianceLevel>11</complianceLevel>
+          <complianceLevel>${java.version}</complianceLevel>
           <XaddSerialVersionUID>true</XaddSerialVersionUID>
-          <showWeaveInfo>true</showWeaveInfo>
+          <showWeaveInfo>false</showWeaveInfo>
           <forceAjcCompile>true</forceAjcCompile>
           <aspectLibraries>
             <aspectLibrary>
