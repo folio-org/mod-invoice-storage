@@ -1,14 +1,13 @@
 package org.folio.service.util;
 
-import one.util.streamex.StreamEx;
+import static java.util.concurrent.CompletableFuture.allOf;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
-import static java.util.concurrent.CompletableFuture.allOf;
-import static java.util.stream.Collectors.toList;
+import one.util.streamex.StreamEx;
 
 public class CommonServiceUtil {
 
@@ -48,7 +47,7 @@ public class CommonServiceUtil {
         // The CompletableFuture::join can be safely used because the `allOf` guaranties success at this step
         .map(CompletableFuture::join)
         .filter(Objects::nonNull)
-        .collect(toList())
+        .toList()
       );
   }
 }

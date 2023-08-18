@@ -86,9 +86,9 @@ public class ResponseUtils {
     final String message;
     final int code;
 
-    if (throwable instanceof HttpException) {
-      code = ((HttpException) throwable).getStatusCode();
-      message = ((HttpException) throwable).getPayload();
+    if (throwable instanceof HttpException httpException) {
+      code = httpException.getStatusCode();
+      message = httpException.getPayload();
     } else {
       code = INTERNAL_SERVER_ERROR.getStatusCode();
       message = throwable.getMessage();
