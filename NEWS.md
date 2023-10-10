@@ -1,4 +1,26 @@
-## 5.7.0 - Unreleased
+## 5.8.0 - Unreleased
+
+## 5.7.0 - Released
+
+### Breaking changes
+* Description ([MODINVOICE-466](https://issues.folio.org/browse/MODINVOICE-466))
+
+### New APIs versions
+* Requires `PUT v5.7.0` extra fiscalYearId in DTO
+
+### Features
+* Update to Java 17 mod-invoice-storage ([MODINVOSTO-166](https://issues.folio.org/browse/MODINVOSTO-166))
+* Create invoice line numbers based on new invoice field ([MODINVOSTO-162](https://issues.folio.org/browse/MODINVOSTO-162))
+* Update models schema with new fields for ftp configuration ([MODINVOICE-455](https://issues.folio.org/browse/MODINVOICE-455))
+* Update dependent raml-util ([MODINVOSTO-154](https://issues.folio.org/browse/MODINVOSTO-154))
+* Update DTO schema with adding fiscalYearId to PUT payload ([MODINVOSTO-144](https://issues.folio.org/browse/MODINVOSTO-144))
+* Use GitHub Workflows api-lint and api-schema-lint and api-doc ([FOLIO-3678](https://issues.folio.org/browse/FOLIO-3678))
+
+### Bug fixes
+* Description ([MODORDSTOR-343](https://issues.folio.org/browse/MODORDSTOR-343))
+
+### Dependencies
+* Bump `java version` from `16` to `17`
 
 ## 5.6.0 - Released - Released (Orchid R1 2023)
 
