@@ -1,6 +1,6 @@
 ## 5.8.0 - Unreleased
 
-## 5.7.0 - Released
+## 5.7.0 - Released (Poppy R2 2023)
 
 ### Breaking changes
 * Description ([MODINVOICE-466](https://issues.folio.org/browse/MODINVOICE-466))
