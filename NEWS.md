@@ -2,6 +2,8 @@
 
 ## 5.7.0 - Released (Poppy R2 2023)
 
+The primary focus of update DTO scheme and upgraded to java 17 version 
+
 [Full Changelog](https://github.com/folio-org/mod-invoice-storage/compare/v5.6.0...v5.7.0)
 
 ### Breaking changes
