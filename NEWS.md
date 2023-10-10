@@ -2,22 +2,24 @@
 
 ## 5.7.0 - Released (Poppy R2 2023)
 
+[Full Changelog](https://github.com/folio-org/mod-invoice-storage/compare/v5.6.0...v5.7.0)
+
 ### Breaking changes
-* Description ([MODINVOICE-466](https://issues.folio.org/browse/MODINVOICE-466))
+* ([MODINVOICE-466](https://issues.folio.org/browse/MODINVOICE-466)) - Update DTO schema with adding fiscalYearId to PUT payload
 
 ### New APIs versions
 * Requires `PUT v5.7.0` extra fiscalYearId in DTO
 
-### Features
-* Update to Java 17 mod-invoice-storage ([MODINVOSTO-166](https://issues.folio.org/browse/MODINVOSTO-166))
-* Create invoice line numbers based on new invoice field ([MODINVOSTO-162](https://issues.folio.org/browse/MODINVOSTO-162))
-* Update models schema with new fields for ftp configuration ([MODINVOICE-455](https://issues.folio.org/browse/MODINVOICE-455))
-* Update dependent raml-util ([MODINVOSTO-154](https://issues.folio.org/browse/MODINVOSTO-154))
-* Update DTO schema with adding fiscalYearId to PUT payload ([MODINVOSTO-144](https://issues.folio.org/browse/MODINVOSTO-144))
-* Use GitHub Workflows api-lint and api-schema-lint and api-doc ([FOLIO-3678](https://issues.folio.org/browse/FOLIO-3678))
+### Stories
+* ([MODINVOSTO-166](https://issues.folio.org/browse/MODINVOSTO-166)) - Update to Java 17 mod-invoice-storage 
+* ([MODINVOSTO-162](https://issues.folio.org/browse/MODINVOSTO-162)) - Create invoice line numbers based on new invoice field
+* ([MODINVOICE-455](https://issues.folio.org/browse/MODINVOICE-455)) - Update models schema with new fields for ftp configuration
+* ([MODINVOSTO-154](https://issues.folio.org/browse/MODINVOSTO-154)) - Update dependent raml-util
+* ([MODINVOSTO-144](https://issues.folio.org/browse/MODINVOSTO-144)) - Update DTO schema with adding fiscalYearId to PUT payload
+* ([FOLIO-3678](https://issues.folio.org/browse/FOLIO-3678)) - Use GitHub Workflows api-lint and api-schema-lint and api-doc
 
 ### Bug fixes
-* Description ([MODORDSTOR-343](https://issues.folio.org/browse/MODORDSTOR-343))
+* ([MODORDSTOR-343](https://issues.folio.org/browse/MODORDSTOR-343)) - Duplicated PO lines have the same numbers related to newly created duplicated order
 
 ### Dependencies
 * Bump `java version` from `16` to `17`
