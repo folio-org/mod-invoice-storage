@@ -1,4 +1,26 @@
-## 5.7.0 - Unreleased
+## 5.8.0 - Unreleased
+
+## 5.7.0 - Released - (Poppy R2 2023)
+
+The primary focus of this release was to update DTO schema and upgrade to java 17
+
+[Full Changelog](https://github.com/folio-org/mod-invoice-storage/compare/v5.6.0...v5.7.0)
+
+### Stories
+* [MODINVOICE-466](https://issues.folio.org/browse/MODINVOICE-466) - Update DTO schema with adding fiscalYearId to PUT payload
+* [MODINVOICE-455](https://issues.folio.org/browse/MODINVOICE-455) - Update models schema with new fields for ftp configuration
+* [MODINVOSTO-166](https://issues.folio.org/browse/MODINVOSTO-166) - Update to Java 17 mod-invoice-storage
+* [MODINVOSTO-162](https://issues.folio.org/browse/MODINVOSTO-162) - Create invoice line numbers based on new invoice field
+* [MODINVOSTO-154](https://issues.folio.org/browse/MODINVOSTO-154) - Update dependent raml-util
+* [MODINVOSTO-144](https://issues.folio.org/browse/MODINVOSTO-144) - Update DTO schema with adding fiscalYearId to PUT payload
+* [MODINVOSTO-138](https://issues.folio.org/browse/MODINVOSTO-138) - Logging improvement
+* [FOLIO-3678](https://issues.folio.org/browse/FOLIO-3678) - Use GitHub Workflows api-lint and api-schema-lint and api-doc
+
+### Bug fixes
+* [MODORDSTOR-343](https://issues.folio.org/browse/MODORDSTOR-343) - Duplicated PO lines have the same numbers related to newly created duplicated order
+
+### Dependencies
+* Bump `java version` from `11` to `17`
 
 ## 5.6.0 - Released - Released (Orchid R1 2023)
 
