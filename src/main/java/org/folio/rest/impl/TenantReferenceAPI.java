@@ -34,21 +34,12 @@ import org.folio.rest.persist.DBClient;
 import org.folio.rest.persist.PostgresClient;
 import org.folio.rest.tools.utils.TenantLoading;
 import org.folio.rest.tools.utils.TenantTool;
-import org.folio.spring.SpringContextUtil;
 
 public class TenantReferenceAPI extends TenantAPI {
   private static final Logger log = LogManager.getLogger(TenantReferenceAPI.class);
 
   private static final String PARAMETER_LOAD_SAMPLE = "loadSample";
   private static final String PARAMETER_LOAD_SYSTEM = "loadSystem";
-
-  private final RestClient restClient;
-
-  public TenantReferenceAPI(RestClient restClient) {
-    this.restClient = restClient;
-    SpringContextUtil.autowireDependencies(this, Vertx.currentContext());
-    log.debug("Init TenantReferenceAPI");
-  }
 
   @Override
   public Future<Integer> loadData(TenantAttributes attributes, String tenantId, Map<String, String> headers, Context vertxContext) {
@@ -61,8 +52,8 @@ public class TenantReferenceAPI extends TenantAPI {
     buildDataLoadingParameters(attributes, tl);
 
     return Future.succeededFuture()
-      .compose(v -> migration(attributes, "mod-invoice-storage-5.7.0", () -> populateInvoiceWithFiscalYear(headers, vertxContext)))
-      .compose(v -> migration(attributes, "mod-invoice-storage-5.6.0", () -> populateInvoiceWithFiscalYear(headers, vertxContext)))
+      .compose(v -> migration(attributes, "mod-invoice-storage-5.8.0-SNAPSHOT.local-5", () -> populateInvoiceWithFiscalYear(headers, vertxContext)))
+      .compose(v -> migration(attributes, "mod-invoice-storage-5.8.0-SNAPSHOT", () -> populateInvoiceWithFiscalYear(headers, vertxContext)))
       .compose(v -> {
         Promise<Integer> promise = Promise.promise();
         tl.perform(attributes, headers, vertx, res -> {
@@ -100,7 +91,7 @@ public class TenantReferenceAPI extends TenantAPI {
   private Future<List<Invoice>> getInvoicesWithoutFiscalYearFromDb(DBClient client) {
     Promise<List<Invoice>> promise = Promise.promise();
     Criteria criteria = new Criteria();
-    criteria.addField("fiscalYearId");
+    criteria.addField("'fiscalYearId'");
     criteria.setOperation("IS NULL");
     Criterion criterion = new CriterionBuilder().build();
     criterion.addCriterion(criteria);
@@ -126,33 +117,40 @@ public class TenantReferenceAPI extends TenantAPI {
       .toList();
 
     // Build a query string using the 'IN' operator
-    String query = "invoiceId=" + "(" + String.join(",", invoiceIds.stream().map(id -> "'" + id + "'").toList()) + ")";
+    String query = "invoiceId==" + "(" + String.join(" or ", invoiceIds.stream().map(id -> "\"*" + id + "\"*").toList()) + ")";
     RequestEntry requestEntry = new RequestEntry("/finance-storage/transactions")
       .withOffset(0)
       .withQuery(query)
       .withLimit(Integer.MAX_VALUE);
 
+//    Map<String, String> headers = new HashMap<>();
+//    headers.put("x-okapi-tenant", requestContext.getHeaders().get("x-okapi-tenant"));
+//    headers.put("x-okapi-token", "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJkaWt1X2FkbWluIiwidHlwZSI6ImxlZ2FjeS1hY2Nlc3MiLCJ1c2VyX2lkIjoiMDdkYTE4ZmQtMmJhMC01MDI1LTljNDItOGJiMTI0ZGRlYTYzIiwiaWF0IjoxNzA5MjE1MTMyLCJ0ZW5hbnQiOiJkaWt1In0.BcxARZ5f1ctL9iOCTldbpUYSJaxnFNmdhvdT5AN9g4g");
+//    headers.put("Content-Type", "application/json");
+//    headers.put("Accept", "application/json");
+//    requestContext.withHeaders(headers);
+
     restClient.get(requestEntry, requestContext, JsonObject.class)
       .thenApply(response -> {
-      JsonArray transactions = response.getJsonArray("transactions");
-      Map<String, String> invoiceIdToFiscalYearMap = new HashMap<>();
+        JsonArray transactions = response.getJsonArray("transactions");
+        Map<String, String> invoiceIdToFiscalYearMap = new HashMap<>();
 
-      // Iterate over the transactions and map invoice IDs to fiscal year IDs
-      for (int i = 0; i < transactions.size(); i++) {
-        JsonObject transaction = transactions.getJsonObject(i);
-        String invoiceId = transaction.getString("invoiceId");
-        String fiscalYearId = transaction.getString("fiscalYearId");
-        invoiceIdToFiscalYearMap.put(invoiceId, fiscalYearId);
-      }
+        // Iterate over the transactions and map invoice IDs to fiscal year IDs
+        for (int i = 0; i < transactions.size(); i++) {
+          JsonObject transaction = transactions.getJsonObject(i);
+          String invoiceId = transaction.getString("invoiceId");
+          String fiscalYearId = transaction.getString("fiscalYearId");
+          invoiceIdToFiscalYearMap.put(invoiceId, fiscalYearId);
+        }
 
-      // Update the invoices with the fiscal year IDs
-      invoices.forEach(invoice -> {
-        String fiscalYearId = invoiceIdToFiscalYearMap.get(invoice.getId());
-        invoice.setFiscalYearId(fiscalYearId); // Assuming Invoice has a setFiscalYearId method
-      });
+        // Update the invoices with the fiscal year IDs
+        invoices.forEach(invoice -> {
+          String fiscalYearId = invoiceIdToFiscalYearMap.get(invoice.getId());
+          invoice.setFiscalYearId(fiscalYearId); // Assuming Invoice has a setFiscalYearId method
+        });
 
-      promise.complete();
-      return Future.succeededFuture();
+        promise.complete();
+        return Future.succeededFuture();
       })
       .exceptionally(e -> {
         promise.fail(e.getCause());

@@ -300,7 +300,8 @@
       "handlers": [
         {
           "methods": ["POST"],
-          "pathPattern": "/_/tenant"
+          "pathPattern": "/_/tenant",
+          "permissionsRequired": ["finance-storage.transactions.collection.get"]
         },
         {
           "methods": ["GET", "DELETE"],
