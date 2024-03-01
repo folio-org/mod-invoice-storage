@@ -39,7 +39,7 @@ public class TenantReferenceAPI extends TenantAPI {
     buildDataLoadingParameters(attributes, tl);
 
     return Future.succeededFuture()
-      .compose(v -> migration(attributes, "mod-invoice-storage-5.8.0-SNAPSHOT.local-7",
+      .compose(v -> migration(attributes, "mod-invoice-storage-5.7.0",
         () -> populateInvoiceWithFiscalYear(headers, vertxContext)))
       .compose(v -> {
         Promise<Integer> promise = Promise.promise();
