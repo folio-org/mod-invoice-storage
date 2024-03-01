@@ -47,7 +47,7 @@ public class TenantReferenceAPI extends TenantAPI {
 
     return Future.succeededFuture()
       // migrationModule value it the same as fromModuleVersion from schema.json
-      .compose(v -> migrate(attributes, "mod-invoice-storage-5.8.0-SNAPSHOT.local-2", () -> updateInvoiceWithFiscalYear(headers, vertxContext)))
+      .compose(v -> migrate(attributes, "mod-invoice-storage-5.8.0", () -> updateInvoiceWithFiscalYear(headers, vertxContext)))
       .compose(v -> {
         Promise<Integer> promise = Promise.promise();
         tl.perform(attributes, headers, vertx, res -> {
