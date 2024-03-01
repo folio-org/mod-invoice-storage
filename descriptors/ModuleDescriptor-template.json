@@ -301,7 +301,7 @@
         {
           "methods": ["POST"],
           "pathPattern": "/_/tenant",
-          "permissionsRequired": ["finance-storage.transactions.collection.get"]
+          "modulePermissions": ["finance-storage.transactions.collection.get"]
         },
         {
           "methods": ["GET", "DELETE"],

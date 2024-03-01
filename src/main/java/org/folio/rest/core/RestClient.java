@@ -1,6 +1,7 @@
 package org.folio.rest.core;
 
 import io.vertx.core.http.HttpMethod;
+import io.vertx.core.json.JsonObject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.folio.rest.core.models.RequestContext;
@@ -46,6 +47,38 @@ public class RestClient {
           log.debug("The response body for GET {}: {}", endpoint, nonNull(body) ? body.encodePrettily() : null);
           S responseEntity = body.mapTo(responseType);
           future.complete(responseEntity);
+        })
+        .exceptionally(t -> {
+          client.closeClient();
+          log.error(String.format(EXCEPTION_CALLING_ENDPOINT_MSG, HttpMethod.GET, endpoint, requestContext), t);
+          future.completeExceptionally(t.getCause());
+          return null;
+        });
+    } catch (Exception e) {
+      log.error(String.format(EXCEPTION_CALLING_ENDPOINT_MSG, HttpMethod.GET, requestEntry.getBaseEndpoint(), requestContext), e);
+      client.closeClient();
+      future.completeExceptionally(e);
+    }
+    return future;
+  }
+
+  public CompletableFuture<JsonObject> get(RequestEntry requestEntry, RequestContext requestContext) {
+    CompletableFuture<JsonObject> future = new CompletableFuture<>();
+    String endpoint = requestEntry.buildEndpoint();
+    HttpClientInterface client = getHttpClient(requestContext.getHeaders());
+    log.debug("Calling GET {}", endpoint);
+
+    try {
+      client
+        .request(HttpMethod.GET, endpoint, requestContext.getHeaders())
+        .thenApply(response -> {
+          log.debug("Validating response for GET {}", endpoint);
+          return verifyAndExtractBody(response);
+        })
+        .thenAccept(body -> {
+          client.closeClient();
+          log.debug("The response body for GET {}: {}", endpoint, nonNull(body) ? body.encodePrettily() : null);
+          future.complete(body);
         })
         .exceptionally(t -> {
           client.closeClient();
