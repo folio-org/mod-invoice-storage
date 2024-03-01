@@ -12,6 +12,7 @@ import org.folio.rest.tools.utils.TenantTool;
 
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Function;
 
 import static java.util.Objects.nonNull;
 import static org.folio.rest.RestVerticle.OKAPI_HEADER_TENANT;
@@ -29,12 +30,11 @@ public class RestClient {
     return get(requestEntry, requestContext, responseType);
   }
 
-  public <S> CompletableFuture<S> get(RequestEntry requestEntry, RequestContext requestContext, Class<S> responseType) {
+  private <S> CompletableFuture<S> get(RequestEntry requestEntry, RequestContext requestContext, Function<JsonObject, S> responseHandler) {
     CompletableFuture<S> future = new CompletableFuture<>();
     String endpoint = requestEntry.buildEndpoint();
     HttpClientInterface client = getHttpClient(requestContext.getHeaders());
     log.debug("Calling GET {}", endpoint);
-
     try {
       client
         .request(HttpMethod.GET, endpoint, requestContext.getHeaders())
@@ -45,7 +45,7 @@ public class RestClient {
         .thenAccept(body -> {
           client.closeClient();
           log.debug("The response body for GET {}: {}", endpoint, nonNull(body) ? body.encodePrettily() : null);
-          S responseEntity = body.mapTo(responseType);
+          S responseEntity = responseHandler.apply(body);
           future.complete(responseEntity);
         })
         .exceptionally(t -> {
@@ -62,36 +62,12 @@ public class RestClient {
     return future;
   }
 
-  public CompletableFuture<JsonObject> get(RequestEntry requestEntry, RequestContext requestContext) {
-    CompletableFuture<JsonObject> future = new CompletableFuture<>();
-    String endpoint = requestEntry.buildEndpoint();
-    HttpClientInterface client = getHttpClient(requestContext.getHeaders());
-    log.debug("Calling GET {}", endpoint);
+  public <S> CompletableFuture<S> get(RequestEntry requestEntry, RequestContext requestContext, Class<S> responseType) {
+    return get(requestEntry, requestContext, body -> body.mapTo(responseType));
+  }
 
-    try {
-      client
-        .request(HttpMethod.GET, endpoint, requestContext.getHeaders())
-        .thenApply(response -> {
-          log.debug("Validating response for GET {}", endpoint);
-          return verifyAndExtractBody(response);
-        })
-        .thenAccept(body -> {
-          client.closeClient();
-          log.debug("The response body for GET {}: {}", endpoint, nonNull(body) ? body.encodePrettily() : null);
-          future.complete(body);
-        })
-        .exceptionally(t -> {
-          client.closeClient();
-          log.error(String.format(EXCEPTION_CALLING_ENDPOINT_MSG, HttpMethod.GET, endpoint, requestContext), t);
-          future.completeExceptionally(t.getCause());
-          return null;
-        });
-    } catch (Exception e) {
-      log.error(String.format(EXCEPTION_CALLING_ENDPOINT_MSG, HttpMethod.GET, requestEntry.getBaseEndpoint(), requestContext), e);
-      client.closeClient();
-      future.completeExceptionally(e);
-    }
-    return future;
+  public CompletableFuture<JsonObject> get(RequestEntry requestEntry, RequestContext requestContext) {
+    return get(requestEntry, requestContext, Function.identity());
   }
 
   protected HttpClientInterface getHttpClient(Map<String, String> okapiHeaders) {
