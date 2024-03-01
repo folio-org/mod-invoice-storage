@@ -1,8 +1,8 @@
 package org.folio.rest.impl;
 
 import static org.folio.rest.RestVerticle.MODULE_SPECIFIC_ARGS;
-import static org.folio.rest.utils.MigrationUtils.migration;
-import static org.folio.rest.utils.MigrationUtils.populateInvoiceWithFiscalYear;
+import static org.folio.rest.utils.MigrationUtils.migrate;
+import static org.folio.rest.utils.MigrationUtils.updateInvoiceWithFiscalYear;
 
 import javax.ws.rs.core.Response;
 import java.util.List;
@@ -47,7 +47,7 @@ public class TenantReferenceAPI extends TenantAPI {
 
     return Future.succeededFuture()
       // migrationModule value it the same as fromModuleVersion from schema.json
-      .compose(v -> migration(attributes, "mod-invoice-storage-5.7.0", () -> populateInvoiceWithFiscalYear(headers, vertxContext)))
+      .compose(v -> migrate(attributes, "mod-invoice-storage-5.8.0-SNAPSHOT.local-2", () -> updateInvoiceWithFiscalYear(headers, vertxContext)))
       .compose(v -> {
         Promise<Integer> promise = Promise.promise();
         tl.perform(attributes, headers, vertx, res -> {

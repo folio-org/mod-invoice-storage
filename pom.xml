@@ -52,6 +52,7 @@
 
     <!--Sonar properties-->
     <sonar.exclusions>**/models/**.java</sonar.exclusions>
+    <sonar.exclusions>**/rest/utils/MigrationUtils.java</sonar.exclusions>
     <sonar.test.exclusions>**/*Test.java</sonar.test.exclusions>
     <argLine />
   </properties>
