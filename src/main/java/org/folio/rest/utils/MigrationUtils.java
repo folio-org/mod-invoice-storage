@@ -87,7 +87,7 @@ public class MigrationUtils {
       if (reply.failed()) {
         promise.fail("error");
       } else {
-        log.info("Transaction record {} was successfully retrieved", reply.result().toString());
+        log.info("Transaction record {} was successfully retrieved", reply.result());
         List<Invoice> invoices = reply.result().getResults();
         promise.complete(invoices);
       }
