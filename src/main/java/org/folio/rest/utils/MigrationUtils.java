@@ -12,6 +12,7 @@ import io.vertx.core.Future;
 import io.vertx.core.Promise;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.folio.okapi.common.ModuleId;
@@ -33,6 +34,9 @@ public class MigrationUtils {
   }
 
   public static Future<Void> migration(TenantAttributes attributes, String migrationModule, Supplier<Future<Void>> supplier) {
+    if (StringUtils.isBlank(attributes.getModuleFrom()))
+      return Future.succeededFuture();
+
     SemVer moduleTo = moduleVersionToSemVer(migrationModule);
     SemVer currentModuleVersion = moduleVersionToSemVer(attributes.getModuleFrom());
     if (moduleTo.compareTo(currentModuleVersion) > 0) {
@@ -57,7 +61,7 @@ public class MigrationUtils {
       client.startTx()
         .compose(v -> getInvoicesWithoutFiscalYearFromDb(client))
         .compose(invoices -> getTransactionsByInvoiceIds(invoices, requestContext))
-        .compose(invoices -> updateInvoicesWithFiscalYearId(client, invoices, requestContext))
+        .compose(invoices -> updateInvoicesWithFiscalYearId(client, invoices))
         .compose(v -> client.endTx())
         .onSuccess(v -> {
           log.info("ok");
@@ -91,7 +95,7 @@ public class MigrationUtils {
     return promise.future();
   }
 
-  private static Future<Void> updateInvoicesWithFiscalYearId(DBClient dbClient, List<Invoice> invoices, RequestContext requestContext) {
+  private static Future<Void> updateInvoicesWithFiscalYearId(DBClient dbClient, List<Invoice> invoices) {
     if (invoices.isEmpty()) {
       return Future.succeededFuture();
     }

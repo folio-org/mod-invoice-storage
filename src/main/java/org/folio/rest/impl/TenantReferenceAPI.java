@@ -21,12 +21,19 @@ import org.folio.rest.jaxrs.model.TenantAttributes;
 import org.folio.rest.persist.PostgresClient;
 import org.folio.rest.tools.utils.TenantLoading;
 import org.folio.rest.tools.utils.TenantTool;
+import org.folio.spring.SpringContextUtil;
 
 public class TenantReferenceAPI extends TenantAPI {
   private static final Logger log = LogManager.getLogger(TenantReferenceAPI.class);
 
   private static final String PARAMETER_LOAD_SAMPLE = "loadSample";
   private static final String PARAMETER_LOAD_SYSTEM = "loadSystem";
+
+
+  public TenantReferenceAPI() {
+    SpringContextUtil.autowireDependencies(this, Vertx.currentContext());
+    log.debug("Init TenantReferenceAPI");
+  }
 
   @Override
   public Future<Integer> loadData(TenantAttributes attributes, String tenantId, Map<String, String> headers, Context vertxContext) {
@@ -39,15 +46,17 @@ public class TenantReferenceAPI extends TenantAPI {
     buildDataLoadingParameters(attributes, tl);
 
     return Future.succeededFuture()
-      .compose(v -> migration(attributes, "mod-invoice-storage-5.7.0",
-        () -> populateInvoiceWithFiscalYear(headers, vertxContext)))
+      // migrationModule value it the same as fromModuleVersion from schema.json
+      .compose(v -> migration(attributes, "mod-invoice-storage-5.7.0", () -> populateInvoiceWithFiscalYear(headers, vertxContext)))
       .compose(v -> {
         Promise<Integer> promise = Promise.promise();
         tl.perform(attributes, headers, vertx, res -> {
           if (res.failed()) {
+            log.error("Failed to load tenant data", res.cause());
             promise.fail(res.cause());
           } else {
-            promise.complete();
+            log.info("Tenant data loaded successfully");
+            promise.complete(res.result());
           }
         });
         return promise.future();
@@ -58,7 +67,7 @@ public class TenantReferenceAPI extends TenantAPI {
     if (isLoadSample(tenantAttributes)) {
       tl.withKey(PARAMETER_LOAD_SAMPLE)
         .withLead("data")
-        .add("batch-groups","batch-group-storage/batch-groups");
+        .add("batch-groups", "batch-group-storage/batch-groups");
     }
   }
 
@@ -79,7 +88,7 @@ public class TenantReferenceAPI extends TenantAPI {
 
   @Override
   public void deleteTenantByOperationId(String operationId, Map<String, String> headers, Handler<AsyncResult<Response>> handler,
-      Context ctx) {
+                                        Context ctx) {
     log.info("Trying to delete tenant by operation id: {}", operationId);
     super.deleteTenantByOperationId(operationId, headers, res -> {
       Vertx vertx = ctx.owner();
