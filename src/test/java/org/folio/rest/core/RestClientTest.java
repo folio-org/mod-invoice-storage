@@ -9,6 +9,7 @@ import static org.folio.rest.utils.TestEntities.INVOICE;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -21,6 +22,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 
 import org.folio.rest.core.models.RequestContext;
+import org.folio.rest.core.models.RequestEntry;
 import org.folio.rest.jaxrs.model.Invoice;
 import org.folio.rest.tools.client.Response;
 import org.folio.rest.tools.client.interfaces.HttpClientInterface;
@@ -73,6 +75,28 @@ public class RestClientTest {
     Invoice actInvoice = restClient.getById(endpoint, uuid, requestContext, Invoice.class).join();
 
     assertThat(actInvoice, equalTo(expTransaction));
+  }
+
+  @Test
+  void testGetShouldJsonObject() throws Exception {
+    RestClient restClient = Mockito.spy(new RestClient());
+    String uuid = UUID.randomUUID().toString();
+    String endpoint = INVOICE.getEndpoint() + "/{id}";
+    Invoice expTransaction = new Invoice().withId(uuid);
+    Response response = new Response();
+    response.setBody(JsonObject.mapFrom(expTransaction));
+    response.setCode(200);
+
+    doReturn(httpClient).when(restClient).getHttpClient(okapiHeaders);
+    doReturn(completedFuture(response)).when(httpClient).request(eq(HttpMethod.GET), anyString(), eq(okapiHeaders));
+
+    RequestEntry requestEntry = new RequestEntry(endpoint)
+      .withOffset(0)
+      .withLimit(Integer.MAX_VALUE);
+
+    JsonObject responseObject = restClient.get(requestEntry, requestContext).join();
+
+    assertEquals(responseObject.getString("id"), expTransaction.getId());
   }
 
   @Test
