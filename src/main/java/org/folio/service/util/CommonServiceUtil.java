@@ -1,13 +1,13 @@
 package org.folio.service.util;
 
-import static java.util.concurrent.CompletableFuture.allOf;
-
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
 
+import io.vertx.core.CompositeFuture;
+import io.vertx.core.Future;
 import one.util.streamex.StreamEx;
+import org.folio.okapi.common.GenericCompositeFuture;
 
 public class CommonServiceUtil {
 
@@ -40,14 +40,8 @@ public class CommonServiceUtil {
    * @param <T> resulting objects type
    * @return CompletableFuture with resulting objects
    */
-  public static <T> CompletableFuture<List<T>> collectResultsOnSuccess(List<CompletableFuture<T>> futures) {
-    return allOf(futures.toArray(new CompletableFuture[0]))
-      .thenApply(v -> futures
-        .stream()
-        // The CompletableFuture::join can be safely used because the `allOf` guaranties success at this step
-        .map(CompletableFuture::join)
-        .filter(Objects::nonNull)
-        .toList()
-      );
+  public static <T> Future<List<T>> collectResultsOnSuccess(List<Future<T>> futures) {
+    return GenericCompositeFuture.join(new ArrayList<>(futures))
+      .map(CompositeFuture::list);
   }
 }

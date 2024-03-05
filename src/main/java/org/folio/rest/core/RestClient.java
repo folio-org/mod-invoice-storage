@@ -1,80 +1,63 @@
 package org.folio.rest.core;
 
-import io.vertx.core.http.HttpMethod;
-import io.vertx.core.json.JsonObject;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.folio.rest.core.models.RequestContext;
-import org.folio.rest.core.models.RequestEntry;
-import org.folio.rest.tools.client.HttpClientFactory;
-import org.folio.rest.tools.client.interfaces.HttpClientInterface;
-import org.folio.rest.tools.utils.TenantTool;
+import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
+import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
+import static org.folio.rest.utils.RestConstants.OKAPI_URL;
 
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
-import java.util.function.Function;
 
-import static java.util.Objects.nonNull;
-import static org.folio.rest.RestVerticle.OKAPI_HEADER_TENANT;
-import static org.folio.rest.utils.HelperUtils.verifyAndExtractBody;
+import io.vertx.core.Context;
+import io.vertx.core.Future;
+import io.vertx.core.MultiMap;
+import io.vertx.core.http.HttpMethod;
+import io.vertx.core.json.JsonObject;
+import io.vertx.ext.web.client.HttpResponse;
+import io.vertx.ext.web.client.WebClient;
+import io.vertx.ext.web.client.WebClientOptions;
+import io.vertx.ext.web.client.predicate.ResponsePredicate;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.folio.okapi.common.WebClientFactory;
+import org.folio.rest.core.models.RequestContext;
 
 public class RestClient {
 
-  private static final Logger log = LogManager.getLogger();
-  private static final String EXCEPTION_CALLING_ENDPOINT_MSG = "Exception calling %s %s - %s";
-  public static final String OKAPI_URL = "x-okapi-url";
+  private static final Logger log = LogManager.getLogger(RestClient.class);
+  public static final String REQUEST_MESSAGE_LOG_INFO = "Calling {} {}";
+  private static final String EXCEPTION_CALLING_ENDPOINT_MSG = "Exception calling {} {} {}";
 
+  public Future<JsonObject> get(String endpoint, RequestContext requestContext) {
+    log.info(REQUEST_MESSAGE_LOG_INFO, HttpMethod.GET, endpoint);
+    var caseInsensitiveHeader = convertToCaseInsensitiveMap(requestContext.getHeaders());
+    var absEndpoint = buildAbsEndpoint(caseInsensitiveHeader, endpoint);
 
-  public <T> CompletableFuture<T> getById(String baseEndpoint, String id, RequestContext requestContext, Class<T> responseType) {
-    RequestEntry requestEntry = new RequestEntry(baseEndpoint).withPathParameter("id", id);
-    return get(requestEntry, requestContext, responseType);
+    return getVertxWebClient(requestContext.getContext())
+      .getAbs(absEndpoint)
+      .putHeaders(caseInsensitiveHeader)
+      .expect(ResponsePredicate.SC_OK)
+      .send()
+      .map(HttpResponse::bodyAsJsonObject)
+      .onFailure(e -> log.error(EXCEPTION_CALLING_ENDPOINT_MSG, HttpMethod.GET, endpoint, e.getMessage()));
   }
 
-  private <S> CompletableFuture<S> get(RequestEntry requestEntry, RequestContext requestContext, Function<JsonObject, S> responseHandler) {
-    CompletableFuture<S> future = new CompletableFuture<>();
-    String endpoint = requestEntry.buildEndpoint();
-    HttpClientInterface client = getHttpClient(requestContext.getHeaders());
-    log.debug("Calling GET {}", endpoint);
-    try {
-      client
-        .request(HttpMethod.GET, endpoint, requestContext.getHeaders())
-        .thenApply(response -> {
-          log.debug("Validating response for GET {}", endpoint);
-          return verifyAndExtractBody(response);
-        })
-        .thenAccept(body -> {
-          client.closeClient();
-          log.debug("The response body for GET {}: {}", endpoint, nonNull(body) ? body.encodePrettily() : null);
-          S responseEntity = responseHandler.apply(body);
-          future.complete(responseEntity);
-        })
-        .exceptionally(t -> {
-          client.closeClient();
-          log.error(String.format(EXCEPTION_CALLING_ENDPOINT_MSG, HttpMethod.GET, endpoint, requestContext), t);
-          future.completeExceptionally(t.getCause());
-          return null;
-        });
-    } catch (Exception e) {
-      log.error(String.format(EXCEPTION_CALLING_ENDPOINT_MSG, HttpMethod.GET, requestEntry.getBaseEndpoint(), requestContext), e);
-      client.closeClient();
-      future.completeExceptionally(e);
-    }
-    return future;
+  protected WebClient getVertxWebClient(Context context) {
+    WebClientOptions options = new WebClientOptions();
+    options.setLogActivity(true);
+    options.setKeepAlive(true);
+    options.setConnectTimeout(2000);
+    options.setIdleTimeout(5000);
+    return WebClientFactory.getWebClient(context.owner(), options);
   }
 
-  public <S> CompletableFuture<S> get(RequestEntry requestEntry, RequestContext requestContext, Class<S> responseType) {
-    return get(requestEntry, requestContext, body -> body.mapTo(responseType));
+  protected String buildAbsEndpoint(MultiMap okapiHeaders, String endpoint) {
+    var okapiURL = okapiHeaders.get(OKAPI_URL);
+    return okapiURL + endpoint;
   }
 
-  public CompletableFuture<JsonObject> get(RequestEntry requestEntry, RequestContext requestContext) {
-    return get(requestEntry, requestContext, Function.identity());
-  }
-
-  protected HttpClientInterface getHttpClient(Map<String, String> okapiHeaders) {
-    final String okapiURL = okapiHeaders.getOrDefault(RestClient.OKAPI_URL, "");
-    final String tenantId = TenantTool.calculateTenantId(okapiHeaders.get(OKAPI_HEADER_TENANT));
-
-    return HttpClientFactory.getHttpClient(okapiURL, tenantId);
-
+  protected MultiMap convertToCaseInsensitiveMap(Map<String, String> okapiHeaders) {
+    return MultiMap.caseInsensitiveMultiMap()
+      .addAll(okapiHeaders)
+      // set default Accept header
+      .add("Accept", APPLICATION_JSON + ", " + TEXT_PLAIN);
   }
 }

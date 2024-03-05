@@ -1,17 +1,18 @@
 package org.folio.rest.utils;
 
 import static org.folio.rest.impl.InvoiceStorageImpl.INVOICE_TABLE;
+import static org.folio.service.util.CommonServiceUtil.collectResultsOnSuccess;
+import static org.folio.service.util.CommonServiceUtil.convertIdsToCqlQuery;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import io.vertx.core.Context;
 import io.vertx.core.Future;
-import io.vertx.core.Promise;
-import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import one.util.streamex.StreamEx;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -33,6 +34,7 @@ import org.folio.rest.persist.interfaces.Results;
 public class MigrationUtils {
   private static final Logger log = LogManager.getLogger(HelperUtils.class);
   private static final String TRANSACTION_API = "/finance-storage/transactions";
+  public static final int MAX_IDS_FOR_GET_RQ = 15;
 
   private MigrationUtils() {
   }
@@ -66,7 +68,7 @@ public class MigrationUtils {
     RequestContext requestContext = new RequestContext(vertxContext, headers);
     PostgresClient pgClient = dbClient.getPgClient();
     return pgClient.withTrans(conn -> getInvoicesWithoutFiscalYearFromDb(conn)
-      .compose(invoices -> getTransactionsByInvoiceIds(invoices, requestContext))
+      .compose(invoices -> getTransactionsByInvoiceIdsAndPopulate(invoices, requestContext))
       .compose(invoices -> updateInvoicesWithFiscalYearId(invoices, conn))
       .onSuccess(v -> log.info("updateInvoiceWithFiscalYear:: Successfully invoices were updated with fiscalYear"))
       .onFailure(t -> log.info("Error to update invoices with fiscalYear", t)));
@@ -84,69 +86,64 @@ public class MigrationUtils {
       .onFailure(t -> log.error("Failed to fetch invoice with query={}", criterion.toString(), t));
   }
 
-  private static Future<List<Invoice>> getTransactionsByInvoiceIds(List<Invoice> invoices, RequestContext requestContext) {
+  private static Future<List<Invoice>> getTransactionsByInvoiceIdsAndPopulate(List<Invoice> invoices, RequestContext requestContext) {
     if (invoices.isEmpty()) {
-      log.info("getTransactionsByInvoiceIds:: invoices is empty");
+      log.info("getTransactionsByInvoiceIds:: No invoices to process");
       return Future.succeededFuture();
     }
-    Promise<List<Invoice>> promise = Promise.promise();
-    RestClient restClient = new RestClient();
+
     // Extract the invoice IDs from the list of invoices
     List<String> invoiceIds = invoices.stream()
       .map(Invoice::getId)
       .toList();
 
-    // Build a query string using the 'IN' operator
-    String query = "(sourceInvoiceId==" + "(" + String.join(" or ", invoiceIds.stream().map(id -> "\"*" + id + "*\"").toList()) + "))";
-    RequestEntry requestEntry = new RequestEntry(TRANSACTION_API)
-      .withOffset(0)
-      .withQuery(query)
-      .withLimit(Integer.MAX_VALUE);
-
-    log.info("getTransactionsByInvoiceIds:: Getting transaction by calling to finance-storage module: query={}", query);
-    restClient.get(requestEntry, requestContext)
-      .thenApply(response -> {
-        JsonArray transactions = response.getJsonArray("transactions");
-        Map<String, String> invoiceIdToFiscalYearMap = new HashMap<>();
-        log.info("getTransactionsByInvoiceIds:: Retrieving transactions={} by for invoiceIds={}", invoiceIdToFiscalYearMap, invoiceIds);
-
-        // Iterate over the transactions and map invoice IDs to fiscal year IDs
-        for (int i = 0; i < transactions.size(); i++) {
-          JsonObject transaction = transactions.getJsonObject(i);
-          String invoiceId = transaction.getString("sourceInvoiceId");
-          String fiscalYearId = transaction.getString("fiscalYearId");
-          invoiceIdToFiscalYearMap.put(invoiceId, fiscalYearId);
-        }
-
-        // Update the invoices with the fiscal year IDs
-        invoices.forEach(invoice -> {
-          String fiscalYearId = invoiceIdToFiscalYearMap.get(invoice.getId());
-          invoice.setFiscalYearId(fiscalYearId); // Assuming Invoice has a setFiscalYearId method
-        });
-        promise.complete(invoices);
-        return Future.succeededFuture(invoices);
-      })
-      .exceptionally(e -> {
-        log.info("Error to get transactions with query={} and api={}", query, TRANSACTION_API);
-        promise.fail(e.getCause());
-        return Future.failedFuture(e);
-      });
-
-    return promise.future();
+    return retrieveTransactionsByInvoiceIds(invoiceIds, requestContext)
+      .compose(response -> populateInvoicesWithFiscalYears(invoices, response));
   }
 
   private static Future<Void> updateInvoicesWithFiscalYearId(List<Invoice> invoices, Conn conn) {
     if (invoices.isEmpty()) {
       return Future.succeededFuture();
     }
-
-    Promise<Void> promise = Promise.promise();
-    for (Invoice invoice : invoices) {
-      conn.update(INVOICE_TABLE, invoice, invoice.getId())
-        .onFailure(e -> log.error("Error to update invoice '{}' in INVOICE_TABLE '{}'", invoice.getId(), INVOICE_TABLE));
-    }
-    promise.complete();
-    return promise.future();
+    return conn.updateBatch(INVOICE_TABLE, invoices)
+      .onFailure(e -> log.error("Error to update '{}' invoice(s) in INVOICE_TABLE '{}'", invoices, INVOICE_TABLE))
+      .mapEmpty();
   }
 
+  private static Future<List<Invoice>> populateInvoicesWithFiscalYears(List<Invoice> invoices, List<JsonObject> response) {
+    Map<String, String> invoiceIdToFiscalYearMap = extractInvoiceIdToFiscalYearMap(response);
+    invoices.forEach(invoice -> invoice.setFiscalYearId(invoiceIdToFiscalYearMap.get(invoice.getId())));
+    log.info("populateInvoicesWithFiscalYears: Populated invoices with fiscal year IDs. invoices: {}", invoices);
+    return Future.succeededFuture(invoices);
+  }
+
+  private static Map<String, String> extractInvoiceIdToFiscalYearMap(List<JsonObject> responseList) {
+    log.info("extractInvoiceIdToFiscalYearMap: Extracting fiscalYearId and sourceInvoiceId from responseList: {}", responseList);
+    return responseList.stream()
+      .flatMap(response -> response.getJsonArray("transactions").stream())
+      .map(JsonObject.class::cast)
+      .collect(Collectors.toMap(
+        transaction -> transaction.getString("sourceInvoiceId"),
+        transaction -> transaction.getString("fiscalYearId")
+      ));
+  }
+
+  public static Future<List<JsonObject>> retrieveTransactionsByInvoiceIds(List<String> invoiceIds, RequestContext requestContext) {
+    List<Future<JsonObject>> futures = StreamEx.ofSubLists(invoiceIds, MAX_IDS_FOR_GET_RQ)
+      .map(ids -> retrieveTransactions(convertIdsToCqlQuery(ids, "sourceInvoiceId"), requestContext))
+      .collect(Collectors.toList());
+
+    return collectResultsOnSuccess(futures);
+  }
+
+  public static Future<JsonObject> retrieveTransactions(String query, RequestContext requestContext) {
+    RestClient restClient = new RestClient();
+    var requestEntry = new RequestEntry(TRANSACTION_API)
+      .withOffset(0)
+      .withLimit(Integer.MAX_VALUE)
+      .withQuery(query);
+    log.info("getTransactionsByInvoiceIds:: Getting transaction by calling to finance-storage module: query={}", query);
+    return restClient.get(requestEntry.buildEndpoint(), requestContext)
+      .onFailure(e -> log.info("Error to get transactions with query={} and api={}", query, TRANSACTION_API));
+  }
 }
