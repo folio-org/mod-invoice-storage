@@ -69,9 +69,9 @@ public class MigrationUtils {
     PostgresClient pgClient = dbClient.getPgClient();
     return pgClient.withTrans(conn -> getInvoicesWithoutFiscalYearFromDb(conn)
       .compose(invoices -> getTransactionsByInvoiceIdsAndPopulate(invoices, requestContext))
-      .compose(invoices -> updateInvoicesWithFiscalYearId(invoices, conn))
+      .compose(invoices -> updateInvoicesWithFiscalYearId(invoices, conn)))
       .onSuccess(v -> log.info("updateInvoiceWithFiscalYear:: Successfully invoices were updated with fiscalYear"))
-      .onFailure(t -> log.info("Error to update invoices with fiscalYear", t)));
+      .onFailure(t -> log.info("Error to update invoices with fiscalYear", t));
   }
 
   private static Future<List<Invoice>> getInvoicesWithoutFiscalYearFromDb(Conn conn) {
