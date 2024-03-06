@@ -102,6 +102,9 @@ public class MigrationUtils {
   }
 
   private static Future<Void> updateInvoicesWithFiscalYearId(List<Invoice> invoices, Conn conn) {
+    if (invoices.isEmpty()) {
+      return Future.succeededFuture();
+    }
     return conn.updateBatch(INVOICE_TABLE, invoices)
       .onComplete(results -> log.info("updateInvoicesWithFiscalYearId:: Successfully '{}' invoice(s) updated", invoices.size()))
       .onFailure(e -> log.error("Error to update '{}' invoice(s) in INVOICE_TABLE '{}'", invoices.size(), INVOICE_TABLE))
