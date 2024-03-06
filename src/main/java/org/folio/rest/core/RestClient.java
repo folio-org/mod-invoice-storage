@@ -9,6 +9,7 @@ import java.util.Map;
 import io.vertx.core.Context;
 import io.vertx.core.Future;
 import io.vertx.core.MultiMap;
+import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.client.HttpResponse;
@@ -25,14 +26,15 @@ public class RestClient {
   private static final Logger log = LogManager.getLogger(RestClient.class);
   public static final String REQUEST_MESSAGE_LOG_INFO = "Calling {} {}";
   private static final String EXCEPTION_CALLING_ENDPOINT_MSG = "Exception calling {} {} {}";
+  private final Vertx vertx = Vertx.currentContext() == null ? Vertx.vertx() : Vertx.currentContext().owner();
+  private final WebClient webClient = WebClientFactory.getWebClient(vertx);
 
   public Future<JsonObject> get(String endpoint, RequestContext requestContext) {
     log.info(REQUEST_MESSAGE_LOG_INFO, HttpMethod.GET, endpoint);
     var caseInsensitiveHeader = convertToCaseInsensitiveMap(requestContext.getHeaders());
     var absEndpoint = buildAbsEndpoint(caseInsensitiveHeader, endpoint);
 
-    return getVertxWebClient(requestContext.getContext())
-      .getAbs(absEndpoint)
+    return webClient.getAbs(absEndpoint)
       .putHeaders(caseInsensitiveHeader)
       .expect(ResponsePredicate.SC_OK)
       .send()
@@ -40,7 +42,7 @@ public class RestClient {
       .onFailure(e -> log.error(EXCEPTION_CALLING_ENDPOINT_MSG, HttpMethod.GET, endpoint, e.getMessage()));
   }
 
-  protected WebClient getVertxWebClient(Context context) {
+  private WebClient getVertxWebClient(Context context) {
     WebClientOptions options = new WebClientOptions();
     options.setLogActivity(true);
     options.setKeepAlive(true);
