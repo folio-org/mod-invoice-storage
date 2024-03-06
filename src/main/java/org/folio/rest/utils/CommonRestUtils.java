@@ -11,6 +11,9 @@ import org.folio.okapi.common.GenericCompositeFuture;
 
 public class CommonRestUtils {
 
+  private CommonRestUtils() {
+  }
+
   public static final String ID = "id";
 
   /**
