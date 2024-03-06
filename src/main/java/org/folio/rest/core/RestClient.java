@@ -6,7 +6,6 @@ import static org.folio.rest.utils.RestConstants.OKAPI_URL;
 
 import java.util.Map;
 
-import io.vertx.core.Context;
 import io.vertx.core.Future;
 import io.vertx.core.MultiMap;
 import io.vertx.core.Vertx;
@@ -14,7 +13,6 @@ import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.client.HttpResponse;
 import io.vertx.ext.web.client.WebClient;
-import io.vertx.ext.web.client.WebClientOptions;
 import io.vertx.ext.web.client.predicate.ResponsePredicate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -40,15 +38,6 @@ public class RestClient {
       .send()
       .map(HttpResponse::bodyAsJsonObject)
       .onFailure(e -> log.error(EXCEPTION_CALLING_ENDPOINT_MSG, HttpMethod.GET, endpoint, e.getMessage()));
-  }
-
-  private WebClient getVertxWebClient(Context context) {
-    WebClientOptions options = new WebClientOptions();
-    options.setLogActivity(true);
-    options.setKeepAlive(true);
-    options.setConnectTimeout(2000);
-    options.setIdleTimeout(5000);
-    return WebClientFactory.getWebClient(context.owner(), options);
   }
 
   protected String buildAbsEndpoint(MultiMap okapiHeaders, String endpoint) {
