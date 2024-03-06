@@ -1,4 +1,4 @@
-package org.folio.service.util;
+package org.folio.rest.utils;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -9,7 +9,7 @@ import io.vertx.core.Future;
 import one.util.streamex.StreamEx;
 import org.folio.okapi.common.GenericCompositeFuture;
 
-public class CommonServiceUtil {
+public class CommonRestUtils {
 
   public static final String ID = "id";
 

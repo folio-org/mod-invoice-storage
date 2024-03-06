@@ -1,11 +1,12 @@
 package org.folio.rest.utils;
 
 import static org.folio.rest.impl.InvoiceStorageImpl.INVOICE_TABLE;
-import static org.folio.service.util.CommonServiceUtil.collectResultsOnSuccess;
-import static org.folio.service.util.CommonServiceUtil.convertIdsToCqlQuery;
+import static org.folio.rest.utils.CommonRestUtils.collectResultsOnSuccess;
+import static org.folio.rest.utils.CommonRestUtils.convertIdsToCqlQuery;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -102,7 +103,7 @@ public class MigrationUtils {
   }
 
   private static Future<Void> updateInvoicesWithFiscalYearId(List<Invoice> invoices, Conn conn) {
-    if (invoices.isEmpty()) {
+    if (Objects.isNull(invoices)) {
       return Future.succeededFuture();
     }
     return conn.updateBatch(INVOICE_TABLE, invoices)
