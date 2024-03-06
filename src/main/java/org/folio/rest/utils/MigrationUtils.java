@@ -70,7 +70,7 @@ public class MigrationUtils {
     return pgClient.withTrans(conn -> getInvoicesWithoutFiscalYearFromDb(conn)
       .compose(invoices -> getTransactionsByInvoiceIdsAndPopulate(invoices, requestContext))
       .compose(invoices -> updateInvoicesWithFiscalYearId(invoices, conn)))
-      .onSuccess(v -> log.info("updateInvoiceWithFiscalYear:: Successfully invoices were updated with fiscalYear"))
+      .onSuccess(v -> log.info("updateInvoiceWithFiscalYear:: Updating invoices with fiscalYearId fully completed"))
       .onFailure(t -> log.info("Error to update invoices with fiscalYear", t));
   }
 
@@ -102,18 +102,16 @@ public class MigrationUtils {
   }
 
   private static Future<Void> updateInvoicesWithFiscalYearId(List<Invoice> invoices, Conn conn) {
-    if (invoices.isEmpty()) {
-      return Future.succeededFuture();
-    }
     return conn.updateBatch(INVOICE_TABLE, invoices)
-      .onFailure(e -> log.error("Error to update '{}' invoice(s) in INVOICE_TABLE '{}'", invoices, INVOICE_TABLE))
+      .onComplete(results -> log.info("updateInvoicesWithFiscalYearId:: Successfully '{}' invoice(s) updated", invoices.size()))
+      .onFailure(e -> log.error("Error to update '{}' invoice(s) in INVOICE_TABLE '{}'", invoices.size(), INVOICE_TABLE))
       .mapEmpty();
   }
 
   private static Future<List<Invoice>> populateInvoicesWithFiscalYears(List<Invoice> invoices, List<JsonObject> response) {
     Map<String, String> invoiceIdToFiscalYearMap = extractInvoiceIdToFiscalYearMap(response);
     invoices.forEach(invoice -> invoice.setFiscalYearId(invoiceIdToFiscalYearMap.get(invoice.getId())));
-    log.info("populateInvoicesWithFiscalYears: Populated invoices with fiscal year IDs. invoices: {}", invoices);
+    log.info("populateInvoicesWithFiscalYears: Populated '{}' invoice(s) with fiscal year IDs.", invoices.size());
     return Future.succeededFuture(invoices);
   }
 
