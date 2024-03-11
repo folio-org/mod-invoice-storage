@@ -69,8 +69,8 @@ public class MigrationUtils {
     RequestContext requestContext = new RequestContext(vertxContext, headers);
     PostgresClient pgClient = dbClient.getPgClient();
     return pgClient.withTrans(conn -> getInvoicesWithoutFiscalYearFromDb(conn)
-      .compose(invoices -> getTransactionsByInvoiceIdsAndPopulate(invoices, requestContext))
-      .compose(invoices -> updateInvoicesWithFiscalYearId(invoices, conn)))
+        .compose(invoices -> getTransactionsByInvoiceIdsAndPopulate(invoices, requestContext))
+        .compose(invoices -> updateInvoicesWithFiscalYearId(invoices, conn)))
       .onSuccess(v -> log.info("updateInvoiceWithFiscalYear:: Updating invoices with fiscalYearId fully completed"))
       .onFailure(t -> log.info("Error to update invoices with fiscalYear", t));
   }
@@ -102,14 +102,23 @@ public class MigrationUtils {
       .compose(response -> populateInvoicesWithFiscalYears(invoices, response));
   }
 
-  private static Future<Void> updateInvoicesWithFiscalYearId(List<Invoice> invoices, Conn conn) {
-    if (Objects.isNull(invoices)) {
-      return Future.succeededFuture();
-    }
-    return conn.updateBatch(INVOICE_TABLE, invoices)
-      .onComplete(results -> log.info("updateInvoicesWithFiscalYearId:: Successfully '{}' invoice(s) updated", invoices.size()))
-      .onFailure(e -> log.error("Error to update '{}' invoice(s) in INVOICE_TABLE '{}'", invoices.size(), INVOICE_TABLE, e))
-      .mapEmpty();
+  public static Future<List<JsonObject>> retrieveTransactionsByInvoiceIds(List<String> invoiceIds, RequestContext requestContext) {
+    List<Future<JsonObject>> futures = StreamEx.ofSubLists(invoiceIds, MAX_IDS_FOR_GET_RQ)
+      .map(ids -> retrieveTransactions(convertIdsToCqlQuery(ids, "sourceInvoiceId"), requestContext))
+      .collect(Collectors.toList());
+
+    return collectResultsOnSuccess(futures);
+  }
+
+  public static Future<JsonObject> retrieveTransactions(String query, RequestContext requestContext) {
+    RestClient restClient = new RestClient();
+    var requestEntry = new RequestEntry(TRANSACTION_API)
+      .withOffset(0)
+      .withLimit(Integer.MAX_VALUE)
+      .withQuery(query);
+    log.info("getTransactionsByInvoiceIds:: Getting transaction by calling to finance-storage module: query={}", query);
+    return restClient.get(requestEntry.buildEndpoint(), requestContext)
+      .onFailure(e -> log.error("Error to get transactions with query={} and api={}", query, TRANSACTION_API, e));
   }
 
   private static Future<List<Invoice>> populateInvoicesWithFiscalYears(List<Invoice> invoices, List<JsonObject> response) {
@@ -130,22 +139,14 @@ public class MigrationUtils {
       ));
   }
 
-  public static Future<List<JsonObject>> retrieveTransactionsByInvoiceIds(List<String> invoiceIds, RequestContext requestContext) {
-    List<Future<JsonObject>> futures = StreamEx.ofSubLists(invoiceIds, MAX_IDS_FOR_GET_RQ)
-      .map(ids -> retrieveTransactions(convertIdsToCqlQuery(ids, "sourceInvoiceId"), requestContext))
-      .collect(Collectors.toList());
-
-    return collectResultsOnSuccess(futures);
+  private static Future<Void> updateInvoicesWithFiscalYearId(List<Invoice> invoices, Conn conn) {
+    if (Objects.isNull(invoices)) {
+      return Future.succeededFuture();
+    }
+    return conn.updateBatch(INVOICE_TABLE, invoices)
+      .onComplete(results -> log.info("updateInvoicesWithFiscalYearId:: Successfully '{}' invoice(s) updated", invoices.size()))
+      .onFailure(e -> log.error("Error to update '{}' invoice(s) in INVOICE_TABLE '{}'", invoices.size(), INVOICE_TABLE, e))
+      .mapEmpty();
   }
 
-  public static Future<JsonObject> retrieveTransactions(String query, RequestContext requestContext) {
-    RestClient restClient = new RestClient();
-    var requestEntry = new RequestEntry(TRANSACTION_API)
-      .withOffset(0)
-      .withLimit(Integer.MAX_VALUE)
-      .withQuery(query);
-    log.info("getTransactionsByInvoiceIds:: Getting transaction by calling to finance-storage module: query={}", query);
-    return restClient.get(requestEntry.buildEndpoint(), requestContext)
-      .onFailure(e -> log.error("Error to get transactions with query={} and api={}", query, TRANSACTION_API, e));
-  }
 }
