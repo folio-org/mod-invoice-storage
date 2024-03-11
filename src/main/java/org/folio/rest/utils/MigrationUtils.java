@@ -108,7 +108,7 @@ public class MigrationUtils {
     }
     return conn.updateBatch(INVOICE_TABLE, invoices)
       .onComplete(results -> log.info("updateInvoicesWithFiscalYearId:: Successfully '{}' invoice(s) updated", invoices.size()))
-      .onFailure(e -> log.error("Error to update '{}' invoice(s) in INVOICE_TABLE '{}'", invoices.size(), INVOICE_TABLE))
+      .onFailure(e -> log.error("Error to update '{}' invoice(s) in INVOICE_TABLE '{}'", invoices.size(), INVOICE_TABLE, e))
       .mapEmpty();
   }
 
@@ -146,6 +146,6 @@ public class MigrationUtils {
       .withQuery(query);
     log.info("getTransactionsByInvoiceIds:: Getting transaction by calling to finance-storage module: query={}", query);
     return restClient.get(requestEntry.buildEndpoint(), requestContext)
-      .onFailure(e -> log.info("Error to get transactions with query={} and api={}", query, TRANSACTION_API));
+      .onFailure(e -> log.error("Error to get transactions with query={} and api={}", query, TRANSACTION_API, e));
   }
 }
