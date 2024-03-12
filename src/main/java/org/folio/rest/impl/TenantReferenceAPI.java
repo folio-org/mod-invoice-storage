@@ -22,8 +22,8 @@ import org.folio.rest.tools.utils.TenantTool;
 import org.folio.spring.SpringContextUtil;
 
 public class TenantReferenceAPI extends TenantAPI {
-  private static final Logger log = LogManager.getLogger(TenantReferenceAPI.class);
 
+  private static final Logger log = LogManager.getLogger(TenantReferenceAPI.class);
   private static final String PARAMETER_LOAD_SAMPLE = "loadSample";
   private static final String PARAMETER_LOAD_SYSTEM = "loadSystem";
 
@@ -44,9 +44,7 @@ public class TenantReferenceAPI extends TenantAPI {
 
     return Future.succeededFuture()
       .compose(v -> {
-
         Promise<Integer> promise = Promise.promise();
-
         tl.perform(attributes, headers, vertx, res -> {
           if (res.failed()) {
             log.error("Failed to load tenant data", res.cause());
@@ -57,8 +55,7 @@ public class TenantReferenceAPI extends TenantAPI {
           }
         });
         return promise.future();
-      })
-      .onFailure(throwable -> Future.failedFuture(throwable.getCause()));
+      });
   }
 
   private void buildDataLoadingParameters(TenantAttributes tenantAttributes, TenantLoading tl) {
@@ -69,10 +66,14 @@ public class TenantReferenceAPI extends TenantAPI {
     }
   }
 
+  /**
+   * if a system parameter is passed from command line, ex: loadSample=true
+   * that value is considered,Priority of Parameters:
+   * Tenant Attributes > command line parameter > default(false)
+   * @param tenantAttributes tenantAttributes from request
+   * @return boolean
+   */
   private boolean isLoadSample(TenantAttributes tenantAttributes) {
-    // if a system parameter is passed from command line, ex: loadSample=true
-    // that value is considered,Priority of Parameters:
-    // Tenant Attributes > command line parameter > default(false)
     boolean loadSample = Boolean.parseBoolean(MODULE_SPECIFIC_ARGS.getOrDefault(PARAMETER_LOAD_SAMPLE,
       "false"));
     List<Parameter> parameters = tenantAttributes.getParameters();
@@ -82,7 +83,6 @@ public class TenantReferenceAPI extends TenantAPI {
       }
     }
     return loadSample;
-
   }
 
   @Override
