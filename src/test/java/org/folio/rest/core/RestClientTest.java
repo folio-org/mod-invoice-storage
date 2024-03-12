@@ -26,6 +26,7 @@ import io.vertx.ext.web.client.HttpRequest;
 import io.vertx.ext.web.client.HttpResponse;
 import io.vertx.ext.web.client.WebClient;
 import io.vertx.ext.web.client.predicate.ResponsePredicate;
+
 import org.folio.rest.core.models.RequestContext;
 import org.folio.rest.jaxrs.model.Invoice;
 import org.junit.jupiter.api.BeforeEach;
@@ -34,12 +35,11 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-
 public class RestClientTest {
   public static final Header X_OKAPI_TENANT = new Header(OKAPI_HEADER_TENANT, "invoiceimpltest");
 
   @Mock
-  private EventLoopContext ctxMock;
+  private Context ctxMock;
   @Mock
   private WebClient webClient;
   @Mock
