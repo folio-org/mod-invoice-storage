@@ -30,11 +30,11 @@
 
     <!--Dependency properties-->
     <aspectj.version>1.9.21.1</aspectj.version>
-    <aspectj-maven-plugin.version>1.14</aspectj-maven-plugin.version>
     <rest-assured.version>5.4.0</rest-assured.version>
     <folio-di-support.version>2.0.1</folio-di-support.version>
 
     <!--Maven plugin properties-->
+    <aspectj-maven-plugin.version>1.14</aspectj-maven-plugin.version>
     <exec-maven-plugin.version>3.2.0</exec-maven-plugin.version>
     <maven-resources-plugin.version>3.3.1</maven-resources-plugin.version>
     <maven-compiler-plugin.version>3.12.1</maven-compiler-plugin.version>
