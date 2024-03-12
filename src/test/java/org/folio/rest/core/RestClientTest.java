@@ -20,6 +20,7 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 
+import io.vertx.core.Context;
 import org.folio.rest.core.models.RequestContext;
 import org.folio.rest.jaxrs.model.Invoice;
 import org.folio.rest.tools.client.Response;
@@ -32,14 +33,13 @@ import org.mockito.MockitoAnnotations;
 
 import io.restassured.http.Header;
 import io.vertx.core.http.HttpMethod;
-import io.vertx.core.impl.EventLoopContext;
 import io.vertx.core.json.JsonObject;
 
 public class RestClientTest {
   public static final Header X_OKAPI_TENANT = new Header(OKAPI_HEADER_TENANT, "invoiceimpltest");
 
   @Mock
-  private EventLoopContext ctxMock;
+  private Context ctxMock;
   @Mock
   private HttpClientInterface httpClient;
 
