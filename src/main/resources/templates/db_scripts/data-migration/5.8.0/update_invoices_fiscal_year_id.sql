@@ -12,4 +12,4 @@ FROM updated_invoices AS ui
 WHERE inv.id = ui.invoice_id
   AND ui.fiscal_year_id IS NOT NULL;
 
-GRANT ${myuniversity}_finance_storage TO ${myuniversity}_${mymodule};
+GRANT ${myuniversity}_finance_storage TO ${myuniversity}_mod_invoice_storage;
