@@ -11,3 +11,5 @@ SET jsonb = jsonb_set(inv.jsonb, '{fiscalYearId}', ui.fiscal_year_id)
 FROM updated_invoices AS ui
 WHERE inv.id = ui.invoice_id
   AND ui.fiscal_year_id IS NOT NULL;
+
+GRANT ${myuniversity}_finance_storage TO ${myuniversity}_${mymodule};
