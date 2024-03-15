@@ -68,11 +68,6 @@
       "run": "after",
       "snippetPath": "data-migration/5.7.0/replace_invoice_sequences.ftl",
       "fromModuleVersion": "mod-invoice-storage-5.7.0"
-    },
-    {
-      "run": "after",
-      "snippetPath": "data-migration/5.8.0/update_invoices_fiscal_year_id.sql",
-      "fromModuleVersion": "mod-invoice-storage-5.8.0"
     }
   ],
   "tables": [
