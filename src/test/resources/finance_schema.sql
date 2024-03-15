@@ -7,3 +7,8 @@ CREATE TABLE IF NOT EXISTS new_tenant_mod_finance_storage.fund (
   id UUID PRIMARY KEY,
   jsonb JSONB NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS new_tenant_mod_finance_storage.transaction (
+  id UUID PRIMARY KEY,
+  jsonb JSONB NOT NULL
+);
