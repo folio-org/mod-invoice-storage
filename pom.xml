@@ -15,7 +15,7 @@
   <properties>
     <!--Project properties-->
     <java.version>17</java.version>
-    <spring.version>6.0.2</spring.version>
+    <spring.version>6.1.5</spring.version>
     <ramlfiles_path>${basedir}/ramls</ramlfiles_path>
     <raml-module-builder.version>35.2.0</raml-module-builder.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -31,7 +31,7 @@
     <!--Dependency properties-->
     <aspectj.version>1.9.21.1</aspectj.version>
     <rest-assured.version>5.4.0</rest-assured.version>
-    <folio-di-support.version>2.0.1</folio-di-support.version>
+    <folio-di-support.version>2.1.0</folio-di-support.version>
 
     <!--Maven plugin properties-->
     <aspectj-maven-plugin.version>1.14</aspectj-maven-plugin.version>
@@ -209,6 +209,7 @@
         <configuration>
           <release>${java.version}</release>
           <encoding>UTF-8</encoding>
+          <parameters>true</parameters>
         </configuration>
       </plugin>
 
