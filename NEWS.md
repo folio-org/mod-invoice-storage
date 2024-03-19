@@ -12,8 +12,8 @@ The primary focus of this release was to update dependencies, and write SQL migr
 * [MODINVOSTO-171](https://folio-org.atlassian.net/browse/MODINVOSTO-171) - Update RMB and vertx to the latest version
 
 ### Dependencies
-* Bump `raml` from `35.1.0` to `35.2.0`
-* Bump `vertx` from `4.4.5` to `4.5.4`
+* Bump `raml` from `35.0.1` to `35.2.0`
+* Bump `vertx` from `4.3.4` to `4.5.4`
 
 ## 5.7.0 - Released - (Poppy R2 2023)
 
