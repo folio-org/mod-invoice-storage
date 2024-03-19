@@ -1,4 +1,19 @@
-## 5.8.0 - Unreleased
+## 5.9.0 - Unreleased
+
+## 5.8.0 - Released - (Quesnelia R1 2024)
+
+The primary focus of this release was to update dependencies, and write SQL migration script to fill invoices with fiscalYearId
+
+[Full Changelog](https://github.com/folio-org/mod-invoice-storage/compare/v5.7.0...v5.8.0)
+
+### Stories
+* [MODINVOSTO-177](https://folio-org.atlassian.net/browse/MODINVOSTO-177) - Verify is java based migration for fiscalYearId possible and implement solution for it
+* [MODINVOSTO-175](https://folio-org.atlassian.net/browse/MODINVOSTO-175) - Upgrade RAML Module Builder
+* [MODINVOSTO-171](https://folio-org.atlassian.net/browse/MODINVOSTO-171) - Update RMB and vertx to the latest version
+
+### Dependencies
+* Bump `raml` from `35.0.1` to `35.2.0`
+* Bump `vertx` from `4.3.4` to `4.5.4`
 
 ## 5.7.0 - Released - (Poppy R2 2023)
 
