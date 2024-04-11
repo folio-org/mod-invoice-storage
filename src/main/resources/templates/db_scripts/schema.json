@@ -73,8 +73,12 @@
        "run": "after",
        "snippetPath": "data-migration/5.8.0/update_invoices_fiscal_year_id.sql",
        "fromModuleVersion": "mod-invoice-storage-5.8.0"
-    }
-  ],
+    },
+    {
+      "run": "after",
+      "snippetPath": "data-migration/5.9.0/update_voucherNumber_in_voucher_invoice.sql",
+      "fromModuleVersion": "mod-invoice-storage-5.9.0"
+    }],
   "tables": [
     {
       "tableName": "batch_groups",
