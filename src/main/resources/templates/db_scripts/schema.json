@@ -78,7 +78,8 @@
       "run": "after",
       "snippetPath": "data-migration/update_voucherNumber_in_voucher_invoice.sql",
       "fromModuleVersion": "mod-invoice-storage-5.9.0"
-    }],
+    }
+  ],
   "tables": [
     {
       "tableName": "batch_groups",
