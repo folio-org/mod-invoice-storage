@@ -1,5 +1,13 @@
 ## 5.9.0 - Unreleased
 
+## 5.8.1 - Released (Quesnelia R1 2024)
+This release focused on adding ability to search by location and holding in POL  
+[Full Changelog](https://github.com/folio-org/mod-invoice/compare/v5.8.0...v5.8.1)
+
+### Bug Fixes
+* [MODORDERS-1085](https://folio-org.atlassian.net/browse/MODORDERS-1085) - Add ability to search by location and holding in POL
+
+
 ## 5.8.0 - Released - (Quesnelia R1 2024)
 
 The primary focus of this release was to update dependencies, and write SQL migration script to fill invoices with fiscalYearId
