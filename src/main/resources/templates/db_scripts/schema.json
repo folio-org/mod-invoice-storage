@@ -77,7 +77,7 @@
     {
       "run": "after",
       "snippetPath": "data-migration/5.9.0/update_voucherNumber_in_voucher_invoice.sql",
-      "fromModuleVersion": "mod-invoice-storage-5.9.0"
+      "fromModuleVersion": "mod-invoice-storage-5.8.0"
     }
   ],
   "tables": [
