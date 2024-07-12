@@ -78,6 +78,11 @@
       "run": "after",
       "snippetPath": "data-migration/5.9.0/update_voucherNumber_in_voucher_invoice.sql",
       "fromModuleVersion": "mod-invoice-storage-5.9.0"
+    },
+    {
+      "run": "after",
+      "snippetPath": "invoice_line_table.sql",
+      "fromModuleVersion": "mod-invoice-storage-5.9.0"
     }
   ],
   "tables": [
@@ -122,6 +127,12 @@
           "tableAlias": "invoices"
         }
       ],
+      "index": [
+        {
+          "fieldName": "vendorId",
+          "caseSensitive": false
+        }
+      ],
       "fullTextIndex": [
         {
           "fieldName": "acqUnitIds",
@@ -153,6 +164,24 @@
           "tOps": "ADD"
         }
       ],
+      "index": [
+        {
+          "fieldName": "invoiceLineStatus",
+          "caseSensitive": false
+        },
+        {
+          "fieldName": "tagList",
+          "caseSensitive": false
+        },
+        {
+          "fieldName": "fiscalYearId",
+          "caseSensitive": false
+        },
+        {
+          "fieldName": "exportToAccounting",
+          "caseSensitive": false
+        }
+      ],
       "fullTextIndex": [
         {
           "fieldName": "description",
@@ -164,6 +193,12 @@
       "ginIndex": [
         {
           "fieldName": "poLineId",
+          "tOps": "ADD",
+          "caseSensitive": false,
+          "removeAccents": true
+        },
+        {
+          "fieldName": "fundDistributions",
           "tOps": "ADD",
           "caseSensitive": false,
           "removeAccents": true
