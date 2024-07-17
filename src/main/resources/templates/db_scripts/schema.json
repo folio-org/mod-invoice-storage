@@ -81,7 +81,7 @@
     },
     {
       "run": "after",
-      "snippetPath": "invoice_line_table.sql",
+      "snippetPath": "invoices_table.sql",
       "fromModuleVersion": "mod-invoice-storage-5.9.0"
     }
   ],
