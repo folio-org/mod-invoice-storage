@@ -1,4 +1,5 @@
 {
+  "exactCount": 50000,
   "scripts": [
     {
       "run": "after",
@@ -73,6 +74,11 @@
        "run": "after",
        "snippetPath": "data-migration/5.8.0/update_invoices_fiscal_year_id.sql",
        "fromModuleVersion": "mod-invoice-storage-5.8.0"
+    },
+    {
+      "run": "after",
+      "snippetPath": "invoices_table.sql",
+      "fromModuleVersion": "mod-invoice-storage-5.8.2"
     }
   ],
   "tables": [
@@ -117,6 +123,12 @@
           "tableAlias": "invoices"
         }
       ],
+      "index": [
+        {
+          "fieldName": "vendorId",
+          "caseSensitive": false
+        }
+      ],
       "fullTextIndex": [
         {
           "fieldName": "acqUnitIds",
@@ -148,6 +160,24 @@
           "tOps": "ADD"
         }
       ],
+      "index": [
+        {
+          "fieldName": "invoiceLineStatus",
+          "caseSensitive": false
+        },
+        {
+          "fieldName": "tagList",
+          "caseSensitive": false
+        },
+        {
+          "fieldName": "fiscalYearId",
+          "caseSensitive": false
+        },
+        {
+          "fieldName": "exportToAccounting",
+          "caseSensitive": false
+        }
+      ],
       "fullTextIndex": [
         {
           "fieldName": "description",
@@ -159,6 +189,12 @@
       "ginIndex": [
         {
           "fieldName": "poLineId",
+          "tOps": "ADD",
+          "caseSensitive": false,
+          "removeAccents": true
+        },
+        {
+          "fieldName": "fundDistributions",
           "tOps": "ADD",
           "caseSensitive": false,
           "removeAccents": true
