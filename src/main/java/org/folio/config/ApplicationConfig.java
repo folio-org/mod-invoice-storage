@@ -7,7 +7,6 @@ import org.folio.dao.lines.InvoiceLinesPostgresDAO;
 import org.folio.rest.core.RestClient;
 import org.folio.service.InvoiceLineNumberService;
 import org.folio.service.InvoiceStorageService;
-import org.folio.service.order.OrderStorageService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -17,10 +16,6 @@ public class ApplicationConfig {
   @Bean
   RestClient restClient() {
     return new RestClient();
-  }
-
-  @Bean OrderStorageService ordersStorageService(RestClient restClient) {
-    return new OrderStorageService(restClient);
   }
 
   @Bean
