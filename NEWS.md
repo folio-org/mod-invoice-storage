@@ -1,6 +1,6 @@
 ## 5.9.0 - Unreleased
 
-## 5.8.1 - Released (Quesnelia R1 2024)
+## 5.8.2 - Released (Quesnelia R1 2024)
 This release is focused on making more performant filtering/sorting of invoices
 [Full Changelog](https://github.com/folio-org/mod-invoice-storage/compare/v5.8.1...v5.8.2)
 
