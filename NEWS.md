@@ -1,5 +1,13 @@
 ## 5.9.0 - Unreleased
 
+## 5.8.2 - Released (Quesnelia R1 2024)
+This release is focused on making more performant filtering/sorting of invoices
+[Full Changelog](https://github.com/folio-org/mod-invoice-storage/compare/v5.8.1...v5.8.2)
+
+### Tech Debt
+* [MODINVOSTO-182](https://folio-org.atlassian.net/browse/MODINVOSTO-182) - Speedup invoices filtering/sorting performance on big datasets
+
+
 ## 5.8.1 - Released (Quesnelia R1 2024)
 This release focused on adding ability to search by location and holding in POL  
 [Full Changelog](https://github.com/folio-org/mod-invoice-storage/compare/v5.8.0...v5.8.1)
