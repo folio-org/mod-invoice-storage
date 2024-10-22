@@ -17,7 +17,7 @@
     <java.version>17</java.version>
     <spring.version>6.1.14</spring.version>
     <ramlfiles_path>${basedir}/ramls</ramlfiles_path>
-    <raml-module-builder.version>35.2.0</raml-module-builder.version>
+    <raml-module-builder.version>35.3.0</raml-module-builder.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <generated_sources_dir>${project.build.directory}/generated-sources</generated_sources_dir>
     <jsonschema2pojo_output_dir>${generated_sources_dir}/jsonschema2pojo</jsonschema2pojo_output_dir>
@@ -49,7 +49,6 @@
     <!--Test Scope dependencies-->
     <junit-jupiter-version>5.11.2</junit-jupiter-version>
     <jmockit.version>1.49</jmockit.version>
-    <testcontainers.version>1.20.2</testcontainers.version>
 
     <!--Sonar properties-->
     <sonar.exclusions>**/models/**.java</sonar.exclusions>
@@ -145,18 +144,6 @@
       <groupId>org.springframework</groupId>
       <artifactId>spring-context</artifactId>
       <version>${spring.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.testcontainers</groupId>
-      <artifactId>postgresql</artifactId>
-      <version>${testcontainers.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.testcontainers</groupId>
-      <artifactId>junit-jupiter</artifactId>
-      <version>${testcontainers.version}</version>
-      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>io.vertx</groupId>
