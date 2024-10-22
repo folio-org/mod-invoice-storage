@@ -17,7 +17,7 @@
     <java.version>17</java.version>
     <spring.version>6.1.14</spring.version>
     <ramlfiles_path>${basedir}/ramls</ramlfiles_path>
-    <raml-module-builder.version>35.3.0</raml-module-builder.version>
+    <raml-module-builder.version>35.2.0</raml-module-builder.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <generated_sources_dir>${project.build.directory}/generated-sources</generated_sources_dir>
     <jsonschema2pojo_output_dir>${generated_sources_dir}/jsonschema2pojo</jsonschema2pojo_output_dir>
