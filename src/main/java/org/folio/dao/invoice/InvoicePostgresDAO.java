@@ -178,7 +178,7 @@ public class InvoicePostgresDAO implements InvoiceDAO {
             }
             InvoiceDocument invoiceDocument = new InvoiceDocument();
 
-            JsonObject resultJson = new JsonObject(ObjectMapperTool.valueAsString(reply.result().iterator().next().getValue(0)));
+            JsonObject resultJson = JsonObject.mapFrom(reply.result().iterator().next().getValue(0));
 
             DocumentMetadata documentMetadata = (resultJson).mapTo(DocumentMetadata.class);
             invoiceDocument.setDocumentMetadata(documentMetadata);
