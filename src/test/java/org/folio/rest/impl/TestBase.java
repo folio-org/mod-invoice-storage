@@ -20,6 +20,7 @@ import java.util.concurrent.TimeoutException;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.folio.config.ApplicationConfig;
+import org.folio.dbschema.ObjectMapperTool;
 import org.folio.rest.jaxrs.model.BatchVoucher;
 import org.folio.rest.utils.TestEntities;
 import org.junit.jupiter.api.AfterAll;
@@ -121,7 +122,7 @@ public abstract class TestBase {
   }
 
   String createEntity(String endpoint, Object input) throws MalformedURLException {
-    return createEntity(endpoint, JsonObject.mapFrom(input).encode());
+    return createEntity(endpoint, ObjectMapperTool.valueAsString(input));
   }
 
   String createEntity(String endpoint, String entity) throws MalformedURLException {
