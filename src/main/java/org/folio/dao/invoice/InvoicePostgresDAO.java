@@ -14,6 +14,7 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.folio.dbschema.ObjectMapperTool;
 import org.folio.rest.jaxrs.model.Contents;
 import org.folio.rest.jaxrs.model.DocumentMetadata;
 import org.folio.rest.jaxrs.model.Invoice;
@@ -177,7 +178,7 @@ public class InvoicePostgresDAO implements InvoiceDAO {
             }
             InvoiceDocument invoiceDocument = new InvoiceDocument();
 
-            JsonObject resultJson = JsonObject.mapFrom(reply.result().iterator().next().getValue(0));
+            JsonObject resultJson = new JsonObject(ObjectMapperTool.valueAsString(reply.result().iterator().next().getValue(0)));
 
             DocumentMetadata documentMetadata = (resultJson).mapTo(DocumentMetadata.class);
             invoiceDocument.setDocumentMetadata(documentMetadata);
@@ -223,11 +224,11 @@ public class InvoicePostgresDAO implements InvoiceDAO {
 
     if (entity.getContents() != null && StringUtils.isNotEmpty(entity.getContents().getData())) {
       return Tuple.of(UUID.fromString(entity.getDocumentMetadata().getId()), entity.getContents().getData(),
-        JsonObject.mapFrom(entity.getDocumentMetadata()));
+        new JsonObject(ObjectMapperTool.valueAsString(entity.getDocumentMetadata())));
     }
 
     return Tuple.of(UUID.fromString(entity.getDocumentMetadata().getId()),
-      JsonObject.mapFrom(entity.getDocumentMetadata()));
+      new JsonObject(ObjectMapperTool.valueAsString(entity.getDocumentMetadata())));
   }
 
 }
