@@ -260,10 +260,8 @@
             <include>org/folio/rest/impl/StorageTestSuite.java</include>
             <include>org/folio/rest/**</include>
           </includes>
-          <parallel>classes</parallel>
-          <threadCount>3</threadCount>
+          <forkCount>1</forkCount>
           <reuseForks>false</reuseForks>
-          <forkCount>3</forkCount>
         </configuration>
       </plugin>
 
