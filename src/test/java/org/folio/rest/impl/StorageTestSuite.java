@@ -44,7 +44,6 @@ public class StorageTestSuite {
   private static final int port = NetworkUtils.nextFreePort();
   public static final Header URL_TO_HEADER = new Header("X-Okapi-Url-to", "http://localhost:" + port);
   private static TenantJob tenantJob;
-  public static final String POSTGRES_DOCKER_IMAGE = "postgres:16-alpine";
 
   private StorageTestSuite() {}
 
@@ -92,7 +91,7 @@ public class StorageTestSuite {
 
     log.info("Start container database");
 
-    PostgresClient.setPostgresTester(new PostgresTesterContainer(POSTGRES_DOCKER_IMAGE));
+    PostgresClient.setPostgresTester(new PostgresTesterContainer());
 
     DeploymentOptions options = new DeploymentOptions();
 
