@@ -6,7 +6,9 @@ import static org.folio.rest.impl.StorageTestSuite.storageUrl;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
+import static org.testcontainers.shaded.org.awaitility.Awaitility.await;
 
+import io.restassured.response.Response;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -60,8 +62,19 @@ public class VoucherNumberTest extends TestBase {
     // Verify changing of start value
     long start = 11111111L;
 
+    System.out.println("Changing start value to: " + start);
     changeStartValueResponse(start)
       .statusCode(HttpStatus.HTTP_NO_CONTENT.toInt());
+
+    // Then: Wait for value to be updated
+    await()
+      .atMost(10, TimeUnit.SECONDS)
+      .pollInterval(100, TimeUnit.MILLISECONDS)
+      .until(() -> {
+        long currentValue = getCurrentStartValueVoucherNumber();
+        System.out.println("Current value during wait: " + currentValue);
+        return currentValue == start;
+      });
 
     // verify current start value equals new start value
     assertThat(getCurrentStartValueVoucherNumber(), equalTo(start));
@@ -110,12 +123,17 @@ public class VoucherNumberTest extends TestBase {
   }
 
   private long getCurrentStartValueVoucherNumber() throws MalformedURLException {
-    return Long.parseLong(getData(VOUCHER_STORAGE_VOUCHER_NUMBER_START_ENDPOINT)
+    Response response = getData(VOUCHER_STORAGE_VOUCHER_NUMBER_START_ENDPOINT)
       .then()
-        .statusCode(HttpStatus.HTTP_OK.toInt())
-        .extract()
-          .response()
-            .path(SEQUENCE_NUMBER));
+      .statusCode(HttpStatus.HTTP_OK.toInt())
+      .extract()
+      .response();
+
+    if (response.statusCode() != HttpStatus.HTTP_OK.toInt()) {
+      System.err.println("Error response: " + response.asString());
+    }
+
+    return Long.parseLong(response.path(SEQUENCE_NUMBER));
   }
 
   private ValidatableResponse getSequenceNumberResponse() throws MalformedURLException {
@@ -130,9 +148,9 @@ public class VoucherNumberTest extends TestBase {
     return given()
       .header(TENANT_HEADER)
       .pathParam(VALUE, value)
-        .when()
-          .post(storageUrl(VOUCHER_STORAGE_VOUCHER_NUMBER_START_ENDPOINT + "{value}"))
-        .then();
+      .when()
+      .post(storageUrl(VOUCHER_STORAGE_VOUCHER_NUMBER_START_ENDPOINT + "{value}"))
+      .then();
   }
 
   private long getSequenceNumberValue() throws MalformedURLException {
