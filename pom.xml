@@ -15,39 +15,40 @@
   <properties>
     <!--Project properties-->
     <java.version>17</java.version>
-    <spring.version>6.1.5</spring.version>
+    <spring.version>6.1.14</spring.version>
     <ramlfiles_path>${basedir}/ramls</ramlfiles_path>
-    <raml-module-builder.version>35.2.0</raml-module-builder.version>
+    <raml-module-builder.version>35.3.0</raml-module-builder.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <generated_sources_dir>${project.build.directory}/generated-sources</generated_sources_dir>
     <jsonschema2pojo_output_dir>${generated_sources_dir}/jsonschema2pojo</jsonschema2pojo_output_dir>
-    <postgres.image>postgres:12-alpine</postgres.image>
 
     <!--Dependency Management Properties-->
-    <vertx.version>4.5.4</vertx.version>
-    <log4j.version>2.23.0</log4j.version>
+    <vertx.version>4.5.10</vertx.version>
+    <log4j.version>2.24.1</log4j.version>
+
+    <!--Folio dependencies properties-->
+    <folio-module-descriptor-validator.version>1.0.0</folio-module-descriptor-validator.version>
 
     <!--Dependency properties-->
-    <aspectj.version>1.9.21.1</aspectj.version>
-    <rest-assured.version>5.4.0</rest-assured.version>
+    <aspectj.version>1.9.22.1</aspectj.version>
+    <rest-assured.version>5.5.0</rest-assured.version>
     <folio-di-support.version>2.1.0</folio-di-support.version>
 
     <!--Maven plugin properties-->
     <aspectj-maven-plugin.version>1.14</aspectj-maven-plugin.version>
-    <exec-maven-plugin.version>3.2.0</exec-maven-plugin.version>
+    <exec-maven-plugin.version>3.4.1</exec-maven-plugin.version>
     <maven-resources-plugin.version>3.3.1</maven-resources-plugin.version>
-    <maven-compiler-plugin.version>3.12.1</maven-compiler-plugin.version>
+    <maven-compiler-plugin.version>3.13.0</maven-compiler-plugin.version>
     <maven-antrun-plugin.version>3.1.0</maven-antrun-plugin.version>
-    <maven-shade-plugin.version>3.5.2</maven-shade-plugin.version>
-    <maven-release-plugin.version>3.0.1</maven-release-plugin.version>
-    <maven-surefire-plugin.version>3.2.5</maven-surefire-plugin.version>
-    <build-helper-maven-plugin.version>3.5.0</build-helper-maven-plugin.version>
+    <maven-shade-plugin.version>3.6.0</maven-shade-plugin.version>
+    <maven-release-plugin.version>3.1.1</maven-release-plugin.version>
+    <maven-surefire-plugin.version>3.5.1</maven-surefire-plugin.version>
+    <build-helper-maven-plugin.version>3.6.0</build-helper-maven-plugin.version>
     <copy-rename-maven-plugin.version>1.0.1</copy-rename-maven-plugin.version>
 
     <!--Test Scope dependencies-->
-    <junit-jupiter-version>5.10.0</junit-jupiter-version>
+    <junit-jupiter-version>5.11.2</junit-jupiter-version>
     <jmockit.version>1.49</jmockit.version>
-    <testcontainers.version>1.19.6</testcontainers.version>
 
     <!--Sonar properties-->
     <sonar.exclusions>**/models/**.java</sonar.exclusions>
@@ -126,7 +127,7 @@
     <dependency>
       <groupId>one.util</groupId>
       <artifactId>streamex</artifactId>
-      <version>0.8.1</version>
+      <version>0.8.3</version>
     </dependency>
     <dependency>
       <groupId>commons-lang</groupId>
@@ -145,18 +146,6 @@
       <version>${spring.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.testcontainers</groupId>
-      <artifactId>postgresql</artifactId>
-      <version>${testcontainers.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.testcontainers</groupId>
-      <artifactId>junit-jupiter</artifactId>
-      <version>${testcontainers.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>io.vertx</groupId>
       <artifactId>vertx-unit</artifactId>
       <scope>test</scope>
@@ -170,7 +159,7 @@
     <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-junit-jupiter</artifactId>
-      <version>3.4.6</version>
+      <version>5.14.2</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -208,7 +197,7 @@
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>properties-maven-plugin</artifactId>
-        <version>1.0.0</version>
+        <version>1.2.1</version>
         <executions>
           <execution>
             <goals>
@@ -229,7 +218,7 @@
       <plugin>
         <groupId>org.jsonschema2pojo</groupId>
         <artifactId>jsonschema2pojo-maven-plugin</artifactId>
-        <version>1.0.2</version>
+        <version>1.2.2</version>
         <configuration>
           <includes>*.json</includes>
           <outputDirectory>${jsonschema2pojo_output_dir}</outputDirectory>
@@ -302,6 +291,19 @@
             <id>generate_interfaces</id>
             <goals>
               <goal>java</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.folio</groupId>
+        <artifactId>folio-module-descriptor-validator</artifactId>
+        <version>${folio-module-descriptor-validator.version}</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>validate</goal>
             </goals>
           </execution>
         </executions>
