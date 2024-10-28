@@ -1,4 +1,19 @@
-## 5.9.0 - Unreleased
+## 6.0.0 - Unreleased
+
+## 5.9.0 - Released - (Ramson R2 2024)
+
+The primary focus of this release was to update dependencies, and api doc for POSTing invoice documents
+
+[Full Changelog](https://github.com/folio-org/mod-invoice-storage/compare/v5.8.0...v5.9.0)
+
+### Stories
+* [MODINVOSTO-189](https://folio-org.atlassian.net/browse/MODINVOSTO-189) - Update libraries of dependant acq modules to the latest versions
+* [MODINVOSTO-186](https://folio-org.atlassian.net/browse/MODINVOSTO-186) - API doc for POSTing invoice documents has missing required metadata
+
+### Dependencies
+* Bump `raml` from `35.2.0` to `35.3.0`
+* Added `folio-module-descriptor-validator` version `1.0.0`
+
 
 ## 5.8.0 - Released - (Quesnelia R1 2024)
 
