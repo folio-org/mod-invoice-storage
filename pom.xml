@@ -28,6 +28,7 @@
 
     <!--Folio dependencies properties-->
     <folio-module-descriptor-validator.version>1.0.0</folio-module-descriptor-validator.version>
+    <folio-kafka-wrapper.version>3.1.1</folio-kafka-wrapper.version>
 
     <!--Dependency properties-->
     <aspectj.version>1.9.22.1</aspectj.version>
@@ -155,6 +156,16 @@
       <artifactId>postgres-testing</artifactId>
       <version>${raml-module-builder.version}</version>
       <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.folio</groupId>
+      <artifactId>folio-kafka-wrapper</artifactId>
+      <version>${folio-kafka-wrapper.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.vertx</groupId>
+      <artifactId>vertx-kafka-client</artifactId>
+      <version>${vertx.version}</version>
     </dependency>
     <dependency>
       <groupId>org.mockito</groupId>
