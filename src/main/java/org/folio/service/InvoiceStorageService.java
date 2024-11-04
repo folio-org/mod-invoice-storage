@@ -4,7 +4,6 @@ import static org.folio.rest.impl.InvoiceStorageImpl.DOCUMENT_LOCATION;
 import static org.folio.rest.impl.InvoiceStorageImpl.DOCUMENT_TABLE;
 import static org.folio.rest.impl.InvoiceStorageImpl.INVOICE_ID_FIELD_NAME;
 import static org.folio.rest.impl.InvoiceStorageImpl.INVOICE_PREFIX;
-import static org.folio.rest.impl.InvoiceStorageImpl.INVOICE_TABLE;
 import static org.folio.rest.utils.HelperUtils.combineCqlExpressions;
 import static org.folio.rest.utils.ResponseUtils.buildOkResponse;
 import static org.folio.rest.utils.ResponseUtils.buildErrorResponse;
@@ -17,15 +16,12 @@ import java.util.Map;
 import javax.ws.rs.core.Response;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.folio.dao.invoice.InvoiceDAO;
 import org.folio.rest.jaxrs.model.Document;
 import org.folio.rest.jaxrs.model.DocumentCollection;
 import org.folio.rest.jaxrs.model.Invoice;
 import org.folio.rest.jaxrs.model.InvoiceDocument;
 import org.folio.rest.jaxrs.resource.InvoiceStorage.GetInvoiceStorageInvoicesDocumentsByIdResponse;
-import org.folio.rest.jaxrs.resource.InvoiceStorage.PutInvoiceStorageInvoicesByIdResponse;
 import org.folio.rest.persist.DBClient;
 import org.folio.rest.persist.PgUtil;
 
@@ -33,17 +29,16 @@ import io.vertx.core.AsyncResult;
 import io.vertx.core.Context;
 import io.vertx.core.Handler;
 import io.vertx.ext.web.handler.HttpException;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 
+@Log4j2
+@RequiredArgsConstructor
 public class InvoiceStorageService {
 
-  private static final Logger log = LogManager.getLogger(InvoiceStorageService.class);
   private static final String INVOICE_ID_MISMATCH_ERROR_MESSAGE = "Invoice id mismatch";
 
   private final InvoiceDAO invoiceDAO;
-
-  public InvoiceStorageService(InvoiceDAO invoiceDAO) {
-    this.invoiceDAO = invoiceDAO;
-  }
 
   public void postInvoiceStorageInvoices(Invoice invoice, Handler<AsyncResult<Response>> asyncResultHandler,
       Context vertxContext, Map<String, String> headers) {
@@ -52,13 +47,13 @@ public class InvoiceStorageService {
         log.info("postInvoiceStorageInvoices:: Creating a new invoice by id: {}", invoice.getId());
         new DBClient(vertxContext, headers).getPgClient()
           .withTrans(conn -> invoiceDAO.createInvoice(invoice, conn))
-          .onComplete(reply -> {
-            if (reply.failed()) {
-              asyncResultHandler.handle(buildErrorResponse(reply.cause()));
-              return;
-            }
-            log.info("postInvoiceStorageInvoices:: Preparing response to client");
+          .onSuccess(s -> {
+            log.info("postInvoiceStorageInvoices:: Successfully created a new invoice by id: {}", invoice.getId());
             asyncResultHandler.handle(buildResponseWithLocation(headers.get(OKAPI_URL), INVOICE_PREFIX + invoice.getId(), invoice));
+          })
+          .onFailure(f -> {
+            log.error("Error occurred while creating a new invoice with id: {}", invoice.getId(), f);
+            asyncResultHandler.handle(buildErrorResponse(f));
           });
       });
     } catch (Exception e) {
@@ -102,17 +97,28 @@ public class InvoiceStorageService {
   }
 
   public void putInvoiceStorageInvoicesById(String id, Invoice invoice, Map<String, String> okapiHeaders,
-      Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
-    log.debug("putInvoiceStorageInvoicesById:: Updating invoice with id: {}", id);
-    PgUtil.put(INVOICE_TABLE, invoice, id, okapiHeaders, vertxContext,
-      PutInvoiceStorageInvoicesByIdResponse.class, reply -> {
-        if (reply.succeeded()) {
-          log.info("putInvoiceStorageInvoicesById:: Invoice with id: {} was successfully updated", id);
-        } else {
-          log.error("Error occurred while updating invoice with id: {}", id, reply.cause());
-        }
-        asyncResultHandler.handle(reply);
+                                            Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
+    try {
+      vertxContext.runOnContext(v -> {
+        log.info("putInvoiceStorageInvoicesById:: Updating invoice with id: {}", id);
+        new DBClient(vertxContext, okapiHeaders).getPgClient()
+          .withTrans(conn -> invoiceDAO.updateInvoice(invoice, conn))
+          .onSuccess(s -> {
+            log.info("putInvoiceStorageInvoicesById:: Successfully updated invoice with id: {}", id);
+            asyncResultHandler.handle(buildNoContentResponse());
+          })
+          .onFailure(f -> {
+            log.error("Error occurred while updating invoice with id: {}", id, f);
+            asyncResultHandler.handle(buildErrorResponse(f));
+          });
       });
+    } catch (Exception e) {
+      log.error("Error occurred while updating invoice with id: {}", invoice.getId(), e);
+      asyncResultHandler.handle(buildErrorResponse(
+        new HttpException(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(),
+          Response.Status.INTERNAL_SERVER_ERROR.getReasonPhrase())
+      ));
+    }
   }
 
   public void getInvoiceStorageInvoicesDocumentsById(String id, int offset, int limit, String query,

@@ -8,5 +8,11 @@ import org.folio.rest.persist.Criteria.Criterion;
 import java.util.List;
 
 public interface InvoiceLinesDAO {
+
   Future<List<InvoiceLine>> getInvoiceLines(Criterion criterion, Conn conn);
+
+  Future<String> createInvoiceLine(InvoiceLine invoiceLine, Conn conn);
+
+  Future<Void> updateInvoiceLine(String id, InvoiceLine invoiceLine, Conn conn);
+
 }
