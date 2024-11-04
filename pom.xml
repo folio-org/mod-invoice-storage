@@ -343,6 +343,10 @@
           <XaddSerialVersionUID>true</XaddSerialVersionUID>
           <showWeaveInfo>false</showWeaveInfo>
           <forceAjcCompile>true</forceAjcCompile>
+          <includes>
+            <include>**/impl/*.java</include>
+            <include>**/*.aj</include>
+          </includes>
           <aspectLibraries>
             <aspectLibrary>
               <groupId>org.folio</groupId>
