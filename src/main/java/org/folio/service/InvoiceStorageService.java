@@ -50,22 +50,15 @@ public class InvoiceStorageService {
     try {
       vertxContext.runOnContext(v -> {
         log.info("postInvoiceStorageInvoices:: Creating a new invoice by id: {}", invoice.getId());
-
-        DBClient client = new DBClient(vertxContext, headers);
-        client.startTx()
-          .compose(t -> invoiceDAO.createInvoice(invoice, client))
-          .compose(t -> client.endTx())
+        new DBClient(vertxContext, headers).getPgClient()
+          .withTrans(conn -> invoiceDAO.createInvoice(invoice, conn))
           .onComplete(reply -> {
             if (reply.failed()) {
-              // The result of rollback operation is not so important, main failure cause is used to build the response
-              client.rollbackTransaction().onComplete(res -> asyncResultHandler.handle(buildErrorResponse(
-                reply.cause())));
-            } else {
-              log.info("postInvoiceStorageInvoices:: Preparing response to client");
-              asyncResultHandler.handle(
-                buildResponseWithLocation(headers.get(OKAPI_URL), INVOICE_PREFIX + invoice.getId(), invoice)
-              );
+              asyncResultHandler.handle(buildErrorResponse(reply.cause()));
+              return;
             }
+            log.info("postInvoiceStorageInvoices:: Preparing response to client");
+            asyncResultHandler.handle(buildResponseWithLocation(headers.get(OKAPI_URL), INVOICE_PREFIX + invoice.getId(), invoice));
           });
       });
     } catch (Exception e) {

@@ -46,12 +46,15 @@ public class ResponseUtils {
   }
 
   public static void handleFailure(Promise<?> promise, AsyncResult<?> reply) {
-    Throwable cause = reply.cause();
-    String badRequestMessage = PgExceptionUtil.badRequestMessage(cause);
+    promise.fail(convertPgExceptionIfNeeded(reply.cause()));
+  }
+
+  public static Throwable convertPgExceptionIfNeeded(Throwable cause) {
+    var badRequestMessage = PgExceptionUtil.badRequestMessage(cause);
     if (badRequestMessage != null) {
-      promise.fail(new HttpException(Response.Status.BAD_REQUEST.getStatusCode(), badRequestMessage));
+      return new HttpException(Response.Status.BAD_REQUEST.getStatusCode(), badRequestMessage);
     } else {
-      promise.fail(new HttpException(INTERNAL_SERVER_ERROR.getStatusCode(), cause.getMessage()));
+      return new HttpException(INTERNAL_SERVER_ERROR.getStatusCode(), cause.getMessage());
     }
   }
 
