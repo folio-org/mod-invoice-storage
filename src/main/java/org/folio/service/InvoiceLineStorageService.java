@@ -10,8 +10,10 @@ import javax.ws.rs.core.Response;
 import java.util.Map;
 
 import org.folio.dao.lines.InvoiceLinesDAO;
+import org.folio.rest.jaxrs.model.EventAction;
 import org.folio.rest.jaxrs.model.InvoiceLine;
 import org.folio.rest.persist.DBClient;
+import org.folio.service.audit.AuditOutboxService;
 
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Context;
@@ -24,6 +26,7 @@ import lombok.extern.log4j.Log4j2;
 @RequiredArgsConstructor
 public class InvoiceLineStorageService {
 
+  private final AuditOutboxService auditOutboxService;
   private final InvoiceLinesDAO invoiceLinesDAO;
 
   public void createInvoiceLine(InvoiceLine invoiceLine, Handler<AsyncResult<Response>> asyncResultHandler,
@@ -32,7 +35,8 @@ public class InvoiceLineStorageService {
       vertxContext.runOnContext(v -> {
         log.info("createInvoiceLine:: Creating a new invoiceLine by id: {}", invoiceLine.getId());
         new DBClient(vertxContext, headers).getPgClient()
-          .withTrans(conn -> invoiceLinesDAO.createInvoiceLine(invoiceLine, conn))
+          .withTrans(conn -> invoiceLinesDAO.createInvoiceLine(invoiceLine, conn)
+            .compose(invoiceLineId -> auditOutboxService.saveInvoiceLineOutboxLog(conn, invoiceLine, EventAction.CREATE, headers)))
           .onSuccess(s -> {
             log.info("createInvoiceLine:: Successfully created a new invoiceLine by id: {}", invoiceLine.getId());
             asyncResultHandler.handle(buildResponseWithLocation(headers.get(OKAPI_URL), INVOICE_LINES_PREFIX + invoiceLine.getId(), invoiceLine));
@@ -51,13 +55,14 @@ public class InvoiceLineStorageService {
     }
   }
 
-  public void updateInvoiceLine(String id, InvoiceLine invoiceLine, Map<String, String> okapiHeaders,
+  public void updateInvoiceLine(String id, InvoiceLine invoiceLine, Map<String, String> headers,
                                 Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
     try {
       vertxContext.runOnContext(v -> {
         log.info("updateInvoiceLine:: Updating invoice line with id: {}", id);
-        new DBClient(vertxContext, okapiHeaders).getPgClient()
-          .withTrans(conn -> invoiceLinesDAO.updateInvoiceLine(id, invoiceLine, conn))
+        new DBClient(vertxContext, headers).getPgClient()
+          .withTrans(conn -> invoiceLinesDAO.updateInvoiceLine(id, invoiceLine, conn)
+            .compose(invoiceLineId -> auditOutboxService.saveInvoiceLineOutboxLog(conn, invoiceLine, EventAction.EDIT, headers)))
           .onSuccess(s -> {
             log.info("updateInvoiceLine:: Successfully updated invoice line with id: {}", id);
             asyncResultHandler.handle(buildNoContentResponse());
