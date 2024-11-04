@@ -338,6 +338,20 @@
           "permissionsRequired": ["batch-group-storage.batch-groups.item.delete"]
         }
       ]
+    },
+    {
+      "id": "_timer",
+      "version": "1.0",
+      "interfaceType": "system",
+      "handlers": [
+        {
+          "methods": ["POST"],
+          "pathPattern": "/invoice-storage/audit-outbox/process",
+          "modulePermissions": [],
+          "unit": "minute",
+          "delay": "30"
+        }
+      ]
     }
   ],
   "permissionSets": [
