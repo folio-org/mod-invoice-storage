@@ -45,20 +45,21 @@ public class AuditOutboxService {
     var tenantId = TenantTool.tenantId(okapiHeaders);
     return new DBClient(vertxContext, okapiHeaders).getPgClient()
       .withTrans(conn -> internalLockDAO.selectWithLocking(conn, OUTBOX_LOCK_NAME, tenantId)
-      .compose(retrievedCount -> outboxEventLogDAO.getEventLogs(conn, tenantId))
-      .compose(logs -> {
-        if (CollectionUtils.isEmpty(logs)) {
-          log.info("processOutboxEventLogs: No logs found in outbox table");
-          return Future.succeededFuture(0);
-        }
-        log.info("processOutboxEventLogs: {} logs found in outbox table, sending to kafka", logs.size());
-        return GenericCompositeFuture.join(sendEventLogsToKafka(logs, okapiHeaders))
-          .map(logs.stream().map(OutboxEventLog::getEventId).toList())
-          .compose(eventIds -> outboxEventLogDAO.deleteEventLogs(conn, eventIds, tenantId))
-          .onSuccess(count -> log.info("processOutboxEventLogs:: {} logs have been deleted from outbox table", count))
-          .onFailure(ex -> log.error("Logs deletion failed", ex));
-      })
-    );
+        .compose(retrievedCount -> outboxEventLogDAO.getEventLogs(conn, tenantId))
+        .compose(logs -> {
+          if (CollectionUtils.isEmpty(logs)) {
+            log.info("processOutboxEventLogs: No logs found in outbox table");
+            return Future.succeededFuture(0);
+          }
+          log.info("processOutboxEventLogs: {} logs found in outbox table, sending to kafka", logs.size());
+          return GenericCompositeFuture.join(sendEventLogsToKafka(logs, okapiHeaders))
+            .map(logs.stream().map(OutboxEventLog::getEventId).toList())
+            .compose(eventIds -> outboxEventLogDAO.deleteEventLogs(conn, eventIds, tenantId))
+            .onSuccess(count -> log.info("processOutboxEventLogs:: {} logs have been deleted from outbox table", count))
+            .onFailure(ex -> log.error("Logs deletion failed", ex));
+        })
+        .onSuccess(count -> log.info("processOutboxEventLogs:: Successfully processed outbox event logs: {}", count))
+        .onFailure(ex -> log.error("Failed to process outbox event logs", ex)));
   }
 
   private List<Future<Void>> sendEventLogsToKafka(List<OutboxEventLog> eventLogs, Map<String, String> okapiHeaders) {
@@ -86,7 +87,7 @@ public class AuditOutboxService {
    * @param okapiHeaders okapi headers
    * @return future with saved outbox log id in the same transaction
    */
-  public Future<String> saveInvoiceOutboxLog(Conn conn, Invoice entity, InvoiceAuditEvent.Action action, Map<String, String> okapiHeaders) {
+  public Future<Void> saveInvoiceOutboxLog(Conn conn, Invoice entity, InvoiceAuditEvent.Action action, Map<String, String> okapiHeaders) {
     return saveOutboxLog(conn, okapiHeaders, action.value(), EntityType.INVOICE, entity.getId(), entity);
   }
 
@@ -99,11 +100,11 @@ public class AuditOutboxService {
    * @param okapiHeaders okapi headers
    * @return future with saved outbox log id in the same transaction
    */
-  public Future<String> saveInvoiceLineOutboxLog(Conn conn, InvoiceLine entity, InvoiceLineAuditEvent.Action action, Map<String, String> okapiHeaders) {
+  public Future<Void> saveInvoiceLineOutboxLog(Conn conn, InvoiceLine entity, InvoiceLineAuditEvent.Action action, Map<String, String> okapiHeaders) {
     return saveOutboxLog(conn, okapiHeaders, action.value(), EntityType.INVOICE_LINE, entity.getId(), entity);
   }
 
-  private Future<String> saveOutboxLog(Conn conn, Map<String, String> okapiHeaders, String action, EntityType entityType, String entityId, Object entity) {
+  private Future<Void> saveOutboxLog(Conn conn, Map<String, String> okapiHeaders, String action, EntityType entityType, String entityId, Object entity) {
     log.debug("saveOutboxLog:: Saving outbox log for {} with id: {}", entityType, entityId);
     var eventLog = new OutboxEventLog()
       .withEventId(UUID.randomUUID().toString())

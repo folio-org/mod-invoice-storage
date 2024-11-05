@@ -13,9 +13,7 @@ import io.vertx.core.Context;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
-import lombok.extern.log4j.Log4j2;
 
-@Log4j2
 public class AuditOutboxAPI implements InvoiceStorageAuditOutbox {
 
   @Autowired
@@ -29,9 +27,6 @@ public class AuditOutboxAPI implements InvoiceStorageAuditOutbox {
   public void postInvoiceStorageAuditOutboxProcess(Map<String, String> okapiHeaders, Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
     auditOutboxService.processOutboxEventLogs(okapiHeaders, vertxContext)
       .onSuccess(res -> asyncResultHandler.handle(Future.succeededFuture(Response.ok().build())))
-      .onFailure(cause -> {
-        log.warn("postInvoiceStorageAuditOutboxProcess:: Processing of outbox events table has failed", cause);
-        asyncResultHandler.handle(Future.failedFuture(cause));
-      });
+      .onFailure(cause -> asyncResultHandler.handle(Future.failedFuture(cause)));
   }
 }

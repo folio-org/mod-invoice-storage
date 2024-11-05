@@ -47,7 +47,7 @@ public class AuditEventProducer {
   public Future<Void> sendInvoiceLineEvent(InvoiceLine invoiceLine, InvoiceLineAuditEvent.Action action, Map<String, String> okapiHeaders) {
     var event = getAuditEvent(invoiceLine, action);
     log.info("sendInvoiceLineEvent:: Sending event with id: {} and invoiceLineId: {} to Kafka", event.getId(), invoiceLine.getId());
-    return sendToKafka(EventTopic.ACQ_INVOICE_LINE_CHANGED, event.getInvoiceId(), event, okapiHeaders)
+    return sendToKafka(EventTopic.ACQ_INVOICE_LINE_CHANGED, event.getInvoiceLineId(), event, okapiHeaders)
       .onFailure(t -> log.warn("sendInvoiceLineEvent:: Failed to send event with id: {} and invoiceLineId: {} to Kafka", event.getId(), invoiceLine.getId(), t));
   }
 
@@ -62,7 +62,7 @@ public class AuditEventProducer {
       .withInvoiceSnapshot(invoice.withMetadata(null));
   }
 
-  private InvoiceAuditEvent getAuditEvent(InvoiceLine invoiceLine, InvoiceLineAuditEvent.Action eventAction) {
+  private InvoiceLineAuditEvent getAuditEvent(InvoiceLine invoiceLine, InvoiceLineAuditEvent.Action eventAction) {
     return new InvoiceLineAuditEvent()
       .withId(UUID.randomUUID().toString())
       .withAction(eventAction)

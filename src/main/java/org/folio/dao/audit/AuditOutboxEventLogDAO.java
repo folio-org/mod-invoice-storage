@@ -11,7 +11,7 @@ public interface AuditOutboxEventLogDAO {
 
   Future<List<OutboxEventLog>> getEventLogs(Conn conn, String tenantId);
 
-  Future<String> saveEventLog(Conn conn, OutboxEventLog eventLog, String tenantId);
+  Future<Void> saveEventLog(Conn conn, OutboxEventLog eventLog, String tenantId);
 
   Future<Integer> deleteEventLogs(Conn conn, List<String> eventIds, String tenantId);
 
