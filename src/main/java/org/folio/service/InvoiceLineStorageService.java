@@ -10,8 +10,8 @@ import javax.ws.rs.core.Response;
 import java.util.Map;
 
 import org.folio.dao.lines.InvoiceLinesDAO;
-import org.folio.rest.jaxrs.model.EventAction;
 import org.folio.rest.jaxrs.model.InvoiceLine;
+import org.folio.rest.jaxrs.model.InvoiceLineAuditEvent;
 import org.folio.rest.persist.DBClient;
 import org.folio.service.audit.AuditOutboxService;
 
@@ -26,8 +26,8 @@ import lombok.extern.log4j.Log4j2;
 @RequiredArgsConstructor
 public class InvoiceLineStorageService {
 
-  private final AuditOutboxService auditOutboxService;
   private final InvoiceLinesDAO invoiceLinesDAO;
+  private final AuditOutboxService auditOutboxService;
 
   public void createInvoiceLine(InvoiceLine invoiceLine, Handler<AsyncResult<Response>> asyncResultHandler,
                                 Context vertxContext, Map<String, String> headers) {
@@ -36,7 +36,7 @@ public class InvoiceLineStorageService {
         log.info("createInvoiceLine:: Creating a new invoiceLine by id: {}", invoiceLine.getId());
         new DBClient(vertxContext, headers).getPgClient()
           .withTrans(conn -> invoiceLinesDAO.createInvoiceLine(invoiceLine, conn)
-            .compose(invoiceLineId -> auditOutboxService.saveInvoiceLineOutboxLog(conn, invoiceLine, EventAction.CREATE, headers)))
+            .compose(invoiceLineId -> auditOutboxService.saveInvoiceLineOutboxLog(conn, invoiceLine, InvoiceLineAuditEvent.Action.CREATE, headers)))
           .onSuccess(s -> {
             log.info("createInvoiceLine:: Successfully created a new invoiceLine by id: {}", invoiceLine.getId());
             asyncResultHandler.handle(buildResponseWithLocation(headers.get(OKAPI_URL), INVOICE_LINES_PREFIX + invoiceLine.getId(), invoiceLine));
@@ -62,7 +62,7 @@ public class InvoiceLineStorageService {
         log.info("updateInvoiceLine:: Updating invoice line with id: {}", id);
         new DBClient(vertxContext, headers).getPgClient()
           .withTrans(conn -> invoiceLinesDAO.updateInvoiceLine(id, invoiceLine, conn)
-            .compose(invoiceLineId -> auditOutboxService.saveInvoiceLineOutboxLog(conn, invoiceLine, EventAction.EDIT, headers)))
+            .compose(invoiceLineId -> auditOutboxService.saveInvoiceLineOutboxLog(conn, invoiceLine, InvoiceLineAuditEvent.Action.EDIT, headers)))
           .onSuccess(s -> {
             log.info("updateInvoiceLine:: Successfully updated invoice line with id: {}", id);
             asyncResultHandler.handle(buildNoContentResponse());

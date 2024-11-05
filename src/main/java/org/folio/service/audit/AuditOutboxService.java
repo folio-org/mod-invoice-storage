@@ -8,9 +8,10 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.folio.dao.audit.AuditOutboxEventLogDAO;
 import org.folio.dao.lock.InternalLockDAO;
 import org.folio.okapi.common.GenericCompositeFuture;
-import org.folio.rest.jaxrs.model.EventAction;
 import org.folio.rest.jaxrs.model.Invoice;
+import org.folio.rest.jaxrs.model.InvoiceAuditEvent;
 import org.folio.rest.jaxrs.model.InvoiceLine;
+import org.folio.rest.jaxrs.model.InvoiceLineAuditEvent;
 import org.folio.rest.jaxrs.model.OutboxEventLog;
 import org.folio.rest.jaxrs.model.OutboxEventLog.EntityType;
 import org.folio.rest.persist.Conn;
@@ -63,8 +64,16 @@ public class AuditOutboxService {
   private List<Future<Void>> sendEventLogsToKafka(List<OutboxEventLog> eventLogs, Map<String, String> okapiHeaders) {
     return eventLogs.stream().map(eventLog ->
       switch (eventLog.getEntityType()) {
-        case INVOICE -> producer.sendInvoiceEvent(Json.decodeValue(eventLog.getPayload(), Invoice.class), eventLog.getAction(), okapiHeaders);
-        case INVOICE_LINE -> producer.sendInvoiceLineEvent(Json.decodeValue(eventLog.getPayload(), InvoiceLine.class), eventLog.getAction(), okapiHeaders);
+        case INVOICE -> {
+          var invoice = Json.decodeValue(eventLog.getPayload(), Invoice.class);
+          var action = InvoiceAuditEvent.Action.fromValue(eventLog.getAction());
+          yield producer.sendInvoiceEvent(invoice, action, okapiHeaders);
+        }
+        case INVOICE_LINE -> {
+          var invoiceLine = Json.decodeValue(eventLog.getPayload(), InvoiceLine.class);
+          var action = InvoiceLineAuditEvent.Action.fromValue(eventLog.getAction());
+          yield producer.sendInvoiceLineEvent(invoiceLine, action, okapiHeaders);
+        }
       }).toList();
   }
 
@@ -77,8 +86,8 @@ public class AuditOutboxService {
    * @param okapiHeaders okapi headers
    * @return future with saved outbox log id in the same transaction
    */
-  public Future<String> saveInvoiceOutboxLog(Conn conn, Invoice entity, EventAction action, Map<String, String> okapiHeaders) {
-    return saveOutboxLog(conn, okapiHeaders, action, EntityType.INVOICE, entity.getId(), entity);
+  public Future<String> saveInvoiceOutboxLog(Conn conn, Invoice entity, InvoiceAuditEvent.Action action, Map<String, String> okapiHeaders) {
+    return saveOutboxLog(conn, okapiHeaders, action.value(), EntityType.INVOICE, entity.getId(), entity);
   }
 
   /**
@@ -90,11 +99,11 @@ public class AuditOutboxService {
    * @param okapiHeaders okapi headers
    * @return future with saved outbox log id in the same transaction
    */
-  public Future<String> saveInvoiceLineOutboxLog(Conn conn, InvoiceLine entity, EventAction action, Map<String, String> okapiHeaders) {
-    return saveOutboxLog(conn, okapiHeaders, action, EntityType.INVOICE_LINE, entity.getId(), entity);
+  public Future<String> saveInvoiceLineOutboxLog(Conn conn, InvoiceLine entity, InvoiceLineAuditEvent.Action action, Map<String, String> okapiHeaders) {
+    return saveOutboxLog(conn, okapiHeaders, action.value(), EntityType.INVOICE_LINE, entity.getId(), entity);
   }
 
-  private Future<String> saveOutboxLog(Conn conn, Map<String, String> okapiHeaders, EventAction action, EntityType entityType, String entityId, Object entity) {
+  private Future<String> saveOutboxLog(Conn conn, Map<String, String> okapiHeaders, String action, EntityType entityType, String entityId, Object entity) {
     log.debug("saveOutboxLog:: Saving outbox log for {} with id: {}", entityType, entityId);
     var eventLog = new OutboxEventLog()
       .withEventId(UUID.randomUUID().toString())

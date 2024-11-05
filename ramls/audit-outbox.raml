@@ -9,11 +9,10 @@ documentation:
     content: This API is intended for internal use only by the Timer interface
 
 types:
-  event-action: !include acq-models/mod-invoice-storage/schemas/event_action.json
-  event-topic: !include acq-models/mod-invoice-storage/schemas/event_topic.json
   outbox-event-log: !include acq-models/mod-invoice-storage/schemas/outbox_event_log.json
   invoice-audit-event: !include acq-models/mod-invoice-storage/schemas/invoice_audit_event.json
   invoice-line-audit-event: !include acq-models/mod-invoice-storage/schemas/invoice_line_audit_event.json
+  event-topic: !include acq-models/mod-invoice-storage/schemas/event_topic.json
 
 /invoice-storage/audit-outbox:
   /process:

@@ -19,8 +19,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.folio.dao.invoice.InvoiceDAO;
 import org.folio.rest.jaxrs.model.Document;
 import org.folio.rest.jaxrs.model.DocumentCollection;
-import org.folio.rest.jaxrs.model.EventAction;
 import org.folio.rest.jaxrs.model.Invoice;
+import org.folio.rest.jaxrs.model.InvoiceAuditEvent;
 import org.folio.rest.jaxrs.model.InvoiceDocument;
 import org.folio.rest.jaxrs.resource.InvoiceStorage.GetInvoiceStorageInvoicesDocumentsByIdResponse;
 import org.folio.rest.persist.DBClient;
@@ -50,7 +50,7 @@ public class InvoiceStorageService {
         log.info("postInvoiceStorageInvoices:: Creating a new invoice by id: {}", invoice.getId());
         new DBClient(vertxContext, headers).getPgClient()
           .withTrans(conn -> invoiceDAO.createInvoice(invoice, conn)
-            .compose(invoiceId -> auditOutboxService.saveInvoiceOutboxLog(conn, invoice, EventAction.CREATE, headers)))
+            .compose(invoiceId -> auditOutboxService.saveInvoiceOutboxLog(conn, invoice, InvoiceAuditEvent.Action.CREATE, headers)))
           .onSuccess(s -> {
             log.info("postInvoiceStorageInvoices:: Successfully created a new invoice by id: {}", invoice.getId());
             asyncResultHandler.handle(buildResponseWithLocation(headers.get(OKAPI_URL), INVOICE_PREFIX + invoice.getId(), invoice));
@@ -76,7 +76,7 @@ public class InvoiceStorageService {
         log.info("putInvoiceStorageInvoicesById:: Updating invoice with id: {}", id);
         new DBClient(vertxContext, headers).getPgClient()
           .withTrans(conn -> invoiceDAO.updateInvoice(invoice, conn)
-            .compose(invoiceId -> auditOutboxService.saveInvoiceOutboxLog(conn, invoice, EventAction.EDIT, headers)))
+            .compose(invoiceId -> auditOutboxService.saveInvoiceOutboxLog(conn, invoice, InvoiceAuditEvent.Action.EDIT, headers)))
           .onSuccess(s -> {
             log.info("putInvoiceStorageInvoicesById:: Successfully updated invoice with id: {}", id);
             asyncResultHandler.handle(buildNoContentResponse());
