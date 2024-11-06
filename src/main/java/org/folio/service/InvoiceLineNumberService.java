@@ -69,7 +69,7 @@ public class InvoiceLineNumberService {
         log.debug("Updating invoice {} with new nextInvoiceLineNumber", invoiceId);
         int nextNumber = invoice.getNextInvoiceLineNumber();
         invoice.setNextInvoiceLineNumber(nextNumber + 1);
-        return invoiceDAO.updateInvoice(invoice, conn)
+        return invoiceDAO.updateInvoice(invoiceId, invoice, conn)
           .map(v -> nextNumber);
       })
       .map(n -> {

@@ -75,7 +75,7 @@ public class InvoiceStorageService {
       vertxContext.runOnContext(v -> {
         log.info("putInvoiceStorageInvoicesById:: Updating invoice with id: {}", id);
         new DBClient(vertxContext, headers).getPgClient()
-          .withTrans(conn -> invoiceDAO.updateInvoice(invoice, conn)
+          .withTrans(conn -> invoiceDAO.updateInvoice(id, invoice, conn)
             .compose(invoiceId -> auditOutboxService.saveInvoiceOutboxLog(conn, invoice, InvoiceAuditEvent.Action.EDIT, headers)))
           .onSuccess(s -> {
             log.info("putInvoiceStorageInvoicesById:: Successfully updated invoice with id: {}", id);

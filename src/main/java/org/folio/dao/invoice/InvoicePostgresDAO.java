@@ -15,6 +15,7 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.folio.dao.DbUtils;
 import org.folio.dbschema.ObjectMapperTool;
 import org.folio.rest.jaxrs.model.Contents;
 import org.folio.rest.jaxrs.model.DocumentMetadata;
@@ -65,9 +66,11 @@ public class InvoicePostgresDAO implements InvoiceDAO {
   }
 
   @Override
-  public Future<Void> updateInvoice(Invoice invoice, Conn conn) {
-    return conn.update(INVOICE_TABLE, invoice, invoice.getId())
-      .onFailure(t -> log.error("updateInvoice failed for invoice with id {}", invoice.getId(), t))
+  public Future<Void> updateInvoice(String id, Invoice invoice, Conn conn) {
+    return conn.update(INVOICE_TABLE, invoice, id)
+      .compose(DbUtils::verifyEntityUpdate)
+      .onSuccess(v -> log.info("updateInvoice:: Invoice with id: '{}' successfully updated", invoice.getId()))
+      .onFailure(t -> log.error("Update failed for invoice with id {}", invoice.getId(), t))
       .mapEmpty();
   }
 
