@@ -29,10 +29,10 @@ public class AuditEventProducer {
   private final KafkaConfig kafkaConfig;
 
   /**
-   * Sends event for order change(Create, Edit, Delete) to kafka.
-   * OrderId is used as partition key to send all events for particular order to the same partition.
+   * Sends event for invoice change(Create, Edit) to kafka.
+   * InvoiceId is used as partition key to send all events for particular invoice to the same partition.
    *
-   * @param order        the event payload
+   * @param invoice      the event payload
    * @param eventAction  the event action
    * @param okapiHeaders the okapi headers
    * @return future with true if sending was success or failed future in another case
@@ -44,8 +44,17 @@ public class AuditEventProducer {
       .onFailure(t -> log.warn("sendInvoiceEvent:: Failed to send event with id: {} and invoiceId: {} to Kafka", event.getId(), invoice.getId(), t));
   }
 
-  public Future<Void> sendInvoiceLineEvent(InvoiceLine invoiceLine, InvoiceLineAuditEvent.Action action, Map<String, String> okapiHeaders) {
-    var event = getAuditEvent(invoiceLine, action);
+  /**
+   * Sends event for invoice line change(Create, Edit) to kafka.
+   * InvoiceLineId is used as partition key to send all events for particular invoice line to the same partition.
+   *
+   * @param invoiceLine  the event payload
+   * @param eventAction  the event action
+   * @param okapiHeaders the okapi headers
+   * @return future with true if sending was success or failed future in another case
+   */
+  public Future<Void> sendInvoiceLineEvent(InvoiceLine invoiceLine, InvoiceLineAuditEvent.Action eventAction, Map<String, String> okapiHeaders) {
+    var event = getAuditEvent(invoiceLine, eventAction);
     log.info("sendInvoiceLineEvent:: Sending event with id: {} and invoiceLineId: {} to Kafka", event.getId(), invoiceLine.getId());
     return sendToKafka(EventTopic.ACQ_INVOICE_LINE_CHANGED, event.getInvoiceLineId(), event, okapiHeaders)
       .onFailure(t -> log.warn("sendInvoiceLineEvent:: Failed to send event with id: {} and invoiceLineId: {} to Kafka", event.getId(), invoiceLine.getId(), t));
@@ -95,4 +104,5 @@ public class AuditEventProducer {
   private String buildTopicName(String envId, String tenantId, String eventType) {
     return KafkaTopicNameHelper.formatTopicName(envId, KafkaTopicNameHelper.getDefaultNameSpace(), tenantId, eventType);
   }
+
 }
