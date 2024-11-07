@@ -32,7 +32,7 @@ public class InvoiceLinesPostgresDAO implements InvoiceLinesDAO {
     return conn.save(INVOICE_LINE_TABLE, invoiceLine.getId(), invoiceLine, true)
       .recover(t -> Future.failedFuture(convertPgExceptionIfNeeded(t)))
       .onSuccess(invoiceLineId -> log.info("createInvoiceLine:: Created invoice line with id: {}", invoiceLineId))
-      .onFailure(t -> log.error("Failed to create invoice line: {}", invoiceLine, t));
+      .onFailure(t -> log.error("Failed to create invoice line with id: {}", invoiceLine.getId(), t));
   }
 
   @Override

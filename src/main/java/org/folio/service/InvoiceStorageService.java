@@ -5,6 +5,7 @@ import static org.folio.rest.impl.InvoiceStorageImpl.DOCUMENT_TABLE;
 import static org.folio.rest.impl.InvoiceStorageImpl.INVOICE_ID_FIELD_NAME;
 import static org.folio.rest.impl.InvoiceStorageImpl.INVOICE_PREFIX;
 import static org.folio.rest.utils.HelperUtils.combineCqlExpressions;
+import static org.folio.rest.utils.ResponseUtils.buildBadRequestResponse;
 import static org.folio.rest.utils.ResponseUtils.buildOkResponse;
 import static org.folio.rest.utils.ResponseUtils.buildErrorResponse;
 import static org.folio.rest.utils.ResponseUtils.buildNoContentResponse;
@@ -63,6 +64,9 @@ public class InvoiceStorageService {
   public void putInvoiceStorageInvoicesById(String id, Invoice invoice, Map<String, String> headers,
                                             Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
     log.info("putInvoiceStorageInvoicesById:: Updating invoice with id: {}", id);
+    if (StringUtils.isBlank(id)) {
+      asyncResultHandler.handle(buildBadRequestResponse("Invoice id is required"));
+    }
     new DBClient(vertxContext, headers).getPgClient()
       .withTrans(conn -> invoiceDAO.updateInvoice(id, invoice, conn)
         .compose(invoiceId -> auditOutboxService.saveInvoiceOutboxLog(conn, invoice, InvoiceAuditEvent.Action.EDIT, headers))

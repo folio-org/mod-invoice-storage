@@ -57,7 +57,7 @@ public class AuditEventProducer {
     var event = getAuditEvent(invoiceLine, eventAction);
     log.info("sendInvoiceLineEvent:: Sending event with id: {} and invoiceLineId: {} to Kafka", event.getId(), invoiceLine.getId());
     return sendToKafka(EventTopic.ACQ_INVOICE_LINE_CHANGED, event.getInvoiceLineId(), event, okapiHeaders)
-      .onFailure(t -> log.warn("sendInvoiceLineEvent:: Failed to send event with id: {} and invoiceLineId: {} to Kafka", event.getId(), invoiceLine.getId(), t));
+      .onFailure(t -> log.error("sendInvoiceLineEvent:: Failed to send event with id: {} and invoiceLineId: {} to Kafka", event.getId(), invoiceLine.getId(), t));
   }
 
   private InvoiceAuditEvent getAuditEvent(Invoice invoice, InvoiceAuditEvent.Action eventAction) {
@@ -94,11 +94,10 @@ public class AuditEventProducer {
 
     var producerManager = new SimpleKafkaProducerManager(Vertx.currentContext().owner(), kafkaConfig);
     KafkaProducer<String, String> producer = producerManager.createShared(topicName);
-    log.debug("sendToKafka:: Sending event for {} with id '{}' to kafka topic '{}' with url: '{}'", eventTopic, key, topicName, kafkaConfig.getKafkaUrl());
     return producer.send(kafkaProducerRecord)
-      .onComplete(reply -> producer.end(ear -> producer.close()))
       .onSuccess(s -> log.info("sendToKafka:: Event for {} with id '{}' has been sent to kafka topic '{}'", eventTopic, key, topicName))
       .onFailure(t -> log.error("Failed to send event for {} with id '{}' to kafka topic '{}'", eventTopic, key, topicName, t))
+      .onComplete(reply -> producer.end(v -> producer.close()))
       .mapEmpty();
   }
 

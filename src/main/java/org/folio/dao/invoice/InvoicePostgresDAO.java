@@ -61,8 +61,8 @@ public class InvoicePostgresDAO implements InvoiceDAO {
     }
     return conn.save(INVOICE_TABLE, invoice.getId(), invoice, true)
       .recover(t -> Future.failedFuture(convertPgExceptionIfNeeded(t)))
-      .onFailure(t -> log.error("createInvoice failed for invoice with id {}", invoice.getId(), t))
-      .onSuccess(s -> log.info("createInvoice:: New invoice with id: '{}' successfully created", invoice.getId()));
+      .onSuccess(s -> log.info("createInvoice:: New invoice with id: '{}' successfully created", invoice.getId()))
+      .onFailure(t -> log.error("Failed to create invoice with id: '{}'", invoice.getId(), t));
   }
 
   @Override
@@ -70,7 +70,7 @@ public class InvoicePostgresDAO implements InvoiceDAO {
     return conn.update(INVOICE_TABLE, invoice, id)
       .compose(DbUtils::verifyEntityUpdate)
       .onSuccess(v -> log.info("updateInvoice:: Invoice with id: '{}' successfully updated", invoice.getId()))
-      .onFailure(t -> log.error("Update failed for invoice with id {}", invoice.getId(), t))
+      .onFailure(t -> log.error("Update failed for invoice with id: '{}'", invoice.getId(), t))
       .mapEmpty();
   }
 

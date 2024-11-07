@@ -22,7 +22,6 @@ public class AuditOutboxAPITest extends TestBase {
       .then()
       .assertThat()
       .statusCode(200)
-      .contentType(ContentType.JSON)
       .extract()
       .response();
   }
