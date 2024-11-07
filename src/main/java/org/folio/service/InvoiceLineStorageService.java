@@ -31,54 +31,36 @@ public class InvoiceLineStorageService {
 
   public void createInvoiceLine(InvoiceLine invoiceLine, Handler<AsyncResult<Response>> asyncResultHandler,
                                 Context vertxContext, Map<String, String> headers) {
-    try {
-      vertxContext.runOnContext(v -> {
-        log.info("createInvoiceLine:: Creating a new invoiceLine by id: {}", invoiceLine.getId());
-        new DBClient(vertxContext, headers).getPgClient()
-          .withTrans(conn -> invoiceLinesDAO.createInvoiceLine(invoiceLine, conn)
-            .compose(invoiceLineId -> auditOutboxService.saveInvoiceLineOutboxLog(conn, invoiceLine, InvoiceLineAuditEvent.Action.CREATE, headers)))
-          .onSuccess(s -> {
-            log.info("createInvoiceLine:: Successfully created a new invoiceLine by id: {}", invoiceLine.getId());
-            asyncResultHandler.handle(buildResponseWithLocation(headers.get(OKAPI_URL), INVOICE_LINES_PREFIX + invoiceLine.getId(), invoiceLine));
-          })
-          .onFailure(f -> {
-            log.error("Error occurred while creating a new invoiceLine with id: {}", invoiceLine.getId(), f);
-            asyncResultHandler.handle(buildErrorResponse(f));
-          });
+    log.info("createInvoiceLine:: Creating a new invoiceLine by id: {}", invoiceLine.getId());
+    new DBClient(vertxContext, headers).getPgClient()
+      .withTrans(conn -> invoiceLinesDAO.createInvoiceLine(invoiceLine, conn)
+        .compose(invoiceLineId -> auditOutboxService.saveInvoiceLineOutboxLog(conn, invoiceLine, InvoiceLineAuditEvent.Action.CREATE, headers))
+        .compose(v -> auditOutboxService.processOutboxEventLogs(headers, vertxContext)))
+      .onSuccess(s -> {
+        log.info("createInvoiceLine:: Successfully created a new invoiceLine by id: {}", invoiceLine.getId());
+        asyncResultHandler.handle(buildResponseWithLocation(headers.get(OKAPI_URL), INVOICE_LINES_PREFIX + invoiceLine.getId(), invoiceLine));
+      })
+      .onFailure(f -> {
+        log.error("Error occurred while creating a new invoiceLine with id: {}", invoiceLine.getId(), f);
+        asyncResultHandler.handle(buildErrorResponse(f));
       });
-    } catch (Exception e) {
-      log.error("Error occurred while creating a new invoiceLine with id: {}", invoiceLine.getId(), e);
-      asyncResultHandler.handle(buildErrorResponse(
-        new HttpException(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(),
-          Response.Status.INTERNAL_SERVER_ERROR.getReasonPhrase())
-      ));
-    }
   }
 
   public void updateInvoiceLine(String id, InvoiceLine invoiceLine, Map<String, String> headers,
                                 Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
-    try {
-      vertxContext.runOnContext(v -> {
-        log.info("updateInvoiceLine:: Updating invoice line with id: {}", id);
-        new DBClient(vertxContext, headers).getPgClient()
-          .withTrans(conn -> invoiceLinesDAO.updateInvoiceLine(id, invoiceLine, conn)
-            .compose(invoiceLineId -> auditOutboxService.saveInvoiceLineOutboxLog(conn, invoiceLine, InvoiceLineAuditEvent.Action.EDIT, headers)))
-          .onSuccess(s -> {
-            log.info("updateInvoiceLine:: Successfully updated invoice line with id: {}", id);
-            asyncResultHandler.handle(buildNoContentResponse());
-          })
-          .onFailure(f -> {
-            log.error("Error occurred while updating invoice line with id: {}", id, f);
-            asyncResultHandler.handle(buildErrorResponse(f));
-          });
+    log.info("updateInvoiceLine:: Updating invoice line with id: {}", id);
+    new DBClient(vertxContext, headers).getPgClient()
+      .withTrans(conn -> invoiceLinesDAO.updateInvoiceLine(id, invoiceLine, conn)
+        .compose(invoiceLineId -> auditOutboxService.saveInvoiceLineOutboxLog(conn, invoiceLine, InvoiceLineAuditEvent.Action.EDIT, headers))
+        .compose(v -> auditOutboxService.processOutboxEventLogs(headers, vertxContext)))
+      .onSuccess(s -> {
+        log.info("updateInvoiceLine:: Successfully updated invoice line with id: {}", id);
+        asyncResultHandler.handle(buildNoContentResponse());
+      })
+      .onFailure(f -> {
+        log.error("Error occurred while updating invoice line with id: {}", id, f);
+        asyncResultHandler.handle(buildErrorResponse(f));
       });
-    } catch (Exception e) {
-      log.error("Error occurred while updating invoice line with id: {}", id, e);
-      asyncResultHandler.handle(buildErrorResponse(
-        new HttpException(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(),
-          Response.Status.INTERNAL_SERVER_ERROR.getReasonPhrase())
-      ));
-    }
   }
 
 }

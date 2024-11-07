@@ -22,4 +22,6 @@ public class DbUtils {
       : Future.failedFuture(new HttpException(NOT_FOUND.getStatusCode(), NOT_FOUND.getReasonPhrase()));
   }
 
+  private DbUtils() {}
+
 }

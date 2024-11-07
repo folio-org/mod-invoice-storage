@@ -94,6 +94,7 @@ public class AuditEventProducer {
 
     var producerManager = new SimpleKafkaProducerManager(Vertx.currentContext().owner(), kafkaConfig);
     KafkaProducer<String, String> producer = producerManager.createShared(topicName);
+    log.debug("sendToKafka:: Sending event for {} with id '{}' to kafka topic '{}' with url: '{}'", eventTopic, key, topicName, kafkaConfig.getKafkaUrl());
     return producer.send(kafkaProducerRecord)
       .onComplete(reply -> producer.end(ear -> producer.close()))
       .onSuccess(s -> log.info("sendToKafka:: Event for {} with id '{}' has been sent to kafka topic '{}'", eventTopic, key, topicName))

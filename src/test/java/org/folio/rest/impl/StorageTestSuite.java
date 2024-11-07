@@ -1,10 +1,10 @@
 package org.folio.rest.impl;
 
+import static net.mguenther.kafka.junit.EmbeddedKafkaClusterConfig.defaultClusterConfig;
 import static org.folio.rest.impl.TestBase.TENANT_HEADER;
 import static org.folio.rest.utils.TenantApiTestUtil.deleteTenant;
 import static org.folio.rest.utils.TenantApiTestUtil.prepareTenant;
 
-import java.io.IOException;
 import java.lang.reflect.Field;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -36,6 +36,7 @@ import io.vertx.core.Verticle;
 import io.vertx.core.Vertx;
 import io.vertx.core.impl.VertxImpl;
 import io.vertx.core.json.JsonObject;
+import net.mguenther.kafka.junit.EmbeddedKafkaCluster;
 
 public class StorageTestSuite {
   private static final Logger log = LogManager.getLogger(StorageTestSuite.class);
@@ -44,6 +45,14 @@ public class StorageTestSuite {
   private static final int port = NetworkUtils.nextFreePort();
   public static final Header URL_TO_HEADER = new Header("X-Okapi-Url-to", "http://localhost:" + port);
   private static TenantJob tenantJob;
+  public static EmbeddedKafkaCluster kafkaCluster;
+  public static final String KAFKA_ENV_VALUE = "test-env";
+  private static final String KAFKA_HOST = "KAFKA_HOST";
+  private static final String KAFKA_PORT = "KAFKA_PORT";
+  private static final String KAFKA_ENV = "ENV";
+  private static final String OKAPI_URL_KEY = "OKAPI_URL";
+  public static final int mockPort = NetworkUtils.nextFreePort();
+
 
   private StorageTestSuite() {}
 
@@ -83,15 +92,25 @@ public class StorageTestSuite {
   }
 
   @BeforeAll
-  public static void before() throws IOException, InterruptedException, ExecutionException, TimeoutException {
+  public static void before() throws InterruptedException, ExecutionException, TimeoutException {
     // tests expect English error messages only, no Danish/German/...
     Locale.setDefault(Locale.US);
 
     vertx = Vertx.vertx();
 
-    log.info("Start container database");
+    log.info("Starting kafka cluster");
+    kafkaCluster = EmbeddedKafkaCluster.provisionWith(defaultClusterConfig());
+    kafkaCluster.start();
+    String[] hostAndPort = kafkaCluster.getBrokerList().split(":");
+    System.setProperty(KAFKA_HOST, hostAndPort[0]);
+    System.setProperty(KAFKA_PORT, hostAndPort[1]);
+    System.setProperty(KAFKA_ENV, KAFKA_ENV_VALUE);
+    System.setProperty(OKAPI_URL_KEY, "http://localhost:" + mockPort);
+    log.info("Kafka cluster started with broker list: {}", kafkaCluster.getBrokerList());
 
+    log.info("Starting container database");
     PostgresClient.setPostgresTester(new PostgresTesterContainer());
+
 
     DeploymentOptions options = new DeploymentOptions();
 
@@ -106,6 +125,7 @@ public class StorageTestSuite {
   @AfterAll
   public static void after() throws InterruptedException, ExecutionException, TimeoutException {
     log.info("Delete tenant");
+    kafkaCluster.stop();
     deleteTenant(tenantJob, TENANT_HEADER);
 
     CompletableFuture<String> undeploymentComplete = new CompletableFuture<>();
