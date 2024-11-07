@@ -45,13 +45,14 @@ public class StorageTestSuite {
   private static final int port = NetworkUtils.nextFreePort();
   public static final Header URL_TO_HEADER = new Header("X-Okapi-Url-to", "http://localhost:" + port);
   private static TenantJob tenantJob;
-  public static EmbeddedKafkaCluster kafkaCluster;
+
+  public static EmbeddedKafkaCluster KAFKA_CLUSTER;
   public static final String KAFKA_ENV_VALUE = "test-env";
   private static final String KAFKA_HOST = "KAFKA_HOST";
   private static final String KAFKA_PORT = "KAFKA_PORT";
   private static final String KAFKA_ENV = "ENV";
   private static final String OKAPI_URL_KEY = "OKAPI_URL";
-  public static final int mockPort = NetworkUtils.nextFreePort();
+  public static final int MOCK_KAFKA_PORT = NetworkUtils.nextFreePort();
 
 
   private StorageTestSuite() {}
@@ -99,14 +100,14 @@ public class StorageTestSuite {
     vertx = Vertx.vertx();
 
     log.info("Starting kafka cluster");
-    kafkaCluster = EmbeddedKafkaCluster.provisionWith(defaultClusterConfig());
-    kafkaCluster.start();
-    String[] hostAndPort = kafkaCluster.getBrokerList().split(":");
+    KAFKA_CLUSTER = EmbeddedKafkaCluster.provisionWith(defaultClusterConfig());
+    KAFKA_CLUSTER.start();
+    String[] hostAndPort = KAFKA_CLUSTER.getBrokerList().split(":");
     System.setProperty(KAFKA_HOST, hostAndPort[0]);
     System.setProperty(KAFKA_PORT, hostAndPort[1]);
     System.setProperty(KAFKA_ENV, KAFKA_ENV_VALUE);
-    System.setProperty(OKAPI_URL_KEY, "http://localhost:" + mockPort);
-    log.info("Kafka cluster started with broker list: {}", kafkaCluster.getBrokerList());
+    System.setProperty(OKAPI_URL_KEY, "http://localhost:" + MOCK_KAFKA_PORT);
+    log.info("Kafka cluster started with broker list: {}", KAFKA_CLUSTER.getBrokerList());
 
     log.info("Starting container database");
     PostgresClient.setPostgresTester(new PostgresTesterContainer());
@@ -122,7 +123,7 @@ public class StorageTestSuite {
   @AfterAll
   public static void after() throws InterruptedException, ExecutionException, TimeoutException {
     log.info("Delete tenant");
-    kafkaCluster.stop();
+    KAFKA_CLUSTER.stop();
     deleteTenant(tenantJob, TENANT_HEADER);
 
     CompletableFuture<String> undeploymentComplete = new CompletableFuture<>();

@@ -7,8 +7,6 @@ import java.net.MalformedURLException;
 
 import org.junit.jupiter.api.Test;
 
-import io.restassured.http.ContentType;
-
 public class AuditOutboxAPITest extends TestBase {
 
   public static final String AUDIT_OUTBOX_ENDPOINT = "/invoice-storage/audit-outbox/process";
