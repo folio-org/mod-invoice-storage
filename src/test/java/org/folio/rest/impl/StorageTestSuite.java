@@ -170,4 +170,6 @@ public class StorageTestSuite {
   class VoucherNumberTestNested extends VoucherNumberTest {}
   @Nested
   class OrderStorageServiceTestNested extends OrderStorageServiceTest {}
+  @Nested
+  class AuditOutboxAPITestNested extends AuditOutboxAPITest {}
 }
