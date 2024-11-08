@@ -49,11 +49,11 @@ public class InvoiceStorageService {
     log.info("postInvoiceStorageInvoices:: Creating a new invoice by id: {}", invoice.getId());
     new DBClient(vertxContext, headers).getPgClient()
       .withTrans(conn -> invoiceDAO.createInvoice(invoice, conn)
-        .compose(invoiceId -> auditOutboxService.saveInvoiceOutboxLog(conn, invoice, InvoiceAuditEvent.Action.CREATE, headers))
-        .compose(v -> auditOutboxService.processOutboxEventLogs(headers, vertxContext)))
+        .compose(invoiceId -> auditOutboxService.saveInvoiceOutboxLog(conn, invoice, InvoiceAuditEvent.Action.CREATE, headers)))
       .onSuccess(s -> {
         log.info("postInvoiceStorageInvoices:: Successfully created a new invoice by id: {}", invoice.getId());
         asyncResultHandler.handle(buildResponseWithLocation(headers.get(OKAPI_URL), INVOICE_PREFIX + invoice.getId(), invoice));
+        auditOutboxService.processOutboxEventLogs(headers, vertxContext);
       })
       .onFailure(f -> {
         log.error("Error occurred while creating a new invoice with id: {}", invoice.getId(), f);
@@ -69,11 +69,11 @@ public class InvoiceStorageService {
     }
     new DBClient(vertxContext, headers).getPgClient()
       .withTrans(conn -> invoiceDAO.updateInvoice(id, invoice, conn)
-        .compose(invoiceId -> auditOutboxService.saveInvoiceOutboxLog(conn, invoice, InvoiceAuditEvent.Action.EDIT, headers))
-        .compose(v -> auditOutboxService.processOutboxEventLogs(headers, vertxContext)))
+        .compose(invoiceId -> auditOutboxService.saveInvoiceOutboxLog(conn, invoice, InvoiceAuditEvent.Action.EDIT, headers)))
       .onSuccess(s -> {
         log.info("putInvoiceStorageInvoicesById:: Successfully updated invoice with id: {}", id);
         asyncResultHandler.handle(buildNoContentResponse());
+        auditOutboxService.processOutboxEventLogs(headers, vertxContext);
       })
       .onFailure(f -> {
         log.error("Error occurred while updating invoice with id: {}", id, f);
