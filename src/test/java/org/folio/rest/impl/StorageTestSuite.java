@@ -23,7 +23,6 @@ import org.folio.rest.jaxrs.model.TenantJob;
 import org.folio.rest.persist.PostgresClient;
 import org.folio.rest.tools.utils.NetworkUtils;
 import org.folio.rest.utils.HelperUtilsTest;
-import org.folio.service.order.OrderStorageServiceTest;
 import org.folio.spring.SpringContextUtil;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -168,6 +167,4 @@ public class StorageTestSuite {
   class BatchVoucherExportsTestNested extends BatchVoucherExportsImplTest{}
   @Nested
   class VoucherNumberTestNested extends VoucherNumberTest {}
-  @Nested
-  class OrderStorageServiceTestNested extends OrderStorageServiceTest {}
 }
