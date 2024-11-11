@@ -12,6 +12,7 @@ import org.folio.rest.jaxrs.model.InvoiceLine;
 import org.folio.rest.jaxrs.model.InvoiceLineCollection;
 import org.folio.rest.jaxrs.resource.InvoiceStorage;
 import org.folio.rest.persist.PgUtil;
+import org.folio.service.InvoiceLineStorageService;
 import org.folio.service.InvoiceStorageService;
 import org.folio.spring.SpringContextUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,10 +29,13 @@ public class InvoiceStorageImpl implements InvoiceStorage {
   public static final String INVOICE_ID_FIELD_NAME = "invoiceId";
   public static final String INVOICE_LINE_TABLE = "invoice_lines";
   public static final String INVOICE_PREFIX = "/invoice-storage/invoices/";
+  public static final String INVOICE_LINES_PREFIX = "/invoice-storage/invoice-lines/";
   public static final String INVOICE_TABLE = "invoices";
 
   @Autowired
   private InvoiceStorageService invoiceStorageService;
+  @Autowired
+  private InvoiceLineStorageService invoiceLineStorageService;
 
   public InvoiceStorageImpl() {
     SpringContextUtil.autowireDependencies(this, Vertx.currentContext());
@@ -117,16 +121,14 @@ public class InvoiceStorageImpl implements InvoiceStorage {
   @Override
   public void postInvoiceStorageInvoiceLines(InvoiceLine entity, Map<String, String> okapiHeaders,
       Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
-    PgUtil.post(INVOICE_LINE_TABLE, entity, okapiHeaders, vertxContext, PostInvoiceStorageInvoiceLinesResponse.class,
-        asyncResultHandler);
+    invoiceLineStorageService.createInvoiceLine(entity, asyncResultHandler, vertxContext, okapiHeaders);
   }
 
   @Validate
   @Override
   public void putInvoiceStorageInvoiceLinesById(String id, InvoiceLine entity, Map<String, String> okapiHeaders,
       Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
-    PgUtil.put(INVOICE_LINE_TABLE, entity, id, okapiHeaders, vertxContext, PutInvoiceStorageInvoiceLinesByIdResponse.class,
-        asyncResultHandler);
+    invoiceLineStorageService.updateInvoiceLine(id, entity, okapiHeaders, asyncResultHandler, vertxContext);
   }
 
   @Validate

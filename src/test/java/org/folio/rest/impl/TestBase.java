@@ -12,6 +12,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
@@ -22,6 +24,8 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.folio.config.ApplicationConfig;
 import org.folio.dbschema.ObjectMapperTool;
 import org.folio.rest.jaxrs.model.BatchVoucher;
+import org.folio.rest.jaxrs.model.InvoiceAuditEvent;
+import org.folio.rest.jaxrs.model.InvoiceLineAuditEvent;
 import org.folio.rest.utils.TestEntities;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -54,6 +58,11 @@ public abstract class TestBase {
   public static final Header ISOLATED_TENANT_HEADER = new Header(OKAPI_HEADER_TENANT, ISOLATED_TENANT);
 
   public static final String ID = "id";
+
+  private final Map<TestEntities, List<String>> kafkaMessageMethods = Map.of(
+    TestEntities.INVOICE, getEnumValuesAsString(InvoiceAuditEvent.Action.class),
+    TestEntities.INVOICE_LINES, getEnumValuesAsString(InvoiceLineAuditEvent.Action.class)
+  );
 
   @BeforeAll
   public static void testBaseBeforeClass() throws InterruptedException, ExecutionException, TimeoutException, IOException {
@@ -264,4 +273,19 @@ public abstract class TestBase {
      JsonObject responseJson = JsonObject.mapFrom(response.then().extract().as(BatchVoucher.class));
      testAllFieldsExists(responseJson, sampleJson);
   }
+
+  void verifyKafkaMessagesSentIfNeeded(String eventType, TestEntities testEntity, String tenant, String userId, int expected) {
+    if (kafkaMessageMethods.containsKey(testEntity) && kafkaMessageMethods.get(testEntity).contains(eventType)) {
+      List<String> events = StorageTestSuite.checkKafkaEventSent(tenant, eventType, expected, userId);
+      assertEquals(expected, events.size());
+      for (String event : events) {
+        assertEquals(event, eventType);
+      }
+    }
+  }
+
+  private static <T extends Enum<T>> List<String> getEnumValuesAsString(Class<T> enumClass) {
+    return Arrays.stream(enumClass.getEnumConstants()).map(Enum::toString).toList();
+  }
+
 }
