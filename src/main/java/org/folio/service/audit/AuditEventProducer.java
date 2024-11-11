@@ -75,6 +75,7 @@ public class AuditEventProducer {
     return new InvoiceLineAuditEvent()
       .withId(UUID.randomUUID().toString())
       .withAction(eventAction)
+      .withInvoiceId(invoiceLine.getInvoiceId())
       .withInvoiceLineId(invoiceLine.getId())
       .withEventDate(new Date())
       .withActionDate(invoiceLine.getMetadata().getUpdatedDate())
