@@ -20,6 +20,10 @@ import io.vertx.core.json.JsonObject;
 class EntitiesCrudTest extends TestBase {
 
   private static final Logger log = LogManager.getLogger(EntitiesCrudTest.class);
+
+  private static final String CREATE_EVENT = "CREATE";
+  private static final String UPDATE_EVENT = "EDIT";
+
   private String sample = null;
 
   static Stream<TestEntities> deleteOrder() {
@@ -83,7 +87,7 @@ class EntitiesCrudTest extends TestBase {
   void testVerifyCollectionQuantity(TestEntities testEntity) throws MalformedURLException {
     log.info(String.format("--- mod-invoice-storage %s test: Verifying only 1 adjustment was created ... ", testEntity.name()));
     verifyCollectionQuantity(testEntity.getEndpoint(), TestEntities.BATCH_GROUP.equals(testEntity)? 2 : 1);
-
+    verifyKafkaMessagesSentIfNeeded(CREATE_EVENT, testEntity, TENANT_HEADER.getValue(), USER_ID_HEADER.getValue(), 1);
   }
 
   @ParameterizedTest
@@ -119,6 +123,7 @@ class EntitiesCrudTest extends TestBase {
     log.info(String.format("--- mod-invoice-storage %s test: Fetching updated %s with ID: %s", testEntity.name(),
         testEntity.name(), testEntity.getId()));
     testFetchingUpdatedEntity(testEntity.getId(), testEntity);
+    verifyKafkaMessagesSentIfNeeded(UPDATE_EVENT, testEntity, TENANT_HEADER.getValue(), USER_ID_HEADER.getValue(), 1);
   }
 
   @ParameterizedTest

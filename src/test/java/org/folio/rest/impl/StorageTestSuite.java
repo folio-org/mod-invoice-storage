@@ -1,6 +1,7 @@
 package org.folio.rest.impl;
 
 import static net.mguenther.kafka.junit.EmbeddedKafkaClusterConfig.defaultClusterConfig;
+import static org.folio.kafka.KafkaTopicNameHelper.getDefaultNameSpace;
 import static org.folio.rest.impl.TestBase.TENANT_HEADER;
 import static org.folio.rest.utils.TenantApiTestUtil.deleteTenant;
 import static org.folio.rest.utils.TenantApiTestUtil.prepareTenant;
@@ -8,6 +9,7 @@ import static org.folio.rest.utils.TenantApiTestUtil.prepareTenant;
 import java.lang.reflect.Field;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
@@ -17,6 +19,7 @@ import java.util.concurrent.TimeoutException;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.folio.kafka.KafkaTopicNameHelper;
 import org.folio.postgres.testing.PostgresTesterContainer;
 import org.folio.rest.RestVerticle;
 import org.folio.rest.jaxrs.model.TenantJob;
@@ -36,7 +39,9 @@ import io.vertx.core.Verticle;
 import io.vertx.core.Vertx;
 import io.vertx.core.impl.VertxImpl;
 import io.vertx.core.json.JsonObject;
+import lombok.SneakyThrows;
 import net.mguenther.kafka.junit.EmbeddedKafkaCluster;
+import net.mguenther.kafka.junit.ObserveKeyValues;
 
 public class StorageTestSuite {
   private static final Logger log = LogManager.getLogger(StorageTestSuite.class);
@@ -159,6 +164,25 @@ public class StorageTestSuite {
     });
 
     deploymentComplete.get(60, TimeUnit.SECONDS);
+  }
+
+  @SneakyThrows
+  public static List<String> checkKafkaEventSent(String tenant, String eventType, int expected, String userId) {
+    String topicToObserve = formatToKafkaTopicName(tenant, eventType);
+    return KAFKA_CLUSTER.observeValues(ObserveKeyValues.on(topicToObserve, expected)
+      .filterOnHeaders(val -> {
+        var header = val.lastHeader(RestVerticle.OKAPI_USERID_HEADER.toLowerCase());
+        if (Objects.nonNull(header)) {
+          return new String(header.value()).equalsIgnoreCase(userId);
+        }
+        return false;
+      })
+      .observeFor(30, TimeUnit.SECONDS)
+      .build());
+  }
+
+  private static String formatToKafkaTopicName(String tenant, String eventType) {
+    return KafkaTopicNameHelper.formatTopicName(KAFKA_ENV_VALUE, getDefaultNameSpace(), tenant, eventType);
   }
 
 
