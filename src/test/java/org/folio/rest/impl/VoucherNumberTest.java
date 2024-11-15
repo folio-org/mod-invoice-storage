@@ -18,7 +18,6 @@ import org.folio.rest.jaxrs.model.Invoice;
 import org.folio.rest.jaxrs.model.Voucher;
 import org.folio.rest.persist.PostgresClient;
 import org.folio.rest.utils.TestEntities;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import io.restassured.http.ContentType;
