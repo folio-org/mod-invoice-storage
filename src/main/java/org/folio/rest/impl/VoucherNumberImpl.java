@@ -29,7 +29,7 @@ public class VoucherNumberImpl implements VoucherStorageVoucherNumber {
   private static final String VOUCHER_NUMBER_QUERY = "SELECT nextval('voucher_number')";
   private static final String SET_START_SEQUENCE_VALUE_QUERY = "ALTER SEQUENCE voucher_number START WITH %s RESTART;";
   public static final String CURRENT_VOUCHER_NUMBER_QUERY = "SELECT pg_sequences.start_value FROM pg_sequences " +
-    "WHERE sequencename = 'voucher_number' AND sequenceowner = '%_mod_invoice_storage'";
+    "WHERE sequencename = 'voucher_number' AND sequenceowner = '%s_mod_invoice_storage'";
 
   @Override
   public void getVoucherStorageVoucherNumber(Map<String, String> okapiHeaders,
