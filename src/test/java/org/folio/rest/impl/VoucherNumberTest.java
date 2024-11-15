@@ -18,7 +18,6 @@ import org.folio.rest.jaxrs.model.Invoice;
 import org.folio.rest.jaxrs.model.Voucher;
 import org.folio.rest.persist.PostgresClient;
 import org.folio.rest.utils.TestEntities;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import io.restassured.http.ContentType;
@@ -36,12 +35,10 @@ public class VoucherNumberTest extends TestBase {
   private static final String SEQUENCE_NUMBER = "sequenceNumber";
   private static final String VOUCHER_NUMBER_ENDPOINT = "/voucher-storage/voucher-number";
   private static final String VOUCHER_STORAGE_VOUCHER_NUMBER_START_ENDPOINT = "/voucher-storage/voucher-number/start/";
-  private static final String VOUCHER_NUMBER_INVALID_START_ENDPOINT = "/voucher-storage/voucher-number/bad_start";
   private static final String DROP_SEQUENCE_QUERY = "DROP SEQUENCE diku_mod_invoice_storage.voucher_number";
   private static final int NUM_OF_REQUESTS = 3;
 
   @Test
-  @Disabled("Will be enabled after refactoring of StorageTestSuit and TestBase to clear resources after each test")
   public void testGetVoucherNumber() throws Exception {
 
     // Retrieve voucher numbers

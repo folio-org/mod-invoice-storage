@@ -28,7 +28,8 @@ public class VoucherNumberImpl implements VoucherStorageVoucherNumber {
   private static final Logger log = LogManager.getLogger(VoucherNumberImpl.class);
   private static final String VOUCHER_NUMBER_QUERY = "SELECT nextval('voucher_number')";
   private static final String SET_START_SEQUENCE_VALUE_QUERY = "ALTER SEQUENCE voucher_number START WITH %s RESTART;";
-  public static final String CURRENT_VOUCHER_NUMBER_QUERY = "SELECT pg_sequences.start_value FROM pg_sequences WHERE sequencename = 'voucher_number'";
+  public static final String CURRENT_VOUCHER_NUMBER_QUERY = "SELECT pg_sequences.start_value FROM pg_sequences " +
+    "WHERE sequencename = 'voucher_number' AND sequenceowner = '%s_mod_invoice_storage'";
 
   @Override
   public void getVoucherStorageVoucherNumber(Map<String, String> okapiHeaders,
@@ -72,22 +73,24 @@ public class VoucherNumberImpl implements VoucherStorageVoucherNumber {
     log.debug("getVoucherNumber:: Getting voucher number by query: {}", voucherNumberQuery);
     vertxContext.runOnContext((Void v) -> {
       String tenantId = TenantTool.calculateTenantId(okapiHeaders.get(RestVerticle.OKAPI_HEADER_TENANT));
-      PostgresClient.getInstance(vertxContext.owner(), tenantId).selectSingle(voucherNumberQuery, reply -> {
-        try {
-          if (reply.succeeded()) {
-            String voucherNumber = reply.result().getLong(0).toString();
-            log.info("getVoucherNumber:: Retrieved voucher number: {}", voucherNumber);
-            SequenceNumber sequenceNumber = new SequenceNumber().withSequenceNumber(voucherNumber);
-            asyncResultHandler.handle(buildOkResponse(sequenceNumber));
-          } else {
-            log.error("getVoucherNumber:: Failed to retrieve voucher number", reply.cause());
-            asyncResultHandler.handle(buildErrorResponse(reply.cause()));
-          }
-        } catch (Exception e) {
-          log.error("Error while handling response for voucher number request", e);
-          asyncResultHandler.handle(buildErrorResponse(e));
-        }
-      });
+      PostgresClient.getInstance(vertxContext.owner(), tenantId)
+        .selectSingle(String.format(voucherNumberQuery, tenantId),
+          reply -> {
+            try {
+              if (reply.succeeded()) {
+                String voucherNumber = reply.result().getLong(0).toString();
+                log.info("getVoucherNumber:: Retrieved voucher number: {}", voucherNumber);
+                SequenceNumber sequenceNumber = new SequenceNumber().withSequenceNumber(voucherNumber);
+                asyncResultHandler.handle(buildOkResponse(sequenceNumber));
+              } else {
+                log.error("getVoucherNumber:: Failed to retrieve voucher number", reply.cause());
+                asyncResultHandler.handle(buildErrorResponse(reply.cause()));
+              }
+            } catch (Exception e) {
+              log.error("Error while handling response for voucher number request", e);
+              asyncResultHandler.handle(buildErrorResponse(e));
+            }
+          });
     });
     log.info("getVoucherNumber:: Finished getting voucher number by query: {}", voucherNumberQuery);
   }
