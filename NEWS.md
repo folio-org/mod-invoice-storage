@@ -1,5 +1,13 @@
 ## 6.0.0 - Unreleased
 
+## 5.9.1 - Released - (Ramson R2 2024 Bug Fix)
+The primary focus of this release was to fix voucher starting number issue
+[Full Changelog](https://github.com/folio-org/mod-invoice-storage/compare/v5.9.0...v5.9.1)
+
+### Bug Fixes
+* [MODINVOSTO-194](https://folio-org.atlassian.net/browse/MODINVOSTO-194) - Starting number for Voucher is not changed in "Settings" on OKAPI and Eureka bugfest non-ECS, ECS environments
+
+
 ## 5.9.0 - Released - (Ramson R2 2024)
 
 The primary focus of this release was to update dependencies, and api doc for POSTing invoice documents
