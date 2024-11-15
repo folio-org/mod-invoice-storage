@@ -34,7 +34,7 @@ public class VoucherNumberImpl implements VoucherStorageVoucherNumber {
   @Override
   public void getVoucherStorageVoucherNumber(Map<String, String> okapiHeaders,
                                              Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
-    String tenantId = TenantTool.calculateTenantId(okapiHeaders.get(RestVerticle.OKAPI_HEADER_TENANT));
+    var tenantId = TenantTool.calculateTenantId(okapiHeaders.get(RestVerticle.OKAPI_HEADER_TENANT));
     getVoucherNumber(tenantId, asyncResultHandler, vertxContext, VOUCHER_NUMBER_QUERY);
   }
 
