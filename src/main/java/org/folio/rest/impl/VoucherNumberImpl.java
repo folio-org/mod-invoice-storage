@@ -26,7 +26,7 @@ import io.vertx.core.Handler;
 public class VoucherNumberImpl implements VoucherStorageVoucherNumber {
 
   private static final Logger log = LogManager.getLogger(VoucherNumberImpl.class);
-  private static final String VOUCHER_NUMBER_QUERY = "SELECT nextval('voucher_number')";
+  private static final String VOUCHER_NUMBER_QUERY = "SELECT nextval('%s_mod_invoice_storage.voucher_number')";
   private static final String SET_START_SEQUENCE_VALUE_QUERY = "ALTER SEQUENCE voucher_number START WITH %s RESTART;";
   public static final String CURRENT_VOUCHER_NUMBER_QUERY = "SELECT pg_sequences.start_value FROM pg_sequences " +
     "WHERE sequencename = 'voucher_number' AND sequenceowner = '%s_mod_invoice_storage'";
@@ -35,7 +35,8 @@ public class VoucherNumberImpl implements VoucherStorageVoucherNumber {
   public void getVoucherStorageVoucherNumber(Map<String, String> okapiHeaders,
                                              Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
     var tenantId = TenantTool.calculateTenantId(okapiHeaders.get(RestVerticle.OKAPI_HEADER_TENANT));
-    getVoucherNumber(tenantId, asyncResultHandler, vertxContext, VOUCHER_NUMBER_QUERY);
+    var query = String.format(VOUCHER_NUMBER_QUERY, tenantId);
+    getVoucherNumber(tenantId, asyncResultHandler, vertxContext, query);
   }
 
   @Override
