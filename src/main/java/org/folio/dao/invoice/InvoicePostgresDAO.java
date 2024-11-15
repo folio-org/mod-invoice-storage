@@ -5,6 +5,7 @@ import static org.folio.rest.impl.InvoiceStorageImpl.DOCUMENT_TABLE;
 import static org.folio.rest.impl.InvoiceStorageImpl.INVOICE_ID_FIELD_NAME;
 import static org.folio.rest.impl.InvoiceStorageImpl.INVOICE_LINE_TABLE;
 import static org.folio.rest.impl.InvoiceStorageImpl.INVOICE_TABLE;
+import static org.folio.rest.utils.ResponseUtils.convertPgExceptionIfNeeded;
 import static org.folio.rest.utils.ResponseUtils.handleFailure;
 
 import java.util.UUID;
@@ -14,6 +15,7 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.folio.dao.DbUtils;
 import org.folio.dbschema.ObjectMapperTool;
 import org.folio.rest.jaxrs.model.Contents;
 import org.folio.rest.jaxrs.model.DocumentMetadata;
@@ -49,32 +51,26 @@ public class InvoicePostgresDAO implements InvoiceDAO {
   }
 
   @Override
-  public Future<DBClient> createInvoice(Invoice invoice, DBClient client) {
+  public Future<String> createInvoice(Invoice invoice, Conn conn) {
     log.info("Creating new invoice with id={}", invoice.getId());
-    Promise<DBClient> promise = Promise.promise();
     if (invoice.getId() == null) {
       invoice.setId(UUID.randomUUID().toString());
     }
     if (invoice.getNextInvoiceLineNumber() == null) {
       invoice.setNextInvoiceLineNumber(1);
     }
-    client.getPgClient().save(client.getConnection(), INVOICE_TABLE, invoice.getId(), invoice, reply -> {
-      if (reply.failed()) {
-        String errorMessage = String.format("Invoice creation with id=%s failed", invoice.getId());
-        log.error(errorMessage, reply.cause());
-        handleFailure(promise, reply);
-      } else {
-        log.info("New invoice with id={} successfully created", invoice.getId());
-        promise.complete(client);
-      }
-    });
-    return promise.future();
+    return conn.save(INVOICE_TABLE, invoice.getId(), invoice, true)
+      .recover(t -> Future.failedFuture(convertPgExceptionIfNeeded(t)))
+      .onSuccess(s -> log.info("createInvoice:: New invoice with id: '{}' successfully created", invoice.getId()))
+      .onFailure(t -> log.error("Failed to create invoice with id: '{}'", invoice.getId(), t));
   }
 
   @Override
-  public Future<Void> updateInvoice(Invoice invoice, Conn conn) {
-    return conn.update(INVOICE_TABLE, invoice, invoice.getId())
-      .onFailure(t -> log.error("updateInvoice failed for invoice with id {}", invoice.getId(), t))
+  public Future<Void> updateInvoice(String id, Invoice invoice, Conn conn) {
+    return conn.update(INVOICE_TABLE, invoice, id)
+      .compose(DbUtils::verifyEntityUpdate)
+      .onSuccess(v -> log.info("updateInvoice:: Invoice with id: '{}' successfully updated", invoice.getId()))
+      .onFailure(t -> log.error("Update failed for invoice with id: '{}'", invoice.getId(), t))
       .mapEmpty();
   }
 
@@ -185,7 +181,7 @@ public class InvoicePostgresDAO implements InvoiceDAO {
             invoiceDocument.setMetadata(documentMetadata.getMetadata());
 
             String base64Content = reply.result().iterator().next().getString(1);
-            if (StringUtils.isNotEmpty(base64Content)){
+            if (StringUtils.isNotEmpty(base64Content)) {
               invoiceDocument.setContents(new Contents().withData(base64Content));
             }
             log.info("Invoice document with invoiceId={} and documentId={} successfully retrieved", invoiceId, documentId);

@@ -1,0 +1,20 @@
+#%RAML 1.0
+title: Audit outbox API
+version: v1.0
+protocols: [ HTTP, HTTPS ]
+baseUri: http://github.com/folio-org/mod-invoice-storage
+
+documentation:
+  - title: Audit outbox API
+    content: This API is intended for internal use only by the Timer interface
+
+types:
+  outbox-event-log: !include acq-models/mod-invoice-storage/schemas/outbox_event_log.json
+  invoice-audit-event: !include acq-models/mod-invoice-storage/schemas/invoice_audit_event.json
+  invoice-line-audit-event: !include acq-models/mod-invoice-storage/schemas/invoice_line_audit_event.json
+  event-topic: !include acq-models/mod-invoice-storage/schemas/event_topic.json
+
+/invoice-storage/audit-outbox:
+  /process:
+    post:
+      description: Read audit events from DB and send them to Kafka

@@ -4,6 +4,7 @@ import static javax.ws.rs.core.HttpHeaders.CONTENT_TYPE;
 import static javax.ws.rs.core.HttpHeaders.LOCATION;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
+import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 import static javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
 
 import java.net.URI;
@@ -46,12 +47,15 @@ public class ResponseUtils {
   }
 
   public static void handleFailure(Promise<?> promise, AsyncResult<?> reply) {
-    Throwable cause = reply.cause();
-    String badRequestMessage = PgExceptionUtil.badRequestMessage(cause);
+    promise.fail(convertPgExceptionIfNeeded(reply.cause()));
+  }
+
+  public static Throwable convertPgExceptionIfNeeded(Throwable cause) {
+    var badRequestMessage = PgExceptionUtil.badRequestMessage(cause);
     if (badRequestMessage != null) {
-      promise.fail(new HttpException(Response.Status.BAD_REQUEST.getStatusCode(), badRequestMessage));
+      return new HttpException(BAD_REQUEST.getStatusCode(), badRequestMessage);
     } else {
-      promise.fail(new HttpException(INTERNAL_SERVER_ERROR.getStatusCode(), cause.getMessage()));
+      return new HttpException(INTERNAL_SERVER_ERROR.getStatusCode(), cause.getMessage());
     }
   }
 
@@ -80,6 +84,10 @@ public class ResponseUtils {
 
   public static Future<Response> buildOkResponse(Object body) {
     return Future.succeededFuture(Response.ok(body, APPLICATION_JSON).build());
+  }
+
+  public static Future<Response> buildBadRequestResponse(String body) {
+    return Future.succeededFuture(buildErrorResponse(BAD_REQUEST.getStatusCode(), body));
   }
 
   public static Future<Response> buildErrorResponse(Throwable throwable) {
