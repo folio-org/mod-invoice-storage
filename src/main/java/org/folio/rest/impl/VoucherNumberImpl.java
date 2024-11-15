@@ -33,8 +33,9 @@ public class VoucherNumberImpl implements VoucherStorageVoucherNumber {
 
   @Override
   public void getVoucherStorageVoucherNumber(Map<String, String> okapiHeaders,
-      Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
-    getVoucherNumber(okapiHeaders, asyncResultHandler, vertxContext, VOUCHER_NUMBER_QUERY);
+                                             Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
+    String tenantId = TenantTool.calculateTenantId(okapiHeaders.get(RestVerticle.OKAPI_HEADER_TENANT));
+    getVoucherNumber(tenantId, asyncResultHandler, vertxContext, VOUCHER_NUMBER_QUERY);
   }
 
   @Override
@@ -63,35 +64,34 @@ public class VoucherNumberImpl implements VoucherStorageVoucherNumber {
 
   @Override
   public void getVoucherStorageVoucherNumberStart(Map<String, String> okapiHeaders,
-      Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
+                                                  Handler<AsyncResult<Response>> asyncResultHandler,
+                                                  Context vertxContext) {
     log.debug("Trying to retrieving current start value for a voucher number sequence");
-    getVoucherNumber(okapiHeaders, asyncResultHandler, vertxContext, CURRENT_VOUCHER_NUMBER_QUERY);
+    var tenantId = TenantTool.calculateTenantId(okapiHeaders.get(RestVerticle.OKAPI_HEADER_TENANT));
+    var query = String.format(CURRENT_VOUCHER_NUMBER_QUERY, tenantId);
+    getVoucherNumber(tenantId, asyncResultHandler, vertxContext, query);
   }
 
-  private void getVoucherNumber(Map<String, String> okapiHeaders, Handler<AsyncResult<Response>> asyncResultHandler,
-      Context vertxContext, String voucherNumberQuery) {
+  private void getVoucherNumber(String tenantId, Handler<AsyncResult<Response>> asyncResultHandler,
+                                Context vertxContext, String voucherNumberQuery) {
     log.debug("getVoucherNumber:: Getting voucher number by query: {}", voucherNumberQuery);
-    vertxContext.runOnContext((Void v) -> {
-      String tenantId = TenantTool.calculateTenantId(okapiHeaders.get(RestVerticle.OKAPI_HEADER_TENANT));
-      PostgresClient.getInstance(vertxContext.owner(), tenantId)
-        .selectSingle(String.format(voucherNumberQuery, tenantId),
-          reply -> {
-            try {
-              if (reply.succeeded()) {
-                String voucherNumber = reply.result().getLong(0).toString();
-                log.info("getVoucherNumber:: Retrieved voucher number: {}", voucherNumber);
-                SequenceNumber sequenceNumber = new SequenceNumber().withSequenceNumber(voucherNumber);
-                asyncResultHandler.handle(buildOkResponse(sequenceNumber));
-              } else {
-                log.error("getVoucherNumber:: Failed to retrieve voucher number", reply.cause());
-                asyncResultHandler.handle(buildErrorResponse(reply.cause()));
-              }
-            } catch (Exception e) {
-              log.error("Error while handling response for voucher number request", e);
-              asyncResultHandler.handle(buildErrorResponse(e));
-            }
-          });
-    });
+    vertxContext.runOnContext((Void v) ->
+      PostgresClient.getInstance(vertxContext.owner(), tenantId).selectSingle(voucherNumberQuery, reply -> {
+        try {
+          if (reply.succeeded()) {
+            String voucherNumber = reply.result().getLong(0).toString();
+            log.info("getVoucherNumber:: Retrieved voucher number: {}", voucherNumber);
+            SequenceNumber sequenceNumber = new SequenceNumber().withSequenceNumber(voucherNumber);
+            asyncResultHandler.handle(buildOkResponse(sequenceNumber));
+          } else {
+            log.error("getVoucherNumber:: Failed to retrieve voucher number", reply.cause());
+            asyncResultHandler.handle(buildErrorResponse(reply.cause()));
+          }
+        } catch (Exception e) {
+          log.error("Error while handling response for voucher number request", e);
+          asyncResultHandler.handle(buildErrorResponse(e));
+        }
+      }));
     log.info("getVoucherNumber:: Finished getting voucher number by query: {}", voucherNumberQuery);
   }
 }
