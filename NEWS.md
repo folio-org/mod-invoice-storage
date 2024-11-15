@@ -2,7 +2,7 @@
 
 ## 5.9.1 - Released - (Ramson R2 2024 Bug Fix)
 
-The primary focus of this release was to
+The primary focus of this release was to fix voucher starting number issue
 [Full Changelog](https://github.com/folio-org/mod-invoice-storage/compare/v5.9.0...v5.9.1)
 
 ### Bug Fixes
