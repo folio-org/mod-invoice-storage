@@ -24,7 +24,7 @@
 
     <!--Dependency Management Properties-->
     <vertx.version>4.5.10</vertx.version>
-    <kafkaclients.version>3.6.1</kafkaclients.version>
+    <kafkaclients.version>3.7.1</kafkaclients.version>
     <log4j.version>2.24.1</log4j.version>
 
     <!--Folio dependencies properties-->
