@@ -12,7 +12,6 @@ import org.folio.rest.tools.utils.TenantTool;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
-import static java.util.Objects.nonNull;
 import static org.folio.rest.RestVerticle.OKAPI_HEADER_TENANT;
 import static org.folio.rest.utils.HelperUtils.verifyAndExtractBody;
 
@@ -21,7 +20,6 @@ public class RestClient {
   private static final Logger log = LogManager.getLogger();
   private static final String EXCEPTION_CALLING_ENDPOINT_MSG = "Exception calling %s %s - %s";
   public static final String OKAPI_URL = "x-okapi-url";
-
 
   public <T> CompletableFuture<T> getById(String baseEndpoint, String id, RequestContext requestContext, Class<T> responseType) {
     RequestEntry requestEntry = new RequestEntry(baseEndpoint).withPathParameter("id", id);
@@ -33,7 +31,6 @@ public class RestClient {
     String endpoint = requestEntry.buildEndpoint();
     HttpClientInterface client = getHttpClient(requestContext.getHeaders());
     log.debug("Calling GET {}", endpoint);
-
     try {
       client
         .request(HttpMethod.GET, endpoint, requestContext.getHeaders())
@@ -43,7 +40,6 @@ public class RestClient {
         })
         .thenAccept(body -> {
           client.closeClient();
-          log.debug("The response body for GET {}: {}", endpoint, nonNull(body) ? body.encodePrettily() : null);
           S responseEntity = body.mapTo(responseType);
           future.complete(responseEntity);
         })
@@ -66,6 +62,5 @@ public class RestClient {
     final String tenantId = TenantTool.calculateTenantId(okapiHeaders.get(OKAPI_HEADER_TENANT));
 
     return HttpClientFactory.getHttpClient(okapiURL, tenantId);
-
   }
 }
