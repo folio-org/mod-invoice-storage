@@ -36,7 +36,7 @@
 
     <!--Dependency properties-->
     <aspectj.version>1.9.22.1</aspectj.version>
-    <rest-assured.version>5.5.0</rest-assured.version>
+    <rest-assured.version>5.5.1</rest-assured.version>
     <folio-di-support.version>2.2.0</folio-di-support.version>
 
     <!--Maven plugin properties-->
