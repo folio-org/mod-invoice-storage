@@ -19,7 +19,7 @@
 
     <!--Project properties-->
     <ramlfiles_path>${basedir}/ramls</ramlfiles_path>
-    <raml-module-builder.version>35.4.0-SNAPSHOT</raml-module-builder.version>
+    <raml-module-builder.version>35.4.0</raml-module-builder.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <generated_sources_dir>${project.build.directory}/generated-sources</generated_sources_dir>
     <jsonschema2pojo_output_dir>${generated_sources_dir}/jsonschema2pojo</jsonschema2pojo_output_dir>
@@ -28,16 +28,17 @@
     <spring.version>6.2.3</spring.version>
     <vertx.version>4.5.13</vertx.version>
     <kafkaclients.version>3.6.1</kafkaclients.version>
-    <log4j.version>2.24.1</log4j.version>
+    <log4j.version>2.24.3</log4j.version>
+    <streamex.version>0.8.3</streamex.version>
 
     <!--Folio dependencies properties-->
     <folio-module-descriptor-validator.version>1.0.0</folio-module-descriptor-validator.version>
     <folio-kafka-wrapper.version>3.2.0</folio-kafka-wrapper.version>
+    <folio-di-support.version>3.0.0</folio-di-support.version>
 
     <!--Dependency properties-->
     <aspectj.version>1.9.22.1</aspectj.version>
     <rest-assured.version>5.5.1</rest-assured.version>
-    <folio-di-support.version>2.2.0</folio-di-support.version>
 
     <!--Maven plugin properties-->
     <aspectj-maven-plugin.version>1.14</aspectj-maven-plugin.version>
@@ -52,8 +53,9 @@
     <copy-rename-maven-plugin.version>1.0.1</copy-rename-maven-plugin.version>
 
     <!--Test Scope dependencies-->
-    <junit-jupiter-version>5.11.2</junit-jupiter-version>
+    <junit-jupiter.version>5.12.0</junit-jupiter.version>
     <jmockit.version>1.49</jmockit.version>
+    <mockito.version>5.15.2</mockito.version>
 
     <!--Sonar properties-->
     <sonar.exclusions>**/models/**.java</sonar.exclusions>
@@ -74,7 +76,7 @@
       <dependency>
         <groupId>org.junit</groupId>
         <artifactId>junit-bom</artifactId>
-        <version>${junit-jupiter-version}</version>
+        <version>${junit-jupiter.version}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -132,7 +134,7 @@
     <dependency>
       <groupId>one.util</groupId>
       <artifactId>streamex</artifactId>
-      <version>0.8.3</version>
+      <version>${streamex.version}</version>
     </dependency>
     <dependency>
       <groupId>commons-lang</groupId>
@@ -174,7 +176,7 @@
     <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-junit-jupiter</artifactId>
-      <version>5.14.2</version>
+      <version>${mockito.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
