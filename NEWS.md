@@ -12,8 +12,8 @@ The primary focus of this release was to implement audit outbox pattern for send
 * [FOLIO-4210](https://folio-org.atlassian.net/browse/FOLIO-4210) - Update to mod-invoice-storage Java 21
 
 ### Dependencies
-* Bump `raml` from `35.2.0` to `35.3.0`
-* Added `folio-module-descriptor-validator` version `1.0.0`
+* Bump `raml` from `35.3.0` to `35.4.0`
+* Bump `java` from `17` to `21`
 
 
 ## 5.9.0 - Released - (Ramson R2 2024)
