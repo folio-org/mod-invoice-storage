@@ -1,4 +1,20 @@
-## 6.0.0 - Unreleased
+## 6.1.0 - Unreleased
+
+## 6.0.0 - Released - (Sunflower R1 2025)
+
+The primary focus of this release was to implement audit outbox pattern for sending kafka events about invoice updates
+
+[Full Changelog](https://github.com/folio-org/mod-invoice-storage/compare/v5.9.0...v6.0.0)
+
+### Stories
+* [MODINVOSTO-187](https://folio-org.atlassian.net/browse/MODINVOSTO-187) - Implement audit outbox pattern for sending kafka events about invoice updates
+* [MODINVOSTO-188](https://folio-org.atlassian.net/browse/MODINVOSTO-188) - Implement audit outbox pattern for sending kafka events about invoice line updates
+* [FOLIO-4210](https://folio-org.atlassian.net/browse/FOLIO-4210) - Update to mod-invoice-storage Java 21
+
+### Dependencies
+* Bump `raml` from `35.2.0` to `35.3.0`
+* Added `folio-module-descriptor-validator` version `1.0.0`
+
 
 ## 5.9.0 - Released - (Ramson R2 2024)
 
