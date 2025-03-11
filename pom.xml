@@ -32,8 +32,8 @@
     <streamex.version>0.8.3</streamex.version>
 
     <!--Folio dependencies properties-->
-    <folio-module-descriptor-validator.version>1.0.0</folio-module-descriptor-validator.version>
-    <folio-kafka-wrapper.version>3.2.0</folio-kafka-wrapper.version>
+    <folio-module-descriptor-validator.version>1.0.1</folio-module-descriptor-validator.version>
+    <folio-kafka-wrapper.version>3.3.0</folio-kafka-wrapper.version>
     <folio-di-support.version>3.0.0</folio-di-support.version>
 
     <!--Dependency properties-->
