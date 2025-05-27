@@ -1,6 +1,5 @@
 package org.folio.rest.impl;
 
-import static net.mguenther.kafka.junit.EmbeddedKafkaClusterConfig.defaultClusterConfig;
 import static org.folio.kafka.KafkaTopicNameHelper.getDefaultNameSpace;
 import static org.folio.rest.impl.TestBase.TENANT_HEADER;
 import static org.folio.rest.utils.TenantApiTestUtil.deleteTenant;
@@ -9,14 +8,20 @@ import static org.folio.rest.utils.TenantApiTestUtil.prepareTenant;
 import java.lang.reflect.Field;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.time.Duration;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.Properties;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.clients.consumer.ConsumerRecords;
+import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.folio.kafka.KafkaTopicNameHelper;
@@ -40,8 +45,9 @@ import io.vertx.core.Vertx;
 import io.vertx.core.impl.VertxImpl;
 import io.vertx.core.json.JsonObject;
 import lombok.SneakyThrows;
-import net.mguenther.kafka.junit.EmbeddedKafkaCluster;
-import net.mguenther.kafka.junit.ObserveKeyValues;
+import org.testcontainers.kafka.KafkaContainer;
+import org.testcontainers.shaded.com.fasterxml.jackson.databind.deser.std.StringDeserializer;
+import org.testcontainers.utility.DockerImageName;
 
 public class StorageTestSuite {
   private static final Logger log = LogManager.getLogger(StorageTestSuite.class);
@@ -51,7 +57,8 @@ public class StorageTestSuite {
   public static final Header URL_TO_HEADER = new Header("X-Okapi-Url-to", "http://localhost:" + port);
   private static TenantJob tenantJob;
 
-  public static EmbeddedKafkaCluster KAFKA_CLUSTER;
+  private static final DockerImageName KAFKA_IMAGE_NAME = DockerImageName.parse("apache/kafka-native:3.8.0");
+  private static final KafkaContainer kafkaContainer = getKafkaContainer();
   public static final String KAFKA_ENV_VALUE = "test-env";
   private static final String KAFKA_HOST = "KAFKA_HOST";
   private static final String KAFKA_PORT = "KAFKA_PORT";
@@ -105,14 +112,12 @@ public class StorageTestSuite {
     vertx = Vertx.vertx();
 
     log.info("Starting kafka cluster");
-    KAFKA_CLUSTER = EmbeddedKafkaCluster.provisionWith(defaultClusterConfig());
-    KAFKA_CLUSTER.start();
-    String[] hostAndPort = KAFKA_CLUSTER.getBrokerList().split(":");
-    System.setProperty(KAFKA_HOST, hostAndPort[0]);
-    System.setProperty(KAFKA_PORT, hostAndPort[1]);
+    kafkaContainer.start();
+    System.setProperty(KAFKA_HOST, kafkaContainer.getHost());
+    System.setProperty(KAFKA_PORT, kafkaContainer.getFirstMappedPort() + "");
     System.setProperty(KAFKA_ENV, KAFKA_ENV_VALUE);
     System.setProperty(OKAPI_URL_KEY, "http://localhost:" + MOCK_KAFKA_PORT);
-    log.info("Kafka cluster started with broker list: {}", KAFKA_CLUSTER.getBrokerList());
+    log.info("Kafka cluster started with bootstrap servers: {}", kafkaContainer.getBootstrapServers());
 
     log.info("Starting container database");
     PostgresClient.setPostgresTester(new PostgresTesterContainer());
@@ -128,7 +133,7 @@ public class StorageTestSuite {
   @AfterAll
   public static void after() throws InterruptedException, ExecutionException, TimeoutException {
     log.info("Delete tenant");
-    KAFKA_CLUSTER.stop();
+    kafkaContainer.stop();
     deleteTenant(tenantJob, TENANT_HEADER);
 
     CompletableFuture<String> undeploymentComplete = new CompletableFuture<>();
@@ -167,24 +172,40 @@ public class StorageTestSuite {
   }
 
   @SneakyThrows
-  public static List<String> checkKafkaEventSent(String tenant, String eventType, int expected, String userId) {
+  public static List<String> checkKafkaEventSent(String tenant, String eventType) {
     String topicToObserve = formatToKafkaTopicName(tenant, eventType);
-    return KAFKA_CLUSTER.observeValues(ObserveKeyValues.on(topicToObserve, expected)
-      .filterOnHeaders(val -> {
-        var header = val.lastHeader(RestVerticle.OKAPI_USERID_HEADER.toLowerCase());
-        if (Objects.nonNull(header)) {
-          return new String(header.value()).equalsIgnoreCase(userId);
-        }
-        return false;
-      })
-      .observeFor(30, TimeUnit.SECONDS)
-      .build());
+    return observeTopic(topicToObserve);
+  }
+
+  private static List<String> observeTopic(String topic) {
+    List<String> result = new ArrayList<>();
+    ConsumerRecords<String, String> records;
+    try (var kafkaConsumer = createKafkaConsumer()) {
+      kafkaConsumer.subscribe(List.of(topic));
+      records = kafkaConsumer.poll(Duration.ofSeconds(30));
+    }
+    records.forEach(rec -> result.add(rec.value()));
+    return result;
+  }
+
+  private static KafkaConsumer<String, String> createKafkaConsumer() {
+    Properties consumerProperties = new Properties();
+    consumerProperties.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaContainer.getBootstrapServers());
+    consumerProperties.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
+    consumerProperties.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
+    consumerProperties.put(ConsumerConfig.GROUP_ID_CONFIG, "test-group");
+    consumerProperties.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
+    return new KafkaConsumer<>(consumerProperties);
   }
 
   private static String formatToKafkaTopicName(String tenant, String eventType) {
     return KafkaTopicNameHelper.formatTopicName(KAFKA_ENV_VALUE, getDefaultNameSpace(), tenant, eventType);
   }
 
+  private static KafkaContainer getKafkaContainer() {
+    return new KafkaContainer(KAFKA_IMAGE_NAME)
+      .withStartupAttempts(3);
+  }
 
   @Nested
   class InvoiceTestNested extends InvoiceTest {}

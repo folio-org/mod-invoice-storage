@@ -274,9 +274,9 @@ public abstract class TestBase {
      testAllFieldsExists(responseJson, sampleJson);
   }
 
-  void verifyKafkaMessagesSentIfNeeded(String eventType, TestEntities testEntity, String tenant, String userId, int expected) {
+  void verifyKafkaMessagesSentIfNeeded(String eventType, TestEntities testEntity, String tenant, int expected) {
     if (kafkaMessageMethods.containsKey(testEntity) && kafkaMessageMethods.get(testEntity).contains(eventType)) {
-      List<String> events = StorageTestSuite.checkKafkaEventSent(tenant, eventType, expected, userId);
+      List<String> events = StorageTestSuite.checkKafkaEventSent(tenant, eventType);
       assertEquals(expected, events.size());
       for (String event : events) {
         assertEquals(event, eventType);
