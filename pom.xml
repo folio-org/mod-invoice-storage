@@ -25,7 +25,7 @@
     <jsonschema2pojo_output_dir>${generated_sources_dir}/jsonschema2pojo</jsonschema2pojo_output_dir>
 
     <!--Dependency Management Properties-->
-    <spring.version>6.2.3</spring.version>
+    <spring.version>6.2.7</spring.version>
     <vertx.version>4.5.13</vertx.version>
     <log4j.version>2.24.3</log4j.version>
     <streamex.version>0.8.3</streamex.version>
