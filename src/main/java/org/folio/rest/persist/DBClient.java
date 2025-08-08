@@ -70,7 +70,7 @@ public class DBClient {
     if (sqlConnection.failed()) {
       promise.fail(sqlConnection.cause());
     } else {
-      pgClient.rollbackTx(sqlConnection, promise);
+      pgClient.rollbackTx(sqlConnection, asyncResult -> promise.complete());
     }
     return promise.future();
   }

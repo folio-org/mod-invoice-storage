@@ -5,7 +5,6 @@ import static org.folio.rest.impl.TestBase.TENANT_HEADER;
 import static org.folio.rest.utils.TenantApiTestUtil.deleteTenant;
 import static org.folio.rest.utils.TenantApiTestUtil.prepareTenant;
 
-import java.lang.reflect.Field;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.Duration;
@@ -37,10 +36,9 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Nested;
 import io.restassured.http.Header;
-import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Context;
 import io.vertx.core.DeploymentOptions;
-import io.vertx.core.Verticle;
+import io.vertx.core.ThreadingModel;
 import io.vertx.core.Vertx;
 import io.vertx.core.impl.VertxImpl;
 import io.vertx.core.json.JsonObject;
@@ -86,22 +84,11 @@ public class StorageTestSuite {
   }
 
   private static Context getFirstContextFromVertx(Vertx vertx) {
-    return vertx.deploymentIDs().stream().flatMap((id) -> ((VertxImpl)vertx)
-        .getDeployment(id).getVerticles().stream())
-      .map(StorageTestSuite::getContextWithReflection)
+    return vertx.deploymentIDs().stream().flatMap((id) -> ((VertxImpl)vertx).deploymentManager()
+        .deployment(id).deployment().contexts().stream())
       .filter(Objects::nonNull)
       .findFirst()
       .orElseThrow(() -> new IllegalStateException("Spring context was not created"));
-  }
-
-  private static Context getContextWithReflection(Verticle verticle) {
-    try {
-      Field field = AbstractVerticle.class.getDeclaredField("context");
-      field.setAccessible(true);
-      return ((Context)field.get(verticle));
-    } catch (NoSuchFieldException | IllegalAccessException var2) {
-      return null;
-    }
   }
 
   @BeforeAll
@@ -124,7 +111,7 @@ public class StorageTestSuite {
 
     DeploymentOptions options = new DeploymentOptions();
     options.setConfig(new JsonObject().put("http.port", port));
-    options.setWorker(true);
+    options.setThreadingModel(ThreadingModel.WORKER);
     startVerticle(options);
 
     tenantJob = prepareTenant(TENANT_HEADER, false, false);
@@ -138,7 +125,7 @@ public class StorageTestSuite {
 
     CompletableFuture<String> undeploymentComplete = new CompletableFuture<>();
 
-    vertx.close(res -> {
+    vertx.close().onComplete(res -> {
       if(res.succeeded()) {
         undeploymentComplete.complete(null);
       }
@@ -159,7 +146,7 @@ public class StorageTestSuite {
 
     CompletableFuture<String> deploymentComplete = new CompletableFuture<>();
 
-    vertx.deployVerticle(RestVerticle.class.getName(), options, res -> {
+    vertx.deployVerticle(RestVerticle.class.getName(), options).onComplete(res -> {
       if(res.succeeded()) {
         deploymentComplete.complete(res.result());
       }

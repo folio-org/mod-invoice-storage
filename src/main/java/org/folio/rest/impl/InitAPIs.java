@@ -30,9 +30,7 @@ public class InitAPIs implements InitAPI {
         DeserializationConfig deserializationConfig = ObjectMapperTool.getMapper().getDeserializationConfig();
 
         DatabindCodec.mapper().setConfig(serializationConfig);
-        DatabindCodec.prettyMapper().setConfig(serializationConfig);
         DatabindCodec.mapper().setConfig(deserializationConfig);
-        DatabindCodec.prettyMapper().setConfig(deserializationConfig);
 
         SpringContextUtil.init(vertx, context, ApplicationConfig.class);
         return true;
