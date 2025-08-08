@@ -98,7 +98,7 @@ public class AuditEventProducer {
     return producer.send(kafkaProducerRecord)
       .onSuccess(s -> log.info("sendToKafka:: Event for {} with id '{}' has been sent to kafka topic '{}'", eventTopic, key, topicName))
       .onFailure(t -> log.error("Failed to send event for {} with id '{}' to kafka topic '{}'", eventTopic, key, topicName, t))
-      .onComplete(reply -> producer.end(v -> producer.close()))
+      .onComplete(reply -> producer.end().onComplete(v -> producer.close()))
       .mapEmpty();
   }
 

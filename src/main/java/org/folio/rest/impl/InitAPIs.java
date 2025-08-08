@@ -25,8 +25,7 @@ public class InitAPIs implements InitAPI {
 
   @Override
   public void init(Vertx vertx, Context context, Handler<AsyncResult<Boolean>> resultHandler) {
-    vertx.executeBlocking(
-      promise -> {
+    vertx.executeBlocking(() -> {
         SerializationConfig serializationConfig = ObjectMapperTool.getMapper().getSerializationConfig();
         DeserializationConfig deserializationConfig = ObjectMapperTool.getMapper().getDeserializationConfig();
 
@@ -36,9 +35,8 @@ public class InitAPIs implements InitAPI {
         DatabindCodec.prettyMapper().setConfig(deserializationConfig);
 
         SpringContextUtil.init(vertx, context, ApplicationConfig.class);
-        promise.complete();
-      },
-      result -> {
+        return true;
+      }).onComplete(result -> {
         if (result.succeeded()) {
           log.info("APIs initialized successfully");
           resultHandler.handle(Future.succeededFuture(true));
