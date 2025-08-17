@@ -97,7 +97,7 @@
     },
     {
       "run": "after",
-      "snippetPath": "data-migrations/migrate_configuration_data_to_settings.ftl",
+      "snippetPath": "data-migration/6.1.0/migrate_configuration_data_to_settings.ftl",
       "fromModuleVersion": "mod-invoice-storage-6.1.0"
     }
   ],
