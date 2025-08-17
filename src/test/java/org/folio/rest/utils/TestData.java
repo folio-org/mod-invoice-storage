@@ -33,4 +33,9 @@ public class TestData {
   public interface BatchVoucherExports {
     String DEFAULT = "data/batch-voucher-exports/test-batch-voucher-export.json";
   }
+
+  public interface Settings {
+    String DEFAULT = "data/settings/9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d.json";
+  }
+
 }

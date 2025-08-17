@@ -10,6 +10,7 @@ import org.folio.rest.jaxrs.model.BatchVoucherExport;
 import org.folio.rest.jaxrs.model.ExportConfig;
 import org.folio.rest.jaxrs.model.Invoice;
 import org.folio.rest.jaxrs.model.InvoiceLine;
+import org.folio.rest.jaxrs.model.Setting;
 import org.folio.rest.jaxrs.model.Voucher;
 import org.folio.rest.jaxrs.model.VoucherLine;
 
@@ -21,7 +22,8 @@ public enum TestEntities {
   BATCH_GROUP("/batch-group-storage/batch-groups", BatchGroup.class, TestData.BatchGroup.DEFAULT, "name", "folio", 2, 1, true),
   BATCH_VOUCHER_EXPORT_CONFIGS("/batch-voucher-storage/export-configurations", ExportConfig.class, TestData.BatchVoucherExportConfigs.DEFAULT, "enableScheduledExport", false, 0, 0, true),
   BATCH_VOUCHER("/batch-voucher-storage/batch-vouchers", BatchVoucher.class, TestData.BatchVoucher.DEFAULT, "batchGroup", null, 0, 0, false),
-  BATCH_VOUCHER_EXPORTS("/batch-voucher-storage/batch-voucher-exports", BatchVoucherExport.class, TestData.BatchVoucherExports.DEFAULT, "message", "test", 0, 0, true);
+  BATCH_VOUCHER_EXPORTS("/batch-voucher-storage/batch-voucher-exports", BatchVoucherExport.class, TestData.BatchVoucherExports.DEFAULT, "message", "test", 0, 0, true),
+  SETTING("/invoice-storage/settings", Setting.class, TestData.Settings.DEFAULT, "value", "46ff3f08-8f41-485c-98d8-701ba8404f4f", 0, 0, false);
 
   TestEntities(String endpoint, Class<?> clazz, String sampleFileName, String updatedFieldName, Object updatedFieldValue, int initialQuantity, int systemDataQuantity, boolean collection) {
     this.endpoint = endpoint;
