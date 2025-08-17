@@ -16,6 +16,7 @@ import org.folio.service.InvoiceStorageService;
 import org.folio.service.audit.AuditEventProducer;
 import org.folio.service.audit.AuditOutboxService;
 import org.folio.service.order.OrderStorageService;
+import org.folio.service.setting.SettingsService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -76,6 +77,11 @@ public class ApplicationConfig {
   @Bean
   public AuditOutboxService auditOutboxService(AuditOutboxEventLogDAO auditOutboxEventLogDAO, InternalLockDAO internalLockDAO, AuditEventProducer producer) {
     return new AuditOutboxService(auditOutboxEventLogDAO, internalLockDAO, producer);
+  }
+
+  @Bean
+  public SettingsService settingsService() {
+    return new SettingsService();
   }
 
 }
