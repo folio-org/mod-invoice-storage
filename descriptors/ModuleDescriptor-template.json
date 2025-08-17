@@ -340,6 +340,37 @@
       ]
     },
     {
+      "id": "invoice-storage.settings",
+      "version": "1.0",
+      "handlers": [
+        {
+          "methods": ["GET"],
+          "pathPattern": "/invoice-storage/settings",
+          "permissionsRequired": ["invoice-storage.settings.collection.get"]
+        },
+        {
+          "methods": ["GET"],
+          "pathPattern": "/invoice-storage/settings/{id}",
+          "permissionsRequired": ["invoice-storage.settings.item.get"]
+        },
+        {
+          "methods": ["POST"],
+          "pathPattern": "/invoice-storage/settings",
+          "permissionsRequired": ["invoice-storage.settings.item.post"]
+        },
+        {
+          "methods": ["PUT"],
+          "pathPattern": "/invoice-storage/settings/{id}",
+          "permissionsRequired": ["invoice-storage.settings.item.put"]
+        },
+        {
+          "methods": ["DELETE"],
+          "pathPattern": "/invoice-storage/settings/{id}",
+          "permissionsRequired": ["invoice-storage.settings.item.delete"]
+        }
+      ]
+    },
+    {
       "id": "_timer",
       "version": "1.0",
       "interfaceType": "system",
@@ -668,6 +699,43 @@
         "batch-group-storage.batch-groups.item.delete"
       ],
       "visible": false
+    },
+    {
+      "permissionName" : "invoice-storage.settings.collection.get",
+      "displayName" : "setting collection get",
+      "description" : "Get a collection of settings"
+    },
+    {
+      "permissionName" : "invoice-storage.settings.item.get",
+      "displayName" : "setting get",
+      "description" : "Fetch a setting"
+    },
+    {
+      "permissionName" : "invoice-storage.settings.item.put",
+      "displayName" : "setting put",
+      "description" : "Update a setting"
+    },
+    {
+      "permissionName" : "invoice-storage.settings.item.post",
+      "displayName" : "setting post",
+      "description" : "Add a setting"
+    },
+    {
+      "permissionName" : "invoice-storage.settings.item.delete",
+      "displayName" : "setting delete",
+      "description" : "Delete a setting"
+    },
+    {
+      "permissionName" : "invoice-storage.settings.all",
+      "displayName" : "setting all",
+      "description" : "All permissions for setting",
+      "subPermissions" : [
+        "invoice-storage.settings.collection.get",
+        "invoice-storage.settings.item.get",
+        "invoice-storage.settings.item.post",
+        "invoice-storage.settings.item.put",
+        "invoice-storage.settings.item.delete"
+      ]
     },
     {
       "permissionName": "invoice-storage.module.all",
