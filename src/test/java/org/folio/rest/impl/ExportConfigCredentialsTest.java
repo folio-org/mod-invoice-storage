@@ -35,12 +35,12 @@ public class ExportConfigCredentialsTest extends TestBase {
   private static final String BATCH_VOUCHER_EXPORT_CONFIG_CREDENTIALS_ENDPOINT = String.format(BATCH_VOUCHER_EXPORT_CONFIG_CREDENTIALS_ENDPOINT_WITH_PARAM, BATCH_VOUCHER_EXPORT_CONFIG_ID);
   private static final String ANOTHER_BATCH_VOUCHER_EXPORT_CONFIG_CREDENTIALS_ENDPOINT = String.format(BATCH_VOUCHER_EXPORT_CONFIG_CREDENTIALS_ENDPOINT_WITH_PARAM, ANOTHER_BATCH_VOUCHER_EXPORT_CONFIG_ID);
 
-  private static final String SAMPLE_BATCH_GROUPS_FILE_1 = "data/batch-voucher-export-configs/batch-groups/test_group.json";
-  private static final String SAMPLE_BATCH_GROUPS_FILE_2 = "data/batch-voucher-export-configs/batch-groups/test_group2.json";
-  private static final String SAMPLE_BATCH_VOUCHER_EXPORT_CONFIGS_FILE_1 = "data/batch-voucher-export-configs/test_config.json";
-  private static final String SAMPLE_BATCH_VOUCHER_EXPORT_CONFIGS_FILE_2 = "data/batch-voucher-export-configs/test_config2.json";
-  private static final String SAMPLE_CREDENTIALS_FILE_1 = "data/batch-voucher-export-configs/credentials/test_config_credentials.json";
-  private static final String SAMPLE_CREDENTIALS_FILE_2 = "data/batch-voucher-export-configs/credentials/test_config2_credentials.json";
+  private static final String SAMPLE_BATCH_GROUPS_FILE_1 = "mockdata/batch-voucher-export-configs/batch-groups/test_group.json";
+  private static final String SAMPLE_BATCH_GROUPS_FILE_2 = "mockdata/batch-voucher-export-configs/batch-groups/test_group2.json";
+  private static final String SAMPLE_BATCH_VOUCHER_EXPORT_CONFIGS_FILE_1 = "mockdata/batch-voucher-export-configs/test_config.json";
+  private static final String SAMPLE_BATCH_VOUCHER_EXPORT_CONFIGS_FILE_2 = "mockdata/batch-voucher-export-configs/test_config2.json";
+  private static final String SAMPLE_CREDENTIALS_FILE_1 = "mockdata/batch-voucher-export-configs/credentials/test_config_credentials.json";
+  private static final String SAMPLE_CREDENTIALS_FILE_2 = "mockdata/batch-voucher-export-configs/credentials/test_config2_credentials.json";
 
   private static final String simpleClassName = Credentials.class.getSimpleName();
 

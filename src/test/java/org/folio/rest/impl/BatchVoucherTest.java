@@ -23,7 +23,7 @@ import io.vertx.core.json.JsonObject;
 public class BatchVoucherTest extends TestBase {
   public static final String BATCH_VOUCHER_ENDPOINT = "/batch-voucher-storage/batch-vouchers";
   public static final String BATCH_VOUCHER_ENDPOINT_WITH_ID = "/batch-voucher-storage/batch-vouchers/{id}";
-  public static final String PATH_TEST_BATCH_VOUCHER = "data/batch-vouchers/test-batch-voucher.json";
+  public static final String PATH_TEST_BATCH_VOUCHER = "mockdata/batch-vouchers/test-batch-voucher.json";
   private static final String NONEXISTENT_VOUCHER_ID = "12345678-83b9-1234-9c39-b58dcd02ee10";
   private static JsonObject BATCH_VOUCHER_WITH_ID;
   private static JsonObject BATCH_VOUCHER_WITHOUT_ID;
