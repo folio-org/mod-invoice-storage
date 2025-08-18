@@ -94,6 +94,11 @@
       "run": "after",
       "snippetPath": "tables/create_internal_lock_table.sql",
       "fromModuleVersion": "mod-invoice-storage-6.0.0"
+    },
+    {
+      "run": "after",
+      "snippetPath": "data-migration/6.1.0/migrate_configuration_data_to_settings.ftl",
+      "fromModuleVersion": "mod-invoice-storage-6.1.0"
     }
   ],
   "tables": [
@@ -304,6 +309,18 @@
           "targetTable": "batch_vouchers",
           "targetTableAlias": "batchVouchers",
           "tableAlias": "batchVoucherExports"
+        }
+      ]
+    },
+    {
+      "tableName": "settings",
+      "fromModuleVersion": "mod-invoice-storage-6.1.0",
+      "withMetadata": true,
+      "withOptimisticLocking": "failOnConflict",
+      "uniqueIndex": [
+        {
+          "fieldName": "key",
+          "caseSensitive": false
         }
       ]
     }

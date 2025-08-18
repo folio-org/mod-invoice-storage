@@ -52,6 +52,7 @@ public class TenantSampleDataTest extends TestBase {
   static void createRequiredTables() throws IOException, ExecutionException, InterruptedException, TimeoutException {
     createTable("finance_schema.sql");
     createTable("order_schema.sql");
+    createTable("configuration_schema.sql");
   }
 
   private static void createTable(String schemaName) throws IOException, InterruptedException, ExecutionException, TimeoutException {

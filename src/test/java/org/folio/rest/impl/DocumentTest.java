@@ -15,13 +15,13 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 class DocumentTest extends TestBase {
-  private static final String SAMPLE_INVOICE_FILE = "data/invoices/12345_paid.json";
-  private static final String SAMPLE_INVOICE_FILE_2 = "data/invoices/45723_canceled.json";
+  private static final String SAMPLE_INVOICE_FILE = "mockdata/invoices/12345_paid.json";
+  private static final String SAMPLE_INVOICE_FILE_2 = "mockdata/invoices/45723_canceled.json";
 
-  private static final String SAMPLE_DOCUMENT_FILE = "data/documents/doc_for_invoice_6b8bc989.json";
-  private static final String SAMPLE_DOCUMENT_FILE_2 = "data/documents/doc_for_invoice_07bb89be.json";
+  private static final String SAMPLE_DOCUMENT_FILE = "mockdata/documents/doc_for_invoice_6b8bc989.json";
+  private static final String SAMPLE_DOCUMENT_FILE_2 = "mockdata/documents/doc_for_invoice_07bb89be.json";
 
-  private static final String SAMPLE_DOCUMENT_INVALID_INVOICE = "data/documents/doc_for_invoice_733cafd3.json";
+  private static final String SAMPLE_DOCUMENT_INVALID_INVOICE = "mockdata/documents/doc_for_invoice_733cafd3.json";
 
   private static final String INVOICE_ID = "6b8bc989-834d-4a14-945b-4c5442ae09af";
   private static final String ANOTHER_INVOICE_ID = "07bb89be-dd4a-42f8-bbd0-a648e14bac5d";
