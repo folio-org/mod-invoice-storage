@@ -29,7 +29,6 @@
     <vertx.version>4.5.13</vertx.version>
     <log4j.version>2.24.3</log4j.version>
     <streamex.version>0.8.3</streamex.version>
-    <caffeine.version>3.2.2</caffeine.version>
 
     <!--Folio dependencies properties-->
     <folio-module-descriptor-validator.version>1.0.1</folio-module-descriptor-validator.version>
@@ -143,11 +142,6 @@
       <groupId>one.util</groupId>
       <artifactId>streamex</artifactId>
       <version>${streamex.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.github.ben-manes.caffeine</groupId>
-      <artifactId>caffeine</artifactId>
-      <version>${caffeine.version}</version>
     </dependency>
     <dependency>
       <groupId>commons-lang</groupId>
