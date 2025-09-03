@@ -314,7 +314,7 @@
     },
     {
       "tableName": "adjustment_presets",
-      "fromModuleVersion": "mod-invoice-storage-6.0.1",
+      "fromModuleVersion": "mod-invoice-storage-6.1.0",
       "withMetadata": true,
       "withOptimisticLocking": "failOnConflict"
     },
