@@ -8,10 +8,14 @@ SELECT C.id, jsonb_build_object(
   'metadata', (C.jsonb->'metadata')
 ) VALUE
 FROM ${myuniversity}_mod_configuration.config_data C
-WHERE (C.jsonb->>'module') = 'INVOICE' AND NOT EXISTS(
-  SELECT 1
-  FROM ${myuniversity}_${mymodule}.settings S
-  WHERE (S.jsonb->>'key') = (C.jsonb->>'configName')
-);
+WHERE (C.jsonb->>'module') = 'INVOICE'
+  AND (C.jsonb->>'configName') != 'INVOICE.adjustments'
+ON CONFLICT (lower(${myuniversity}_${mymodule}.f_unaccent(jsonb->>'key'::text))) DO NOTHING;
+
+INSERT INTO ${myuniversity}_${mymodule}.adjustment_presets (id, jsonb)
+SELECT C.id, jsonb_build_object('id', C.id) || (C.jsonb->>'value')::jsonb VALUE
+FROM ${myuniversity}_mod_configuration.config_data C
+WHERE (C.jsonb->>'module') = 'INVOICE'
+  AND (C.jsonb->>'configName') = 'INVOICE.adjustments';
 
 </#if>
