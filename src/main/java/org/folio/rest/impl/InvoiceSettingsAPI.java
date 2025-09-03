@@ -27,35 +27,35 @@ public class InvoiceSettingsAPI implements InvoiceStorageSettings {
   @Override
   @Validate
   public void getInvoiceStorageSettings(String query, String totalRecords, int offset, int limit, Map<String, String> okapiHeaders,
-                                       Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
+                                        Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
     settingsService.getSettings(query, offset, limit, okapiHeaders, asyncResultHandler, vertxContext);
   }
 
   @Override
   @Validate
   public void postInvoiceStorageSettings(Setting entity, Map<String, String> okapiHeaders,
-                                        Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
+                                         Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
     settingsService.createSetting(entity, okapiHeaders, asyncResultHandler, vertxContext);
   }
 
   @Override
   @Validate
   public void getInvoiceStorageSettingsById(String id, Map<String, String> okapiHeaders,
-                                           Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
+                                            Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
     settingsService.getSettingById(id, okapiHeaders, asyncResultHandler, vertxContext);
   }
 
   @Override
   @Validate
   public void putInvoiceStorageSettingsById(String id, Setting entity, Map<String, String> okapiHeaders,
-                                           Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
+                                            Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
     settingsService.updateSetting(id, entity, okapiHeaders, asyncResultHandler, vertxContext);
   }
 
   @Override
   @Validate
   public void deleteInvoiceStorageSettingsById(String id, Map<String, String> okapiHeaders,
-                                              Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
+                                               Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
     settingsService.deleteSetting(id, okapiHeaders, asyncResultHandler, vertxContext);
   }
 

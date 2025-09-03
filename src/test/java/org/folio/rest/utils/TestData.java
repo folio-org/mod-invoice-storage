@@ -34,6 +34,10 @@ public class TestData {
     String DEFAULT = "mockdata/batch-voucher-exports/test-batch-voucher-export.json";
   }
 
+  public interface AdjustmentPresets {
+    String DEFAULT = "mockdata/adjustment-presets/9d07cef9-9c9a-48f9-ac33-6cff4f23b160.json";
+  }
+
   public interface Settings {
     String DEFAULT = "mockdata/settings/9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d.json";
   }

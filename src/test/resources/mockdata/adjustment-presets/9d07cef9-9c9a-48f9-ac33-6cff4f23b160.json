@@ -1,0 +1,11 @@
+{
+  "id": "9d07cef9-9c9a-48f9-ac33-6cff4f23b160",
+  "description": "Service Fee",
+  "exportToAccounting": false,
+  "prorate": "By line",
+  "relationToTotal": "In addition to",
+  "type": "Amount",
+  "alwaysShow": true,
+  "defaultValue": 10.0,
+  "_version": 1
+}
