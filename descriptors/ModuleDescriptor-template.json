@@ -340,6 +340,37 @@
       ]
     },
     {
+      "id": "invoice-storage.adjustment-presets",
+      "version": "1.0",
+      "handlers": [
+        {
+          "methods": ["GET"],
+          "pathPattern": "/invoice-storage/adjustment-presets",
+          "permissionsRequired": ["invoice-storage.adjustment-presets.collection.get"]
+        },
+        {
+          "methods": ["GET"],
+          "pathPattern": "/invoice-storage/adjustment-presets/{id}",
+          "permissionsRequired": ["invoice-storage.adjustment-presets.item.get"]
+        },
+        {
+          "methods": ["POST"],
+          "pathPattern": "/invoice-storage/adjustment-presets",
+          "permissionsRequired": ["invoice-storage.adjustment-presets.item.post"]
+        },
+        {
+          "methods": ["PUT"],
+          "pathPattern": "/invoice-storage/adjustment-presets/{id}",
+          "permissionsRequired": ["invoice-storage.adjustment-presets.item.put"]
+        },
+        {
+          "methods": ["DELETE"],
+          "pathPattern": "/invoice-storage/adjustment-presets/{id}",
+          "permissionsRequired": ["invoice-storage.adjustment-presets.item.delete"]
+        }
+      ]
+    },
+    {
       "id": "invoice-storage.settings",
       "version": "1.0",
       "handlers": [
@@ -699,6 +730,43 @@
         "batch-group-storage.batch-groups.item.delete"
       ],
       "visible": false
+    },
+    {
+      "permissionName" : "invoice-storage.adjustment-presets.collection.get",
+      "displayName" : "adjustment preset collection get",
+      "description" : "Get a collection of adjustment-presets"
+    },
+    {
+      "permissionName" : "invoice-storage.adjustment-presets.item.get",
+      "displayName" : "adjustment preset get",
+      "description" : "Fetch an adjustment preset"
+    },
+    {
+      "permissionName" : "invoice-storage.adjustment-presets.item.put",
+      "displayName" : "adjustment preset put",
+      "description" : "Update an adjustment preset"
+    },
+    {
+      "permissionName" : "invoice-storage.adjustment-presets.item.post",
+      "displayName" : "adjustment preset post",
+      "description" : "Add an adjustment preset"
+    },
+    {
+      "permissionName" : "invoice-storage.adjustment-presets.item.delete",
+      "displayName" : "adjustment preset delete",
+      "description" : "Delete an adjustment preset"
+    },
+    {
+      "permissionName" : "invoice-storage.adjustment-presets.all",
+      "displayName" : "adjustment preset all",
+      "description" : "All permissions for adjustment preset",
+      "subPermissions" : [
+        "invoice-storage.adjustment-presets.collection.get",
+        "invoice-storage.adjustment-presets.item.get",
+        "invoice-storage.adjustment-presets.item.post",
+        "invoice-storage.adjustment-presets.item.put",
+        "invoice-storage.adjustment-presets.item.delete"
+      ]
     },
     {
       "permissionName" : "invoice-storage.settings.collection.get",
