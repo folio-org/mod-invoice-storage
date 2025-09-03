@@ -10,7 +10,6 @@ import org.folio.rest.persist.PgUtil;
 
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Context;
-import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import lombok.extern.log4j.Log4j2;
 
@@ -24,13 +23,8 @@ public class SettingsService {
 
   public void getSettings(String query, int offset, int limit, Map<String, String> okapiHeaders,
                           Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
-    getSettings(query, offset, limit, okapiHeaders, vertxContext)
-      .onComplete(asyncResultHandler);
-  }
-
-  public Future<Response> getSettings(String query, int offset, int limit, Map<String, String> okapiHeaders, Context vertxContext) {
-    return PgUtil.get(SETTINGS_TABLE, Setting.class, SettingCollection.class, query, offset, limit, okapiHeaders, vertxContext,
-      InvoiceStorageSettings.GetInvoiceStorageSettingsResponse.class);
+    PgUtil.get(SETTINGS_TABLE, Setting.class, SettingCollection.class, query, offset, limit, okapiHeaders, vertxContext,
+      InvoiceStorageSettings.GetInvoiceStorageSettingsResponse.class, asyncResultHandler);
   }
 
   public void createSetting(Setting entity, Map<String, String> okapiHeaders,
