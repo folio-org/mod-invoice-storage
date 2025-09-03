@@ -13,6 +13,7 @@ import org.folio.rest.core.RestClient;
 import org.folio.service.InvoiceLineNumberService;
 import org.folio.service.InvoiceLineStorageService;
 import org.folio.service.InvoiceStorageService;
+import org.folio.service.adjustment.AdjustmentPresetsService;
 import org.folio.service.audit.AuditEventProducer;
 import org.folio.service.audit.AuditOutboxService;
 import org.folio.service.order.OrderStorageService;
@@ -77,6 +78,11 @@ public class ApplicationConfig {
   @Bean
   public AuditOutboxService auditOutboxService(AuditOutboxEventLogDAO auditOutboxEventLogDAO, InternalLockDAO internalLockDAO, AuditEventProducer producer) {
     return new AuditOutboxService(auditOutboxEventLogDAO, internalLockDAO, producer);
+  }
+
+  @Bean
+  public AdjustmentPresetsService adjustmentPresetsService() {
+    return new AdjustmentPresetsService();
   }
 
   @Bean
