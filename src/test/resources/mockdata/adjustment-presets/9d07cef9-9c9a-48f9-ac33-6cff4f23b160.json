@@ -6,6 +6,6 @@
   "relationToTotal": "In addition to",
   "type": "Amount",
   "alwaysShow": true,
-  "defaultValue": 10.0,
+  "defaultAmount": 10.0,
   "_version": 1
 }
