@@ -6,8 +6,6 @@ import org.folio.dao.invoice.InvoiceDAO;
 import org.folio.dao.invoice.InvoicePostgresDAO;
 import org.folio.dao.lines.InvoiceLinesDAO;
 import org.folio.dao.lines.InvoiceLinesPostgresDAO;
-import org.folio.dao.lock.InternalLockDAO;
-import org.folio.dao.lock.InternalLockPostgresDAO;
 import org.folio.kafka.KafkaConfig;
 import org.folio.rest.core.RestClient;
 import org.folio.service.InvoiceLineNumberService;
@@ -51,11 +49,6 @@ public class ApplicationConfig {
   }
 
   @Bean
-  public InternalLockDAO internalLockDAO() {
-    return new InternalLockPostgresDAO();
-  }
-
-  @Bean
   public InvoiceStorageService invoiceStorageService(InvoiceDAO invoiceDAO, AuditOutboxService auditOutboxService) {
     return new InvoiceStorageService(invoiceDAO, auditOutboxService);
   }
@@ -76,8 +69,8 @@ public class ApplicationConfig {
   }
 
   @Bean
-  public AuditOutboxService auditOutboxService(AuditOutboxEventLogDAO auditOutboxEventLogDAO, InternalLockDAO internalLockDAO, AuditEventProducer producer) {
-    return new AuditOutboxService(auditOutboxEventLogDAO, internalLockDAO, producer);
+  public AuditOutboxService auditOutboxService(AuditOutboxEventLogDAO auditOutboxEventLogDAO, AuditEventProducer producer) {
+    return new AuditOutboxService(auditOutboxEventLogDAO, producer);
   }
 
   @Bean
@@ -89,5 +82,4 @@ public class ApplicationConfig {
   public SettingsService settingsService() {
     return new SettingsService();
   }
-
 }

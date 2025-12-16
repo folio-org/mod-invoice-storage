@@ -6,7 +6,6 @@ import java.util.UUID;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.folio.dao.audit.AuditOutboxEventLogDAO;
-import org.folio.dao.lock.InternalLockDAO;
 import org.folio.okapi.common.GenericCompositeFuture;
 import org.folio.rest.jaxrs.model.Invoice;
 import org.folio.rest.jaxrs.model.InvoiceAuditEvent;
@@ -28,10 +27,7 @@ import lombok.extern.log4j.Log4j2;
 @RequiredArgsConstructor
 public class AuditOutboxService {
 
-  private static final String OUTBOX_LOCK_NAME = "audit_outbox";
-
   private final AuditOutboxEventLogDAO outboxEventLogDAO;
-  private final InternalLockDAO internalLockDAO;
   private final AuditEventProducer producer;
 
   /**
@@ -44,8 +40,7 @@ public class AuditOutboxService {
   public Future<Integer> processOutboxEventLogs(Map<String, String> okapiHeaders, Context vertxContext) {
     var tenantId = TenantTool.tenantId(okapiHeaders);
     return new DBClient(vertxContext, okapiHeaders).getPgClient()
-      .withTrans(conn -> internalLockDAO.selectWithLocking(conn, OUTBOX_LOCK_NAME, tenantId)
-        .compose(retrievedCount -> outboxEventLogDAO.getEventLogs(conn, tenantId))
+      .withTrans(conn -> outboxEventLogDAO.getEventLogs(conn, tenantId)
         .compose(logs -> {
           if (CollectionUtils.isEmpty(logs)) {
             log.info("processOutboxEventLogs: No logs found in outbox table");

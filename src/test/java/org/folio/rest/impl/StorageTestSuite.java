@@ -50,6 +50,7 @@ import org.testcontainers.shaded.com.fasterxml.jackson.databind.deser.std.String
 import org.testcontainers.utility.DockerImageName;
 
 public class StorageTestSuite {
+
   private static final Logger log = LogManager.getLogger(StorageTestSuite.class);
 
   private static Vertx vertx;

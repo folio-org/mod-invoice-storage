@@ -20,7 +20,7 @@ import one.util.streamex.StreamEx;
 public class AuditOutboxEventLogPostgresDAO implements AuditOutboxEventLogDAO {
 
   public static final String OUTBOX_TABLE_NAME = "outbox_event_log";
-  private static final String SELECT_SQL = "SELECT * FROM %s LIMIT 1000";
+  private static final String SELECT_SQL = "SELECT * FROM %s FOR UPDATE SKIP LOCKED LIMIT 1000";
   private static final String INSERT_SQL = "INSERT INTO %s (event_id, entity_type, action, payload) VALUES ($1, $2, $3, $4)";
   private static final String BATCH_DELETE_SQL = "DELETE from %s where event_id = ANY ($1)";
 
