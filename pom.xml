@@ -27,33 +27,33 @@
     <!--Dependency Management Properties-->
     <spring.version>7.0.2</spring.version>
     <vertx.version>5.0.6</vertx.version>
-    <log4j.version>2.24.3</log4j.version>
-    <streamex.version>0.8.3</streamex.version>
+    <log4j.version>2.25.3</log4j.version>
+    <streamex.version>0.8.4</streamex.version>
 
     <!--Folio dependencies properties-->
     <folio-module-descriptor-validator.version>1.0.1</folio-module-descriptor-validator.version>
-    <folio-kafka-wrapper.version>3.3.0</folio-kafka-wrapper.version>
+    <folio-kafka-wrapper.version>3.3.2</folio-kafka-wrapper.version>
     <folio-di-support.version>4.0.0-SNAPSHOT</folio-di-support.version>
 
     <!--Dependency properties-->
-    <aspectj.version>1.9.22.1</aspectj.version>
+    <aspectj.version>1.9.25.1</aspectj.version>
     <rest-assured.version>6.0.0</rest-assured.version>
 
     <!--Maven plugin properties-->
-    <aspectj-maven-plugin.version>1.14</aspectj-maven-plugin.version>
-    <exec-maven-plugin.version>3.5.0</exec-maven-plugin.version>
-    <maven-resources-plugin.version>3.3.1</maven-resources-plugin.version>
-    <maven-compiler-plugin.version>3.14.0</maven-compiler-plugin.version>
-    <maven-antrun-plugin.version>3.1.0</maven-antrun-plugin.version>
-    <maven-shade-plugin.version>3.6.0</maven-shade-plugin.version>
-    <maven-release-plugin.version>3.1.1</maven-release-plugin.version>
-    <maven-surefire-plugin.version>3.5.2</maven-surefire-plugin.version>
-    <build-helper-maven-plugin.version>3.6.0</build-helper-maven-plugin.version>
+    <aspectj-maven-plugin.version>1.14.1</aspectj-maven-plugin.version>
+    <exec-maven-plugin.version>3.6.3</exec-maven-plugin.version>
+    <maven-resources-plugin.version>3.4.0</maven-resources-plugin.version>
+    <maven-compiler-plugin.version>3.14.1</maven-compiler-plugin.version>
+    <maven-antrun-plugin.version>3.2.0</maven-antrun-plugin.version>
+    <maven-shade-plugin.version>3.6.1</maven-shade-plugin.version>
+    <maven-release-plugin.version>3.3.1</maven-release-plugin.version>
+    <maven-surefire-plugin.version>3.5.4</maven-surefire-plugin.version>
+    <build-helper-maven-plugin.version>3.6.1</build-helper-maven-plugin.version>
     <copy-rename-maven-plugin.version>1.0.1</copy-rename-maven-plugin.version>
 
     <!--Test Scope dependencies-->
-    <junit-jupiter.version>5.12.0</junit-jupiter.version>
-    <testcontainers-bom.version>1.20.5</testcontainers-bom.version>
+    <junit-jupiter.version>6.0.1</junit-jupiter.version>
+    <testcontainers-bom.version>2.0.3</testcontainers-bom.version>
     <jmockit.version>1.50</jmockit.version>
     <mockito.version>5.21.0</mockito.version>
 
@@ -198,7 +198,7 @@
     </dependency>
     <dependency>
       <groupId>org.testcontainers</groupId>
-      <artifactId>kafka</artifactId>
+      <artifactId>testcontainers-kafka</artifactId>
       <scope>test</scope>
     </dependency>
   </dependencies>
