@@ -12,35 +12,27 @@ import java.net.URISyntaxException;
 
 import javax.ws.rs.core.Response;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.folio.rest.persist.PgExceptionUtil;
-import org.folio.rest.persist.Tx;
 
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.Promise;
 import io.vertx.ext.web.handler.HttpException;
+import lombok.experimental.UtilityClass;
+import lombok.extern.log4j.Log4j2;
 
+@Log4j2
+@UtilityClass
 public class ResponseUtils {
 
-  private static final Logger log = LogManager.getLogger(ResponseUtils.class);
-
-  private ResponseUtils() {
-  }
-
-  public static <T> Handler<AsyncResult<Tx<T>>> handleNoContentResponse(Handler<AsyncResult<Response>> asyncResultHandler, Tx<T> tx,
-    String logMessage) {
+  public static <T> Handler<AsyncResult<T>> handleNoContentResponse(Handler<AsyncResult<Response>> asyncResultHandler, String logMessage) {
     return result -> {
-      if (result.failed()) {
-        HttpException cause = (HttpException) result.cause();
-        log.error(logMessage, cause, tx.getEntity(), "or associated data failed to be");
-
-        // The result of rollback operation is not so important, main failure cause is used to build the response
-        tx.rollbackTransaction().onComplete(res -> asyncResultHandler.handle(buildErrorResponse(cause)));
+      if (result.failed() && result.cause() instanceof HttpException cause) {
+        log.error(logMessage, cause, result.result(), "or associated data failed to be");
+        asyncResultHandler.handle(buildErrorResponse(cause));
       } else {
-        log.info(logMessage, tx.getEntity(), "and associated data were successfully");
+        log.info(logMessage, result.result(), "and associated data were successfully");
         asyncResultHandler.handle(buildNoContentResponse());
       }
     };
