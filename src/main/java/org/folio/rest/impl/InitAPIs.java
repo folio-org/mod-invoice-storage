@@ -21,31 +21,29 @@ import io.vertx.core.json.jackson.DatabindCodec;
  * The class initializes vertx context adding spring context
  */
 public class InitAPIs implements InitAPI {
+
   private static final Logger log = LogManager.getLogger(InitAPIs.class);
 
   @Override
   public void init(Vertx vertx, Context context, Handler<AsyncResult<Boolean>> resultHandler) {
-    vertx.executeBlocking(
-      promise -> {
-        SerializationConfig serializationConfig = ObjectMapperTool.getMapper().getSerializationConfig();
-        DeserializationConfig deserializationConfig = ObjectMapperTool.getMapper().getDeserializationConfig();
+    vertx.executeBlocking(() -> {
+      SerializationConfig serializationConfig = ObjectMapperTool.getMapper().getSerializationConfig();
+      DeserializationConfig deserializationConfig = ObjectMapperTool.getMapper().getDeserializationConfig();
 
-        DatabindCodec.mapper().setConfig(serializationConfig);
-        DatabindCodec.prettyMapper().setConfig(serializationConfig);
-        DatabindCodec.mapper().setConfig(deserializationConfig);
-        DatabindCodec.prettyMapper().setConfig(deserializationConfig);
+      DatabindCodec.mapper().setConfig(serializationConfig);
+      DatabindCodec.mapper().setConfig(deserializationConfig);
 
-        SpringContextUtil.init(vertx, context, ApplicationConfig.class);
-        promise.complete();
-      },
-      result -> {
-        if (result.succeeded()) {
-          log.info("APIs initialized successfully");
-          resultHandler.handle(Future.succeededFuture(true));
-        } else {
-          log.error("Failure to init API", result.cause());
-          resultHandler.handle(Future.failedFuture(result.cause()));
-        }
-      });
+      SpringContextUtil.init(vertx, context, ApplicationConfig.class);
+      return true;
+    }).onComplete(result -> {
+      if (result.succeeded()) {
+        log.info("APIs initialized successfully");
+        resultHandler.handle(Future.succeededFuture(true));
+      } else {
+        log.error("Failure to init API", result.cause());
+        resultHandler.handle(Future.failedFuture(result.cause()));
+      }
+    });
   }
+
 }
