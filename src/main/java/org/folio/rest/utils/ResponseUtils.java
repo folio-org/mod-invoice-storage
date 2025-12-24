@@ -28,9 +28,9 @@ public class ResponseUtils {
 
   public static <T> Handler<AsyncResult<T>> handleNoContentResponse(Handler<AsyncResult<Response>> asyncResultHandler, String logMessage) {
     return result -> {
-      if (result.failed() && result.cause() instanceof HttpException cause) {
-        log.error(logMessage, cause, result.result(), "or associated data failed to be");
-        asyncResultHandler.handle(buildErrorResponse(cause));
+      if (result.failed()) {
+        log.error(logMessage, result.cause(), result.result(), "or associated data failed to be");
+        asyncResultHandler.handle(buildErrorResponse(result.cause()));
       } else {
         log.info(logMessage, result.result(), "and associated data were successfully");
         asyncResultHandler.handle(buildNoContentResponse());

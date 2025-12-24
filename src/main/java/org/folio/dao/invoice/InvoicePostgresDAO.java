@@ -13,8 +13,6 @@ import java.util.UUID;
 import javax.ws.rs.core.Response;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.folio.dao.DbUtils;
 import org.folio.dbschema.ObjectMapperTool;
 import org.folio.rest.jaxrs.model.Contents;
@@ -32,11 +30,10 @@ import io.vertx.core.Promise;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.handler.HttpException;
 import io.vertx.sqlclient.Tuple;
+import lombok.extern.log4j.Log4j2;
 
+@Log4j2
 public class InvoicePostgresDAO implements InvoiceDAO {
-
-  private final Logger log = LogManager.getLogger(this.getClass());
-
 
   @Override
   public Future<Invoice> getInvoiceByIdForUpdate(String invoiceId, Conn conn) {

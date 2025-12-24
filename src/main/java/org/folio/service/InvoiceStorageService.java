@@ -84,19 +84,19 @@ public class InvoiceStorageService {
   public void deleteInvoiceStorageInvoicesById(String id, Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext, Map<String, String> headers) {
     try {
       log.info("deleteInvoiceStorageInvoicesById:: Delete invoice {}", id);
-      vertxContext.runOnContext(v -> new DBClient(vertxContext, headers).getPgClient()
+      new DBClient(vertxContext, headers).getPgClient()
         .withTrans(conn -> invoiceDAO.deleteInvoiceLinesByInvoiceId(id, conn)
           .compose(t -> invoiceDAO.deleteInvoiceDocumentsByInvoiceId(id, conn))
           .compose(t -> invoiceDAO.deleteInvoice(id, conn)))
         .onComplete(result -> {
-          if (result.failed() && result.cause() instanceof HttpException cause) {
-            log.error("Invoice '{}' and associated lines and documents if any failed to be deleted", id, cause);
-            asyncResultHandler.handle(buildErrorResponse(cause));
+          if (result.failed()) {
+            log.error("Invoice '{}' and associated lines and documents if any failed to be deleted", id, result.cause());
+            asyncResultHandler.handle(buildErrorResponse(result.cause()));
           } else {
             log.info("deleteInvoiceStorageInvoicesById:: Invoice {} and associated lines and documents if any were successfully deleted", id);
             asyncResultHandler.handle(buildNoContentResponse());
           }
-        }));
+        });
     } catch (Exception e) {
       log.error("Error occurred while deleting invoice with id: {}", id, e);
       asyncResultHandler.handle(buildErrorResponse(new HttpException(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(),
