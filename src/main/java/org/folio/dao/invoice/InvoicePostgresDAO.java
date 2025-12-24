@@ -13,8 +13,6 @@ import java.util.UUID;
 import javax.ws.rs.core.Response;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.folio.dao.DbUtils;
 import org.folio.dbschema.ObjectMapperTool;
 import org.folio.rest.jaxrs.model.Contents;
@@ -32,11 +30,10 @@ import io.vertx.core.Promise;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.handler.HttpException;
 import io.vertx.sqlclient.Tuple;
+import lombok.extern.log4j.Log4j2;
 
+@Log4j2
 public class InvoicePostgresDAO implements InvoiceDAO {
-
-  private final Logger log = LogManager.getLogger(this.getClass());
-
 
   @Override
   public Future<Invoice> getInvoiceByIdForUpdate(String invoiceId, Conn conn) {
@@ -75,60 +72,36 @@ public class InvoicePostgresDAO implements InvoiceDAO {
   }
 
   @Override
-  public Future<DBClient> deleteInvoice(String id, DBClient client) {
-    log.info("Delete invoice with id={}", id);
-    Promise<DBClient> promise = Promise.promise();
-    client.getPgClient().delete(client.getConnection(), INVOICE_TABLE, id, reply -> {
-      if (reply.failed()) {
-        log.error("Invoice deletion with id={} failed", id, reply.cause());
-        handleFailure(promise, reply);
-      } else {
-        if (reply.result().rowCount() == 0) {
-          promise.fail(new HttpException(Response.Status.NOT_FOUND.getStatusCode(), "Invoice not found"));
-        } else {
-          log.info("Invoice with id={} successfully deleted", id);
-          promise.complete(client);
-        }
-      }
-    });
-    return promise.future();
+  public Future<Void> deleteInvoice(String id, Conn conn) {
+    log.info("deleteInvoice:: Deleting invoice with id: {}", id);
+    return conn.delete(INVOICE_TABLE, id)
+      .recover(t -> Future.failedFuture(convertPgExceptionIfNeeded(t)))
+      .compose(rowSet -> rowSet.rowCount() == 0
+        ? Future.failedFuture(new HttpException(Response.Status.NOT_FOUND.getStatusCode(), "Invoice not found"))
+        : Future.succeededFuture())
+      .onSuccess(v -> log.info("deleteInvoice:: Invoice with id: '{}' successfully deleted", id))
+      .onFailure(t -> log.error("Invoice deletion with id: '{}' failed", id, t))
+      .mapEmpty();
   }
 
   @Override
-  public Future<DBClient> deleteInvoiceLinesByInvoiceId(String id, DBClient client) {
-    log.info("Delete invoice lines by invoice id={}", id);
-    Promise<DBClient> promise = Promise.promise();
-    Criterion criterion = getCriterionByFieldNameAndValue(INVOICE_ID_FIELD_NAME, id);
-    client.getPgClient().delete(client.getConnection(), INVOICE_LINE_TABLE, criterion, reply -> {
-      if (reply.failed()) {
-        String errorMessage = String.format("The invoice %s cannot be deleted", id);
-        log.error(errorMessage, reply.cause());
-        handleFailure(promise, reply);
-      } else {
-        log.info("{} invoice lines of invoice with id={} successfully deleted", reply.result().rowCount(), id);
-        promise.complete(client);
-      }
-    });
-    return promise.future();
+  public Future<Void> deleteInvoiceLinesByInvoiceId(String id, Conn conn) {
+    log.info("deleteInvoiceLinesByInvoiceId:: Deleting invoice lines by invoice id: {}", id);
+    return conn.delete(INVOICE_LINE_TABLE, getCriterionByFieldNameAndValue(INVOICE_ID_FIELD_NAME, id))
+      .recover(t -> Future.failedFuture(convertPgExceptionIfNeeded(t)))
+      .onSuccess(r -> log.info("deleteInvoiceLinesByInvoiceId:: {} invoice lines by invoice id: '{}' successfully deleted", r.rowCount(), id))
+      .onFailure(t -> log.error("Invoice line deletion for invoice with id: '{}' failed", id, t))
+      .mapEmpty();
   }
 
   @Override
-  public Future<DBClient> deleteInvoiceDocumentsByInvoiceId(String id, DBClient client) {
-    log.info("Delete invoice documents by invoice id={}", id);
-    Promise<DBClient> promise = Promise.promise();
-    Criterion criterion = getCriterionByFieldNameAndValue(INVOICE_ID_FIELD_NAME, id);
-    client.getPgClient().delete(client.getConnection(), DOCUMENT_TABLE, criterion, reply -> {
-      if (reply.failed()) {
-        String errorMessage = String.format("The documents linked to invoice %s could not be deleted", id);
-        log.error(errorMessage, reply.cause());
-        handleFailure(promise, reply);
-      } else {
-        log.info("{} documents of invoice with id={} were successfully deleted", reply.result().rowCount(), id);
-        promise.complete(client);
-      }
-    });
-    return promise.future();
-
+  public Future<Void> deleteInvoiceDocumentsByInvoiceId(String id, Conn conn) {
+    log.info("deleteInvoiceDocumentsByInvoiceId:: Deleting invoice documents by invoice id: {}", id);
+    return conn.delete(DOCUMENT_TABLE, getCriterionByFieldNameAndValue(INVOICE_ID_FIELD_NAME, id))
+      .recover(t -> Future.failedFuture(convertPgExceptionIfNeeded(t)))
+      .onSuccess(r -> log.info("deleteInvoiceDocumentsByInvoiceId:: {} documents by invoice id: '{}' successfully deleted", r.rowCount(), id))
+      .onFailure(t -> log.error("Document deletion for invoice with id: '{}' failed", id, t))
+      .mapEmpty();
   }
 
   @Override

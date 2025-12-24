@@ -10,7 +10,7 @@ import org.folio.rest.jaxrs.model.BatchVoucherExportCollection;
 import org.folio.rest.jaxrs.resource.BatchVoucherStorageBatchVoucherExports;
 import org.folio.rest.persist.PgUtil;
 import org.folio.rest.persist.PostgresClient;
-import org.folio.service.BatchVoucherExportsService;
+import org.folio.service.voucher.BatchVoucherExportsService;
 
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Context;

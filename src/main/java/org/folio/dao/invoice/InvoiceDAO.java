@@ -12,9 +12,9 @@ public interface InvoiceDAO {
   Future<Invoice> getInvoiceByIdForUpdate(String invoiceId, Conn conn);
   Future<String> createInvoice(Invoice invoice, Conn conn);
   Future<Void> updateInvoice(String id, Invoice invoice, Conn conn);
-  Future<DBClient> deleteInvoice(String id, DBClient client);
-  Future<DBClient> deleteInvoiceLinesByInvoiceId(String id, DBClient client);
-  Future<DBClient> deleteInvoiceDocumentsByInvoiceId(String id, DBClient client);
+  Future<Void> deleteInvoice(String id, Conn conn);
+  Future<Void> deleteInvoiceLinesByInvoiceId(String id, Conn conn);
+  Future<Void> deleteInvoiceDocumentsByInvoiceId(String id, Conn conn);
   Future<DBClient> createInvoiceDocument(InvoiceDocument invoiceDoc, DBClient client);
   Future<InvoiceDocument> getInvoiceDocument(String invoiceId, String documentId, DBClient client);
 

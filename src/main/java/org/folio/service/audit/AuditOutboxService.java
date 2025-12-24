@@ -6,7 +6,6 @@ import java.util.UUID;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.folio.dao.audit.AuditOutboxEventLogDAO;
-import org.folio.okapi.common.GenericCompositeFuture;
 import org.folio.rest.jaxrs.model.Invoice;
 import org.folio.rest.jaxrs.model.InvoiceAuditEvent;
 import org.folio.rest.jaxrs.model.InvoiceLine;
@@ -47,7 +46,7 @@ public class AuditOutboxService {
             return Future.succeededFuture(0);
           }
           log.info("processOutboxEventLogs: {} logs found in outbox table, sending to kafka", logs.size());
-          return GenericCompositeFuture.join(sendEventLogsToKafka(logs, okapiHeaders))
+          return Future.join(sendEventLogsToKafka(logs, okapiHeaders))
             .map(logs.stream().map(OutboxEventLog::getEventId).toList())
             .compose(eventIds -> outboxEventLogDAO.deleteEventLogs(conn, eventIds, tenantId))
             .onSuccess(count -> log.info("processOutboxEventLogs:: {} logs have been deleted from outbox table", count))

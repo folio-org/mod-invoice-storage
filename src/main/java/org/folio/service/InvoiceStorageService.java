@@ -81,34 +81,26 @@ public class InvoiceStorageService {
       });
   }
 
-  public void deleteInvoiceStorageInvoicesById(String id, Handler<AsyncResult<Response>> asyncResultHandler,
-      Context vertxContext, Map<String, String> headers) {
+  public void deleteInvoiceStorageInvoicesById(String id, Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext, Map<String, String> headers) {
     try {
-      vertxContext.runOnContext(v -> {
-        log.info("deleteInvoiceStorageInvoicesById:: Delete invoice {}", id);
-
-        DBClient client = new DBClient(vertxContext, headers);
-        client.startTx()
-          .compose(t -> invoiceDAO.deleteInvoiceLinesByInvoiceId(id, client))
-          .compose(t -> invoiceDAO.deleteInvoiceDocumentsByInvoiceId(id, client))
-          .compose(t -> invoiceDAO.deleteInvoice(id, client))
-          .compose(t -> client.endTx())
-          .onComplete(result -> {
-            if (result.failed()) {
-              HttpException cause = (HttpException) result.cause();
-              log.error("Invoice '{}' and associated lines and documents if any failed to be deleted", id, cause);
-              // The result of rollback operation is not so important, main failure cause is used to build the response
-              client.rollbackTransaction().onComplete(res -> asyncResultHandler.handle(buildErrorResponse(cause)));
-            } else {
-              log.info("deleteInvoiceStorageInvoicesById:: Invoice {} and associated lines and documents if any were successfully deleted", id);
-              asyncResultHandler.handle(buildNoContentResponse());
-            }
-          });
-      });
+      log.info("deleteInvoiceStorageInvoicesById:: Delete invoice {}", id);
+      new DBClient(vertxContext, headers).getPgClient()
+        .withTrans(conn -> invoiceDAO.deleteInvoiceLinesByInvoiceId(id, conn)
+          .compose(t -> invoiceDAO.deleteInvoiceDocumentsByInvoiceId(id, conn))
+          .compose(t -> invoiceDAO.deleteInvoice(id, conn)))
+        .onComplete(result -> {
+          if (result.failed()) {
+            log.error("Invoice '{}' and associated lines and documents if any failed to be deleted", id, result.cause());
+            asyncResultHandler.handle(buildErrorResponse(result.cause()));
+          } else {
+            log.info("deleteInvoiceStorageInvoicesById:: Invoice {} and associated lines and documents if any were successfully deleted", id);
+            asyncResultHandler.handle(buildNoContentResponse());
+          }
+        });
     } catch (Exception e) {
       log.error("Error occurred while deleting invoice with id: {}", id, e);
       asyncResultHandler.handle(buildErrorResponse(new HttpException(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(),
-          Response.Status.INTERNAL_SERVER_ERROR.getReasonPhrase())));
+        Response.Status.INTERNAL_SERVER_ERROR.getReasonPhrase())));
     }
   }
 
