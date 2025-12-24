@@ -37,7 +37,7 @@
 
     <!--Dependency properties-->
     <aspectj.version>1.9.22.1</aspectj.version>
-    <rest-assured.version>5.5.1</rest-assured.version>
+    <rest-assured.version>6.0.0</rest-assured.version>
 
     <!--Maven plugin properties-->
     <aspectj-maven-plugin.version>1.14</aspectj-maven-plugin.version>
@@ -54,8 +54,8 @@
     <!--Test Scope dependencies-->
     <junit-jupiter.version>5.12.0</junit-jupiter.version>
     <testcontainers-bom.version>1.20.5</testcontainers-bom.version>
-    <jmockit.version>1.49</jmockit.version>
-    <mockito.version>5.15.2</mockito.version>
+    <jmockit.version>1.50</jmockit.version>
+    <mockito.version>5.21.0</mockito.version>
 
     <!--Sonar properties-->
     <sonar.exclusions>**/models/**.java</sonar.exclusions>
