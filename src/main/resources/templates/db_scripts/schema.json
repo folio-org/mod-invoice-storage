@@ -176,6 +176,40 @@
       "tableName": "invoice_lines",
       "fromModuleVersion": "mod-invoice-storage-4.0.1",
       "withMetadata": true,
+      "index": [
+        {
+          "fieldName": "metadata.createdDate",
+          "caseSensitive": false
+        },
+        {
+          "fieldName": "metadata.createdByUserId",
+          "caseSensitive": false
+        },
+        {
+          "fieldName": "metadata.updatedDate",
+          "caseSensitive": false
+        },
+        {
+          "fieldName": "metadata.updatedByUserId",
+          "caseSensitive": false
+        },
+        {
+          "fieldName": "invoiceLines.metadata.createdDate",
+          "caseSensitive": false
+        },
+        {
+          "fieldName": "invoiceLines.metadata.createdByUserId",
+          "caseSensitive": false
+        },
+        {
+          "fieldName": "invoiceLines.metadata.updatedDate",
+          "caseSensitive": false
+        },
+        {
+          "fieldName": "invoiceLines.metadata.updatedByUserId",
+          "caseSensitive": false
+        }
+      ],
       "foreignKeys": [
         {
           "fieldName": "invoiceId",
