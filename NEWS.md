@@ -1,5 +1,13 @@
 ## 6.0.0 - Unreleased
 
+## 5.9.2 - Released - (Ramson R2 2024 Bug Fix)
+The primary focus of this release was to implement RMB logging improvements and security fixes
+[Full Changelog](https://github.com/folio-org/mod-invoice-storage/compare/v5.9.1...v5.9.2)
+
+### Bug Fixes
+* [MODINVOSTO-204](https://folio-org.atlassian.net/browse/MODINVOSTO-204) - Ramsons CSP - RMB Logging release - RMB 35.3.2
+
+
 ## 5.9.1 - Released - (Ramson R2 2024 Bug Fix)
 The primary focus of this release was to fix voucher starting number issue
 [Full Changelog](https://github.com/folio-org/mod-invoice-storage/compare/v5.9.0...v5.9.1)
