@@ -1,5 +1,15 @@
 ## 6.1.0 - Unreleased
 
+## 6.0.1 - Released - (Sunflower R1 2025)
+
+The primary focus of the release was to update to RMB 35.4.2 and Vertx 4.5.23
+
+[Full Changelog](https://github.com/folio-org/mod-invoice-storage/compare/v6.0.0...v6.0.1)
+
+### Stories
+* [MODINVOSTO-205](https://folio-org.atlassian.net/browse/MODINVOSTO-205) - Sunflower CSP - RMB Logging release
+
+
 ## 6.0.0 - Released - (Sunflower R1 2025)
 
 The primary focus of this release was to implement audit outbox pattern for sending kafka events about invoice updates
