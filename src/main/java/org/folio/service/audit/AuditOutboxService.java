@@ -1,5 +1,6 @@
 package org.folio.service.audit;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -46,30 +47,55 @@ public class AuditOutboxService {
             return Future.succeededFuture(0);
           }
           log.info("processOutboxEventLogs: {} logs found in outbox table, sending to kafka", logs.size());
-          return Future.join(sendEventLogsToKafka(logs, okapiHeaders))
-            .map(logs.stream().map(OutboxEventLog::getEventId).toList())
-            .compose(eventIds -> outboxEventLogDAO.deleteEventLogs(conn, eventIds, tenantId))
-            .onSuccess(count -> log.info("processOutboxEventLogs:: {} logs have been deleted from outbox table", count))
-            .onFailure(ex -> log.error("Logs deletion failed", ex));
+          var futures = sendEventLogsToKafka(logs, okapiHeaders);
+
+          // Wait for all futures to complete (succeed or fail)
+          return Future.all(futures)
+            .recover(t -> Future.succeededFuture()) // Recover so we can process partial successes
+            .compose(v -> {
+              // Only collect event IDs for successfully sent events
+              var successfulEventIds = new ArrayList<String>();
+              for (int i = 0; i < futures.size(); i++) {
+                if (futures.get(i).succeeded()) {
+                  successfulEventIds.add(logs.get(i).getEventId());
+                }
+              }
+
+              if (CollectionUtils.isEmpty(successfulEventIds)) {
+                log.warn("processOutboxEventLogs: No events were successfully sent to Kafka");
+                return Future.succeededFuture(0);
+              }
+
+              log.info("processOutboxEventLogs: Successfully sent {} out of {} events to Kafka", successfulEventIds.size(), logs.size());
+              return outboxEventLogDAO.deleteEventLogs(conn, successfulEventIds, tenantId)
+                .onSuccess(count -> log.info("processOutboxEventLogs:: {} logs have been deleted from outbox table", count))
+                .onFailure(ex -> log.error("Logs deletion failed", ex));
+            });
         })
         .onSuccess(count -> log.info("processOutboxEventLogs:: Successfully processed outbox event logs: {}", count))
         .onFailure(ex -> log.error("Failed to process outbox event logs", ex)));
   }
 
   private List<Future<Void>> sendEventLogsToKafka(List<OutboxEventLog> eventLogs, Map<String, String> okapiHeaders) {
-    return eventLogs.stream().map(eventLog ->
-      switch (eventLog.getEntityType()) {
-        case INVOICE -> {
-          var invoice = Json.decodeValue(eventLog.getPayload(), Invoice.class);
-          var action = InvoiceAuditEvent.Action.fromValue(eventLog.getAction());
-          yield producer.sendInvoiceEvent(invoice, action, okapiHeaders);
-        }
-        case INVOICE_LINE -> {
-          var invoiceLine = Json.decodeValue(eventLog.getPayload(), InvoiceLine.class);
-          var action = InvoiceLineAuditEvent.Action.fromValue(eventLog.getAction());
-          yield producer.sendInvoiceLineEvent(invoiceLine, action, okapiHeaders);
-        }
-      }).toList();
+    return eventLogs.stream().<Future<Void>>map(eventLog -> {
+      try {
+        return switch (eventLog.getEntityType()) {
+          case INVOICE -> {
+            var invoice = Json.decodeValue(eventLog.getPayload(), Invoice.class);
+            var action = InvoiceAuditEvent.Action.fromValue(eventLog.getAction());
+            yield producer.sendInvoiceEvent(invoice, action, okapiHeaders);
+          }
+          case INVOICE_LINE -> {
+            var invoiceLine = Json.decodeValue(eventLog.getPayload(), InvoiceLine.class);
+            var action = InvoiceLineAuditEvent.Action.fromValue(eventLog.getAction());
+            yield producer.sendInvoiceLineEvent(invoiceLine, action, okapiHeaders);
+          }
+        };
+      } catch (Exception e) {
+        log.warn("sendEventLogsToKafka:: Failed to process event with id: {}", eventLog.getEventId(), e);
+        return Future.failedFuture(e);
+      }
+    }).toList();
   }
 
   /**
