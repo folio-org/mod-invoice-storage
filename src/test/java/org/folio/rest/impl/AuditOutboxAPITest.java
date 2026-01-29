@@ -23,5 +23,4 @@ public class AuditOutboxAPITest extends TestBase {
       .extract()
       .response();
   }
-
 }

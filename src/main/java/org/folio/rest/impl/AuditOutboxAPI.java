@@ -3,6 +3,8 @@ package org.folio.rest.impl;
 import javax.ws.rs.core.Response;
 import java.util.Map;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.folio.service.audit.AuditOutboxService;
 import org.folio.rest.jaxrs.resource.InvoiceStorageAuditOutbox;
 import org.folio.spring.SpringContextUtil;
@@ -16,6 +18,8 @@ import io.vertx.core.Vertx;
 
 public class AuditOutboxAPI implements InvoiceStorageAuditOutbox {
 
+  private static final Logger log = LogManager.getLogger();
+
   @Autowired
   private AuditOutboxService auditOutboxService;
 
@@ -24,9 +28,13 @@ public class AuditOutboxAPI implements InvoiceStorageAuditOutbox {
   }
 
   @Override
-  public void postInvoiceStorageAuditOutboxProcess(Map<String, String> okapiHeaders, Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
+  public void postInvoiceStorageAuditOutboxProcess(Map<String, String> okapiHeaders, Handler<AsyncResult<Response>> asyncResultHandler,
+                                                   Context vertxContext) {
     auditOutboxService.processOutboxEventLogs(okapiHeaders, vertxContext)
       .onSuccess(res -> asyncResultHandler.handle(Future.succeededFuture(Response.ok().build())))
-      .onFailure(cause -> asyncResultHandler.handle(Future.failedFuture(cause)));
+      .onFailure(cause -> {
+        log.warn("Processing of outbox events table has failed", cause);
+        asyncResultHandler.handle(Future.failedFuture(cause));
+      });
   }
 }

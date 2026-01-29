@@ -46,7 +46,6 @@ import io.vertx.core.json.JsonObject;
  */
 public abstract class TestBase {
 
-
   private static boolean invokeStorageTestSuiteAfter = false;
 
   public static final String ISOLATED_TENANT = "isolated";
@@ -287,5 +286,4 @@ public abstract class TestBase {
   private static <T extends Enum<T>> List<String> getEnumValuesAsString(Class<T> enumClass) {
     return Arrays.stream(enumClass.getEnumConstants()).map(Enum::toString).toList();
   }
-
 }
