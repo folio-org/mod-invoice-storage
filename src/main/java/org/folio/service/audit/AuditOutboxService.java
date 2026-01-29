@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.folio.dao.PostgresClientFactory;
 import org.folio.dao.audit.AuditOutboxEventLogDAO;
 import org.folio.rest.jaxrs.model.Invoice;
 import org.folio.rest.jaxrs.model.InvoiceAuditEvent;
@@ -14,10 +15,8 @@ import org.folio.rest.jaxrs.model.InvoiceLineAuditEvent;
 import org.folio.rest.jaxrs.model.OutboxEventLog;
 import org.folio.rest.jaxrs.model.OutboxEventLog.EntityType;
 import org.folio.rest.persist.Conn;
-import org.folio.rest.persist.DBClient;
 import org.folio.rest.tools.utils.TenantTool;
 
-import io.vertx.core.Context;
 import io.vertx.core.Future;
 import io.vertx.core.json.Json;
 import lombok.RequiredArgsConstructor;
@@ -29,24 +28,25 @@ public class AuditOutboxService {
 
   private final AuditOutboxEventLogDAO outboxEventLogDAO;
   private final AuditEventProducer producer;
+  private final PostgresClientFactory pgClientFactory;
 
   /**
    * Reads outbox event logs from DB and send them to Kafka and delete from outbox table in a single transaction.
    *
    * @param okapiHeaders the okapi headers
-   * @param vertxContext the vertx context
    * @return future with integer how many records have been processed
    */
-  public Future<Integer> processOutboxEventLogs(Map<String, String> okapiHeaders, Context vertxContext) {
+  public Future<Integer> processOutboxEventLogs(Map<String, String> okapiHeaders) {
     var tenantId = TenantTool.tenantId(okapiHeaders);
-    return new DBClient(vertxContext, okapiHeaders).getPgClient()
-      .withTrans(conn -> outboxEventLogDAO.getEventLogs(conn, tenantId)
+    log.trace("processOutboxEventLogs:: Preparing to process outbox event logs, tenantId={}", tenantId);
+    var pgClient = pgClientFactory.createInstance(tenantId);
+    return pgClient.withTrans(conn -> outboxEventLogDAO.getEventLogs(conn, tenantId)
         .compose(logs -> {
           if (CollectionUtils.isEmpty(logs)) {
-            log.info("processOutboxEventLogs: No logs found in outbox table");
+            log.info("processOutboxEventLogs:: No logs found in outbox table");
             return Future.succeededFuture(0);
           }
-          log.info("processOutboxEventLogs: {} logs found in outbox table, sending to kafka", logs.size());
+          log.info("processOutboxEventLogs:: {} logs found in outbox table, sending to Kafka", logs.size());
           var futures = sendEventLogsToKafka(logs, okapiHeaders);
 
           // Wait for all futures to complete (succeed or fail)
@@ -62,13 +62,13 @@ public class AuditOutboxService {
               }
 
               if (CollectionUtils.isEmpty(successfulEventIds)) {
-                log.debug("processOutboxEventLogs: No events were successfully sent to Kafka");
+                log.debug("processOutboxEventLogs:: No events were successfully sent to Kafka");
                 return Future.succeededFuture(0);
               }
 
-              log.info("processOutboxEventLogs: Successfully sent {} out of {} events to Kafka", successfulEventIds.size(), logs.size());
+              log.info("processOutboxEventLogs:: Successfully sent {} out of {} events to Kafka", successfulEventIds.size(), logs.size());
               return outboxEventLogDAO.deleteEventLogs(conn, successfulEventIds, tenantId)
-                .onSuccess(count -> log.info("processOutboxEventLogs:: {} logs have been deleted from outbox table", count))
+                .onSuccess(count -> log.info("processOutboxEventLogs:: Logs deleted from outbox table: {}", count))
                 .onFailure(ex -> log.error("Logs deletion failed", ex));
             });
         })

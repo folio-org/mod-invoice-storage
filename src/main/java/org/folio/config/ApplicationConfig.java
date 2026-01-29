@@ -1,5 +1,6 @@
 package org.folio.config;
 
+import org.folio.dao.PostgresClientFactory;
 import org.folio.dao.audit.AuditOutboxEventLogDAO;
 import org.folio.dao.audit.AuditOutboxEventLogPostgresDAO;
 import org.folio.dao.invoice.InvoiceDAO;
@@ -19,6 +20,8 @@ import org.folio.service.setting.SettingsService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+
+import io.vertx.core.Vertx;
 
 @Configuration
 @Import(KafkaConfiguration.class)
@@ -69,8 +72,15 @@ public class ApplicationConfig {
   }
 
   @Bean
-  public AuditOutboxService auditOutboxService(AuditOutboxEventLogDAO auditOutboxEventLogDAO, AuditEventProducer producer) {
-    return new AuditOutboxService(auditOutboxEventLogDAO, producer);
+  public PostgresClientFactory postgresClientFactory(Vertx vertx) {
+    return new PostgresClientFactory(vertx);
+  }
+
+  @Bean
+  public AuditOutboxService auditOutboxService(AuditOutboxEventLogDAO auditOutboxEventLogDAO,
+                                               AuditEventProducer producer,
+                                               PostgresClientFactory postgresClientFactory) {
+    return new AuditOutboxService(auditOutboxEventLogDAO, producer, postgresClientFactory);
   }
 
   @Bean

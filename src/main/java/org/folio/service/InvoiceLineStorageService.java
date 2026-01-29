@@ -39,7 +39,7 @@ public class InvoiceLineStorageService {
         .compose(invoiceLineId -> auditOutboxService.saveInvoiceLineOutboxLog(conn, invoiceLine, InvoiceLineAuditEvent.Action.CREATE, headers)))
       .onSuccess(s -> {
         log.info("createInvoiceLine:: Successfully created a new invoiceLine by id: {}", invoiceLine.getId());
-        auditOutboxService.processOutboxEventLogs(headers, vertxContext);
+        auditOutboxService.processOutboxEventLogs(headers);
         asyncResultHandler.handle(buildResponseWithLocation(headers.get(OKAPI_URL), INVOICE_LINES_PREFIX + invoiceLine.getId(), invoiceLine));
       })
       .onFailure(f -> {
@@ -59,7 +59,7 @@ public class InvoiceLineStorageService {
         .compose(invoiceLineId -> auditOutboxService.saveInvoiceLineOutboxLog(conn, invoiceLine, InvoiceLineAuditEvent.Action.EDIT, headers)))
       .onSuccess(s -> {
         log.info("updateInvoiceLine:: Successfully updated invoice line with id: {}", id);
-        auditOutboxService.processOutboxEventLogs(headers, vertxContext);
+        auditOutboxService.processOutboxEventLogs(headers);
         asyncResultHandler.handle(buildNoContentResponse());
       })
       .onFailure(f -> {
@@ -67,5 +67,4 @@ public class InvoiceLineStorageService {
         asyncResultHandler.handle(buildErrorResponse(f));
       });
   }
-
 }

@@ -30,7 +30,7 @@ public class AuditOutboxAPI implements InvoiceStorageAuditOutbox {
   @Override
   public void postInvoiceStorageAuditOutboxProcess(Map<String, String> okapiHeaders, Handler<AsyncResult<Response>> asyncResultHandler,
                                                    Context vertxContext) {
-    auditOutboxService.processOutboxEventLogs(okapiHeaders, vertxContext)
+    auditOutboxService.processOutboxEventLogs(okapiHeaders)
       .onSuccess(res -> asyncResultHandler.handle(Future.succeededFuture(Response.ok().build())))
       .onFailure(cause -> {
         log.warn("Processing of outbox events table has failed", cause);
