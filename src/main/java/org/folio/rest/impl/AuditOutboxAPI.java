@@ -32,9 +32,6 @@ public class AuditOutboxAPI implements InvoiceStorageAuditOutbox {
                                                    Context vertxContext) {
     auditOutboxService.processOutboxEventLogs(okapiHeaders)
       .onSuccess(res -> asyncResultHandler.handle(Future.succeededFuture(Response.ok().build())))
-      .onFailure(cause -> {
-        log.warn("Processing of outbox events table has failed", cause);
-        asyncResultHandler.handle(Future.failedFuture(cause));
-      });
+      .onFailure(cause -> asyncResultHandler.handle(Future.failedFuture(cause)));
   }
 }
