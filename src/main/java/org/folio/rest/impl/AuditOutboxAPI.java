@@ -3,8 +3,6 @@ package org.folio.rest.impl;
 import javax.ws.rs.core.Response;
 import java.util.Map;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.folio.service.audit.AuditOutboxService;
 import org.folio.rest.jaxrs.resource.InvoiceStorageAuditOutbox;
 import org.folio.spring.SpringContextUtil;
@@ -17,8 +15,6 @@ import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 
 public class AuditOutboxAPI implements InvoiceStorageAuditOutbox {
-
-  private static final Logger log = LogManager.getLogger();
 
   @Autowired
   private AuditOutboxService auditOutboxService;

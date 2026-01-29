@@ -8,7 +8,6 @@ import static org.folio.rest.impl.StorageTestSuite.storageUrl;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.nio.charset.StandardCharsets;
@@ -64,7 +63,7 @@ public abstract class TestBase {
   );
 
   @BeforeAll
-  public static void testBaseBeforeClass() throws InterruptedException, ExecutionException, TimeoutException, IOException {
+  public static void testBaseBeforeClass() throws InterruptedException, ExecutionException, TimeoutException {
     Vertx vertx = StorageTestSuite.getVertx();
     if (vertx == null) {
       invokeStorageTestSuiteAfter = true;
@@ -74,7 +73,7 @@ public abstract class TestBase {
   }
 
   @AfterAll
-  public static void testBaseAfterClass()  throws InterruptedException, ExecutionException, TimeoutException, MalformedURLException {
+  public static void testBaseAfterClass()  throws InterruptedException, ExecutionException, TimeoutException {
     if (invokeStorageTestSuiteAfter) {
       StorageTestSuite.after();
     }
