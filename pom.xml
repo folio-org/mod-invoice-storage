@@ -25,8 +25,8 @@
     <jsonschema2pojo_output_dir>${generated_sources_dir}/jsonschema2pojo</jsonschema2pojo_output_dir>
 
     <!--Dependency Management Properties-->
-    <spring.version>7.0.2</spring.version>
-    <vertx.version>5.0.6</vertx.version>
+    <spring.version>7.0.6</spring.version>
+    <vertx.version>5.0.8</vertx.version>
     <log4j.version>2.25.3</log4j.version>
     <streamex.version>0.8.4</streamex.version>
 
@@ -52,7 +52,7 @@
     <copy-rename-maven-plugin.version>1.0.1</copy-rename-maven-plugin.version>
 
     <!--Test Scope dependencies-->
-    <junit-jupiter.version>6.0.1</junit-jupiter.version>
+    <junit-jupiter.version>6.0.3</junit-jupiter.version>
     <testcontainers-bom.version>2.0.3</testcontainers-bom.version>
     <jmockit.version>1.50</jmockit.version>
     <mockito.version>5.21.0</mockito.version>
