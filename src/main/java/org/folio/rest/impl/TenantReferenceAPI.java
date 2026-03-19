@@ -65,7 +65,8 @@ public class TenantReferenceAPI extends TenantAPI {
     if (isLoadSample(tenantAttributes)) {
       tl.withKey(PARAMETER_LOAD_SAMPLE)
         .withLead("data")
-        .add("batch-groups","batch-group-storage/batch-groups");
+        .add("batch-groups", "batch-group-storage/batch-groups")
+        .add("adjustment-presets", "invoice-storage/adjustment-presets");
     }
   }
 
