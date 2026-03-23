@@ -53,7 +53,7 @@
 
     <!--Test Scope dependencies-->
     <junit-jupiter.version>6.0.3</junit-jupiter.version>
-    <testcontainers-bom.version>2.0.3</testcontainers-bom.version>
+    <testcontainers-bom.version>2.0.4</testcontainers-bom.version>
     <jmockit.version>1.50</jmockit.version>
     <mockito.version>5.23.0</mockito.version>
 
