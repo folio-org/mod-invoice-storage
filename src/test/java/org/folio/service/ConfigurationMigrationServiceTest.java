@@ -36,22 +36,21 @@ import io.vertx.ext.web.client.HttpResponse;
 import io.vertx.ext.web.client.WebClient;
 import io.vertx.sqlclient.Tuple;
 
-public class ConfigurationMigrationServiceTest {
+class ConfigurationMigrationServiceTest {
+
+  private static final String TENANT_ID = "diku";
+  private static final String OKAPI_URL = "http://localhost:9130";
+  private static final String MODULE_FROM_BEFORE_TARGET = "mod-invoice-storage-5.0.0";
+  private static final String MODULE_TO_TARGET = "mod-invoice-storage-6.1.0";
 
   private ConfigurationMigrationService service;
 
-  @Mock
-  private WebClient webClient;
-  @Mock
-  private HttpRequest<Buffer> httpRequest;
-  @Mock
-  private HttpResponse<Buffer> httpResponse;
-  @Mock
-  private PostgresClient pgClient;
-  @Mock
-  private Context vertxContext;
-  @Mock
-  private Vertx vertx;
+  @Mock private WebClient webClient;
+  @Mock private HttpRequest<Buffer> httpRequest;
+  @Mock private HttpResponse<Buffer> httpResponse;
+  @Mock private PostgresClient pgClient;
+  @Mock private Context vertxContext;
+  @Mock private Vertx vertx;
 
   private MockedStatic<WebClientFactory> webClientFactoryMock;
   private MockedStatic<PostgresClient> postgresClientMock;
@@ -66,17 +65,12 @@ public class ConfigurationMigrationServiceTest {
     when(vertxContext.owner()).thenReturn(vertx);
 
     headers = new HashMap<>();
-    headers.put("x-okapi-url", "http://localhost:9130");
-    headers.put(OKAPI_HEADER_TENANT, "diku");
+    headers.put("x-okapi-url", OKAPI_URL);
+    headers.put(OKAPI_HEADER_TENANT, TENANT_ID);
 
     webClientFactoryMock = mockStatic(WebClientFactory.class);
-    webClientFactoryMock.when(() -> WebClientFactory.getWebClient(any(Vertx.class), any()))
-      .thenReturn(webClient);
-    when(webClient.getAbs(anyString())).thenReturn(httpRequest);
-    when(httpRequest.putHeaders(any())).thenReturn(httpRequest);
-
     postgresClientMock = mockStatic(PostgresClient.class);
-    postgresClientMock.when(() -> PostgresClient.getInstance(any(Vertx.class), anyString()))
+    postgresClientMock.when(() -> PostgresClient.getInstance(vertx, TENANT_ID))
       .thenReturn(pgClient);
   }
 
@@ -87,113 +81,103 @@ public class ConfigurationMigrationServiceTest {
   }
 
   @Test
-  void shouldSkipMigrationOnFreshInstall() {
-    TenantAttributes attributes = new TenantAttributes()
-      .withModuleTo("mod-invoice-storage-6.1.0");
+  void migrateConfigurationData_freshInstall_skipped() {
+    var attributes = new TenantAttributes()
+      .withModuleTo(MODULE_TO_TARGET);
 
-    Future<Void> result = service.migrateConfigurationData(attributes, "diku", headers, vertxContext);
+    var result = service.migrateConfigurationData(attributes, TENANT_ID, headers, vertxContext);
 
     assertTrue(result.succeeded());
-    webClientFactoryMock.verify(
-      () -> WebClientFactory.getWebClient(any(Vertx.class), any()), never());
   }
 
   @Test
-  void shouldSkipMigrationWhenAlreadyAtTargetVersion() {
-    TenantAttributes attributes = new TenantAttributes()
+  void migrateConfigurationData_alreadyAtTargetVersion_skipped() {
+    var attributes = new TenantAttributes()
       .withModuleFrom("mod-invoice-storage-6.1.0")
       .withModuleTo("mod-invoice-storage-6.2.0");
 
-    Future<Void> result = service.migrateConfigurationData(attributes, "diku", headers, vertxContext);
+    var result = service.migrateConfigurationData(attributes, TENANT_ID, headers, vertxContext);
 
     assertTrue(result.succeeded());
-    webClientFactoryMock.verify(
-      () -> WebClientFactory.getWebClient(any(Vertx.class), any()), never());
   }
 
   @Test
-  void shouldSkipMigrationWhenPastTargetVersion() {
-    TenantAttributes attributes = new TenantAttributes()
+  void migrateConfigurationData_pastTargetVersion_skipped() {
+    var attributes = new TenantAttributes()
       .withModuleFrom("mod-invoice-storage-7.0.0")
       .withModuleTo("mod-invoice-storage-7.1.0");
 
-    Future<Void> result = service.migrateConfigurationData(attributes, "diku", headers, vertxContext);
+    var result = service.migrateConfigurationData(attributes, TENANT_ID, headers, vertxContext);
 
     assertTrue(result.succeeded());
-    webClientFactoryMock.verify(
-      () -> WebClientFactory.getWebClient(any(Vertx.class), any()), never());
   }
 
   @Test
-  void shouldSkipMigrationWhenModuleToIsBelowTargetVersion() {
-    TenantAttributes attributes = new TenantAttributes()
-      .withModuleFrom("mod-invoice-storage-5.0.0")
+  void migrateConfigurationData_belowTargetVersion_skipped() {
+    var attributes = new TenantAttributes()
+      .withModuleFrom(MODULE_FROM_BEFORE_TARGET)
       .withModuleTo("mod-invoice-storage-6.0.0");
 
-    Future<Void> result = service.migrateConfigurationData(attributes, "diku", headers, vertxContext);
+    var result = service.migrateConfigurationData(attributes, TENANT_ID, headers, vertxContext);
 
     assertTrue(result.succeeded());
-    webClientFactoryMock.verify(
-      () -> WebClientFactory.getWebClient(any(Vertx.class), any()), never());
   }
 
   @Test
-  void shouldMigrateWhenUpgradingFromSnapshotVersion() {
-    TenantAttributes attributes = new TenantAttributes()
+  void migrateConfigurationData_snapshotVersion_migrationTriggered() {
+    var attributes = new TenantAttributes()
       .withModuleFrom("mod-invoice-storage-6.0.0-SNAPSHOT.123")
-      .withModuleTo("mod-invoice-storage-6.1.0");
+      .withModuleTo(MODULE_TO_TARGET);
 
+    mockWebClient();
     mockHttpResponse(200, new JsonObject()
       .put("configs", new JsonArray())
       .put("totalRecords", 0));
 
-    Future<Void> result = service.migrateConfigurationData(attributes, "diku", headers, vertxContext);
+    var result = service.migrateConfigurationData(attributes, TENANT_ID, headers, vertxContext);
 
     assertTrue(result.succeeded());
-    webClientFactoryMock.verify(
-      () -> WebClientFactory.getWebClient(any(Vertx.class), any()), times(1));
   }
 
   @Test
-  void shouldSkipMigrationWhenNoOkapiUrl() {
-    TenantAttributes attributes = new TenantAttributes()
-      .withModuleFrom("mod-invoice-storage-5.0.0")
-      .withModuleTo("mod-invoice-storage-6.1.0");
+  void migrateConfigurationData_noOkapiUrl_skipped() {
+    var attributes = new TenantAttributes()
+      .withModuleFrom(MODULE_FROM_BEFORE_TARGET)
+      .withModuleTo(MODULE_TO_TARGET);
 
     Map<String, String> headersNoUrl = new HashMap<>();
-    headersNoUrl.put(OKAPI_HEADER_TENANT, "diku");
+    headersNoUrl.put(OKAPI_HEADER_TENANT, TENANT_ID);
 
-    Future<Void> result = service.migrateConfigurationData(attributes, "diku", headersNoUrl, vertxContext);
+    var result = service.migrateConfigurationData(attributes, TENANT_ID, headersNoUrl, vertxContext);
 
     assertTrue(result.succeeded());
-    webClientFactoryMock.verify(
-      () -> WebClientFactory.getWebClient(any(Vertx.class), any()), never());
   }
 
   @Test
-  void shouldMigrateSettingsFromConfiguration() {
-    TenantAttributes attributes = new TenantAttributes()
-      .withModuleFrom("mod-invoice-storage-5.0.0")
-      .withModuleTo("mod-invoice-storage-6.1.0");
+  void migrateConfigurationData_settingEntry_insertedIntoSettingsTable() {
+    var attributes = new TenantAttributes()
+      .withModuleFrom(MODULE_FROM_BEFORE_TARGET)
+      .withModuleTo(MODULE_TO_TARGET);
 
     String settingId = UUID.randomUUID().toString();
-    JsonObject configEntry = new JsonObject()
+    var configEntry = new JsonObject()
       .put("id", settingId)
       .put("module", "INVOICE")
       .put("configName", "ROUTING_ADDRESS")
       .put("value", "some-address-uuid")
       .put("metadata", new JsonObject().put("createdDate", "2024-01-01"));
 
+    mockWebClient();
     mockHttpResponse(200, new JsonObject()
       .put("configs", new JsonArray().add(configEntry))
       .put("totalRecords", 1));
     mockPgExecuteSuccess();
 
-    Future<Void> result = service.migrateConfigurationData(attributes, "diku", headers, vertxContext);
+    var result = service.migrateConfigurationData(attributes, TENANT_ID, headers, vertxContext);
 
     assertTrue(result.succeeded());
 
-    ArgumentCaptor<String> sqlCaptor = ArgumentCaptor.forClass(String.class);
+    var sqlCaptor = ArgumentCaptor.forClass(String.class);
     verify(pgClient).execute(sqlCaptor.capture(), any(Tuple.class));
 
     String sql = sqlCaptor.getValue();
@@ -204,13 +188,13 @@ public class ConfigurationMigrationServiceTest {
   }
 
   @Test
-  void shouldMigrateAdjustmentPresetsFromConfiguration() {
-    TenantAttributes attributes = new TenantAttributes()
-      .withModuleFrom("mod-invoice-storage-5.0.0")
-      .withModuleTo("mod-invoice-storage-6.1.0");
+  void migrateConfigurationData_adjustmentPresetEntry_insertedIntoAdjustmentPresetsTable() {
+    var attributes = new TenantAttributes()
+      .withModuleFrom(MODULE_FROM_BEFORE_TARGET)
+      .withModuleTo(MODULE_TO_TARGET);
 
     String presetId = UUID.randomUUID().toString();
-    JsonObject presetValue = new JsonObject()
+    var presetValue = new JsonObject()
       .put("description", "Shipping")
       .put("exportToAccounting", false)
       .put("prorate", "Not prorated")
@@ -219,23 +203,24 @@ public class ConfigurationMigrationServiceTest {
       .put("alwaysShow", false)
       .put("defaultAmount", 5);
 
-    JsonObject configEntry = new JsonObject()
+    var configEntry = new JsonObject()
       .put("id", presetId)
       .put("module", "INVOICE")
       .put("configName", "INVOICE.adjustments")
       .put("value", presetValue.encode())
       .put("metadata", new JsonObject().put("createdDate", "2024-01-01"));
 
+    mockWebClient();
     mockHttpResponse(200, new JsonObject()
       .put("configs", new JsonArray().add(configEntry))
       .put("totalRecords", 1));
     mockPgExecuteSuccess();
 
-    Future<Void> result = service.migrateConfigurationData(attributes, "diku", headers, vertxContext);
+    var result = service.migrateConfigurationData(attributes, TENANT_ID, headers, vertxContext);
 
     assertTrue(result.succeeded());
 
-    ArgumentCaptor<String> sqlCaptor = ArgumentCaptor.forClass(String.class);
+    var sqlCaptor = ArgumentCaptor.forClass(String.class);
     verify(pgClient).execute(sqlCaptor.capture(), any(Tuple.class));
 
     String sql = sqlCaptor.getValue();
@@ -245,104 +230,115 @@ public class ConfigurationMigrationServiceTest {
   }
 
   @Test
-  void shouldMigrateBothSettingsAndAdjustmentPresets() {
-    TenantAttributes attributes = new TenantAttributes()
-      .withModuleFrom("mod-invoice-storage-5.0.0")
-      .withModuleTo("mod-invoice-storage-6.1.0");
+  void migrateConfigurationData_mixedEntries_bothTablesPopulated() {
+    var attributes = new TenantAttributes()
+      .withModuleFrom(MODULE_FROM_BEFORE_TARGET)
+      .withModuleTo(MODULE_TO_TARGET);
 
-    JsonObject settingEntry = new JsonObject()
+    var settingEntry = new JsonObject()
       .put("id", UUID.randomUUID().toString())
       .put("module", "INVOICE")
       .put("configName", "ROUTING_ADDRESS")
       .put("value", "some-value")
       .put("metadata", new JsonObject());
 
-    JsonObject presetEntry = new JsonObject()
+    var presetEntry = new JsonObject()
       .put("id", UUID.randomUUID().toString())
       .put("module", "INVOICE")
       .put("configName", "INVOICE.adjustments")
       .put("value", new JsonObject().put("description", "Tax").encode())
       .put("metadata", new JsonObject());
 
+    mockWebClient();
     mockHttpResponse(200, new JsonObject()
       .put("configs", new JsonArray().add(settingEntry).add(presetEntry))
       .put("totalRecords", 2));
     mockPgExecuteSuccess();
 
-    Future<Void> result = service.migrateConfigurationData(attributes, "diku", headers, vertxContext);
+    var result = service.migrateConfigurationData(attributes, TENANT_ID, headers, vertxContext);
 
     assertTrue(result.succeeded());
     verify(pgClient, times(2)).execute(anyString(), any(Tuple.class));
   }
 
   @Test
-  void shouldHandleEmptyConfigurationResponse() {
-    TenantAttributes attributes = new TenantAttributes()
-      .withModuleFrom("mod-invoice-storage-5.0.0")
-      .withModuleTo("mod-invoice-storage-6.1.0");
+  void migrateConfigurationData_emptyConfigResponse_noDbInserts() {
+    var attributes = new TenantAttributes()
+      .withModuleFrom(MODULE_FROM_BEFORE_TARGET)
+      .withModuleTo(MODULE_TO_TARGET);
 
+    mockWebClient();
     mockHttpResponse(200, new JsonObject()
       .put("configs", new JsonArray())
       .put("totalRecords", 0));
 
-    Future<Void> result = service.migrateConfigurationData(attributes, "diku", headers, vertxContext);
+    var result = service.migrateConfigurationData(attributes, TENANT_ID, headers, vertxContext);
 
     assertTrue(result.succeeded());
     verify(pgClient, never()).execute(anyString(), any(Tuple.class));
   }
 
   @Test
-  void shouldRecoverWhenHttpCallFails() {
-    TenantAttributes attributes = new TenantAttributes()
-      .withModuleFrom("mod-invoice-storage-5.0.0")
-      .withModuleTo("mod-invoice-storage-6.1.0");
+  void migrateConfigurationData_httpCallFails_recoveredGracefully() {
+    var attributes = new TenantAttributes()
+      .withModuleFrom(MODULE_FROM_BEFORE_TARGET)
+      .withModuleTo(MODULE_TO_TARGET);
 
+    mockWebClient();
     when(httpRequest.send())
       .thenReturn(Future.failedFuture(new RuntimeException("Connection refused")));
 
-    Future<Void> result = service.migrateConfigurationData(attributes, "diku", headers, vertxContext);
+    var result = service.migrateConfigurationData(attributes, TENANT_ID, headers, vertxContext);
 
     assertTrue(result.succeeded());
     verify(pgClient, never()).execute(anyString(), any(Tuple.class));
   }
 
   @Test
-  void shouldRecoverWhenHttpResponseIsError() {
-    TenantAttributes attributes = new TenantAttributes()
-      .withModuleFrom("mod-invoice-storage-5.0.0")
-      .withModuleTo("mod-invoice-storage-6.1.0");
+  void migrateConfigurationData_httpErrorResponse_recoveredGracefully() {
+    var attributes = new TenantAttributes()
+      .withModuleFrom(MODULE_FROM_BEFORE_TARGET)
+      .withModuleTo(MODULE_TO_TARGET);
 
+    mockWebClient();
     mockHttpResponse(403, new JsonObject());
 
-    Future<Void> result = service.migrateConfigurationData(attributes, "diku", headers, vertxContext);
+    var result = service.migrateConfigurationData(attributes, TENANT_ID, headers, vertxContext);
 
     assertTrue(result.succeeded());
     verify(pgClient, never()).execute(anyString(), any(Tuple.class));
   }
 
   @Test
-  void shouldRecoverWhenDbInsertFails() {
-    TenantAttributes attributes = new TenantAttributes()
-      .withModuleFrom("mod-invoice-storage-5.0.0")
-      .withModuleTo("mod-invoice-storage-6.1.0");
+  void migrateConfigurationData_dbInsertFails_recoveredGracefully() {
+    var attributes = new TenantAttributes()
+      .withModuleFrom(MODULE_FROM_BEFORE_TARGET)
+      .withModuleTo(MODULE_TO_TARGET);
 
-    JsonObject configEntry = new JsonObject()
+    var configEntry = new JsonObject()
       .put("id", UUID.randomUUID().toString())
       .put("module", "INVOICE")
       .put("configName", "ROUTING_ADDRESS")
       .put("value", "some-value")
       .put("metadata", new JsonObject());
 
+    mockWebClient();
     mockHttpResponse(200, new JsonObject()
       .put("configs", new JsonArray().add(configEntry))
       .put("totalRecords", 1));
-
     when(pgClient.execute(anyString(), any(Tuple.class)))
       .thenReturn(Future.failedFuture(new RuntimeException("DB connection error")));
 
-    Future<Void> result = service.migrateConfigurationData(attributes, "diku", headers, vertxContext);
+    var result = service.migrateConfigurationData(attributes, TENANT_ID, headers, vertxContext);
 
     assertTrue(result.succeeded());
+  }
+
+  private void mockWebClient() {
+    webClientFactoryMock.when(() -> WebClientFactory.getWebClient(any(Vertx.class), any()))
+      .thenReturn(webClient);
+    when(webClient.getAbs(anyString())).thenReturn(httpRequest);
+    when(httpRequest.putHeaders(any())).thenReturn(httpRequest);
   }
 
   private void mockHttpResponse(int statusCode, JsonObject body) {
