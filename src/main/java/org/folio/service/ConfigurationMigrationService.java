@@ -5,12 +5,10 @@ import static org.folio.rest.utils.HelperUtils.encodeQuery;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.folio.models.exception.HttpException;
+import org.folio.okapi.common.ModuleId;
 import org.folio.okapi.common.SemVer;
 import org.folio.okapi.common.WebClientFactory;
 import org.folio.rest.jaxrs.model.TenantAttributes;
@@ -33,7 +31,6 @@ public class ConfigurationMigrationService {
   private static final String CONFIGURATIONS_ENTRIES_ENDPOINT = "/configurations/entries";
   private static final String SETTINGS_TABLE = "settings";
   private static final String ADJUSTMENT_PRESETS_TABLE = "adjustment_presets";
-  private static final Pattern VERSION_PATTERN = Pattern.compile(".*-(\\d+\\..*)");
   private static final SemVer MIGRATION_TARGET_VERSION = new SemVer("6.1.0");
 
   public Future<Void> migrateConfigurationData(TenantAttributes attributes, String tenantId,
@@ -109,11 +106,7 @@ public class ConfigurationMigrationService {
   }
 
   private SemVer toSemVer(String moduleId) {
-    Matcher matcher = VERSION_PATTERN.matcher(moduleId);
-    if (matcher.matches()) {
-      return new SemVer(matcher.group(1));
-    }
-    return new SemVer(moduleId);
+    return new ModuleId(moduleId).getSemVer();
   }
 
   private Future<Void> insertConfigurationData(JsonArray configs, String tenantId, Context vertxContext) {
