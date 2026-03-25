@@ -300,7 +300,8 @@
       "handlers": [
         {
           "methods": ["POST"],
-          "pathPattern": "/_/tenant"
+          "pathPattern": "/_/tenant",
+          "modulePermissions": ["configuration.entries.collection.get"]
         },
         {
           "methods": ["GET", "DELETE"],
