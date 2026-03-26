@@ -9,8 +9,7 @@ import java.util.UUID;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.folio.models.exception.HttpException;
-import org.folio.okapi.common.ModuleId;
-import org.folio.okapi.common.SemVer;
+import org.folio.dbschema.Versioned;
 import org.folio.okapi.common.WebClientFactory;
 import org.folio.rest.jaxrs.model.TenantAttributes;
 import org.folio.rest.persist.PostgresClient;
@@ -31,7 +30,7 @@ public class ConfigurationMigrationService {
   private static final String CONFIGURATIONS_ENTRIES_ENDPOINT = "/configurations/entries";
   private static final String SETTINGS_TABLE = "settings";
   private static final String ADJUSTMENT_PRESETS_TABLE = "adjustment_presets";
-  private static final SemVer MIGRATION_TARGET_VERSION = new SemVer("6.1.0");
+  private static final String MIGRATION_TARGET_VERSION = "6.1.0";
 
   public Future<Void> migrateConfigurationData(TenantAttributes attributes, String tenantId,
       Map<String, String> headers, Context vertxContext) {
@@ -94,18 +93,21 @@ public class ConfigurationMigrationService {
     if (moduleFrom == null || moduleTo == null) {
       return false;
     }
-    SemVer moduleFromVersion = toSemVer(moduleFrom);
-    SemVer moduleToVersion = toSemVer(moduleTo);
-    return moduleFromVersion.compareTo(MIGRATION_TARGET_VERSION) < 0
-      && moduleToVersion.compareTo(MIGRATION_TARGET_VERSION) >= 0;
+    return isNewForVersion(moduleFrom, MIGRATION_TARGET_VERSION)
+      && !isNewForVersion(moduleTo, MIGRATION_TARGET_VERSION);
   }
 
-  private SemVer toSemVer(String moduleId) {
-    return new ModuleId(moduleId).getSemVer();
+  // Uses the same version comparison as schema.json's fromModuleVersion.
+  // Correctly handles SNAPSHOT suffixes, e.g. 6.1.0-SNAPSHOT.184 is treated as 6.1.0.
+  private boolean isNewForVersion(String moduleId, String version) {
+    var since = new Versioned() { };
+    since.setFromModuleVersion(version);
+    return since.isNewForThisInstall(moduleId);
   }
 
   private Future<Void> insertConfigurationData(JsonArray configs, String tenantId, Context vertxContext) {
     PostgresClient pgClient = PostgresClient.getInstance(vertxContext.owner(), tenantId);
+    String schemaName = pgClient.getSchemaName();
     List<Future<Void>> futures = new ArrayList<>();
 
     for (int i = 0; i < configs.size(); i++) {
@@ -113,16 +115,16 @@ public class ConfigurationMigrationService {
       String configName = config.getString("configName");
 
       if ("INVOICE.adjustments".equals(configName)) {
-        futures.add(insertAdjustmentPreset(pgClient, config));
+        futures.add(insertAdjustmentPreset(pgClient, schemaName, config));
       } else {
-        futures.add(insertSetting(pgClient, config));
+        futures.add(insertSetting(pgClient, schemaName, config));
       }
     }
 
     return Future.all(futures).mapEmpty();
   }
 
-  private Future<Void> insertSetting(PostgresClient pgClient, JsonObject config) {
+  private Future<Void> insertSetting(PostgresClient pgClient, String schemaName, JsonObject config) {
     String id = config.getString("id");
     JsonObject settingJsonb = new JsonObject()
       .put("id", id)
@@ -130,8 +132,8 @@ public class ConfigurationMigrationService {
       .put("value", config.getString("value"))
       .put("metadata", config.getJsonObject("metadata"));
 
-    String sql = "INSERT INTO " + SETTINGS_TABLE + " (id, jsonb) VALUES ($1, $2::jsonb) "
-      + "ON CONFLICT (lower(f_unaccent(jsonb->>'key'::text))) DO NOTHING";
+    String sql = "INSERT INTO " + schemaName + "." + SETTINGS_TABLE + " (id, jsonb) VALUES ($1, $2::jsonb) "
+      + "ON CONFLICT (lower(" + schemaName + ".f_unaccent(jsonb->>'key'::text))) DO NOTHING";
 
     return pgClient.execute(sql, Tuple.of(UUID.fromString(id), settingJsonb.encode()))
       .onSuccess(rows -> log.info("Successfully migrated setting with id: {}", id))
@@ -139,7 +141,7 @@ public class ConfigurationMigrationService {
       .mapEmpty();
   }
 
-  private Future<Void> insertAdjustmentPreset(PostgresClient pgClient, JsonObject config) {
+  private Future<Void> insertAdjustmentPreset(PostgresClient pgClient, String schemaName, JsonObject config) {
     String id = config.getString("id");
     String valueStr = config.getString("value");
     JsonObject valueJson = new JsonObject(valueStr);
@@ -148,7 +150,7 @@ public class ConfigurationMigrationService {
       .put("metadata", config.getJsonObject("metadata"))
       .mergeIn(valueJson);
 
-    String sql = "INSERT INTO " + ADJUSTMENT_PRESETS_TABLE + " (id, jsonb) VALUES ($1, $2::jsonb) "
+    String sql = "INSERT INTO " + schemaName + "." + ADJUSTMENT_PRESETS_TABLE + " (id, jsonb) VALUES ($1, $2::jsonb) "
       + "ON CONFLICT (id) DO NOTHING";
 
     return pgClient.execute(sql, Tuple.of(UUID.fromString(id), presetJsonb.encode()))
