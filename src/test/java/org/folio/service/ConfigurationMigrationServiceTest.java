@@ -1,6 +1,7 @@
 package org.folio.service;
 
 import static org.folio.rest.RestVerticle.OKAPI_HEADER_TENANT;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -180,9 +181,9 @@ class ConfigurationMigrationServiceTest {
     assertTrue(sql.contains("INSERT INTO " + TENANT_ID + "_mod_invoice_storage.settings"));
     assertTrue(sql.contains("ON CONFLICT"));
 
-    String tupleJson = tupleCaptor.getValue().get(String.class, 1);
-    assertTrue(tupleJson.contains("ROUTING_ADDRESS"));
-    assertTrue(tupleJson.contains("some-address-uuid"));
+    JsonObject tupleJson = tupleCaptor.getValue().get(JsonObject.class, 1);
+    assertEquals("ROUTING_ADDRESS", tupleJson.getString("key"));
+    assertEquals("some-address-uuid", tupleJson.getString("value"));
   }
 
   @Test
@@ -226,8 +227,8 @@ class ConfigurationMigrationServiceTest {
     assertTrue(sql.contains("INSERT INTO " + TENANT_ID + "_mod_invoice_storage.adjustment_presets"));
     assertTrue(sql.contains("ON CONFLICT"));
 
-    String tupleJson = tupleCaptor.getValue().get(String.class, 1);
-    assertTrue(tupleJson.contains("Shipping"));
+    JsonObject tupleJson = tupleCaptor.getValue().get(JsonObject.class, 1);
+    assertEquals("Shipping", tupleJson.getString("description"));
   }
 
   @Test
