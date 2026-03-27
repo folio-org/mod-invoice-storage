@@ -13,6 +13,7 @@ import org.folio.rest.jaxrs.model.TenantAttributes;
 import org.folio.rest.persist.PostgresClient;
 import org.folio.rest.tools.utils.TenantLoading;
 import org.folio.rest.tools.utils.TenantTool;
+import org.folio.service.ConfigurationMigrationService;
 import org.folio.spring.SpringContextUtil;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Context;
@@ -26,6 +27,8 @@ public class TenantReferenceAPI extends TenantAPI {
 
   private static final String PARAMETER_LOAD_SAMPLE = "loadSample";
   private static final String PARAMETER_LOAD_SYSTEM = "loadSystem";
+
+  private final ConfigurationMigrationService configurationMigrationService = new ConfigurationMigrationService();
 
   public TenantReferenceAPI() {
     SpringContextUtil.autowireDependencies(this, Vertx.currentContext());
@@ -44,9 +47,7 @@ public class TenantReferenceAPI extends TenantAPI {
 
     return Future.succeededFuture()
       .compose(v -> {
-
         Promise<Integer> promise = Promise.promise();
-
         tl.perform(attributes, headers, vertx, res -> {
           if (res.failed()) {
             log.error("Failed to load tenant data", res.cause());
@@ -58,6 +59,8 @@ public class TenantReferenceAPI extends TenantAPI {
         });
         return promise.future();
       })
+      .compose(loaded -> configurationMigrationService.migrateConfigurationData(attributes, tenantId, headers, vertxContext)
+        .map(loaded))
       .onFailure(throwable -> Future.failedFuture(throwable.getCause()));
   }
 

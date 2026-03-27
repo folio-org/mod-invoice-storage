@@ -300,7 +300,8 @@
       "handlers": [
         {
           "methods": ["POST"],
-          "pathPattern": "/_/tenant"
+          "pathPattern": "/_/tenant",
+          "modulePermissions": ["configuration.entries.collection.get"]
         },
         {
           "methods": ["GET", "DELETE"],
@@ -414,6 +415,12 @@
           "delay": "30"
         }
       ]
+    }
+  ],
+  "requires": [
+    {
+      "id": "configuration",
+      "version": "2.0"
     }
   ],
   "permissionSets": [
