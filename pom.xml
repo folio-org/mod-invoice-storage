@@ -19,7 +19,7 @@
 
     <!--Project properties-->
     <ramlfiles_path>${basedir}/ramls</ramlfiles_path>
-    <raml-module-builder.version>36.0.0-SNAPSHOT</raml-module-builder.version>
+    <raml-module-builder.version>36.0.0</raml-module-builder.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <generated_sources_dir>${project.build.directory}/generated-sources</generated_sources_dir>
     <jsonschema2pojo_output_dir>${generated_sources_dir}/jsonschema2pojo</jsonschema2pojo_output_dir>
@@ -32,8 +32,8 @@
 
     <!--Folio dependencies properties-->
     <folio-module-descriptor-validator.version>1.0.1</folio-module-descriptor-validator.version>
-    <folio-kafka-wrapper.version>3.3.2</folio-kafka-wrapper.version>
-    <folio-di-support.version>4.0.0-SNAPSHOT</folio-di-support.version>
+    <folio-kafka-wrapper.version>4.0.0</folio-kafka-wrapper.version>
+    <folio-di-support.version>4.0.0</folio-di-support.version>
 
     <!--Dependency properties-->
     <aspectj.version>1.9.25.1</aspectj.version>
