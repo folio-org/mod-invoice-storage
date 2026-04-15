@@ -1,4 +1,26 @@
-## 6.1.0 - Unreleased
+## 6.1.0 - Released (Trillium R1 2025)
+The primary focus of this release was to upgrade to Vert.x 5.0, implement invoice adjustments API, improve locking mechanism and migrate settings.
+
+[Full Changelog](https://github.com/folio-org/mod-invoice-storage/compare/v6.0.0...v6.1.0)
+
+### Stories
+* [MODINVOSTO-209](https://folio-org.atlassian.net/browse/MODINVOSTO-209) - Update GitHub Workflows for Maven
+* [MODINVOSTO-208](https://folio-org.atlassian.net/browse/MODINVOSTO-208) - Fix migrate_configuration_data_to_settings.ftl cannot read mod_configuration db table
+* [MODINVOSTO-206](https://folio-org.atlassian.net/browse/MODINVOSTO-206) - Replace internal_lock table with a FOR UPDATE SKIP LOCKED
+* [MODINVOSTO-202](https://folio-org.atlassian.net/browse/MODINVOSTO-202) - Create API for storing Invoice adjustments
+* [MODINVOSTO-201](https://folio-org.atlassian.net/browse/MODINVOSTO-201) - Upgrade module to Vert.x 5.0
+* [MODINVOSTO-199](https://folio-org.atlassian.net/browse/MODINVOSTO-199) - Setup dependabot for your module
+* [MODINVOSTO-198](https://folio-org.atlassian.net/browse/MODINVOSTO-198) - Replace net.mguenther.kafka:kafka-junit (EOL)
+
+### Dependencies
+* Bump `raml-module-builder` from `35.4.0` to `36.0.0`
+* Bump `vertx` from `4.5.13` to `5.0.8`
+* Bump `spring` from `6.2.3` to `7.0.6`
+* Bump `log4j` from `2.24.3` to `2.25.3`
+* Bump `folio-di-support` from `3.0.0` to `4.0.0`
+* Bump `folio-kafka-wrapper` from `3.3.0` to `3.3.2`
+* Bump `junit-jupiter` from `5.12.0` to `6.0.3`
+* Bump `rest-assured` from `5.5.1` to `6.0.0`
 
 ## 6.0.0 - Released - (Sunflower R1 2025)
 
