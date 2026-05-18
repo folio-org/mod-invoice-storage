@@ -1,7 +1,7 @@
-## 6.1.0 - Released (Trillium R1 2026 Bug Fix)
+## 6.1.1 - Released (Trillium R1 2026 Bug Fix)
 The primary focus of this release was to fix issues with readonly properties inside acq models schema.
 
-[Full Changelog](https://github.com/folio-org/mod-invoice-storage/compare/v6.0.0...v6.1.0)
+[Full Changelog](https://github.com/folio-org/mod-invoice-storage/compare/v6.1.0...v6.1.1)
 
 ### Bug Fixes
 * [MODINVOICE-648](https://folio-org.atlassian.net/browse/MODINVOICE-648) - "Sub total" and "Calculated total amount" missing from Invoice version history
