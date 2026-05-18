@@ -98,7 +98,7 @@
     {
       "run": "after",
       "snippetPath": "data-migration/7.0.0/fill_missing_next_il_number.ftl",
-      "fromModuleVersion": "mod-invoice-storage-7.0.0"
+      "fromModuleVersion": "mod-invoice-storage-6.1.1"
     }
   ],
   "tables": [
