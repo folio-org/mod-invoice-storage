@@ -26,13 +26,13 @@
 
     <!--Dependency Management Properties-->
     <spring.version>7.0.6</spring.version>
-    <vertx.version>5.0.8</vertx.version>
+    <vertx.version>5.0.12</vertx.version>
     <log4j.version>2.25.3</log4j.version>
     <streamex.version>0.8.4</streamex.version>
 
     <!--Folio dependencies properties-->
     <folio-module-descriptor-validator.version>1.0.1</folio-module-descriptor-validator.version>
-    <folio-kafka-wrapper.version>4.0.0</folio-kafka-wrapper.version>
+    <folio-kafka-wrapper.version>4.1.0-SNAPSHOT</folio-kafka-wrapper.version>
     <folio-di-support.version>4.0.0</folio-di-support.version>
 
     <!--Dependency properties-->
