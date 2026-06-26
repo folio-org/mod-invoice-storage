@@ -61,13 +61,17 @@ public class AuditOutboxService {
       switch (eventLog.getEntityType()) {
         case INVOICE -> {
           var invoice = Json.decodeValue(eventLog.getPayload(), Invoice.class);
+          var original = eventLog.getOriginalPayload() != null
+            ? Json.decodeValue(eventLog.getOriginalPayload(), Invoice.class) : null;
           var action = InvoiceAuditEvent.Action.fromValue(eventLog.getAction());
-          yield producer.sendInvoiceEvent(invoice, action, okapiHeaders);
+          yield producer.sendInvoiceEvent(invoice, original, action, okapiHeaders);
         }
         case INVOICE_LINE -> {
           var invoiceLine = Json.decodeValue(eventLog.getPayload(), InvoiceLine.class);
+          var original = eventLog.getOriginalPayload() != null
+            ? Json.decodeValue(eventLog.getOriginalPayload(), InvoiceLine.class) : null;
           var action = InvoiceLineAuditEvent.Action.fromValue(eventLog.getAction());
-          yield producer.sendInvoiceLineEvent(invoiceLine, action, okapiHeaders);
+          yield producer.sendInvoiceLineEvent(invoiceLine, original, action, okapiHeaders);
         }
       }).toList();
   }
@@ -82,7 +86,20 @@ public class AuditOutboxService {
    * @return future with saved outbox log id in the same transaction
    */
   public Future<Void> saveInvoiceOutboxLog(Conn conn, Invoice entity, InvoiceAuditEvent.Action action, Map<String, String> okapiHeaders) {
-    return saveOutboxLog(conn, okapiHeaders, action.value(), EntityType.INVOICE, entity.getId(), entity);
+    return saveInvoiceOutboxLog(conn, entity, null, action, okapiHeaders);
+  }
+
+  /**
+   * Saves invoice outbox log capturing the pre-edit state.
+   *
+   * @param conn         connection in transaction
+   * @param entity       the invoice (post-edit state)
+   * @param original     the invoice before the edit; null for Create
+   * @param action       the event action
+   * @param okapiHeaders okapi headers
+   */
+  public Future<Void> saveInvoiceOutboxLog(Conn conn, Invoice entity, Invoice original, InvoiceAuditEvent.Action action, Map<String, String> okapiHeaders) {
+    return saveOutboxLog(conn, okapiHeaders, action.value(), EntityType.INVOICE, entity.getId(), entity, original);
   }
 
   /**
@@ -95,16 +112,30 @@ public class AuditOutboxService {
    * @return future with saved outbox log id in the same transaction
    */
   public Future<Void> saveInvoiceLineOutboxLog(Conn conn, InvoiceLine entity, InvoiceLineAuditEvent.Action action, Map<String, String> okapiHeaders) {
-    return saveOutboxLog(conn, okapiHeaders, action.value(), EntityType.INVOICE_LINE, entity.getId(), entity);
+    return saveInvoiceLineOutboxLog(conn, entity, null, action, okapiHeaders);
   }
 
-  private Future<Void> saveOutboxLog(Conn conn, Map<String, String> okapiHeaders, String action, EntityType entityType, String entityId, Object entity) {
+  /**
+   * Saves invoice line outbox log capturing the pre-edit state.
+   *
+   * @param conn         connection in transaction
+   * @param entity       the invoice line (post-edit state)
+   * @param original     the invoice line before the edit; null for Create
+   * @param action       the event action
+   * @param okapiHeaders okapi headers
+   */
+  public Future<Void> saveInvoiceLineOutboxLog(Conn conn, InvoiceLine entity, InvoiceLine original, InvoiceLineAuditEvent.Action action, Map<String, String> okapiHeaders) {
+    return saveOutboxLog(conn, okapiHeaders, action.value(), EntityType.INVOICE_LINE, entity.getId(), entity, original);
+  }
+
+  private Future<Void> saveOutboxLog(Conn conn, Map<String, String> okapiHeaders, String action, EntityType entityType, String entityId, Object entity, Object originalEntity) {
     log.debug("saveOutboxLog:: Saving outbox log for {} with id: {}", entityType, entityId);
     var eventLog = new OutboxEventLog()
       .withEventId(UUID.randomUUID().toString())
       .withAction(action)
       .withEntityType(entityType)
-      .withPayload(Json.encode(entity));
+      .withPayload(Json.encode(entity))
+      .withOriginalPayload(originalEntity != null ? Json.encode(originalEntity) : null);
     return outboxEventLogDAO.saveEventLog(conn, eventLog, TenantTool.tenantId(okapiHeaders))
       .onSuccess(reply -> log.info("saveOutboxLog:: Outbox log has been saved for {} with id: {}", entityType, entityId))
       .onFailure(e -> log.warn("saveOutboxLog:: Could not save outbox audit log for {} with id: {}", entityType, entityId, e));

@@ -55,8 +55,9 @@ public class InvoiceLineStorageService {
       asyncResultHandler.handle(buildBadRequestResponse("Invoice line id is required"));
     }
     new DBClient(vertxContext, headers).getPgClient()
-      .withTrans(conn -> invoiceLinesDAO.updateInvoiceLine(id, invoiceLine, conn)
-        .compose(invoiceLineId -> auditOutboxService.saveInvoiceLineOutboxLog(conn, invoiceLine, InvoiceLineAuditEvent.Action.EDIT, headers)))
+      .withTrans(conn -> invoiceLinesDAO.getInvoiceLineByIdForUpdate(id, conn)
+        .compose(original -> invoiceLinesDAO.updateInvoiceLine(id, invoiceLine, conn)
+          .compose(v -> auditOutboxService.saveInvoiceLineOutboxLog(conn, invoiceLine, original, InvoiceLineAuditEvent.Action.EDIT, headers))))
       .onSuccess(s -> {
         log.info("updateInvoiceLine:: Successfully updated invoice line with id: {}", id);
         auditOutboxService.processOutboxEventLogs(headers, vertxContext);
