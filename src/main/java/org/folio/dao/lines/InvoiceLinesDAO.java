@@ -11,6 +11,8 @@ public interface InvoiceLinesDAO {
 
   Future<List<InvoiceLine>> getInvoiceLines(Criterion criterion, Conn conn);
 
+  Future<InvoiceLine> getInvoiceLineByIdForUpdate(String id, Conn conn);
+
   Future<String> createInvoiceLine(InvoiceLine invoiceLine, Conn conn);
 
   Future<Void> updateInvoiceLine(String id, InvoiceLine invoiceLine, Conn conn);

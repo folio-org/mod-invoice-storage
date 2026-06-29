@@ -32,13 +32,14 @@ public class AuditEventProducer {
    * Sends event for invoice change(Create, Edit) to kafka.
    * InvoiceId is used as partition key to send all events for particular invoice to the same partition.
    *
-   * @param invoice      the event payload
-   * @param eventAction  the event action
-   * @param okapiHeaders the okapi headers
+   * @param invoice         the event payload (post-edit state)
+   * @param originalInvoice the pre-edit invoice state; null for Create
+   * @param eventAction     the event action
+   * @param okapiHeaders    the okapi headers
    * @return future with true if sending was success or failed future in another case
    */
-  public Future<Void> sendInvoiceEvent(Invoice invoice, InvoiceAuditEvent.Action eventAction, Map<String, String> okapiHeaders) {
-    var event = getAuditEvent(invoice, eventAction);
+  public Future<Void> sendInvoiceEvent(Invoice invoice, Invoice originalInvoice, InvoiceAuditEvent.Action eventAction, Map<String, String> okapiHeaders) {
+    var event = getAuditEvent(invoice, originalInvoice, eventAction);
     log.info("sendInvoiceEvent:: Sending event with id: {} and invoiceId: {} to Kafka", event.getId(), invoice.getId());
     return sendToKafka(EventTopic.ACQ_INVOICE_CHANGED, event.getInvoiceId(), event, okapiHeaders)
       .onFailure(t -> log.warn("sendInvoiceEvent:: Failed to send event with id: {} and invoiceId: {} to Kafka", event.getId(), invoice.getId(), t));
@@ -48,20 +49,21 @@ public class AuditEventProducer {
    * Sends event for invoice line change(Create, Edit) to kafka.
    * InvoiceLineId is used as partition key to send all events for particular invoice line to the same partition.
    *
-   * @param invoiceLine  the event payload
-   * @param eventAction  the event action
-   * @param okapiHeaders the okapi headers
+   * @param invoiceLine         the event payload (post-edit state)
+   * @param originalInvoiceLine the pre-edit invoice line state; null for Create
+   * @param eventAction         the event action
+   * @param okapiHeaders        the okapi headers
    * @return future with true if sending was success or failed future in another case
    */
-  public Future<Void> sendInvoiceLineEvent(InvoiceLine invoiceLine, InvoiceLineAuditEvent.Action eventAction, Map<String, String> okapiHeaders) {
-    var event = getAuditEvent(invoiceLine, eventAction);
+  public Future<Void> sendInvoiceLineEvent(InvoiceLine invoiceLine, InvoiceLine originalInvoiceLine, InvoiceLineAuditEvent.Action eventAction, Map<String, String> okapiHeaders) {
+    var event = getAuditEvent(invoiceLine, originalInvoiceLine, eventAction);
     log.info("sendInvoiceLineEvent:: Sending event with id: {} and invoiceLineId: {} to Kafka", event.getId(), invoiceLine.getId());
     return sendToKafka(EventTopic.ACQ_INVOICE_LINE_CHANGED, event.getInvoiceLineId(), event, okapiHeaders)
       .onFailure(t -> log.error("sendInvoiceLineEvent:: Failed to send event with id: {} and invoiceLineId: {} to Kafka", event.getId(), invoiceLine.getId(), t));
   }
 
-  private InvoiceAuditEvent getAuditEvent(Invoice invoice, InvoiceAuditEvent.Action eventAction) {
-    return new InvoiceAuditEvent()
+  InvoiceAuditEvent getAuditEvent(Invoice invoice, Invoice originalInvoice, InvoiceAuditEvent.Action eventAction) {
+    var event = new InvoiceAuditEvent()
       .withId(UUID.randomUUID().toString())
       .withAction(eventAction)
       .withInvoiceId(invoice.getId())
@@ -69,10 +71,14 @@ public class AuditEventProducer {
       .withActionDate(invoice.getMetadata().getUpdatedDate())
       .withUserId(invoice.getMetadata().getUpdatedByUserId())
       .withInvoiceSnapshot(invoice.withMetadata(null));
+    if (originalInvoice != null) {
+      event.setOriginalInvoiceSnapshot(originalInvoice.withMetadata(null));
+    }
+    return event;
   }
 
-  private InvoiceLineAuditEvent getAuditEvent(InvoiceLine invoiceLine, InvoiceLineAuditEvent.Action eventAction) {
-    return new InvoiceLineAuditEvent()
+  InvoiceLineAuditEvent getAuditEvent(InvoiceLine invoiceLine, InvoiceLine originalInvoiceLine, InvoiceLineAuditEvent.Action eventAction) {
+    var event = new InvoiceLineAuditEvent()
       .withId(UUID.randomUUID().toString())
       .withAction(eventAction)
       .withInvoiceId(invoiceLine.getInvoiceId())
@@ -81,6 +87,10 @@ public class AuditEventProducer {
       .withActionDate(invoiceLine.getMetadata().getUpdatedDate())
       .withUserId(invoiceLine.getMetadata().getUpdatedByUserId())
       .withInvoiceLineSnapshot(invoiceLine.withMetadata(null));
+    if (originalInvoiceLine != null) {
+      event.setOriginalInvoiceLineSnapshot(originalInvoiceLine.withMetadata(null));
+    }
+    return event;
   }
 
   private Future<Void> sendToKafka(EventTopic eventTopic, String key, Object eventPayload, Map<String, String> okapiHeaders) {

@@ -68,8 +68,9 @@ public class InvoiceStorageService {
       asyncResultHandler.handle(buildBadRequestResponse("Invoice id is required"));
     }
     new DBClient(vertxContext, headers).getPgClient()
-      .withTrans(conn -> invoiceDAO.updateInvoice(id, invoice, conn)
-        .compose(invoiceId -> auditOutboxService.saveInvoiceOutboxLog(conn, invoice, InvoiceAuditEvent.Action.EDIT, headers)))
+      .withTrans(conn -> invoiceDAO.getInvoiceByIdForUpdate(id, conn)
+        .compose(original -> invoiceDAO.updateInvoice(id, invoice, conn)
+          .compose(v -> auditOutboxService.saveInvoiceOutboxLog(conn, invoice, original, InvoiceAuditEvent.Action.EDIT, headers))))
       .onSuccess(s -> {
         log.info("putInvoiceStorageInvoicesById:: Successfully updated invoice with id: {}", id);
         auditOutboxService.processOutboxEventLogs(headers, vertxContext);
