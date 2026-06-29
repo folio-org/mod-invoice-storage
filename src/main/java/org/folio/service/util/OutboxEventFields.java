@@ -10,8 +10,7 @@ public enum OutboxEventFields {
   EVENT_ID("event_id"),
   ENTITY_TYPE("entity_type"),
   ACTION("action"),
-  PAYLOAD("payload"),
-  ORIGINAL_PAYLOAD("original_payload");
+  PAYLOAD("payload");
 
   private final String name;
 

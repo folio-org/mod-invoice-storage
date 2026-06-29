@@ -21,7 +21,7 @@ public class AuditOutboxEventLogPostgresDAO implements AuditOutboxEventLogDAO {
 
   public static final String OUTBOX_TABLE_NAME = "outbox_event_log";
   private static final String SELECT_SQL = "SELECT * FROM %s FOR UPDATE SKIP LOCKED LIMIT 1000";
-  private static final String INSERT_SQL = "INSERT INTO %s (event_id, entity_type, action, payload, original_payload) VALUES ($1, $2, $3, $4, $5)";
+  private static final String INSERT_SQL = "INSERT INTO %s (event_id, entity_type, action, payload) VALUES ($1, $2, $3, $4)";
   private static final String BATCH_DELETE_SQL = "DELETE from %s where event_id = ANY ($1)";
 
   /**
@@ -50,7 +50,7 @@ public class AuditOutboxEventLogPostgresDAO implements AuditOutboxEventLogDAO {
   public Future<Void> saveEventLog(Conn conn, OutboxEventLog eventLog, String tenantId) {
     log.debug("saveEventLog:: Saving event log to outbox table with eventId: '{}'", eventLog.getEventId());
     var tableName = getTenantTableName(tenantId, OUTBOX_TABLE_NAME);
-    Tuple params = Tuple.of(eventLog.getEventId(), eventLog.getEntityType().value(), eventLog.getAction(), eventLog.getPayload(), eventLog.getOriginalPayload());
+    Tuple params = Tuple.of(eventLog.getEventId(), eventLog.getEntityType().value(), eventLog.getAction(), eventLog.getPayload());
     return conn.execute(INSERT_SQL.formatted(tableName), params)
       .onFailure(t -> log.warn("saveEventLog:: Failed to save event log with id: '{}'", eventLog.getEventId(), t))
       .mapEmpty();
@@ -78,8 +78,7 @@ public class AuditOutboxEventLogPostgresDAO implements AuditOutboxEventLogDAO {
       .withEventId(row.getUUID(OutboxEventFields.EVENT_ID.getName()).toString())
       .withEntityType(OutboxEventLog.EntityType.fromValue(row.getString(OutboxEventFields.ENTITY_TYPE.getName())))
       .withAction(row.getString(OutboxEventFields.ACTION.getName()))
-      .withPayload(row.getString(OutboxEventFields.PAYLOAD.getName()))
-      .withOriginalPayload(row.getString(OutboxEventFields.ORIGINAL_PAYLOAD.getName()));
+      .withPayload(row.getString(OutboxEventFields.PAYLOAD.getName()));
   }
 
 }

@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.folio.dao.audit.AuditOutboxEventLogDAO;
+import org.folio.dbschema.ObjectMapperTool;
 import org.folio.rest.jaxrs.model.Invoice;
 import org.folio.rest.jaxrs.model.InvoiceAuditEvent;
 import org.folio.rest.jaxrs.model.InvoiceLine;
@@ -60,20 +61,36 @@ public class AuditOutboxService {
     return eventLogs.stream().map(eventLog ->
       switch (eventLog.getEntityType()) {
         case INVOICE -> {
-          var invoice = Json.decodeValue(eventLog.getPayload(), Invoice.class);
-          var original = eventLog.getOriginalPayload() != null
-            ? Json.decodeValue(eventLog.getOriginalPayload(), Invoice.class) : null;
+          var wrapper = decodePayload(eventLog.getPayload(), Invoice.class);
           var action = InvoiceAuditEvent.Action.fromValue(eventLog.getAction());
-          yield producer.sendInvoiceEvent(invoice, original, action, okapiHeaders);
+          yield producer.sendInvoiceEvent(wrapper.getEntity(), wrapper.getOriginalEntity(), action, okapiHeaders);
         }
         case INVOICE_LINE -> {
-          var invoiceLine = Json.decodeValue(eventLog.getPayload(), InvoiceLine.class);
-          var original = eventLog.getOriginalPayload() != null
-            ? Json.decodeValue(eventLog.getOriginalPayload(), InvoiceLine.class) : null;
+          var wrapper = decodePayload(eventLog.getPayload(), InvoiceLine.class);
           var action = InvoiceLineAuditEvent.Action.fromValue(eventLog.getAction());
-          yield producer.sendInvoiceLineEvent(invoiceLine, original, action, okapiHeaders);
+          yield producer.sendInvoiceLineEvent(wrapper.getEntity(), wrapper.getOriginalEntity(), action, okapiHeaders);
         }
       }).toList();
+  }
+
+  /**
+   * Decode an outbox payload into a wrapper. Falls back to decoding the payload as a bare entity
+   * for backwards compatibility with rows written before the wrapper format was introduced.
+   */
+  <T> AuditEntityWrapper<T> decodePayload(String payload, Class<T> entityClass) {
+    var mapper = ObjectMapperTool.getMapper();
+    try {
+      var wrapperType = mapper.getTypeFactory().constructParametricType(AuditEntityWrapper.class, entityClass);
+      AuditEntityWrapper<T> wrapper = mapper.readValue(payload, wrapperType);
+      if (wrapper.getEntity() != null) {
+        return wrapper;
+      }
+    } catch (Exception ignored) {
+      // fall through to legacy decoding
+    }
+    log.warn("decodePayload:: Falling back to legacy (bare-entity) outbox payload decoding");
+    T entity = Json.decodeValue(payload, entityClass);
+    return AuditEntityWrapper.of(entity, null);
   }
 
   /**
@@ -99,7 +116,7 @@ public class AuditOutboxService {
    * @param okapiHeaders okapi headers
    */
   public Future<Void> saveInvoiceOutboxLog(Conn conn, Invoice entity, Invoice original, InvoiceAuditEvent.Action action, Map<String, String> okapiHeaders) {
-    return saveOutboxLog(conn, okapiHeaders, action.value(), EntityType.INVOICE, entity.getId(), entity, original);
+    return saveOutboxLog(conn, okapiHeaders, action.value(), EntityType.INVOICE, entity.getId(), AuditEntityWrapper.of(entity, original));
   }
 
   /**
@@ -125,17 +142,16 @@ public class AuditOutboxService {
    * @param okapiHeaders okapi headers
    */
   public Future<Void> saveInvoiceLineOutboxLog(Conn conn, InvoiceLine entity, InvoiceLine original, InvoiceLineAuditEvent.Action action, Map<String, String> okapiHeaders) {
-    return saveOutboxLog(conn, okapiHeaders, action.value(), EntityType.INVOICE_LINE, entity.getId(), entity, original);
+    return saveOutboxLog(conn, okapiHeaders, action.value(), EntityType.INVOICE_LINE, entity.getId(), AuditEntityWrapper.of(entity, original));
   }
 
-  private Future<Void> saveOutboxLog(Conn conn, Map<String, String> okapiHeaders, String action, EntityType entityType, String entityId, Object entity, Object originalEntity) {
+  private Future<Void> saveOutboxLog(Conn conn, Map<String, String> okapiHeaders, String action, EntityType entityType, String entityId, AuditEntityWrapper<?> wrapper) {
     log.debug("saveOutboxLog:: Saving outbox log for {} with id: {}", entityType, entityId);
     var eventLog = new OutboxEventLog()
       .withEventId(UUID.randomUUID().toString())
       .withAction(action)
       .withEntityType(entityType)
-      .withPayload(Json.encode(entity))
-      .withOriginalPayload(originalEntity != null ? Json.encode(originalEntity) : null);
+      .withPayload(Json.encode(wrapper));
     return outboxEventLogDAO.saveEventLog(conn, eventLog, TenantTool.tenantId(okapiHeaders))
       .onSuccess(reply -> log.info("saveOutboxLog:: Outbox log has been saved for {} with id: {}", entityType, entityId))
       .onFailure(e -> log.warn("saveOutboxLog:: Could not save outbox audit log for {} with id: {}", entityType, entityId, e));
