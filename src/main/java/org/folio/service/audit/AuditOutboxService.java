@@ -6,7 +6,6 @@ import java.util.UUID;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.folio.dao.audit.AuditOutboxEventLogDAO;
-import org.folio.dbschema.ObjectMapperTool;
 import org.folio.rest.jaxrs.model.Invoice;
 import org.folio.rest.jaxrs.model.InvoiceAuditEvent;
 import org.folio.rest.jaxrs.model.InvoiceLine;
@@ -20,6 +19,7 @@ import org.folio.rest.tools.utils.TenantTool;
 import io.vertx.core.Context;
 import io.vertx.core.Future;
 import io.vertx.core.json.Json;
+import io.vertx.core.json.jackson.DatabindCodec;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 
@@ -78,7 +78,7 @@ public class AuditOutboxService {
    * for backwards compatibility with rows written before the wrapper format was introduced.
    */
   <T> AuditEntityWrapper<T> decodePayload(String payload, Class<T> entityClass) {
-    var mapper = ObjectMapperTool.getMapper();
+    var mapper = DatabindCodec.mapper();
     try {
       var wrapperType = mapper.getTypeFactory().constructParametricType(AuditEntityWrapper.class, entityClass);
       AuditEntityWrapper<T> wrapper = mapper.readValue(payload, wrapperType);
