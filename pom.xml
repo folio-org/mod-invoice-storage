@@ -19,14 +19,14 @@
 
     <!--Project properties-->
     <ramlfiles_path>${basedir}/ramls</ramlfiles_path>
-    <raml-module-builder.version>36.0.0</raml-module-builder.version>
+    <raml-module-builder.version>36.0.1</raml-module-builder.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <generated_sources_dir>${project.build.directory}/generated-sources</generated_sources_dir>
     <jsonschema2pojo_output_dir>${generated_sources_dir}/jsonschema2pojo</jsonschema2pojo_output_dir>
 
     <!--Dependency Management Properties-->
     <spring.version>7.0.8</spring.version>
-    <vertx.version>5.1.2</vertx.version>
+    <vertx.version>5.1.6</vertx.version>
     <log4j.version>2.26.0</log4j.version>
     <streamex.version>0.8.4</streamex.version>
 
@@ -37,7 +37,7 @@
 
     <!--Dependency properties-->
     <aspectj.version>1.9.25.1</aspectj.version>
-    <rest-assured.version>6.0.0</rest-assured.version>
+    <rest-assured.version>6.0.1</rest-assured.version>
 
     <!--Maven plugin properties-->
     <aspectj-maven-plugin.version>1.14.1</aspectj-maven-plugin.version>
