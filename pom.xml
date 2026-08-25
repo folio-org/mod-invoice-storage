@@ -19,16 +19,16 @@
 
     <!--Project properties-->
     <ramlfiles_path>${basedir}/ramls</ramlfiles_path>
-    <raml-module-builder.version>36.0.0</raml-module-builder.version>
+    <raml-module-builder.version>36.0.1</raml-module-builder.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <generated_sources_dir>${project.build.directory}/generated-sources</generated_sources_dir>
     <jsonschema2pojo_output_dir>${generated_sources_dir}/jsonschema2pojo</jsonschema2pojo_output_dir>
 
     <!--Dependency Management Properties-->
-    <spring.version>7.0.8</spring.version>
-    <vertx.version>5.1.2</vertx.version>
-    <log4j.version>2.26.0</log4j.version>
-    <streamex.version>0.8.4</streamex.version>
+    <spring.version>7.0.9</spring.version>
+    <vertx.version>5.1.6</vertx.version>
+    <log4j.version>2.26.1</log4j.version>
+    <streamex.version>0.9.0</streamex.version>
 
     <!--Folio dependencies properties-->
     <folio-module-descriptor-validator.version>1.0.1</folio-module-descriptor-validator.version>
@@ -52,7 +52,7 @@
     <copy-rename-maven-plugin.version>1.0.1</copy-rename-maven-plugin.version>
 
     <!--Test Scope dependencies-->
-    <junit-jupiter.version>6.1.0</junit-jupiter.version>
+    <junit-jupiter.version>6.1.3</junit-jupiter.version>
     <testcontainers-bom.version>2.0.5</testcontainers-bom.version>
     <jmockit.version>1.50</jmockit.version>
     <mockito.version>5.23.0</mockito.version>
