@@ -26,7 +26,7 @@
 
     <!--Dependency Management Properties-->
     <spring.version>7.0.9</spring.version>
-    <vertx.version>5.1.6</vertx.version>
+    <vertx.version>5.1.7</vertx.version>
     <log4j.version>2.26.1</log4j.version>
     <streamex.version>0.9.0</streamex.version>
 
