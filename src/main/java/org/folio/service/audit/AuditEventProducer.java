@@ -13,6 +13,8 @@ import org.folio.rest.jaxrs.model.Invoice;
 import org.folio.rest.jaxrs.model.InvoiceAuditEvent;
 import org.folio.rest.jaxrs.model.InvoiceLineAuditEvent;
 import org.folio.rest.jaxrs.model.InvoiceLine;
+import org.folio.rest.jaxrs.model.Voucher;
+import org.folio.rest.jaxrs.model.VoucherAuditEvent;
 import org.folio.rest.tools.utils.TenantTool;
 
 import io.vertx.core.Future;
@@ -62,6 +64,23 @@ public class AuditEventProducer {
       .onFailure(t -> log.error("sendInvoiceLineEvent:: Failed to send event with id: {} and invoiceLineId: {} to Kafka", event.getId(), invoiceLine.getId(), t));
   }
 
+  /**
+   * Sends event for voucher change(Create, Edit) to kafka.
+   * VoucherId is used as partition key to send all events for particular voucher to the same partition.
+   *
+   * @param voucher         the event payload (post-edit state)
+   * @param originalVoucher the pre-edit voucher state; null for Create
+   * @param eventAction     the event action
+   * @param okapiHeaders    the okapi headers
+   * @return future with true if sending was success or failed future in another case
+   */
+  public Future<Void> sendVoucherEvent(Voucher voucher, Voucher originalVoucher, VoucherAuditEvent.Action eventAction, Map<String, String> okapiHeaders) {
+    var event = getAuditEvent(voucher, originalVoucher, eventAction);
+    log.info("sendVoucherEvent:: Sending event with id: {} and voucherId: {} to Kafka", event.getId(), voucher.getId());
+    return sendToKafka(EventTopic.ACQ_VOUCHER_CHANGED, event.getVoucherId(), event, okapiHeaders)
+      .onFailure(t -> log.error("sendVoucherEvent:: Failed to send event with id: {} and voucherId: {} to Kafka", event.getId(), voucher.getId(), t));
+  }
+
   InvoiceAuditEvent getAuditEvent(Invoice invoice, Invoice originalInvoice, InvoiceAuditEvent.Action eventAction) {
     var event = new InvoiceAuditEvent()
       .withId(UUID.randomUUID().toString())
@@ -89,6 +108,21 @@ public class AuditEventProducer {
       .withInvoiceLineSnapshot(invoiceLine.withMetadata(null));
     if (originalInvoiceLine != null) {
       event.setOriginalInvoiceLineSnapshot(originalInvoiceLine.withMetadata(null));
+    }
+    return event;
+  }
+
+  VoucherAuditEvent getAuditEvent(Voucher voucher, Voucher originalVoucher, VoucherAuditEvent.Action eventAction) {
+    var event = new VoucherAuditEvent()
+      .withId(UUID.randomUUID().toString())
+      .withAction(eventAction)
+      .withVoucherId(voucher.getId())
+      .withEventDate(new Date())
+      .withActionDate(voucher.getMetadata().getUpdatedDate())
+      .withUserId(voucher.getMetadata().getUpdatedByUserId())
+      .withVoucherSnapshot(voucher.withMetadata(null));
+    if (originalVoucher != null) {
+      event.setOriginalVoucherSnapshot(originalVoucher.withMetadata(null));
     }
     return event;
   }

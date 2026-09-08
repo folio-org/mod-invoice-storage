@@ -26,6 +26,7 @@ import org.folio.dbschema.ObjectMapperTool;
 import org.folio.rest.jaxrs.model.BatchVoucher;
 import org.folio.rest.jaxrs.model.InvoiceAuditEvent;
 import org.folio.rest.jaxrs.model.InvoiceLineAuditEvent;
+import org.folio.rest.jaxrs.model.VoucherAuditEvent;
 import org.folio.rest.utils.TestEntities;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -61,7 +62,8 @@ public abstract class TestBase {
 
   private final Map<TestEntities, List<String>> kafkaMessageMethods = Map.of(
     TestEntities.INVOICE, getEnumValuesAsString(InvoiceAuditEvent.Action.class),
-    TestEntities.INVOICE_LINES, getEnumValuesAsString(InvoiceLineAuditEvent.Action.class)
+    TestEntities.INVOICE_LINES, getEnumValuesAsString(InvoiceLineAuditEvent.Action.class),
+    TestEntities.VOUCHER, getEnumValuesAsString(VoucherAuditEvent.Action.class)
   );
 
   @BeforeAll
