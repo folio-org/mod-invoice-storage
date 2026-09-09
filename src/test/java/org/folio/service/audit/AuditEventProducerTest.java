@@ -91,7 +91,7 @@ class AuditEventProducerTest {
     assertEquals("EFT546789", event.getVoucherSnapshot().getDisbursementNumber());
     assertEquals(5d, event.getVoucherSnapshot().getDisbursementAmount());
     assertEquals(List.of("acq-unit-1", "acq-unit-2"), event.getVoucherSnapshot().getAcqUnitIds());
-    assertNull(event.getVoucherSnapshot().getMetadata());
+    assertNotNull(event.getVoucherSnapshot().getMetadata());
 
     assertNull(event.getOriginalVoucherSnapshot());
   }
@@ -110,7 +110,7 @@ class AuditEventProducerTest {
     assertNotNull(event.getOriginalVoucherSnapshot());
     assertEquals("1000", event.getOriginalVoucherSnapshot().getVoucherNumber());
     assertEquals("EFT-old", event.getOriginalVoucherSnapshot().getDisbursementNumber());
-    assertNull(event.getOriginalVoucherSnapshot().getMetadata());
+    assertNotNull(event.getOriginalVoucherSnapshot().getMetadata());
   }
 
   private Invoice getInvoice(String vendorInvoiceNo, String status) {

@@ -16,6 +16,8 @@ import java.util.UUID;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.folio.rest.jaxrs.model.EventTopic;
+import org.folio.rest.jaxrs.model.InvoiceAuditEvent;
+import org.folio.rest.jaxrs.model.InvoiceLineAuditEvent;
 import org.folio.rest.jaxrs.model.VoucherAuditEvent;
 import org.folio.rest.utils.TestData;
 import org.folio.rest.utils.TestEntities;
@@ -72,7 +74,7 @@ public class AuditOutboxAPITest extends TestBase {
     assertEquals(toInstant(voucher.getString("disbursementDate")), toInstant(snapshot.getString("disbursementDate")));
     assertEquals(voucher.getDouble("disbursementAmount"), snapshot.getDouble("disbursementAmount"));
     assertEquals(voucher.getJsonArray("acqUnitIds"), snapshot.getJsonArray("acqUnitIds"));
-    assertFalse(snapshot.containsKey("metadata"));
+    assertNotNull(snapshot.getJsonObject("metadata"), "Snapshot must keep the metadata the consumer needs");
   }
 
   @Test
@@ -112,8 +114,74 @@ public class AuditOutboxAPITest extends TestBase {
     assertEquals(toInstant(DATE_AFTER_EDIT), toInstant(post.getString("disbursementDate")));
     assertEquals(toInstant(DATE_BEFORE_EDIT), toInstant(pre.getString("disbursementDate")));
 
-    assertFalse(post.containsKey("metadata"));
-    assertFalse(pre.containsKey("metadata"));
+    assertNotNull(post.getJsonObject("metadata"), "Snapshot must keep the metadata the consumer needs");
+    assertNotNull(pre.getJsonObject("metadata"));
+  }
+
+  @Test
+  void voucherEditWithoutIdInBodyStillCarriesIdInBothSnapshots() throws MalformedURLException {
+    JsonObject original = givenVoucher(new JsonObject().put("voucherNumber", "9200"));
+    String voucherId = original.getString(ID);
+
+    JsonObject bodyWithoutId = original.copy().put("voucherNumber", "9201");
+    bodyWithoutId.remove(ID);
+    updateVoucher(voucherId, bodyWithoutId);
+    processOutbox();
+
+    JsonObject event = findVoucherEvent(voucherId, VoucherAuditEvent.Action.EDIT);
+    JsonObject post = event.getJsonObject("voucherSnapshot");
+    JsonObject pre = event.getJsonObject("originalVoucherSnapshot");
+    assertEquals(voucherId, post.getString(ID), "Post-edit snapshot must carry the path id even when the body omits it");
+    assertEquals(voucherId, pre.getString(ID));
+    assertEquals("9201", post.getString("voucherNumber"));
+    assertEquals("9200", pre.getString("voucherNumber"));
+  }
+
+  @Test
+  void invoiceEditWithoutIdInBodyStillCarriesIdInBothSnapshots() throws MalformedURLException {
+    JsonObject invoice = new JsonObject(getFile(TestData.Invoice.DEFAULT))
+      .put(ID, UUID.randomUUID().toString())
+      .put("vendorInvoiceNo", "INV-9300");
+    String invoiceId = createTrackedEntity(TestEntities.INVOICE, invoice);
+
+    JsonObject bodyWithoutId = invoice.copy().put("vendorInvoiceNo", "INV-9301");
+    bodyWithoutId.remove(ID);
+    updateEntity(TestEntities.INVOICE, invoiceId, bodyWithoutId);
+    processOutbox();
+
+    JsonObject event = findEvent(EventTopic.ACQ_INVOICE_CHANGED, "invoiceId", invoiceId, InvoiceAuditEvent.Action.EDIT.value());
+    JsonObject post = event.getJsonObject("invoiceSnapshot");
+    JsonObject pre = event.getJsonObject("originalInvoiceSnapshot");
+    assertEquals(invoiceId, post.getString(ID), "Post-edit snapshot must carry the path id even when the body omits it");
+    assertEquals(invoiceId, pre.getString(ID));
+    assertEquals("INV-9301", post.getString("vendorInvoiceNo"));
+    assertEquals("INV-9300", pre.getString("vendorInvoiceNo"));
+  }
+
+  @Test
+  void invoiceLineEditWithoutIdInBodyStillCarriesIdInBothSnapshots() throws MalformedURLException {
+    JsonObject invoice = new JsonObject(getFile(TestData.Invoice.DEFAULT)).put(ID, UUID.randomUUID().toString());
+    String invoiceId = createTrackedEntity(TestEntities.INVOICE, invoice);
+
+    JsonObject invoiceLine = new JsonObject(getFile(TestData.InvoiceLines.DEFAULT))
+      .put(ID, UUID.randomUUID().toString())
+      .put("invoiceId", invoiceId)
+      .put("description", "line before edit");
+    String invoiceLineId = createTrackedEntity(TestEntities.INVOICE_LINES, invoiceLine);
+
+    JsonObject bodyWithoutId = invoiceLine.copy().put("description", "line after edit");
+    bodyWithoutId.remove(ID);
+    updateEntity(TestEntities.INVOICE_LINES, invoiceLineId, bodyWithoutId);
+    processOutbox();
+
+    JsonObject event = findEvent(EventTopic.ACQ_INVOICE_LINE_CHANGED, "invoiceLineId", invoiceLineId,
+      InvoiceLineAuditEvent.Action.EDIT.value());
+    JsonObject post = event.getJsonObject("invoiceLineSnapshot");
+    JsonObject pre = event.getJsonObject("originalInvoiceLineSnapshot");
+    assertEquals(invoiceLineId, post.getString(ID), "Post-edit snapshot must carry the path id even when the body omits it");
+    assertEquals(invoiceLineId, pre.getString(ID));
+    assertEquals("line after edit", post.getString("description"));
+    assertEquals("line before edit", pre.getString("description"));
   }
 
   /**
@@ -140,12 +208,16 @@ public class AuditOutboxAPITest extends TestBase {
   }
 
   private void updateVoucher(String voucherId, JsonObject voucher) throws MalformedURLException {
+    updateEntity(TestEntities.VOUCHER, voucherId, voucher);
+  }
+
+  private void updateEntity(TestEntities entity, String entityId, JsonObject body) throws MalformedURLException {
     given()
       .spec(commonRequestSpec())
-      .pathParam(ID, voucherId)
-      .body(voucher.encode())
+      .pathParam(ID, entityId)
+      .body(body.encode())
       .when()
-      .put(storageUrl(TestEntities.VOUCHER.getEndpointWithId()))
+      .put(storageUrl(entity.getEndpointWithId()))
       .then().log().ifValidationFails()
       .statusCode(204);
   }
@@ -160,14 +232,21 @@ public class AuditOutboxAPITest extends TestBase {
   }
 
   private JsonObject findVoucherEvent(String voucherId, VoucherAuditEvent.Action action) {
-    List<String> events = StorageTestSuite.checkKafkaEventSent(TENANT_HEADER.getValue(),
-      EventTopic.ACQ_VOUCHER_CHANGED.value());
+    return findEvent(EventTopic.ACQ_VOUCHER_CHANGED, "voucherId", voucherId, action.value());
+  }
+
+  /**
+   * Finds the single event on {@code topic} whose {@code idField} and action match, failing the test when the
+   * event never reached Kafka - which is what a null entity id on the outbox log looks like from here.
+   */
+  private JsonObject findEvent(EventTopic topic, String idField, String entityId, String action) {
+    List<String> events = StorageTestSuite.checkKafkaEventSent(TENANT_HEADER.getValue(), topic.value());
     return events.stream()
       .map(JsonObject::new)
-      .filter(event -> voucherId.equals(event.getString("voucherId")) && action.value().equals(event.getString("action")))
+      .filter(event -> entityId.equals(event.getString(idField)) && action.equals(event.getString("action")))
       .findFirst()
-      .orElseGet(() -> fail("No %s event for voucher %s on %s (%d event(s) observed on the topic)"
-        .formatted(action.value(), voucherId, EventTopic.ACQ_VOUCHER_CHANGED, events.size())));
+      .orElseGet(() -> fail("No %s event for %s %s on %s (%d event(s) observed on the topic)"
+        .formatted(action, idField, entityId, topic, events.size())));
   }
 
   /** Voucher dates round-trip through Kafka as +00:00 rather than the +0000 the samples use. */

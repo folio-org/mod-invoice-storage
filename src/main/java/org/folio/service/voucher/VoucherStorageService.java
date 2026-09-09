@@ -55,6 +55,7 @@ public class VoucherStorageService {
       asyncResultHandler.handle(buildBadRequestResponse("Voucher id is required"));
       return;
     }
+    voucher.setId(id);
     new DBClient(vertxContext, headers).getPgClient()
       .withTrans(conn -> voucherDAO.getVoucherByIdForUpdate(id, conn)
         .compose(original -> voucherDAO.updateVoucher(id, voucher, conn)

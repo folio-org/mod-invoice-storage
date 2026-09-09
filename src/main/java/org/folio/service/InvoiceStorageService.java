@@ -66,7 +66,9 @@ public class InvoiceStorageService {
     log.info("putInvoiceStorageInvoicesById:: Updating invoice with id: {}", id);
     if (StringUtils.isBlank(id)) {
       asyncResultHandler.handle(buildBadRequestResponse("Invoice id is required"));
+      return;
     }
+    invoice.setId(id);
     new DBClient(vertxContext, headers).getPgClient()
       .withTrans(conn -> invoiceDAO.getInvoiceByIdForUpdate(id, conn)
         .compose(original -> invoiceDAO.updateInvoice(id, invoice, conn)

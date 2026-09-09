@@ -89,9 +89,9 @@ public class AuditEventProducer {
       .withEventDate(new Date())
       .withActionDate(invoice.getMetadata().getUpdatedDate())
       .withUserId(invoice.getMetadata().getUpdatedByUserId())
-      .withInvoiceSnapshot(invoice.withMetadata(null));
+      .withInvoiceSnapshot(invoice);
     if (originalInvoice != null) {
-      event.setOriginalInvoiceSnapshot(originalInvoice.withMetadata(null));
+      event.setOriginalInvoiceSnapshot(originalInvoice);
     }
     return event;
   }
@@ -105,9 +105,9 @@ public class AuditEventProducer {
       .withEventDate(new Date())
       .withActionDate(invoiceLine.getMetadata().getUpdatedDate())
       .withUserId(invoiceLine.getMetadata().getUpdatedByUserId())
-      .withInvoiceLineSnapshot(invoiceLine.withMetadata(null));
+      .withInvoiceLineSnapshot(invoiceLine);
     if (originalInvoiceLine != null) {
-      event.setOriginalInvoiceLineSnapshot(originalInvoiceLine.withMetadata(null));
+      event.setOriginalInvoiceLineSnapshot(originalInvoiceLine);
     }
     return event;
   }
@@ -120,9 +120,9 @@ public class AuditEventProducer {
       .withEventDate(new Date())
       .withActionDate(voucher.getMetadata().getUpdatedDate())
       .withUserId(voucher.getMetadata().getUpdatedByUserId())
-      .withVoucherSnapshot(voucher.withMetadata(null));
+      .withVoucherSnapshot(voucher);
     if (originalVoucher != null) {
-      event.setOriginalVoucherSnapshot(originalVoucher.withMetadata(null));
+      event.setOriginalVoucherSnapshot(originalVoucher);
     }
     return event;
   }
