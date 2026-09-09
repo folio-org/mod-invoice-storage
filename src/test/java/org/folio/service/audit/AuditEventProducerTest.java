@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
+import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -100,6 +101,9 @@ class AuditEventProducerTest {
   void voucherEditEventCarriesOriginalSnapshot() {
     var original = getVoucher("1000", "EFT-old", 5d);
     var updated = getVoucher("1001", "EFT-new", 10d);
+    var createdDate = Date.from(Instant.parse("2019-05-05T00:00:00Z"));
+    var createdByUserId = UUID.randomUUID().toString();
+    original.getMetadata().withCreatedDate(createdDate).withCreatedByUserId(createdByUserId);
 
     VoucherAuditEvent event = producer.getAuditEvent(updated, original, VoucherAuditEvent.Action.EDIT);
 
@@ -111,6 +115,10 @@ class AuditEventProducerTest {
     assertEquals("1000", event.getOriginalVoucherSnapshot().getVoucherNumber());
     assertEquals("EFT-old", event.getOriginalVoucherSnapshot().getDisbursementNumber());
     assertNotNull(event.getOriginalVoucherSnapshot().getMetadata());
+
+    assertEquals(createdDate, event.getVoucherSnapshot().getMetadata().getCreatedDate());
+    assertEquals(createdByUserId, event.getVoucherSnapshot().getMetadata().getCreatedByUserId());
+    assertEquals(updated.getMetadata().getUpdatedDate(), event.getVoucherSnapshot().getMetadata().getUpdatedDate());
   }
 
   private Invoice getInvoice(String vendorInvoiceNo, String status) {
@@ -144,6 +152,8 @@ class AuditEventProducerTest {
 
   private Metadata getMetadata() {
     return new Metadata()
+      .withCreatedDate(new Date())
+      .withCreatedByUserId(UUID.randomUUID().toString())
       .withUpdatedDate(new Date())
       .withUpdatedByUserId(UUID.randomUUID().toString());
   }

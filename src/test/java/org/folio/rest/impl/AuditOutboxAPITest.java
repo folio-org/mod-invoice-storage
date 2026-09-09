@@ -114,8 +114,15 @@ public class AuditOutboxAPITest extends TestBase {
     assertEquals(toInstant(DATE_AFTER_EDIT), toInstant(post.getString("disbursementDate")));
     assertEquals(toInstant(DATE_BEFORE_EDIT), toInstant(pre.getString("disbursementDate")));
 
-    assertNotNull(post.getJsonObject("metadata"), "Snapshot must keep the metadata the consumer needs");
-    assertNotNull(pre.getJsonObject("metadata"));
+    JsonObject postMetadata = post.getJsonObject("metadata");
+    JsonObject preMetadata = pre.getJsonObject("metadata");
+    assertNotNull(postMetadata, "Snapshot must keep the metadata the consumer needs");
+    assertNotNull(preMetadata);
+    // RMB stamps the PUT body with a createdDate of "now"; the event must report when the voucher was really created
+    assertEquals(preMetadata.getString("createdDate"), postMetadata.getString("createdDate"),
+      "Post-edit snapshot must carry the original createdDate, not the edit timestamp");
+    assertEquals(preMetadata.getString("createdByUserId"), postMetadata.getString("createdByUserId"));
+    assertEquals(event.getString("actionDate"), postMetadata.getString("updatedDate"));
   }
 
   @Test

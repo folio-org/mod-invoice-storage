@@ -13,6 +13,7 @@ import org.folio.rest.jaxrs.model.Invoice;
 import org.folio.rest.jaxrs.model.InvoiceAuditEvent;
 import org.folio.rest.jaxrs.model.InvoiceLineAuditEvent;
 import org.folio.rest.jaxrs.model.InvoiceLine;
+import org.folio.rest.jaxrs.model.Metadata;
 import org.folio.rest.jaxrs.model.Voucher;
 import org.folio.rest.jaxrs.model.VoucherAuditEvent;
 import org.folio.rest.tools.utils.TenantTool;
@@ -91,6 +92,7 @@ public class AuditEventProducer {
       .withUserId(invoice.getMetadata().getUpdatedByUserId())
       .withInvoiceSnapshot(invoice);
     if (originalInvoice != null) {
+      restoreCreationMetadata(invoice.getMetadata(), originalInvoice.getMetadata());
       event.setOriginalInvoiceSnapshot(originalInvoice);
     }
     return event;
@@ -107,6 +109,7 @@ public class AuditEventProducer {
       .withUserId(invoiceLine.getMetadata().getUpdatedByUserId())
       .withInvoiceLineSnapshot(invoiceLine);
     if (originalInvoiceLine != null) {
+      restoreCreationMetadata(invoiceLine.getMetadata(), originalInvoiceLine.getMetadata());
       event.setOriginalInvoiceLineSnapshot(originalInvoiceLine);
     }
     return event;
@@ -122,9 +125,23 @@ public class AuditEventProducer {
       .withUserId(voucher.getMetadata().getUpdatedByUserId())
       .withVoucherSnapshot(voucher);
     if (originalVoucher != null) {
+      restoreCreationMetadata(voucher.getMetadata(), originalVoucher.getMetadata());
       event.setOriginalVoucherSnapshot(originalVoucher);
     }
     return event;
+  }
+
+  /**
+   * Restores the creation fields on an edited entity's snapshot. The PUT body reaches us with metadata RMB
+   * stamped from the request headers, so its createdDate/createdByUserId describe the edit rather than the
+   * original create
+   */
+  private void restoreCreationMetadata(Metadata snapshot, Metadata original) {
+    if (snapshot == null || original == null) {
+      return;
+    }
+    snapshot.withCreatedDate(original.getCreatedDate())
+      .withCreatedByUserId(original.getCreatedByUserId());
   }
 
   private Future<Void> sendToKafka(EventTopic eventTopic, String key, Object eventPayload, Map<String, String> okapiHeaders) {
