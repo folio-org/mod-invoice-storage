@@ -11,15 +11,27 @@ import org.folio.rest.jaxrs.model.VoucherLine;
 import org.folio.rest.jaxrs.model.VoucherLineCollection;
 import org.folio.rest.jaxrs.resource.VoucherStorage;
 import org.folio.rest.persist.PgUtil;
+import org.folio.service.voucher.VoucherStorageService;
+import org.folio.spring.SpringContextUtil;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Context;
 import io.vertx.core.Handler;
+import io.vertx.core.Vertx;
 
 public class VoucherStorageImpl implements VoucherStorage {
 
   public static final String VOUCHER_TABLE = "vouchers";
   public static final String VOUCHER_LINE_TABLE = "voucher_lines";
+  public static final String VOUCHER_PREFIX = "/voucher-storage/vouchers/";
+
+  @Autowired
+  private VoucherStorageService voucherStorageService;
+
+  public VoucherStorageImpl() {
+    SpringContextUtil.autowireDependencies(this, Vertx.currentContext());
+  }
 
   @Validate
   @Override
@@ -33,7 +45,7 @@ public class VoucherStorageImpl implements VoucherStorage {
   @Override
   public void postVoucherStorageVouchers(Voucher entity, Map<String, String> okapiHeaders,
       Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
-    PgUtil.post(VOUCHER_TABLE, entity, okapiHeaders, vertxContext, PostVoucherStorageVouchersResponse.class, asyncResultHandler);
+    voucherStorageService.createVoucher(entity, asyncResultHandler, vertxContext, okapiHeaders);
   }
 
   @Validate
@@ -56,9 +68,7 @@ public class VoucherStorageImpl implements VoucherStorage {
   @Override
   public void putVoucherStorageVouchersById(String id, Voucher entity, Map<String, String> okapiHeaders,
       Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
-    PgUtil.put(VOUCHER_TABLE, entity, id, okapiHeaders, vertxContext, PutVoucherStorageVouchersByIdResponse.class,
-        asyncResultHandler);
-
+    voucherStorageService.updateVoucher(id, entity, okapiHeaders, asyncResultHandler, vertxContext);
   }
 
   @Override

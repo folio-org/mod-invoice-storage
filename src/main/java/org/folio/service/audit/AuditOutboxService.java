@@ -12,6 +12,8 @@ import org.folio.rest.jaxrs.model.InvoiceLine;
 import org.folio.rest.jaxrs.model.InvoiceLineAuditEvent;
 import org.folio.rest.jaxrs.model.OutboxEventLog;
 import org.folio.rest.jaxrs.model.OutboxEventLog.EntityType;
+import org.folio.rest.jaxrs.model.Voucher;
+import org.folio.rest.jaxrs.model.VoucherAuditEvent;
 import org.folio.rest.persist.Conn;
 import org.folio.rest.persist.DBClient;
 import org.folio.rest.tools.utils.TenantTool;
@@ -69,6 +71,11 @@ public class AuditOutboxService {
           var wrapper = decodePayload(eventLog.getPayload(), InvoiceLine.class);
           var action = InvoiceLineAuditEvent.Action.fromValue(eventLog.getAction());
           yield producer.sendInvoiceLineEvent(wrapper.getEntity(), wrapper.getOriginalEntity(), action, okapiHeaders);
+        }
+        case VOUCHER -> {
+          var wrapper = decodePayload(eventLog.getPayload(), Voucher.class);
+          var action = VoucherAuditEvent.Action.fromValue(eventLog.getAction());
+          yield producer.sendVoucherEvent(wrapper.getEntity(), wrapper.getOriginalEntity(), action, okapiHeaders);
         }
       }).toList();
   }
@@ -143,6 +150,32 @@ public class AuditOutboxService {
    */
   public Future<Void> saveInvoiceLineOutboxLog(Conn conn, InvoiceLine entity, InvoiceLine original, InvoiceLineAuditEvent.Action action, Map<String, String> okapiHeaders) {
     return saveOutboxLog(conn, okapiHeaders, action.value(), EntityType.INVOICE_LINE, entity.getId(), AuditEntityWrapper.of(entity, original));
+  }
+
+  /**
+   * Saves voucher outbox log.
+   *
+   * @param conn         connection in transaction
+   * @param entity       the voucher
+   * @param action       the event action
+   * @param okapiHeaders okapi headers
+   * @return future with saved outbox log id in the same transaction
+   */
+  public Future<Void> saveVoucherOutboxLog(Conn conn, Voucher entity, VoucherAuditEvent.Action action, Map<String, String> okapiHeaders) {
+    return saveVoucherOutboxLog(conn, entity, null, action, okapiHeaders);
+  }
+
+  /**
+   * Saves voucher outbox log capturing the pre-edit state.
+   *
+   * @param conn         connection in transaction
+   * @param entity       the voucher (post-edit state)
+   * @param original     the voucher before the edit; null for Create
+   * @param action       the event action
+   * @param okapiHeaders okapi headers
+   */
+  public Future<Void> saveVoucherOutboxLog(Conn conn, Voucher entity, Voucher original, VoucherAuditEvent.Action action, Map<String, String> okapiHeaders) {
+    return saveOutboxLog(conn, okapiHeaders, action.value(), EntityType.VOUCHER, entity.getId(), AuditEntityWrapper.of(entity, original));
   }
 
   private Future<Void> saveOutboxLog(Conn conn, Map<String, String> okapiHeaders, String action, EntityType entityType, String entityId, AuditEntityWrapper<?> wrapper) {

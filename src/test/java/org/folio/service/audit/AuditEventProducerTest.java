@@ -4,7 +4,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
+import java.time.Instant;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 import org.folio.rest.jaxrs.model.Invoice;
@@ -12,6 +14,8 @@ import org.folio.rest.jaxrs.model.InvoiceAuditEvent;
 import org.folio.rest.jaxrs.model.InvoiceLine;
 import org.folio.rest.jaxrs.model.InvoiceLineAuditEvent;
 import org.folio.rest.jaxrs.model.Metadata;
+import org.folio.rest.jaxrs.model.Voucher;
+import org.folio.rest.jaxrs.model.VoucherAuditEvent;
 import org.junit.jupiter.api.Test;
 
 class AuditEventProducerTest {
@@ -70,6 +74,53 @@ class AuditEventProducerTest {
     assertNull(event.getOriginalInvoiceLineSnapshot());
   }
 
+  @Test
+  void voucherCreateEventOmitsOriginalSnapshot() {
+    var voucher = getVoucher("1000", "EFT546789", 5d);
+
+    VoucherAuditEvent event = producer.getAuditEvent(voucher, null, VoucherAuditEvent.Action.CREATE);
+
+    assertNotNull(event.getId());
+    assertEquals(VoucherAuditEvent.Action.CREATE, event.getAction());
+    assertEquals(voucher.getId(), event.getVoucherId());
+    assertNotNull(event.getEventDate());
+    assertNotNull(event.getActionDate());
+    assertNotNull(event.getUserId());
+
+    assertNotNull(event.getVoucherSnapshot());
+    assertEquals("1000", event.getVoucherSnapshot().getVoucherNumber());
+    assertEquals("EFT546789", event.getVoucherSnapshot().getDisbursementNumber());
+    assertEquals(5d, event.getVoucherSnapshot().getDisbursementAmount());
+    assertEquals(List.of("acq-unit-1", "acq-unit-2"), event.getVoucherSnapshot().getAcqUnitIds());
+    assertNotNull(event.getVoucherSnapshot().getMetadata());
+
+    assertNull(event.getOriginalVoucherSnapshot());
+  }
+
+  @Test
+  void voucherEditEventCarriesOriginalSnapshot() {
+    var original = getVoucher("1000", "EFT-old", 5d);
+    var updated = getVoucher("1001", "EFT-new", 10d);
+    var createdDate = Date.from(Instant.parse("2019-05-05T00:00:00Z"));
+    var createdByUserId = UUID.randomUUID().toString();
+    original.getMetadata().withCreatedDate(createdDate).withCreatedByUserId(createdByUserId);
+
+    VoucherAuditEvent event = producer.getAuditEvent(updated, original, VoucherAuditEvent.Action.EDIT);
+
+    assertEquals(VoucherAuditEvent.Action.EDIT, event.getAction());
+    assertEquals("1001", event.getVoucherSnapshot().getVoucherNumber());
+    assertEquals("EFT-new", event.getVoucherSnapshot().getDisbursementNumber());
+
+    assertNotNull(event.getOriginalVoucherSnapshot());
+    assertEquals("1000", event.getOriginalVoucherSnapshot().getVoucherNumber());
+    assertEquals("EFT-old", event.getOriginalVoucherSnapshot().getDisbursementNumber());
+    assertNotNull(event.getOriginalVoucherSnapshot().getMetadata());
+
+    assertEquals(createdDate, event.getVoucherSnapshot().getMetadata().getCreatedDate());
+    assertEquals(createdByUserId, event.getVoucherSnapshot().getMetadata().getCreatedByUserId());
+    assertEquals(updated.getMetadata().getUpdatedDate(), event.getVoucherSnapshot().getMetadata().getUpdatedDate());
+  }
+
   private Invoice getInvoice(String vendorInvoiceNo, String status) {
     return new Invoice()
       .withId(UUID.randomUUID().toString())
@@ -87,8 +138,22 @@ class AuditEventProducerTest {
       .withMetadata(getMetadata());
   }
 
+  private Voucher getVoucher(String voucherNumber, String disbursementNumber, double disbursementAmount) {
+    return new Voucher()
+      .withId(UUID.randomUUID().toString())
+      .withInvoiceId(UUID.randomUUID().toString())
+      .withVoucherNumber(voucherNumber)
+      .withDisbursementNumber(disbursementNumber)
+      .withDisbursementDate(new Date())
+      .withDisbursementAmount(disbursementAmount)
+      .withAcqUnitIds(List.of("acq-unit-1", "acq-unit-2"))
+      .withMetadata(getMetadata());
+  }
+
   private Metadata getMetadata() {
     return new Metadata()
+      .withCreatedDate(new Date())
+      .withCreatedByUserId(UUID.randomUUID().toString())
       .withUpdatedDate(new Date())
       .withUpdatedByUserId(UUID.randomUUID().toString());
   }

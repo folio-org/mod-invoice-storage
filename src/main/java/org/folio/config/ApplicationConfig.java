@@ -6,6 +6,8 @@ import org.folio.dao.invoice.InvoiceDAO;
 import org.folio.dao.invoice.InvoicePostgresDAO;
 import org.folio.dao.lines.InvoiceLinesDAO;
 import org.folio.dao.lines.InvoiceLinesPostgresDAO;
+import org.folio.dao.voucher.VoucherDAO;
+import org.folio.dao.voucher.VoucherPostgresDAO;
 import org.folio.kafka.KafkaConfig;
 import org.folio.rest.core.RestClient;
 import org.folio.service.InvoiceLineNumberService;
@@ -16,6 +18,7 @@ import org.folio.service.audit.AuditEventProducer;
 import org.folio.service.audit.AuditOutboxService;
 import org.folio.service.order.OrderStorageService;
 import org.folio.service.setting.SettingsService;
+import org.folio.service.voucher.VoucherStorageService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -44,6 +47,11 @@ public class ApplicationConfig {
   }
 
   @Bean
+  public VoucherDAO voucherDAO() {
+    return new VoucherPostgresDAO();
+  }
+
+  @Bean
   public AuditOutboxEventLogDAO auditOutboxEventLogDAO() {
     return new AuditOutboxEventLogPostgresDAO();
   }
@@ -56,6 +64,11 @@ public class ApplicationConfig {
   @Bean
   public InvoiceLineStorageService invoiceLineStorageService(InvoiceLinesDAO invoiceLinesDAO, AuditOutboxService auditOutboxService) {
     return new InvoiceLineStorageService(invoiceLinesDAO, auditOutboxService);
+  }
+
+  @Bean
+  public VoucherStorageService voucherStorageService(VoucherDAO voucherDAO, AuditOutboxService auditOutboxService) {
+    return new VoucherStorageService(voucherDAO, auditOutboxService);
   }
 
   @Bean

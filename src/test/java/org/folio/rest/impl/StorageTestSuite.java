@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Properties;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -22,6 +23,7 @@ import java.util.concurrent.TimeoutException;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.folio.kafka.KafkaTopicNameHelper;
@@ -47,7 +49,6 @@ import io.vertx.core.impl.VertxImpl;
 import io.vertx.core.json.JsonObject;
 import lombok.SneakyThrows;
 import org.testcontainers.kafka.KafkaContainer;
-import org.testcontainers.shaded.com.fasterxml.jackson.databind.deser.std.StringDeserializer;
 import org.testcontainers.utility.DockerImageName;
 
 public class StorageTestSuite {
@@ -194,7 +195,9 @@ public class StorageTestSuite {
     consumerProperties.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaContainer.getBootstrapServers());
     consumerProperties.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
     consumerProperties.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
-    consumerProperties.put(ConsumerConfig.GROUP_ID_CONFIG, "test-group");
+    // a fresh group per call so each observation starts from the beginning of the topic,
+    // independent of offsets an earlier call committed on close
+    consumerProperties.put(ConsumerConfig.GROUP_ID_CONFIG, "test-group-" + UUID.randomUUID());
     consumerProperties.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
     return new KafkaConsumer<>(consumerProperties);
   }
