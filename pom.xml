@@ -13,9 +13,7 @@
   </licenses>
 
   <properties>
-    <java.version>21</java.version>
-    <maven.compiler.source>21</maven.compiler.source>
-    <maven.compiler.target>21</maven.compiler.target>
+    <java.version>25</java.version>
 
     <!--Project properties-->
     <ramlfiles_path>${basedir}/ramls</ramlfiles_path>
@@ -37,6 +35,7 @@
 
     <!--Dependency properties-->
     <aspectj.version>1.9.25.1</aspectj.version>
+    <lombok.version>1.18.48</lombok.version>
     <rest-assured.version>6.0.0</rest-assured.version>
 
     <!--Maven plugin properties-->
@@ -220,6 +219,13 @@
           <release>${java.version}</release>
           <encoding>UTF-8</encoding>
           <parameters>true</parameters>
+          <annotationProcessorPaths>
+            <path>
+              <groupId>org.projectlombok</groupId>
+              <artifactId>lombok</artifactId>
+              <version>${lombok.version}</version>
+            </path>
+          </annotationProcessorPaths>
         </configuration>
       </plugin>
 
