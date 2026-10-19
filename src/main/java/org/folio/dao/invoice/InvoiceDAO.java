@@ -9,6 +9,7 @@ import io.vertx.core.Future;
 
 public interface InvoiceDAO {
 
+  Future<Invoice> getInvoiceById(String invoiceId, Conn conn);
   Future<Invoice> getInvoiceByIdForUpdate(String invoiceId, Conn conn);
   Future<String> createInvoice(Invoice invoice, Conn conn);
   Future<Void> updateInvoice(String id, Invoice invoice, Conn conn);

@@ -53,9 +53,10 @@ class AuditEventProducerTest {
     var original = getInvoiceLine("desc-old", 10d);
     var updated = getInvoiceLine("desc-new", 25d);
 
-    InvoiceLineAuditEvent event = producer.getAuditEvent(updated, original, InvoiceLineAuditEvent.Action.EDIT);
+    InvoiceLineAuditEvent event = producer.getAuditEvent(updated, original, getInvoice("INV-42", "Open"), InvoiceLineAuditEvent.Action.EDIT);
 
     assertEquals(InvoiceLineAuditEvent.Action.EDIT, event.getAction());
+    assertEquals("INV-42", event.getInvoiceSnapshot().getVendorInvoiceNo());
     assertNotNull(event.getInvoiceLineSnapshot());
     assertEquals("desc-new", event.getInvoiceLineSnapshot().getDescription());
     assertEquals(25d, event.getInvoiceLineSnapshot().getSubTotal());
@@ -67,9 +68,10 @@ class AuditEventProducerTest {
 
   @Test
   void invoiceLineCreateEventOmitsOriginalSnapshot() {
-    InvoiceLineAuditEvent event = producer.getAuditEvent(getInvoiceLine("d", 1d), null, InvoiceLineAuditEvent.Action.CREATE);
+    InvoiceLineAuditEvent event = producer.getAuditEvent(getInvoiceLine("d", 1d), null, getInvoice("INV-42", "Open"), InvoiceLineAuditEvent.Action.CREATE);
 
     assertEquals(InvoiceLineAuditEvent.Action.CREATE, event.getAction());
+    assertEquals("INV-42", event.getInvoiceSnapshot().getVendorInvoiceNo());
     assertNotNull(event.getInvoiceLineSnapshot());
     assertNull(event.getOriginalInvoiceLineSnapshot());
   }
