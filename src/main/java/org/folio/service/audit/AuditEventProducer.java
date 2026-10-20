@@ -54,12 +54,14 @@ public class AuditEventProducer {
    *
    * @param invoiceLine         the event payload (post-edit state)
    * @param originalInvoiceLine the pre-edit invoice line state; null for Create
+   * @param invoice             the parent invoice; null for outbox rows written before it was captured
    * @param eventAction         the event action
    * @param okapiHeaders        the okapi headers
    * @return future with true if sending was success or failed future in another case
    */
-  public Future<Void> sendInvoiceLineEvent(InvoiceLine invoiceLine, InvoiceLine originalInvoiceLine, InvoiceLineAuditEvent.Action eventAction, Map<String, String> okapiHeaders) {
-    var event = getAuditEvent(invoiceLine, originalInvoiceLine, eventAction);
+  public Future<Void> sendInvoiceLineEvent(InvoiceLine invoiceLine, InvoiceLine originalInvoiceLine, Invoice invoice,
+                                           InvoiceLineAuditEvent.Action eventAction, Map<String, String> okapiHeaders) {
+    var event = getAuditEvent(invoiceLine, originalInvoiceLine, invoice, eventAction);
     log.info("sendInvoiceLineEvent:: Sending event with id: {} and invoiceLineId: {} to Kafka", event.getId(), invoiceLine.getId());
     return sendToKafka(EventTopic.ACQ_INVOICE_LINE_CHANGED, event.getInvoiceLineId(), event, okapiHeaders)
       .onFailure(t -> log.error("sendInvoiceLineEvent:: Failed to send event with id: {} and invoiceLineId: {} to Kafka", event.getId(), invoiceLine.getId(), t));
@@ -98,12 +100,14 @@ public class AuditEventProducer {
     return event;
   }
 
-  InvoiceLineAuditEvent getAuditEvent(InvoiceLine invoiceLine, InvoiceLine originalInvoiceLine, InvoiceLineAuditEvent.Action eventAction) {
+  InvoiceLineAuditEvent getAuditEvent(InvoiceLine invoiceLine, InvoiceLine originalInvoiceLine, Invoice invoice,
+                                      InvoiceLineAuditEvent.Action eventAction) {
     var event = new InvoiceLineAuditEvent()
       .withId(UUID.randomUUID().toString())
       .withAction(eventAction)
       .withInvoiceId(invoiceLine.getInvoiceId())
       .withInvoiceLineId(invoiceLine.getId())
+      .withInvoiceSnapshot(invoice)
       .withEventDate(new Date())
       .withActionDate(invoiceLine.getMetadata().getUpdatedDate())
       .withUserId(invoiceLine.getMetadata().getUpdatedByUserId())

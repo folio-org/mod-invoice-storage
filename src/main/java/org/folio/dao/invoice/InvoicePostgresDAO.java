@@ -36,15 +36,24 @@ import lombok.extern.log4j.Log4j2;
 public class InvoicePostgresDAO implements InvoiceDAO {
 
   @Override
+  public Future<Invoice> getInvoiceById(String invoiceId, Conn conn) {
+    return conn.getById(INVOICE_TABLE, invoiceId, Invoice.class)
+      .map(InvoicePostgresDAO::requireFound)
+      .onFailure(t -> log.error("getInvoiceById failed for invoice with id {}", invoiceId, t));
+  }
+
+  @Override
   public Future<Invoice> getInvoiceByIdForUpdate(String invoiceId, Conn conn) {
     return conn.getByIdForUpdate(INVOICE_TABLE, invoiceId, Invoice.class)
-      .map(invoice -> {
-        if (invoice == null) {
-          throw new HttpException(NOT_FOUND.getStatusCode(), NOT_FOUND.getReasonPhrase());
-        }
-        return invoice;
-      })
+      .map(InvoicePostgresDAO::requireFound)
       .onFailure(t -> log.error("getInvoiceByIdForUpdate failed for invoice with id {}", invoiceId, t));
+  }
+
+  private static Invoice requireFound(Invoice invoice) {
+    if (invoice == null) {
+      throw new HttpException(NOT_FOUND.getStatusCode(), NOT_FOUND.getReasonPhrase());
+    }
+    return invoice;
   }
 
   @Override

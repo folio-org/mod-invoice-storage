@@ -191,6 +191,29 @@ public class AuditOutboxAPITest extends TestBase {
     assertEquals("line before edit", pre.getString("description"));
   }
 
+  @Test
+  void invoiceLineEventsCarryParentInvoiceSnapshot() throws MalformedURLException {
+    JsonObject invoice = new JsonObject(getFile(TestData.Invoice.DEFAULT))
+      .put(ID, UUID.randomUUID().toString())
+      .put("vendorInvoiceNo", "INV-9400");
+    String invoiceId = createTrackedEntity(TestEntities.INVOICE, invoice);
+
+    JsonObject invoiceLine = new JsonObject(getFile(TestData.InvoiceLines.DEFAULT))
+      .put(ID, UUID.randomUUID().toString())
+      .put("invoiceId", invoiceId);
+    String invoiceLineId = createTrackedEntity(TestEntities.INVOICE_LINES, invoiceLine);
+    updateEntity(TestEntities.INVOICE_LINES, invoiceLineId, invoiceLine.copy().put("description", "edited"));
+    processOutbox();
+
+    JsonObject createEvent = findEvent(EventTopic.ACQ_INVOICE_LINE_CHANGED, "invoiceLineId", invoiceLineId,
+      InvoiceLineAuditEvent.Action.CREATE.value());
+    JsonObject editEvent = findEvent(EventTopic.ACQ_INVOICE_LINE_CHANGED, "invoiceLineId", invoiceLineId,
+      InvoiceLineAuditEvent.Action.EDIT.value());
+    assertEquals(invoiceId, createEvent.getJsonObject("invoiceSnapshot").getString(ID));
+    assertEquals("INV-9400", createEvent.getJsonObject("invoiceSnapshot").getString("vendorInvoiceNo"));
+    assertEquals("INV-9400", editEvent.getJsonObject("invoiceSnapshot").getString("vendorInvoiceNo"));
+  }
+
   /**
    * Creates a voucher from the default sample with {@code overrides} applied, along with the invoice it
    * references. Both are deleted after the test.

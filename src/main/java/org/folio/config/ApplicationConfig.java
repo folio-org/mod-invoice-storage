@@ -62,8 +62,9 @@ public class ApplicationConfig {
   }
 
   @Bean
-  public InvoiceLineStorageService invoiceLineStorageService(InvoiceLinesDAO invoiceLinesDAO, AuditOutboxService auditOutboxService) {
-    return new InvoiceLineStorageService(invoiceLinesDAO, auditOutboxService);
+  public InvoiceLineStorageService invoiceLineStorageService(InvoiceLinesDAO invoiceLinesDAO, InvoiceDAO invoiceDAO,
+                                                             AuditOutboxService auditOutboxService) {
+    return new InvoiceLineStorageService(invoiceLinesDAO, invoiceDAO, auditOutboxService);
   }
 
   @Bean

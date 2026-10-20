@@ -11,6 +11,7 @@ import javax.ws.rs.core.Response;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+import org.folio.dao.invoice.InvoiceDAO;
 import org.folio.dao.lines.InvoiceLinesDAO;
 import org.folio.rest.jaxrs.model.InvoiceLine;
 import org.folio.rest.jaxrs.model.InvoiceLineAuditEvent;
@@ -28,6 +29,7 @@ import lombok.extern.log4j.Log4j2;
 public class InvoiceLineStorageService {
 
   private final InvoiceLinesDAO invoiceLinesDAO;
+  private final InvoiceDAO invoiceDAO;
   private final AuditOutboxService auditOutboxService;
 
   public void createInvoiceLine(InvoiceLine invoiceLine, Handler<AsyncResult<Response>> asyncResultHandler,
@@ -36,7 +38,9 @@ public class InvoiceLineStorageService {
     new DBClient(vertxContext, headers).getPgClient()
       .withTrans(conn -> invoiceLinesDAO.createInvoiceLine(invoiceLine, conn)
         .map(invoiceLine::withId)
-        .compose(invoiceLineId -> auditOutboxService.saveInvoiceLineOutboxLog(conn, invoiceLine, InvoiceLineAuditEvent.Action.CREATE, headers)))
+        .compose(invoiceLineId -> invoiceDAO.getInvoiceById(invoiceLine.getInvoiceId(), conn))
+        .compose(invoice -> auditOutboxService.saveInvoiceLineOutboxLog(conn, invoiceLine, invoice,
+          InvoiceLineAuditEvent.Action.CREATE, headers)))
       .onSuccess(s -> {
         log.info("createInvoiceLine:: Successfully created a new invoiceLine by id: {}", invoiceLine.getId());
         auditOutboxService.processOutboxEventLogs(headers, vertxContext);
@@ -59,7 +63,9 @@ public class InvoiceLineStorageService {
     new DBClient(vertxContext, headers).getPgClient()
       .withTrans(conn -> invoiceLinesDAO.getInvoiceLineByIdForUpdate(id, conn)
         .compose(original -> invoiceLinesDAO.updateInvoiceLine(id, invoiceLine, conn)
-          .compose(v -> auditOutboxService.saveInvoiceLineOutboxLog(conn, invoiceLine, original, InvoiceLineAuditEvent.Action.EDIT, headers))))
+          .compose(v -> invoiceDAO.getInvoiceById(invoiceLine.getInvoiceId(), conn))
+          .compose(invoice -> auditOutboxService.saveInvoiceLineOutboxLog(conn, invoiceLine, original, invoice,
+            InvoiceLineAuditEvent.Action.EDIT, headers))))
       .onSuccess(s -> {
         log.info("updateInvoiceLine:: Successfully updated invoice line with id: {}", id);
         auditOutboxService.processOutboxEventLogs(headers, vertxContext);

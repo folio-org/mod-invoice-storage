@@ -63,41 +63,40 @@ public class AuditOutboxService {
     return eventLogs.stream().map(eventLog ->
       switch (eventLog.getEntityType()) {
         case INVOICE -> {
-          var wrapper = decodePayload(eventLog.getPayload(), Invoice.class);
+          var wrapper = decodePayload(eventLog.getPayload(), Invoice.class, Void.class);
           var action = InvoiceAuditEvent.Action.fromValue(eventLog.getAction());
-          yield producer.sendInvoiceEvent(wrapper.getEntity(), wrapper.getOriginalEntity(), action, okapiHeaders);
+          yield producer.sendInvoiceEvent(wrapper.entity(), wrapper.originalEntity(), action, okapiHeaders);
         }
         case INVOICE_LINE -> {
-          var wrapper = decodePayload(eventLog.getPayload(), InvoiceLine.class);
+          var wrapper = decodePayload(eventLog.getPayload(), InvoiceLine.class, Invoice.class);
           var action = InvoiceLineAuditEvent.Action.fromValue(eventLog.getAction());
-          yield producer.sendInvoiceLineEvent(wrapper.getEntity(), wrapper.getOriginalEntity(), action, okapiHeaders);
+          yield producer.sendInvoiceLineEvent(wrapper.entity(), wrapper.originalEntity(), wrapper.parentEntity(), action, okapiHeaders);
         }
         case VOUCHER -> {
-          var wrapper = decodePayload(eventLog.getPayload(), Voucher.class);
+          var wrapper = decodePayload(eventLog.getPayload(), Voucher.class, Void.class);
           var action = VoucherAuditEvent.Action.fromValue(eventLog.getAction());
-          yield producer.sendVoucherEvent(wrapper.getEntity(), wrapper.getOriginalEntity(), action, okapiHeaders);
+          yield producer.sendVoucherEvent(wrapper.entity(), wrapper.originalEntity(), action, okapiHeaders);
         }
       }).toList();
   }
 
   /**
-   * Decode an outbox payload into a wrapper. Falls back to decoding the payload as a bare entity
-   * for backwards compatibility with rows written before the wrapper format was introduced.
+   * Decode an outbox payload into a wrapper. A payload holding the bare entity instead of the wrapper is decoded
+   * as that entity with no original and no parent.
    */
-  <T> AuditEntityWrapper<T> decodePayload(String payload, Class<T> entityClass) {
+  <T, P> AuditEntityWrapper<T, P> decodePayload(String payload, Class<T> entityClass, Class<P> parentEntityClass) {
     var mapper = DatabindCodec.mapper();
     try {
-      var wrapperType = mapper.getTypeFactory().constructParametricType(AuditEntityWrapper.class, entityClass);
-      AuditEntityWrapper<T> wrapper = mapper.readValue(payload, wrapperType);
-      if (wrapper.getEntity() != null) {
+      var wrapperType = mapper.getTypeFactory().constructParametricType(AuditEntityWrapper.class, entityClass, parentEntityClass);
+      AuditEntityWrapper<T, P> wrapper = mapper.readValue(payload, wrapperType);
+      if (wrapper.entity() != null) {
         return wrapper;
       }
     } catch (Exception ignored) {
-      // fall through to legacy decoding
+      // fall through to bare-entity decoding
     }
-    log.warn("decodePayload:: Falling back to legacy (bare-entity) outbox payload decoding");
-    T entity = Json.decodeValue(payload, entityClass);
-    return AuditEntityWrapper.of(entity, null);
+    log.warn("decodePayload:: Outbox payload holds the bare entity, decoding it without original");
+    return new AuditEntityWrapper<>(Json.decodeValue(payload, entityClass), null, null);
   }
 
   /**
@@ -123,7 +122,7 @@ public class AuditOutboxService {
    * @param okapiHeaders okapi headers
    */
   public Future<Void> saveInvoiceOutboxLog(Conn conn, Invoice entity, Invoice original, InvoiceAuditEvent.Action action, Map<String, String> okapiHeaders) {
-    return saveOutboxLog(conn, okapiHeaders, action.value(), EntityType.INVOICE, entity.getId(), AuditEntityWrapper.of(entity, original));
+    return saveOutboxLog(conn, okapiHeaders, action.value(), EntityType.INVOICE, entity.getId(), new AuditEntityWrapper<>(entity, original, null));
   }
 
   /**
@@ -131,12 +130,13 @@ public class AuditOutboxService {
    *
    * @param conn         connection in transaction
    * @param entity       the invoice line
+   * @param invoice      the parent invoice
    * @param action       the event action
    * @param okapiHeaders okapi headers
    * @return future with saved outbox log id in the same transaction
    */
-  public Future<Void> saveInvoiceLineOutboxLog(Conn conn, InvoiceLine entity, InvoiceLineAuditEvent.Action action, Map<String, String> okapiHeaders) {
-    return saveInvoiceLineOutboxLog(conn, entity, null, action, okapiHeaders);
+  public Future<Void> saveInvoiceLineOutboxLog(Conn conn, InvoiceLine entity, Invoice invoice, InvoiceLineAuditEvent.Action action, Map<String, String> okapiHeaders) {
+    return saveInvoiceLineOutboxLog(conn, entity, null, invoice, action, okapiHeaders);
   }
 
   /**
@@ -145,11 +145,14 @@ public class AuditOutboxService {
    * @param conn         connection in transaction
    * @param entity       the invoice line (post-edit state)
    * @param original     the invoice line before the edit; null for Create
+   * @param invoice      the parent invoice
    * @param action       the event action
    * @param okapiHeaders okapi headers
    */
-  public Future<Void> saveInvoiceLineOutboxLog(Conn conn, InvoiceLine entity, InvoiceLine original, InvoiceLineAuditEvent.Action action, Map<String, String> okapiHeaders) {
-    return saveOutboxLog(conn, okapiHeaders, action.value(), EntityType.INVOICE_LINE, entity.getId(), AuditEntityWrapper.of(entity, original));
+  public Future<Void> saveInvoiceLineOutboxLog(Conn conn, InvoiceLine entity, InvoiceLine original, Invoice invoice,
+                                               InvoiceLineAuditEvent.Action action, Map<String, String> okapiHeaders) {
+    return saveOutboxLog(conn, okapiHeaders, action.value(), EntityType.INVOICE_LINE, entity.getId(),
+      new AuditEntityWrapper<>(entity, original, invoice));
   }
 
   /**
@@ -175,10 +178,10 @@ public class AuditOutboxService {
    * @param okapiHeaders okapi headers
    */
   public Future<Void> saveVoucherOutboxLog(Conn conn, Voucher entity, Voucher original, VoucherAuditEvent.Action action, Map<String, String> okapiHeaders) {
-    return saveOutboxLog(conn, okapiHeaders, action.value(), EntityType.VOUCHER, entity.getId(), AuditEntityWrapper.of(entity, original));
+    return saveOutboxLog(conn, okapiHeaders, action.value(), EntityType.VOUCHER, entity.getId(), new AuditEntityWrapper<>(entity, original, null));
   }
 
-  private Future<Void> saveOutboxLog(Conn conn, Map<String, String> okapiHeaders, String action, EntityType entityType, String entityId, AuditEntityWrapper<?> wrapper) {
+  private Future<Void> saveOutboxLog(Conn conn, Map<String, String> okapiHeaders, String action, EntityType entityType, String entityId, AuditEntityWrapper<?, ?> wrapper) {
     log.debug("saveOutboxLog:: Saving outbox log for {} with id: {}", entityType, entityId);
     var eventLog = new OutboxEventLog()
       .withEventId(UUID.randomUUID().toString())
