@@ -17,8 +17,7 @@ import lombok.extern.log4j.Log4j2;
 
 /**
  * Finds the invoices a calendar trigger event from mod-notification-center asks for and publishes them as calendar
- * match events, one event per page of matches. The module keeps no state: the event carries every date it needs,
- * so a redelivered trigger publishes the same matches again and mod-notification-center drops the duplicates.
+ * match events, one event per page of matches.
  */
 @Log4j2
 @RequiredArgsConstructor

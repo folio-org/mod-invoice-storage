@@ -44,7 +44,6 @@ public class CalendarTriggerConsumerVerticle extends AbstractVerticle {
 
   @Override
   public void start(Promise<Void> startPromise) {
-    // mod-notification-center topics have no namespace segment: {env}.{tenant}.NOTIFICATION_CALENDAR_TRIGGER
     var subscriptionDefinition = SubscriptionDefinition.builder()
       .eventType(CALENDAR_TRIGGER_TOPIC)
       .subscriptionPattern(kafkaConfig.getEnvId() + "\\.\\w+\\." + CALENDAR_TRIGGER_TOPIC)
@@ -60,7 +59,6 @@ public class CalendarTriggerConsumerVerticle extends AbstractVerticle {
       .groupInstanceId(MODULE_NAME + "-" + getClass().getSimpleName() + "-" + UUID.randomUUID())
       .build();
 
-    // module id in <artifactId>-<version> format, used when KAFKA_TENANT_FILTER_ENABLED is on
     consumerWrapper.start(this::handle, MODULE_NAME, MODULE_NAME + "-" + ModuleName.getModuleVersion())
       .onSuccess(v -> log.info("start:: CalendarTriggerConsumerVerticle started, subscription pattern: '{}'",
         subscriptionDefinition.getSubscriptionPattern()))
@@ -69,7 +67,6 @@ public class CalendarTriggerConsumerVerticle extends AbstractVerticle {
   }
 
   Future<String> handle(KafkaConsumerRecord<String, String> kafkaRecord) {
-    // case-insensitive: mod-notification-center sends lower-case header names, RMB reads e.g. X-Okapi-Tenant
     Map<String, String> headers = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
     headers.putAll(KafkaHeaderUtils.kafkaHeadersToMap(kafkaRecord.headers()));
     var targetModule = headers.get(TARGET_MODULE_HEADER);

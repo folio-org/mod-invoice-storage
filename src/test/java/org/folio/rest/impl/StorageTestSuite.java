@@ -72,7 +72,6 @@ public class StorageTestSuite {
   private static final String KAFKA_PORT = "KAFKA_PORT";
   private static final String KAFKA_ENV = "ENV";
   private static final String OKAPI_URL_KEY = "OKAPI_URL";
-  // pattern-subscribed consumers find topics created during a test sooner than with the 30 s default
   private static final String KAFKA_CONSUMER_METADATA_MAX_AGE = "kafka.consumer.metadata.max.age.ms";
   public static final int MOCK_KAFKA_PORT = NetworkUtils.nextFreePort();
 
