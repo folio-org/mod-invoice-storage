@@ -12,6 +12,7 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.UUID;
@@ -23,7 +24,11 @@ import java.util.concurrent.TimeoutException;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.apache.kafka.clients.producer.KafkaProducer;
+import org.apache.kafka.clients.producer.ProducerConfig;
+import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.serialization.StringDeserializer;
+import org.apache.kafka.common.serialization.StringSerializer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.folio.kafka.KafkaTopicNameHelper;
@@ -67,6 +72,8 @@ public class StorageTestSuite {
   private static final String KAFKA_PORT = "KAFKA_PORT";
   private static final String KAFKA_ENV = "ENV";
   private static final String OKAPI_URL_KEY = "OKAPI_URL";
+  // pattern-subscribed consumers find topics created during a test sooner than with the 30 s default
+  private static final String KAFKA_CONSUMER_METADATA_MAX_AGE = "kafka.consumer.metadata.max.age.ms";
   public static final int MOCK_KAFKA_PORT = NetworkUtils.nextFreePort();
 
 
@@ -121,6 +128,7 @@ public class StorageTestSuite {
     System.setProperty(KAFKA_PORT, kafkaContainer.getFirstMappedPort() + "");
     System.setProperty(KAFKA_ENV, KAFKA_ENV_VALUE);
     System.setProperty(OKAPI_URL_KEY, "http://localhost:" + MOCK_KAFKA_PORT);
+    System.setProperty(KAFKA_CONSUMER_METADATA_MAX_AGE, "1000");
     log.info("Kafka cluster started with bootstrap servers: {}", kafkaContainer.getBootstrapServers());
 
     log.info("Starting container database");
@@ -179,6 +187,15 @@ public class StorageTestSuite {
     return observeTopic(topicToObserve);
   }
 
+  @SneakyThrows
+  public static void sendKafkaRecord(String topic, String key, String value, Map<String, String> headers) {
+    var producerRecord = new ProducerRecord<>(topic, key, value);
+    headers.forEach((name, headerValue) -> producerRecord.headers().add(name, headerValue.getBytes()));
+    try (var kafkaProducer = createKafkaProducer()) {
+      kafkaProducer.send(producerRecord).get(30, TimeUnit.SECONDS);
+    }
+  }
+
   private static List<String> observeTopic(String topic) {
     List<String> result = new ArrayList<>();
     ConsumerRecords<String, String> records;
@@ -200,6 +217,14 @@ public class StorageTestSuite {
     consumerProperties.put(ConsumerConfig.GROUP_ID_CONFIG, "test-group-" + UUID.randomUUID());
     consumerProperties.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
     return new KafkaConsumer<>(consumerProperties);
+  }
+
+  private static KafkaProducer<String, String> createKafkaProducer() {
+    Properties producerProperties = new Properties();
+    producerProperties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaContainer.getBootstrapServers());
+    producerProperties.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
+    producerProperties.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
+    return new KafkaProducer<>(producerProperties);
   }
 
   private static String formatToKafkaTopicName(String tenant, String eventType) {
@@ -239,4 +264,6 @@ public class StorageTestSuite {
   class OrderStorageServiceTestNested extends OrderStorageServiceTest {}
   @Nested
   class AuditOutboxAPITestNested extends AuditOutboxAPITest {}
+  @Nested
+  class CalendarTriggerConsumerTestNested extends CalendarTriggerConsumerTest {}
 }

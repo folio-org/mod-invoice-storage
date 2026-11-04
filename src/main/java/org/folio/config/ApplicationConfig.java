@@ -16,12 +16,18 @@ import org.folio.service.InvoiceStorageService;
 import org.folio.service.adjustment.AdjustmentPresetsService;
 import org.folio.service.audit.AuditEventProducer;
 import org.folio.service.audit.AuditOutboxService;
+import org.folio.service.calendar.CalendarMatchProducer;
+import org.folio.service.calendar.CalendarTriggerService;
 import org.folio.service.order.OrderStorageService;
 import org.folio.service.setting.SettingsService;
 import org.folio.service.voucher.VoucherStorageService;
+import org.folio.verticles.CalendarTriggerConsumerVerticle;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.Scope;
 
 @Configuration
 @Import(KafkaConfiguration.class)
@@ -95,5 +101,23 @@ public class ApplicationConfig {
   @Bean
   public SettingsService settingsService() {
     return new SettingsService();
+  }
+
+  @Bean
+  public CalendarMatchProducer calendarMatchProducer(KafkaConfig kafkaConfig) {
+    return new CalendarMatchProducer(kafkaConfig);
+  }
+
+  @Bean
+  public CalendarTriggerService calendarTriggerService(InvoiceDAO invoiceDAO, CalendarMatchProducer calendarMatchProducer,
+                                                       @Value("${CALENDAR_MATCH_CHUNK_SIZE:500}") int chunkSize) {
+    return new CalendarTriggerService(invoiceDAO, calendarMatchProducer, chunkSize);
+  }
+
+  @Bean
+  @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+  public CalendarTriggerConsumerVerticle calendarTriggerConsumerVerticle(KafkaConfig kafkaConfig,
+                                                                         CalendarTriggerService calendarTriggerService) {
+    return new CalendarTriggerConsumerVerticle(kafkaConfig, calendarTriggerService);
   }
 }
