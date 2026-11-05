@@ -25,8 +25,8 @@
     <jsonschema2pojo_output_dir>${generated_sources_dir}/jsonschema2pojo</jsonschema2pojo_output_dir>
 
     <!--Dependency Management Properties-->
-    <spring.version>7.0.9</spring.version>
-    <vertx.version>5.1.6</vertx.version>
+    <spring.version>7.0.10</spring.version>
+    <vertx.version>5.2.2</vertx.version>
     <log4j.version>2.26.1</log4j.version>
     <streamex.version>0.9.0</streamex.version>
 
@@ -36,7 +36,7 @@
     <folio-di-support.version>4.0.0</folio-di-support.version>
 
     <!--Dependency properties-->
-    <aspectj.version>1.9.25.1</aspectj.version>
+    <aspectj.version>1.9.26</aspectj.version>
     <rest-assured.version>6.0.0</rest-assured.version>
 
     <!--Maven plugin properties-->
