@@ -1,5 +1,8 @@
 package org.folio.dao.invoice;
 
+import java.util.List;
+
+import org.folio.rest.jaxrs.model.CalendarMatch;
 import org.folio.rest.jaxrs.model.Invoice;
 import org.folio.rest.jaxrs.model.InvoiceDocument;
 import org.folio.rest.persist.Conn;
@@ -18,5 +21,7 @@ public interface InvoiceDAO {
   Future<Void> deleteInvoiceDocumentsByInvoiceId(String id, Conn conn);
   Future<DBClient> createInvoiceDocument(InvoiceDocument invoiceDoc, DBClient client);
   Future<InvoiceDocument> getInvoiceDocument(String invoiceId, String documentId, DBClient client);
+  Future<List<CalendarMatch>> getUnpaidInvoicesByPaymentDue(List<String> paymentDueDates, String afterId, int limit,
+                                                            DBClient client);
 
 }

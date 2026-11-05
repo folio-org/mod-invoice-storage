@@ -36,6 +36,15 @@ The event payload has the following structure:
 Default value for all partitions is 1.
 Kafka partition key for all the events is entity id.
 
+### Calendar-based notifications
+The module consumes `NOTIFICATION_CALENDAR_TRIGGER` events from mod-notification-center, finds the invoices
+that are not Paid or Cancelled and whose payment is due on one of the event's target dates, and publishes them
+to `NOTIFICATION_CALENDAR_MATCH`, one event per page of invoices.
+
+| Name                      | Default value | Description                                              |
+|---------------------------|---------------|----------------------------------------------------------|
+| CALENDAR_MATCH_CHUNK_SIZE | 500           | Number of invoices in one `NOTIFICATION_CALENDAR_MATCH` event |
+
 ### Issue tracker
 
 See project [MODINVOSTO](https://issues.folio.org/browse/MODINVOSTO)
