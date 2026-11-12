@@ -1,0 +1,342 @@
+{
+  "description": "mod-invoice-storage configuration template. Default values are calibrated against a reference bugfest environment (tebfcon-mod-invoice-storage revision 15); see ADR-0013 (Module configuration management) for the governance model behind this file. Resource values and JVM limits must be adjusted to the target host capacity.",
+  "moduleDefaults": {
+    "resources": [
+      {
+        "name": "cpu",
+        "value": "64",
+        "description": "CPU request/limit for the mod-invoice-storage container"
+      },
+      {
+        "name": "memory",
+        "value": "1872",
+        "description": "Memory hard limit for the mod-invoice-storage container in MiB"
+      },
+      {
+        "name": "memoryReservation",
+        "value": "1536",
+        "description": "Memory reservation (soft limit) for the mod-invoice-storage container in MiB"
+      }
+    ],
+    "java": [
+      {
+        "name": "xmx",
+        "value": "1024m",
+        "description": "Maximum Java heap size"
+      },
+      {
+        "name": "MaxMetaspaceSize",
+        "value": "512m",
+        "description": "Maximum Java metaspace size"
+      },
+      {
+        "name": "MetaspaceSize",
+        "value": "384m",
+        "description": "Metaspace size that triggers the first metaspace GC"
+      }
+    ],
+    "deployment": {
+      "isHaSupported": true,
+      "replicasRecommendedCount": 2,
+      "description": "State is kept in PostgreSQL; the audit outbox is drained with FOR UPDATE SKIP LOCKED and the calendar trigger consumer shares one Kafka consumer group, so replicas can run side by side. Two replicas are recommended for availability."
+    },
+    "kong": {
+      "timeouts": {
+        "connect": "60s",
+        "send": "60s",
+        "read": "60s"
+      },
+      "description": "Default Kong proxy timeouts are sufficient for the storage CRUD endpoints."
+    },
+    "EnvVars": [
+      {
+        "name": "DB_HOST",
+        "value": null,
+        "description": "PostgreSQL host (write instance)",
+        "type": "DB",
+        "essential": true
+      },
+      {
+        "name": "DB_PORT",
+        "value": "5432",
+        "description": "PostgreSQL port",
+        "type": "DB",
+        "essential": true
+      },
+      {
+        "name": "DB_USERNAME",
+        "value": null,
+        "description": "PostgreSQL username (sourced from the secret store)",
+        "type": "DB",
+        "essential": true
+      },
+      {
+        "name": "DB_PASSWORD",
+        "value": null,
+        "description": "PostgreSQL password (sourced from the secret store)",
+        "type": "DB",
+        "essential": true
+      },
+      {
+        "name": "DB_DATABASE",
+        "value": null,
+        "description": "PostgreSQL database name",
+        "type": "DB",
+        "essential": true
+      },
+      {
+        "name": "DB_HOST_READER",
+        "value": null,
+        "description": "Optional read-only PostgreSQL host used by RMB for reads; when unset, reads go to DB_HOST",
+        "type": "DB",
+        "essential": false
+      },
+      {
+        "name": "DB_PORT_READER",
+        "value": null,
+        "description": "Port of DB_HOST_READER; when unset, reads go to DB_HOST",
+        "type": "DB",
+        "essential": false
+      },
+      {
+        "name": "DB_MAXPOOLSIZE",
+        "value": "20",
+        "description": "Maximum connections per tenant per module instance. Value taken from bugfest; RMB default is 4",
+        "type": "DB",
+        "essential": false
+      },
+      {
+        "name": "DB_MAXSHAREDPOOLSIZE",
+        "value": null,
+        "description": "Shared pool across tenants, overriding DB_MAXPOOLSIZE when set. Leave unset: RMB marks it buggy (RMB-1030)",
+        "type": "DB",
+        "essential": false
+      },
+      {
+        "name": "DB_CONNECTIONRELEASEDELAY",
+        "value": "60000",
+        "description": "Idle time in milliseconds after which a connection is closed; 0 keeps idle connections forever",
+        "type": "DB",
+        "essential": false
+      },
+      {
+        "name": "DB_MAX_LIFETIME",
+        "value": "1800000",
+        "description": "Maximum lifetime of a pooled connection in milliseconds; 0 means unlimited",
+        "type": "DB",
+        "essential": false
+      },
+      {
+        "name": "DB_RECONNECTATTEMPTS",
+        "value": "0",
+        "description": "Number of reconnect retries after a failed database connect; 0 disables reconnecting",
+        "type": "DB",
+        "essential": false
+      },
+      {
+        "name": "DB_RECONNECTINTERVAL",
+        "value": "1000",
+        "description": "Milliseconds between reconnect retries. Applies when DB_RECONNECTATTEMPTS is above 0",
+        "type": "DB",
+        "essential": false
+      },
+      {
+        "name": "DB_SERVER_PEM",
+        "value": null,
+        "description": "PEM certificate(s) to validate the PostgreSQL server; when set, TLSv1.3 is required",
+        "type": "DB",
+        "essential": false
+      },
+      {
+        "name": "DB_EXPLAIN_QUERY_THRESHOLD",
+        "value": "300000",
+        "description": "Queries slower than this many milliseconds are logged with EXPLAIN ANALYZE. Value taken from bugfest; RMB default is 1000",
+        "type": "DB",
+        "essential": false
+      },
+      {
+        "name": "KAFKA_HOST",
+        "value": null,
+        "description": "Kafka broker host for audit events and calendar trigger/match events",
+        "type": "KAFKA",
+        "essential": true
+      },
+      {
+        "name": "KAFKA_PORT",
+        "value": "9092",
+        "description": "Kafka broker port",
+        "type": "KAFKA",
+        "essential": true
+      },
+      {
+        "name": "KAFKA_PRODUCER_TENANT_COLLECTION",
+        "value": "ALL",
+        "description": "Enables tenant collection topics ({ENV}.Default.{value}.{EVENT}); must match [A-Z][A-Z0-9]{0,30} and be the same across modules. Value taken from bugfest; unset means per-tenant topics",
+        "type": "KAFKA",
+        "essential": false
+      },
+      {
+        "name": "MAX_REQUEST_SIZE",
+        "value": "1048576",
+        "description": "Kafka producer max.request.size in bytes",
+        "type": "KAFKA",
+        "essential": false
+      },
+      {
+        "name": "KAFKA_TENANT_FILTER_ENABLED",
+        "value": "false",
+        "description": "Enables folio-kafka-wrapper entitlement-based filtering of consumed records by tenant",
+        "type": "KAFKA",
+        "essential": false
+      },
+      {
+        "name": "KAFKA_TENANT_FILTER_TENANT_DISABLED_STRATEGY",
+        "value": "SKIP",
+        "description": "Action (ACCEPT, SKIP, FAIL) for a record whose tenant is not entitled to the module. Applies when KAFKA_TENANT_FILTER_ENABLED is true",
+        "type": "KAFKA",
+        "essential": false
+      },
+      {
+        "name": "KAFKA_TENANT_FILTER_ALL_TENANTS_DISABLED_STRATEGY",
+        "value": "FAIL",
+        "description": "Action (ACCEPT, SKIP, FAIL) when no tenant is entitled to the module. Applies when KAFKA_TENANT_FILTER_ENABLED is true",
+        "type": "KAFKA",
+        "essential": false
+      },
+      {
+        "name": "KAFKA_TENANT_FILTER_ENTITLEMENT_REFRESH_INTERVAL_SECONDS",
+        "value": "900",
+        "description": "Interval in seconds for the full re-fetch of entitled tenants from the sidecar",
+        "type": "KAFKA",
+        "essential": false
+      },
+      {
+        "name": "KAFKA_TENANT_FILTER_ENTITLEMENT_LOOKUP_TIMEOUT_SECONDS",
+        "value": "5",
+        "description": "Timeout in seconds of each entitlement lookup call to the sidecar",
+        "type": "KAFKA",
+        "essential": false
+      },
+      {
+        "name": "CALENDAR_MATCH_CHUNK_SIZE",
+        "value": "500",
+        "description": "Number of invoices in one NOTIFICATION_CALENDAR_MATCH event",
+        "type": "FUNCTIONAL",
+        "essential": false
+      },
+      {
+        "name": "loadSample",
+        "value": "false",
+        "description": "Loads sample batch groups and adjustment presets on tenant init; the loadSample tenant parameter takes precedence",
+        "type": "FUNCTIONAL",
+        "essential": false
+      },
+      {
+        "name": "ENV",
+        "value": null,
+        "description": "Logical deployment name, used as the Kafka topic prefix; must match the other modules",
+        "type": "CONFIG",
+        "essential": true
+      },
+      {
+        "name": "OKAPI_URL",
+        "value": "http://sidecar:8081",
+        "description": "Sidecar URL used by the Kafka tenant filter to look up entitlements. Applies when KAFKA_TENANT_FILTER_ENABLED is true; module default is http://okapi:9130",
+        "type": "CONFIG",
+        "essential": false
+      },
+      {
+        "name": "JAVA_OPTIONS",
+        "value": null,
+        "description": "Additional JVM options; the variable honoured by run-java.sh of the folioci/alpine-jre-openjdk21 image",
+        "type": "CONFIG",
+        "essential": false
+      },
+      {
+        "name": "LOG4J_CONFIGURATION_FILE",
+        "value": null,
+        "description": "Location of an external Log4j2 configuration overriding the bundled log4j2.properties",
+        "type": "CONFIG",
+        "essential": false
+      }
+    ]
+  },
+  "sidecarDefaults": {
+    "resources": [
+      {
+        "name": "cpu",
+        "value": "64",
+        "description": "CPU request/limit for the sidecar container"
+      },
+      {
+        "name": "memory",
+        "value": "1024",
+        "description": "Memory hard limit for the sidecar container in MiB"
+      },
+      {
+        "name": "memoryReservation",
+        "value": "512",
+        "description": "Memory reservation (soft limit) for the sidecar container in MiB"
+      }
+    ],
+    "java": [
+      {
+        "name": "xms",
+        "value": "128m",
+        "description": "Initial Java heap size"
+      },
+      {
+        "name": "xmx",
+        "value": "256m",
+        "description": "Maximum Java heap size"
+      },
+      {
+        "name": "MaxMetaspaceSize",
+        "value": "96m",
+        "description": "Maximum Java metaspace size"
+      },
+      {
+        "name": "UseZGC",
+        "value": "true",
+        "description": "Use the ZGC low-pause collector"
+      }
+    ],
+    "EnvVars": [
+      {
+        "name": "ENV",
+        "value": null,
+        "description": "Deployment environment identifier. Must match the module's ENV",
+        "type": "CONFIG",
+        "essential": false
+      },
+      {
+        "name": "JAVA_OPTS",
+        "value": null,
+        "description": "Additional JVM options for the sidecar process",
+        "type": "CONFIG",
+        "essential": true
+      },
+      {
+        "name": "MODULE_NAME",
+        "value": "mod-invoice-storage",
+        "description": "Name of the backend module the sidecar fronts",
+        "type": "CONFIG",
+        "essential": true
+      },
+      {
+        "name": "MODULE_URL",
+        "value": null,
+        "description": "Internal URL (host:port) at which the mod-invoice-storage container is reachable from its sidecar",
+        "type": "CONFIG",
+        "essential": true
+      },
+      {
+        "name": "MODULE_VERSION",
+        "value": null,
+        "description": "Version of the mod-invoice-storage module deployed alongside this sidecar",
+        "type": "CONFIG",
+        "essential": true
+      }
+    ]
+  }
+}
