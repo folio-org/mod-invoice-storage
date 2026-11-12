@@ -21,7 +21,7 @@ public interface InvoiceDAO {
   Future<Void> deleteInvoiceDocumentsByInvoiceId(String id, Conn conn);
   Future<DBClient> createInvoiceDocument(InvoiceDocument invoiceDoc, DBClient client);
   Future<InvoiceDocument> getInvoiceDocument(String invoiceId, String documentId, DBClient client);
-  Future<List<CalendarMatch>> getUnpaidInvoicesByPaymentDue(List<String> paymentDueDates, String afterId, int limit,
-                                                            DBClient client);
+  Future<List<CalendarMatch>> getInvoicesByPaymentDue(List<String> paymentDueDates, String afterId, int limit,
+                                                      DBClient client);
 
 }
