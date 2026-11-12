@@ -39,10 +39,9 @@ import one.util.streamex.StreamEx;
 @Log4j2
 public class InvoicePostgresDAO implements InvoiceDAO {
 
-  private static final String SELECT_UNPAID_BY_PAYMENT_DUE_SQL = """
+  private static final String SELECT_BY_PAYMENT_DUE_SQL = """
     SELECT id, left(jsonb->>'paymentDue', 10) AS payment_due FROM %s
     WHERE left(jsonb->>'paymentDue', 10) = ANY ($1)
-      AND jsonb->>'status' NOT IN ('Paid', 'Cancelled')
       AND id > $2
     ORDER BY id
     LIMIT $3
@@ -200,11 +199,11 @@ public class InvoicePostgresDAO implements InvoiceDAO {
   }
 
   @Override
-  public Future<List<CalendarMatch>> getUnpaidInvoicesByPaymentDue(List<String> paymentDueDates, String afterId,
-                                                                   int limit, DBClient client) {
-    log.debug("getUnpaidInvoicesByPaymentDue:: Fetching up to {} invoices after id: '{}' due on: {}",
+  public Future<List<CalendarMatch>> getInvoicesByPaymentDue(List<String> paymentDueDates, String afterId,
+                                                             int limit, DBClient client) {
+    log.debug("getInvoicesByPaymentDue:: Fetching up to {} invoices after id: '{}' due on: {}",
       limit, afterId, paymentDueDates);
-    var sql = SELECT_UNPAID_BY_PAYMENT_DUE_SQL.formatted(getTenantTableName(client.getTenantId(), INVOICE_TABLE));
+    var sql = SELECT_BY_PAYMENT_DUE_SQL.formatted(getTenantTableName(client.getTenantId(), INVOICE_TABLE));
     var params = Tuple.of(paymentDueDates.toArray(String[]::new), UUID.fromString(afterId), limit);
     return client.getPgClient().execute(sql, params)
       .map(rows -> StreamEx.of(rows.iterator())
