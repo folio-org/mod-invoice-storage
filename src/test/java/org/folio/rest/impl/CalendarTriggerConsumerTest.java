@@ -46,11 +46,11 @@ public class CalendarTriggerConsumerTest extends TestBase {
   }
 
   @Test
-  void publishesUnpaidInvoicesDueOnTargetDates_andSkipsEventsForOtherModules() throws MalformedURLException {
+  void publishesInvoicesOfAnyStatusDueOnTargetDates_andSkipsEventsForOtherModules() throws MalformedURLException {
     var dueToday = createInvoice("Open", DUE_TODAY);
     var dueInAWeek = createInvoice("Approved", DUE_IN_A_WEEK);
-    createInvoice("Paid", DUE_TODAY);
-    createInvoice("Cancelled", DUE_IN_A_WEEK);
+    var paidDueToday = createInvoice("Paid", DUE_TODAY);
+    var cancelledDueInAWeek = createInvoice("Cancelled", DUE_IN_A_WEEK);
     createInvoice("Open", NOT_A_TARGET_DATE);
 
     var ordersTrigger = triggerEvent("mod-orders-storage");
@@ -67,7 +67,8 @@ public class CalendarTriggerConsumerTest extends TestBase {
     var matches = matchEvents.stream()
       .flatMap(event -> event.getMatches().stream())
       .collect(Collectors.toMap(CalendarMatch::getRecordId, CalendarMatch::getTargetDate));
-    assertEquals(Map.of(dueToday, DUE_TODAY, dueInAWeek, DUE_IN_A_WEEK), matches);
+    assertEquals(Map.of(dueToday, DUE_TODAY, dueInAWeek, DUE_IN_A_WEEK,
+      paidDueToday, DUE_TODAY, cancelledDueInAWeek, DUE_IN_A_WEEK), matches);
     assertTrue(matchEvents(ordersTrigger.getId()).isEmpty(), "a trigger for another module publishes nothing");
   }
 

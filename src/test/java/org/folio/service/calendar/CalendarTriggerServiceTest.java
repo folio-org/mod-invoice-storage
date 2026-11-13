@@ -47,9 +47,9 @@ class CalendarTriggerServiceTest {
     var first = match("2026-11-02");
     var second = match("2026-11-09");
     var third = match("2026-11-09");
-    when(invoiceDAO.getUnpaidInvoicesByPaymentDue(TARGET_DATES, FIRST_ID, CHUNK_SIZE, client))
+    when(invoiceDAO.getInvoicesByPaymentDue(TARGET_DATES, FIRST_ID, CHUNK_SIZE, client))
       .thenReturn(Future.succeededFuture(List.of(first, second)));
-    when(invoiceDAO.getUnpaidInvoicesByPaymentDue(TARGET_DATES, second.getRecordId(), CHUNK_SIZE, client))
+    when(invoiceDAO.getInvoicesByPaymentDue(TARGET_DATES, second.getRecordId(), CHUNK_SIZE, client))
       .thenReturn(Future.succeededFuture(List.of(third)));
     when(producer.sendMatchEvent(any(), eq(okapiHeaders))).thenReturn(Future.succeededFuture());
     var event = triggerEvent(rule(INVOICE_PAYMENT_DUE, TARGET_DATES));
@@ -78,9 +78,9 @@ class CalendarTriggerServiceTest {
   void stopsAtEmptyPage_whenLastPageIsFull() {
     var first = match("2026-11-02");
     var second = match("2026-11-02");
-    when(invoiceDAO.getUnpaidInvoicesByPaymentDue(TARGET_DATES, FIRST_ID, CHUNK_SIZE, client))
+    when(invoiceDAO.getInvoicesByPaymentDue(TARGET_DATES, FIRST_ID, CHUNK_SIZE, client))
       .thenReturn(Future.succeededFuture(List.of(first, second)));
-    when(invoiceDAO.getUnpaidInvoicesByPaymentDue(TARGET_DATES, second.getRecordId(), CHUNK_SIZE, client))
+    when(invoiceDAO.getInvoicesByPaymentDue(TARGET_DATES, second.getRecordId(), CHUNK_SIZE, client))
       .thenReturn(Future.succeededFuture(List.of()));
     when(producer.sendMatchEvent(any(), eq(okapiHeaders))).thenReturn(Future.succeededFuture());
 
@@ -97,7 +97,7 @@ class CalendarTriggerServiceTest {
     var result = service.processTrigger(event, client, okapiHeaders);
 
     assertEquals(0, result.result());
-    verify(invoiceDAO, never()).getUnpaidInvoicesByPaymentDue(any(), anyString(), anyInt(), any());
+    verify(invoiceDAO, never()).getInvoicesByPaymentDue(any(), anyString(), anyInt(), any());
     verify(producer, never()).sendMatchEvent(any(), any());
   }
 
@@ -105,7 +105,7 @@ class CalendarTriggerServiceTest {
   void failsAndStops_whenMatchEventIsNotSent() {
     var first = match("2026-11-02");
     var second = match("2026-11-02");
-    when(invoiceDAO.getUnpaidInvoicesByPaymentDue(TARGET_DATES, FIRST_ID, CHUNK_SIZE, client))
+    when(invoiceDAO.getInvoicesByPaymentDue(TARGET_DATES, FIRST_ID, CHUNK_SIZE, client))
       .thenReturn(Future.succeededFuture(List.of(first, second)));
     when(producer.sendMatchEvent(any(), eq(okapiHeaders)))
       .thenReturn(Future.failedFuture(new IllegalStateException("broker down")));
@@ -113,7 +113,7 @@ class CalendarTriggerServiceTest {
     var result = service.processTrigger(triggerEvent(rule(INVOICE_PAYMENT_DUE, TARGET_DATES)), client, okapiHeaders);
 
     assertTrue(result.failed());
-    verify(invoiceDAO, times(1)).getUnpaidInvoicesByPaymentDue(any(), anyString(), anyInt(), any());
+    verify(invoiceDAO, times(1)).getInvoicesByPaymentDue(any(), anyString(), anyInt(), any());
   }
 
   private static CalendarTriggerEvent triggerEvent(CalendarTriggerRule... rules) {

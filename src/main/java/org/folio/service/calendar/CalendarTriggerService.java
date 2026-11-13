@@ -68,7 +68,7 @@ public class CalendarTriggerService {
 
   private Future<Integer> publishPages(CalendarTriggerEvent event, CalendarTriggerRule rule, String afterId,
                                        int published, DBClient client, Map<String, String> okapiHeaders) {
-    return invoiceDAO.getUnpaidInvoicesByPaymentDue(rule.getTargetDates(), afterId, chunkSize, client)
+    return invoiceDAO.getInvoicesByPaymentDue(rule.getTargetDates(), afterId, chunkSize, client)
       .compose(page -> {
         if (page.isEmpty()) {
           return Future.succeededFuture(published);
