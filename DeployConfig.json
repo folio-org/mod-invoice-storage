@@ -240,7 +240,7 @@
       },
       {
         "name": "OKAPI_URL",
-        "value": "http://sidecar:8081",
+        "value": null,
         "description": "Sidecar URL used by the Kafka tenant filter to look up entitlements. Applies when KAFKA_TENANT_FILTER_ENABLED is true; module default is http://okapi:9130",
         "type": "CONFIG",
         "essential": false
