@@ -10,7 +10,7 @@ import org.folio.kafka.GlobalLoadSensor;
 import org.folio.kafka.KafkaConfig;
 import org.folio.kafka.KafkaConsumerWrapper;
 import org.folio.kafka.KafkaHeaderUtils;
-import org.folio.kafka.SubscriptionDefinition;
+import org.folio.kafka.KafkaTopicNameHelper;
 import org.folio.rest.jaxrs.model.CalendarTriggerEvent;
 import org.folio.rest.persist.DBClient;
 import org.folio.rest.tools.utils.ModuleName;
@@ -25,7 +25,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 
 /**
- * Consumes the calendar trigger events mod-notification-center publishes to {@code {env}.{tenant}.NOTIFICATION_CALENDAR_TRIGGER}
+ * Consumes the calendar trigger events mod-notification-center publishes to {@code {env}.Default.{tenant}.NOTIFICATION_CALENDAR_TRIGGER}
  * and processes the ones addressed to this module. All instances share one consumer group, so each event is processed once.
  * The wrapper commits the offset when the handler completes, whether it succeeded or failed; an event is redelivered
  * only when the module stops before the handler completes.
@@ -44,10 +44,8 @@ public class CalendarTriggerConsumerVerticle extends AbstractVerticle {
 
   @Override
   public void start(Promise<Void> startPromise) {
-    var subscriptionDefinition = SubscriptionDefinition.builder()
-      .eventType(CALENDAR_TRIGGER_TOPIC)
-      .subscriptionPattern(kafkaConfig.getEnvId() + "\\.\\w+\\." + CALENDAR_TRIGGER_TOPIC)
-      .build();
+    var subscriptionDefinition = KafkaTopicNameHelper.createSubscriptionDefinition(kafkaConfig.getEnvId(),
+      KafkaTopicNameHelper.getDefaultNameSpace(), CALENDAR_TRIGGER_TOPIC);
 
     consumerWrapper = KafkaConsumerWrapper.<String, String>builder()
       .context(context)
