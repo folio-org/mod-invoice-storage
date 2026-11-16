@@ -1,3 +1,11 @@
+## 6.1.2 - Released (Trillium R1 2026 Bug Fix)
+The primary focus of this release was to add DeployConfig.json for configuration management (ADR-0013).
+
+[Full Changelog](https://github.com/folio-org/mod-invoice-storage/compare/v6.1.1...v6.1.2)
+
+### Tech Debts
+* [MODINVOSTO-220](https://folio-org.atlassian.net/browse/MODINVOSTO-220) - Add DeployConfig.json to mod-invoice-storage (ADR-0013 Configuration Management)
+
 ## 6.1.1 - Released (Trillium R1 2026 Bug Fix)
 The primary focus of this release was to fix issues with readonly properties inside acq models schema.
 
