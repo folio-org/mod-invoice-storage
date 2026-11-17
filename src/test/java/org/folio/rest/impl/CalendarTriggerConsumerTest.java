@@ -29,7 +29,7 @@ import io.vertx.core.json.JsonObject;
 
 public class CalendarTriggerConsumerTest extends TestBase {
 
-  private static final String TRIGGER_TOPIC = KAFKA_ENV_VALUE + ".diku.NOTIFICATION_CALENDAR_TRIGGER";
+  private static final String TRIGGER_TOPIC = KAFKA_ENV_VALUE + ".Default.diku.NOTIFICATION_CALENDAR_TRIGGER";
   private static final long MATCH_TIMEOUT_MS = 60_000;
   private static final String DUE_IN_A_WEEK = "2099-03-08";
   private static final String DUE_TODAY = "2099-03-01";
