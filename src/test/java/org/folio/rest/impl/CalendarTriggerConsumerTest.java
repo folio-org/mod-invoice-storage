@@ -6,6 +6,7 @@ import static org.folio.rest.impl.StorageTestSuite.sendKafkaRecord;
 import static org.folio.service.calendar.CalendarMatchProducer.CALENDAR_MATCH_TOPIC;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.net.MalformedURLException;
@@ -25,6 +26,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
 import io.vertx.core.json.Json;
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
 public class CalendarTriggerConsumerTest extends TestBase {
@@ -72,11 +74,40 @@ public class CalendarTriggerConsumerTest extends TestBase {
     assertTrue(matchEvents(ordersTrigger.getId()).isEmpty(), "a trigger for another module publishes nothing");
   }
 
+  @Test
+  void publishesCreatorInvoiceNumberAndAcquisitionUnitsOfTheInvoice() throws MalformedURLException {
+    var acqUnitId = UUID.randomUUID().toString();
+    var invoiceId = createInvoice("Open", DUE_TODAY, new JsonObject()
+      .put("vendorInvoiceNo", "INV-327")
+      .put("acqUnitIds", new JsonArray().add(acqUnitId)));
+
+    var invoicesTrigger = triggerEvent("mod-invoice-storage");
+    sendTrigger(invoicesTrigger);
+
+    var match = awaitMatchEvents(invoicesTrigger.getId()).stream()
+      .flatMap(event -> event.getMatches().stream())
+      .filter(m -> invoiceId.equals(m.getRecordId()))
+      .findFirst()
+      .orElseThrow();
+    assertEquals("InvoicePaymentDue", match.getIntent());
+    assertEquals("invoice", match.getEntityType());
+    assertEquals(USER_ID_HEADER.getValue(), match.getCreatedByUserId());
+    assertEquals(Map.of("vendorInvoiceNo", "INV-327"), match.getIdentifiers().getAdditionalProperties());
+    assertEquals(List.of(acqUnitId), match.getAcqUnitIds());
+    assertTrue(match.getAssigneeUserIds().isEmpty(), "an invoice has no assignee");
+    assertNull(match.getParentId());
+  }
+
   private String createInvoice(String status, String paymentDue) throws MalformedURLException {
+    return createInvoice(status, paymentDue, new JsonObject());
+  }
+
+  private String createInvoice(String status, String paymentDue, JsonObject fields) throws MalformedURLException {
     var invoice = new JsonObject(getFile(TestData.Invoice.DEFAULT))
       .put(ID, UUID.randomUUID().toString())
       .put("status", status)
-      .put("paymentDue", paymentDue + "T00:00:00.000+00:00");
+      .put("paymentDue", paymentDue + "T00:00:00.000+00:00")
+      .mergeIn(fields);
     postData(TestEntities.INVOICE.getEndpoint(), invoice.encode()).then().statusCode(201);
     createdInvoiceIds.add(invoice.getString(ID));
     return invoice.getString(ID);
