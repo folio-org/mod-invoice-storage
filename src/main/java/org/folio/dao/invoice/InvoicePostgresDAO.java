@@ -18,6 +18,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.folio.dao.DbUtils;
 import org.folio.dbschema.ObjectMapperTool;
 import org.folio.rest.jaxrs.model.CalendarMatch;
+import org.folio.rest.jaxrs.model.CalendarMatchIdentifiers;
 import org.folio.rest.jaxrs.model.Contents;
 import org.folio.rest.jaxrs.model.DocumentMetadata;
 import org.folio.rest.jaxrs.model.Invoice;
@@ -30,6 +31,7 @@ import org.folio.rest.persist.Criteria.Criterion;
 
 import io.vertx.core.Future;
 import io.vertx.core.Promise;
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.handler.HttpException;
 import io.vertx.sqlclient.Tuple;
@@ -39,8 +41,11 @@ import one.util.streamex.StreamEx;
 @Log4j2
 public class InvoicePostgresDAO implements InvoiceDAO {
 
+  private static final String VENDOR_INVOICE_NO = "vendorInvoiceNo";
   private static final String SELECT_BY_PAYMENT_DUE_SQL = """
-    SELECT id, left(jsonb->>'paymentDue', 10) AS payment_due FROM %s
+    SELECT id, left(jsonb->>'paymentDue', 10) AS payment_due, jsonb->'metadata'->>'createdByUserId' AS created_by,
+      jsonb->>'vendorInvoiceNo' AS vendor_invoice_no, jsonb->'acqUnitIds' AS acq_unit_ids
+    FROM %s
     WHERE left(jsonb->>'paymentDue', 10) = ANY ($1)
       AND id > $2
     ORDER BY id
@@ -209,9 +214,17 @@ public class InvoicePostgresDAO implements InvoiceDAO {
       .map(rows -> StreamEx.of(rows.iterator())
         .map(row -> new CalendarMatch()
           .withRecordId(row.getUUID("id").toString())
-          .withTargetDate(row.getString("payment_due")))
+          .withTargetDate(row.getString("payment_due"))
+          .withCreatedByUserId(row.getString("created_by"))
+          .withIdentifiers(new CalendarMatchIdentifiers()
+            .withAdditionalProperty(VENDOR_INVOICE_NO, row.getString("vendor_invoice_no")))
+          .withAcqUnitIds(acqUnitIds(row.getJsonArray("acq_unit_ids"))))
         .toList())
       .onFailure(t -> log.error("Failed to fetch invoices due on: {}", paymentDueDates, t));
+  }
+
+  private List<String> acqUnitIds(JsonArray acqUnitIds) {
+    return acqUnitIds == null ? List.of() : acqUnitIds.stream().map(String.class::cast).toList();
   }
 
   private Criterion getCriterionByFieldNameAndValue(String fieldName, String fieldValue) {
